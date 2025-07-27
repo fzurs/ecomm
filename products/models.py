@@ -12,12 +12,13 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     description = models.TextField()
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    img = models.ImageField(null=True, default=None)
 
     def __str__(self) -> str:
         return self.title
