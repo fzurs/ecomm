@@ -90,7 +90,7 @@ function ProductsGrid({ products }: { products: Product[] }) {
       }}
     >
       {cardColumns.map((column, columnIndex) => (
-        <div key={columnIndex} className="flex flex-col gap-4">
+        <div key={columnIndex} className="flex flex-col gap-4 lg:gap-6">
           {column.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

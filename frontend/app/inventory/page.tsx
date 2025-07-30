@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { InventoryTable } from "./inventory-table";
+import { DataTable } from "./data-table";
 import { inventoryApi } from "@/lib/client";
 import { columns } from "./columns";
 import { SiteHeader } from "@/components/site-header";
@@ -33,5 +33,5 @@ function InventoryList() {
 
   if (isPending) return <div>Loading...</div>;
 
-  return <InventoryTable columns={columns} data={data} />;
+  return <DataTable columns={columns} data={data} />;
 }
