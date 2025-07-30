@@ -18,7 +18,7 @@ class Product(models.Model):
         Category, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-    img = models.ImageField(null=True, default=None)
+    img = models.ImageField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.title

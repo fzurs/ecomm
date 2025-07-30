@@ -1,0 +1,15 @@
+.gitignore
+.npmignore
+.openapi-generator-ignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/Inventory.md
+docs/InventoryApi.md
+docs/PatchedInventory.md
+docs/PatchedProduct.md
+docs/Product.md
+docs/ProductsApi.md
+git_push.sh
+index.ts
