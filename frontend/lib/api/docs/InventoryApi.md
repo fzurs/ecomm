@@ -12,7 +12,7 @@ All URIs are relative to *http://localhost*
 |[**inventoryUpdate**](#inventoryupdate) | **PUT** /inventory/{id}/ | |
 
 # **inventoryCreate**
-> Inventory inventoryCreate(inventory)
+> Inventory inventoryCreate()
 
 
 ### Example
@@ -27,7 +27,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new InventoryApi(configuration);
 
-let inventory: Inventory; //
+let inventory: Inventory; // (optional)
 
 const { status, data } = await apiInstance.inventoryCreate(
     inventory
@@ -260,7 +260,7 @@ const { status, data } = await apiInstance.inventoryRetrieve(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **inventoryUpdate**
-> Inventory inventoryUpdate(inventory)
+> Inventory inventoryUpdate()
 
 
 ### Example
@@ -276,7 +276,7 @@ const configuration = new Configuration();
 const apiInstance = new InventoryApi(configuration);
 
 let id: number; //A unique integer value identifying this inventory. (default to undefined)
-let inventory: Inventory; //
+let inventory: Inventory; // (optional)
 
 const { status, data } = await apiInstance.inventoryUpdate(
     id,

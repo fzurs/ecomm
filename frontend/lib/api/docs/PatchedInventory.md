@@ -6,9 +6,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [optional] [readonly] [default to undefined]
+**product** | [**Product**](Product.md) |  | [optional] [readonly] [default to undefined]
 **quantity** | **number** |  | [optional] [default to undefined]
 **updated_at** | **string** |  | [optional] [readonly] [default to undefined]
-**product** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -17,9 +17,9 @@ import { PatchedInventory } from './api';
 
 const instance: PatchedInventory = {
     id,
+    product,
     quantity,
     updated_at,
-    product,
 };
 ```
 

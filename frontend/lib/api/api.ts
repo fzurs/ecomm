@@ -37,6 +37,12 @@ export interface Inventory {
     'id': number;
     /**
      * 
+     * @type {Product}
+     * @memberof Inventory
+     */
+    'product': Product;
+    /**
+     * 
      * @type {number}
      * @memberof Inventory
      */
@@ -47,12 +53,6 @@ export interface Inventory {
      * @memberof Inventory
      */
     'updated_at': string;
-    /**
-     * 
-     * @type {number}
-     * @memberof Inventory
-     */
-    'product': number;
 }
 /**
  * 
@@ -68,6 +68,12 @@ export interface PatchedInventory {
     'id'?: number;
     /**
      * 
+     * @type {Product}
+     * @memberof PatchedInventory
+     */
+    'product'?: Product;
+    /**
+     * 
      * @type {number}
      * @memberof PatchedInventory
      */
@@ -78,12 +84,6 @@ export interface PatchedInventory {
      * @memberof PatchedInventory
      */
     'updated_at'?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof PatchedInventory
-     */
-    'product'?: number;
 }
 /**
  * 
@@ -192,13 +192,11 @@ export const InventoryApiAxiosParamCreator = function (configuration?: Configura
     return {
         /**
          * 
-         * @param {Inventory} inventory 
+         * @param {Inventory} [inventory] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inventoryCreate: async (inventory: Inventory, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'inventory' is not null or undefined
-            assertParamExists('inventoryCreate', 'inventory', inventory)
+        inventoryCreate: async (inventory?: Inventory, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/inventory/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -390,15 +388,13 @@ export const InventoryApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} id A unique integer value identifying this inventory.
-         * @param {Inventory} inventory 
+         * @param {Inventory} [inventory] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inventoryUpdate: async (id: number, inventory: Inventory, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        inventoryUpdate: async (id: number, inventory?: Inventory, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('inventoryUpdate', 'id', id)
-            // verify required parameter 'inventory' is not null or undefined
-            assertParamExists('inventoryUpdate', 'inventory', inventory)
             const localVarPath = `/inventory/{id}/`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -444,11 +440,11 @@ export const InventoryApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @param {Inventory} inventory 
+         * @param {Inventory} [inventory] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async inventoryCreate(inventory: Inventory, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Inventory>> {
+        async inventoryCreate(inventory?: Inventory, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Inventory>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.inventoryCreate(inventory, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['InventoryApi.inventoryCreate']?.[localVarOperationServerIndex]?.url;
@@ -505,11 +501,11 @@ export const InventoryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} id A unique integer value identifying this inventory.
-         * @param {Inventory} inventory 
+         * @param {Inventory} [inventory] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async inventoryUpdate(id: number, inventory: Inventory, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Inventory>> {
+        async inventoryUpdate(id: number, inventory?: Inventory, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Inventory>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.inventoryUpdate(id, inventory, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['InventoryApi.inventoryUpdate']?.[localVarOperationServerIndex]?.url;
@@ -527,11 +523,11 @@ export const InventoryApiFactory = function (configuration?: Configuration, base
     return {
         /**
          * 
-         * @param {Inventory} inventory 
+         * @param {Inventory} [inventory] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inventoryCreate(inventory: Inventory, options?: RawAxiosRequestConfig): AxiosPromise<Inventory> {
+        inventoryCreate(inventory?: Inventory, options?: RawAxiosRequestConfig): AxiosPromise<Inventory> {
             return localVarFp.inventoryCreate(inventory, options).then((request) => request(axios, basePath));
         },
         /**
@@ -573,11 +569,11 @@ export const InventoryApiFactory = function (configuration?: Configuration, base
         /**
          * 
          * @param {number} id A unique integer value identifying this inventory.
-         * @param {Inventory} inventory 
+         * @param {Inventory} [inventory] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inventoryUpdate(id: number, inventory: Inventory, options?: RawAxiosRequestConfig): AxiosPromise<Inventory> {
+        inventoryUpdate(id: number, inventory?: Inventory, options?: RawAxiosRequestConfig): AxiosPromise<Inventory> {
             return localVarFp.inventoryUpdate(id, inventory, options).then((request) => request(axios, basePath));
         },
     };
@@ -592,12 +588,12 @@ export const InventoryApiFactory = function (configuration?: Configuration, base
 export class InventoryApi extends BaseAPI {
     /**
      * 
-     * @param {Inventory} inventory 
+     * @param {Inventory} [inventory] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public inventoryCreate(inventory: Inventory, options?: RawAxiosRequestConfig) {
+    public inventoryCreate(inventory?: Inventory, options?: RawAxiosRequestConfig) {
         return InventoryApiFp(this.configuration).inventoryCreate(inventory, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -648,12 +644,12 @@ export class InventoryApi extends BaseAPI {
     /**
      * 
      * @param {number} id A unique integer value identifying this inventory.
-     * @param {Inventory} inventory 
+     * @param {Inventory} [inventory] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public inventoryUpdate(id: number, inventory: Inventory, options?: RawAxiosRequestConfig) {
+    public inventoryUpdate(id: number, inventory?: Inventory, options?: RawAxiosRequestConfig) {
         return InventoryApiFp(this.configuration).inventoryUpdate(id, inventory, options).then((request) => request(this.axios, this.basePath));
     }
 }

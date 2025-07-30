@@ -9,6 +9,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class InventorySerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
     class Meta:
         fields = serializers.ALL_FIELDS
         model = Inventory
