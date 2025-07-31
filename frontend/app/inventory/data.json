@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "product": {
+      "id": 2,
+      "title": "Destornillador Phillips Nº2",
+      "description": "Destornillador punta cruz con mango ergonómico. Largo total: 20 cm. Para tornillos estándar.",
+      "is_active": false,
+      "price": "10.00",
+      "img": "http://localhost:8000/media/destornillador-phillips-n2-x-100-mm-para-mecanica-ph2x100.webp",
+      "category": null
+    },
+    "quantity": 10,
+    "updated_at": "2025-07-28T16:52:05.618512Z"
+  },
+  {
+    "id": 2,
+    "product": {
+      "id": 4,
+      "title": "Llave Inglesa 10''",
+      "description": "Llave ajustable de acero forjado, apertura máxima 25mm. Herramienta versátil para tu caja de herramientas.",
+      "is_active": false,
+      "price": "0.00",
+      "img": null,
+      "category": null
+    },
+    "quantity": 15,
+    "updated_at": "2025-07-28T16:52:10.085216Z"
+  },
+  {
+    "id": 3,
+    "product": {
+      "id": 10,
+      "title": "Guantes de Trabajo Reforzados",
+      "description": "Guantes de cuero sintético con palma antideslizante. Protegen contra cortes y abrasiones.",
+      "is_active": false,
+      "price": "100.00",
+      "img": null,
+      "category": null
+    },
+    "quantity": 50,
+    "updated_at": "2025-07-28T16:52:16.371990Z"
+  }
+]

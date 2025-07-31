@@ -5,6 +5,7 @@ import { DataTable } from "./data-table";
 import { inventoryApi } from "@/lib/client";
 import { columns } from "./columns";
 import { SiteHeader } from "@/components/site-header";
+import data from "./data.json"
 
 export default function Page() {
   return (
@@ -24,10 +25,10 @@ export default function Page() {
 }
 
 function InventoryList() {
-  const { data, isPending, error } = useSuspenseQuery({
-    queryKey: [inventoryApi.inventoryList.name],
-    queryFn: () => inventoryApi.inventoryList().then((res) => res.data),
-  });
+  // const { data, isPending, error } = useSuspenseQuery({
+  //   queryKey: [inventoryApi.inventoryList.name],
+  //   queryFn: () => inventoryApi.inventoryList().then((res) => res.data),
+  // });
 
   return <DataTable columns={columns} data={data} />;
 }
