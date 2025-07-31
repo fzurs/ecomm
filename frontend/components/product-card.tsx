@@ -11,9 +11,16 @@ import {
 import { Product } from "@/lib/api";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Eye } from "lucide-react";
+import { Eye, TrashIcon } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { productsApi } from "@/lib/client";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+}: {
+  product: Product & { isTest?: true };
+}) {
   const formatPrice = (price?: string) => {
     if (!price) return "Precio no disponible";
 
@@ -59,6 +66,51 @@ export function ProductCard({ product }: { product: Product }) {
           <Badge>{product.is_active ? "Con stock" : "Sin stock"}</Badge>
         </div>
       </CardContent>
+      {product.isTest && (
+        <CardFooter>
+          <DestroyProductLocalStorageButton product={product} />
+        </CardFooter>
+      )}
     </Card>
+  );
+}
+
+function DestroyProductLocalStorageButton({ product }: { product: Product }) {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async () => {
+      localStorage.removeItem("testNewProduct");
+    },
+    onMutate: async () => {
+      await queryClient.cancelQueries({
+        queryKey: [productsApi.productsList.name],
+      });
+
+      queryClient.setQueryData(
+        [productsApi.productsList.name],
+        (old: Product[] | undefined) =>
+          old ? old.filter((item) => item.id !== product.id) : null
+      );
+    },
+
+    onError: (err) => {
+      toast.error("Algo salio mal.", { description: err.message });
+    },
+    onSuccess: () => {
+      toast("Se removio el producto que agregaste.");
+    },
+  });
+
+  return (
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={() => mutate()}
+      disabled={isPending}
+    >
+      <TrashIcon />
+      Delete this product
+    </Button>
   );
 }

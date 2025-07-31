@@ -1,50 +1,5 @@
 [
   {
-    "id": 3,
-    "title": "Caja de Tornillos 5x30mm (100 unidades)",
-    "description": "Tornillos rosca para madera, cabeza Phillips, de acero zincado. Presentación en caja plástica.",
-    "is_active": false,
-    "price": "0.00",
-    "img": null,
-    "category": null
-  },
-  {
-    "id": 4,
-    "title": "Llave Inglesa 10''",
-    "description": "Llave ajustable de acero forjado, apertura máxima 25mm. Herramienta versátil para tu caja de herramientas.",
-    "is_active": false,
-    "price": "0.00",
-    "img": null,
-    "category": null
-  },
-  {
-    "id": 6,
-    "title": "Pintura Látex Blanca 4L",
-    "description": "Pintura para interiores, base agua, acabado mate. Cobertura de hasta 40 m² por mano.",
-    "is_active": false,
-    "price": "0.00",
-    "img": null,
-    "category": null
-  },
-  {
-    "id": 7,
-    "title": "Lija para Madera Grano 120",
-    "description": "Hoja de lija abrasiva de grano fino. Recomendada para terminaciones en madera y masillas.",
-    "is_active": false,
-    "price": "0.00",
-    "img": null,
-    "category": null
-  },
-  {
-    "id": 10,
-    "title": "Guantes de Trabajo Reforzados",
-    "description": "Guantes de cuero sintético con palma antideslizante. Protegen contra cortes y abrasiones.",
-    "is_active": false,
-    "price": "100.00",
-    "img": null,
-    "category": null
-  },
-  {
     "id": 1,
     "title": "Martillo de Uña 16oz",
     "description": "Martillo de acero con mango de fibra y grip antideslizante, ideal para carpintería y reparaciones generales.",
@@ -63,12 +18,12 @@
     "category": null
   },
   {
-    "id": 8,
-    "title": "Taladro Percutor 650W",
-    "description": "Taladro eléctrico con función percutora, regulador de velocidad y empuñadura auxiliar. Incluye maletín.",
+    "id": 10,
+    "title": "Guantes de Trabajo Reforzados",
+    "description": "Guantes de cuero sintético con palma antideslizante. Protegen contra cortes y abrasiones.",
     "is_active": false,
-    "price": "50.00",
-    "img": "/media/D_NQ_NP_862124-MLA76115011028_052024-O.webp",
+    "price": "100.00",
+    "img": null,
     "category": null
   },
   {
@@ -87,6 +42,51 @@
     "is_active": false,
     "price": "10.00",
     "img": "/media/destornillador-phillips-n2-x-100-mm-para-mecanica-ph2x100.webp",
+    "category": null
+  },
+  {
+    "id": 3,
+    "title": "Caja de Tornillos 5x30mm (100 unidades)",
+    "description": "Tornillos rosca para madera, cabeza Phillips, de acero zincado. Presentación en caja plástica.",
+    "is_active": false,
+    "price": "0.00",
+    "img": null,
+    "category": null
+  },
+  {
+    "id": 4,
+    "title": "Llave Inglesa 10''",
+    "description": "Llave ajustable de acero forjado, apertura máxima 25mm. Herramienta versátil para tu caja de herramientas.",
+    "is_active": false,
+    "price": "0.00",
+    "img": null,
+    "category": null
+  },
+  {
+    "id": 8,
+    "title": "Taladro Percutor 650W",
+    "description": "Taladro eléctrico con función percutora, regulador de velocidad y empuñadura auxiliar. Incluye maletín.",
+    "is_active": false,
+    "price": "50.00",
+    "img": "/media/D_NQ_NP_862124-MLA76115011028_052024-O.webp",
+    "category": null
+  },
+  {
+    "id": 6,
+    "title": "Pintura Látex Blanca 4L",
+    "description": "Pintura para interiores, base agua, acabado mate. Cobertura de hasta 40 m² por mano.",
+    "is_active": false,
+    "price": "0.00",
+    "img": null,
+    "category": null
+  },
+  {
+    "id": 7,
+    "title": "Lija para Madera Grano 120",
+    "description": "Hoja de lija abrasiva de grano fino. Recomendada para terminaciones en madera y masillas.",
+    "is_active": false,
+    "price": "0.00",
+    "img": null,
     "category": null
   }
 ]

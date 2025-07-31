@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReactQueryProvider } from "@/components/react-query-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const delius = Delius({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({
             <AppSidebar />
             <SidebarInset>{children}</SidebarInset>
           </SidebarProvider>
+          <Toaster position="top-center" />
         </ReactQueryProvider>
       </body>
     </html>

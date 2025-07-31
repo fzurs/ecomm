@@ -7,6 +7,10 @@ import { productsApi } from "@/lib/client";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import data from "./data.json";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function ProductsPage() {
   return (
@@ -15,6 +19,15 @@ export default function ProductsPage() {
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+            <div className="px-4 lg:px-6 flex gap-4 lg:gap-6 w-full justify-between">
+              <Input placeholder="Search products..." className="max-w-sm" />
+              <Button size="lg" asChild>
+                <Link href="/products/add">
+                  <PlusIcon />
+                  Add Product
+                </Link>
+              </Button>
+            </div>
             <ProductsList />
           </div>
         </div>
@@ -24,12 +37,43 @@ export default function ProductsPage() {
 }
 
 function ProductsList() {
-  // const { data } = useSuspenseQuery({
-  //   queryKey: [productsApi.productsList.name],
-  //   queryFn: () => productsApi.productsList().then((res) => res.data),
-  // });
+  //   const { data } = useSuspenseQuery({
+  //     queryKey: [productsApi.productsList.name],
+  //     queryFn: () => productsApi.productsList().then((res) => res.data),
+  //   });
+  const [newProductExists, setNewProductExists] = useState<boolean>(true);
+  const [newProduct, setNewProduct] = useState<Product>();
 
-  return <ProductsGrid products={data} />;
+  useEffect(() => {
+    const newProductData = localStorage.getItem("testNewProduct");
+    if (newProductData) {
+      setNewProduct(JSON.parse(newProductData) as Product);
+    } else {
+      setNewProductExists(false);
+    }
+  }, [setNewProduct, setNewProductExists]);
+
+  const {
+    data: products,
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: [productsApi.productsList.name],
+    queryFn: () => {
+      let products = data as Product[];
+
+      if (newProduct) {
+        products = [newProduct, ...data];
+      }
+
+      return products;
+    },
+    enabled: !newProductExists || !!newProduct,
+  });
+
+  if (isPending || error) return <div>L</div>;
+
+  return <ProductsGrid products={products} />;
 }
 
 function ProductsGrid({ products }: { products: Product[] }) {
