@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "./data-table";
 import { inventoryApi } from "@/lib/client";
 import { columns } from "./columns";
@@ -24,14 +24,10 @@ export default function Page() {
 }
 
 function InventoryList() {
-  const { data, isPending, error } = useQuery({
+  const { data, isPending, error } = useSuspenseQuery({
     queryKey: [inventoryApi.inventoryList.name],
     queryFn: () => inventoryApi.inventoryList().then((res) => res.data),
   });
-
-  if (error) return <div>Error</div>;
-
-  if (isPending) return <div>Loading...</div>;
 
   return <DataTable columns={columns} data={data} />;
 }

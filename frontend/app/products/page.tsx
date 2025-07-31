@@ -4,8 +4,9 @@ import { ProductCard } from "@/components/product-card";
 import { SiteHeader } from "@/components/site-header";
 import { Product } from "@/lib/api";
 import { productsApi } from "@/lib/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import data from "./data.json";
 
 export default function ProductsPage() {
   return (
@@ -23,20 +24,12 @@ export default function ProductsPage() {
 }
 
 function ProductsList() {
-  const { data, isPending, error } = useQuery({
-    queryKey: [productsApi.productsList.name],
-    queryFn: () => productsApi.productsList().then((res) => res.data),
-  });
+  // const { data } = useSuspenseQuery({
+  //   queryKey: [productsApi.productsList.name],
+  //   queryFn: () => productsApi.productsList().then((res) => res.data),
+  // });
 
-  if (error) return <div>{error.message}</div>;
-
-  if (isPending) return <div>Loading...</div>;
-
-  const filteredData = data.sort((a, b) =>
-    b.price && a.price ? Number(b.price) - Number(a.price) : 0
-  );
-
-  return <ProductsGrid products={filteredData} />;
+  return <ProductsGrid products={data} />;
 }
 
 function ProductsGrid({ products }: { products: Product[] }) {
@@ -73,7 +66,8 @@ function ProductsGrid({ products }: { products: Product[] }) {
       );
       columnArrays[shortestColumnIndex].push(card);
       // Estimar altura de la card (esto sería más preciso midiendo el DOM real)
-      columnHeights[shortestColumnIndex] += 300 + 40 + card.description.length * 0.3 + 24;
+      columnHeights[shortestColumnIndex] +=
+        300 + 40 + card.description.length * 0.3 + 24;
     });
 
     return columnArrays;

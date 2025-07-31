@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io
 
+# openapi-generator node modules
+node_modules/
+
 ### OSX ###
 .DS_Store
 .AppleDouble
