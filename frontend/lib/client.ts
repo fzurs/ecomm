@@ -8,5 +8,3 @@ const config = new Configuration({
 export const productsApi = new ProductsApi(config);
 
 export const inventoryApi = new InventoryApi(config);
-
-export const isMock = env.NEXT_PUBLIC_USE_MOCK === "true" ? true : false;

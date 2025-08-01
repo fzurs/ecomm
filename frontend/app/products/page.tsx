@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { ProductList } from "./product-list";
 import { SampleProductsList } from "./sample-product-list";
 import { SiteHeader } from "@/components/site-header";
-import { isMock } from "@/lib/client";
 
 export default function ProductsPage() {
+  const isMock = process.env.NEXT_PUBLIC_IS_MOCK === "true";
+
   return (
     <>
       <SiteHeader title="Products" />
@@ -23,7 +24,8 @@ export default function ProductsPage() {
                 </Link>
               </Button>
             </div>
-            {!isMock ? <ProductList /> : <SampleProductsList />}
+            {/* <ProductList /> */}
+            <SampleProductsList />
           </div>
         </div>
       </div>

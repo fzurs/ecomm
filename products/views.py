@@ -4,7 +4,7 @@ from .serializers import ProductSerializer, InventorySerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by("title")
     serializer_class = ProductSerializer
 
 
