@@ -1,10 +1,12 @@
-import axios from "axios";
 import { Configuration, InventoryApi, ProductsApi } from "./api";
+import env from "./env";
 
-const config = new Configuration();
+const config = new Configuration({
+  basePath: env.NEXT_PUBLIC_API_URL,
+});
 
-const apiUrl = "http://localhost:8000";
+export const productsApi = new ProductsApi(config);
 
-export const productsApi = new ProductsApi(config, apiUrl, axios);
+export const inventoryApi = new InventoryApi(config);
 
-export const inventoryApi = new InventoryApi(config, apiUrl, axios);
+export const isMock = env.NEXT_PUBLIC_USE_MOCK === "true" ? true : false;
