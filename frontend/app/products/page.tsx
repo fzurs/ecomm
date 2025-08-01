@@ -2,13 +2,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ProductList } from "./product-list";
 import { SampleProductsList } from "./sample-product-list";
 import { SiteHeader } from "@/components/site-header";
 
 export default function ProductsPage() {
-  const isMock = process.env.NEXT_PUBLIC_IS_MOCK === "true";
-
   return (
     <>
       <SiteHeader title="Products" />

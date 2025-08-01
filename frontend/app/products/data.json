@@ -1,20 +1,20 @@
 [
   {
-    "id": 1,
-    "title": "Martillo de Uña 16oz",
-    "description": "Martillo de acero con mango de fibra y grip antideslizante, ideal para carpintería y reparaciones generales.",
+    "id": 11,
+    "title": "Cinta Métrica 5m",
+    "description": "Cinta retráctil de 5 metros con freno automático y clip para cinturón. Ideal para mediciones precisas.",
     "is_active": false,
-    "price": "500.00",
-    "img": "/media/a6c85df44edbac3259129bbe204b3233d6a63dba.jpg",
+    "price": "0.00",
+    "img": "http://localhost:8000/media/cinta-metrica-pro-5m-flexometros-tool-ferreterias-ferretodo-384862-removebg-preview.png",
     "category": null
   },
   {
-    "id": 9,
-    "title": "Silicona Neutra Transparente 280ml",
-    "description": "Sellador multiuso resistente al agua. Apto para vidrio, aluminio y cerámica. Secado rápido.",
+    "id": 2,
+    "title": "Destornillador Phillips Nº2",
+    "description": "Destornillador punta cruz con mango ergonómico. Largo total: 20 cm. Para tornillos estándar.",
     "is_active": false,
-    "price": "0.00",
-    "img": "/media/silicona_neutra_tacsa_universal_transparente_de_280ml.webp",
+    "price": "10.00",
+    "img": "http://localhost:8000/media/destornillador-phillips-n2-x-100-mm-para-mecanica-ph2x100-removebg-preview.png",
     "category": null
   },
   {
@@ -27,21 +27,12 @@
     "category": null
   },
   {
-    "id": 5,
-    "title": "Cinta Métrica 5m",
-    "description": "Cinta retráctil de 5 metros con freno automático y clip para cinturón. Ideal para mediciones precisas.",
+    "id": 1,
+    "title": "Martillo de Uña 16oz",
+    "description": "Martillo de acero con mango de fibra y grip antideslizante, ideal para carpintería y reparaciones generales.",
     "is_active": false,
-    "price": "5.00",
-    "img": "/media/cinta-metrica-pro-5m-flexometros-tool-ferreterias-ferretodo-384862.webp",
-    "category": null
-  },
-  {
-    "id": 2,
-    "title": "Destornillador Phillips Nº2",
-    "description": "Destornillador punta cruz con mango ergonómico. Largo total: 20 cm. Para tornillos estándar.",
-    "is_active": false,
-    "price": "10.00",
-    "img": "/media/destornillador-phillips-n2-x-100-mm-para-mecanica-ph2x100.webp",
+    "price": "500.00",
+    "img": "http://localhost:8000/media/a6c85df44edbac3259129bbe204b3233d6a63dba-removebg-preview.png",
     "category": null
   },
   {
@@ -63,12 +54,12 @@
     "category": null
   },
   {
-    "id": 8,
-    "title": "Taladro Percutor 650W",
-    "description": "Taladro eléctrico con función percutora, regulador de velocidad y empuñadura auxiliar. Incluye maletín.",
+    "id": 9,
+    "title": "Silicona Neutra Transparente 280ml",
+    "description": "Sellador multiuso resistente al agua. Apto para vidrio, aluminio y cerámica. Secado rápido.",
     "is_active": false,
-    "price": "50.00",
-    "img": "/media/D_NQ_NP_862124-MLA76115011028_052024-O.webp",
+    "price": "0.00",
+    "img": "http://localhost:8000/media/silicona_neutra_tacsa_universal_transparente_de_280ml-removebg-preview.png",
     "category": null
   },
   {
@@ -87,6 +78,15 @@
     "is_active": false,
     "price": "0.00",
     "img": null,
+    "category": null
+  },
+  {
+    "id": 8,
+    "title": "Taladro Percutor 650W",
+    "description": "Taladro eléctrico con función percutora, regulador de velocidad y empuñadura auxiliar. Incluye maletín.",
+    "is_active": false,
+    "price": "50.00",
+    "img": "http://localhost:8000/media/D_NQ_NP_862124-MLA76115011028_052024-O-removebg-preview.png",
     "category": null
   }
 ]
