@@ -17,6 +17,7 @@ import { Product } from "@/lib/api";
 import { productsApi } from "@/lib/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileDiffIcon, SaveIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -34,6 +35,8 @@ export function AddProductForm() {
   });
 
   const queryClient = useQueryClient();
+
+  const router = useRouter()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: Product) => {
@@ -62,6 +65,7 @@ export function AddProductForm() {
     },
     onSuccess: (data) => {
       toast(`Se creo un nuevo producto! se llama: ${data.title}`);
+      router.push("/products")
     },
     onError: (err, newProduct, context) => {
       queryClient.setQueryData(

@@ -71,7 +71,7 @@ function ProductsList() {
     enabled: !newProductExists || !!newProduct,
   });
 
-  if (isPending || error) return <div>L</div>;
+  if (isPending || error) return null;
 
   return <ProductsGrid products={products} />;
 }

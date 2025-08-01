@@ -15,6 +15,7 @@ import { Eye, TrashIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { productsApi } from "@/lib/client";
+import { cn } from "@/lib/utils";
 
 export function ProductCard({
   product,
@@ -39,17 +40,17 @@ export function ProductCard({
   };
 
   return (
-    <Card className="h-fit">
+    <Card className={cn("h-fit", product.img && "pt-0")}>
+      {product.img && (
+        <Image
+          src={product.img}
+          alt={`${product.title} Image`}
+          height={1024}
+          width={1024}
+          className="w-full rounded-t-xl"
+        />
+      )}
       <CardHeader>
-        {product.img && (
-          <Image
-            src={product.img}
-            alt={`${product.title} Image`}
-            height={512}
-            width={512}
-            className="w-full"
-          />
-        )}
         <CardTitle>{product.title}</CardTitle>
         <CardDescription>
           {truncateDescription(product.description)}
@@ -104,10 +105,10 @@ function DestroyProductLocalStorageButton({ product }: { product: Product }) {
 
   return (
     <Button
-      variant="destructive"
+      variant="outline"
       size="sm"
       onClick={() => mutate()}
-      disabled={isPending}
+      type="button"
     >
       <TrashIcon />
       Delete this product

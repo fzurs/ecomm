@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <Link href="/">
                 <HomeIcon className="!size-5" />
                 <span className="text-base font-semibold">
-                  Ecommerce example
+                  Ejemplo de tienda online
                 </span>
               </Link>
             </SidebarMenuButton>
