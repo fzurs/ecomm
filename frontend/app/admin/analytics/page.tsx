@@ -1,9 +1,6 @@
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
-import { ChartAreaDefault } from "./chart-area-default";
-import { ChartBarHorizontal } from "./chart-bar-horizontal";
-import { ChartPieSeparatorNone } from "./chart-pie-separator-none";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,11 +26,6 @@ export default function Page() {
             <SectionCards />
             <div className="px-4 lg:px-6">
               <ChartAreaInteractive />
-            </div>
-            <div className="px-4 lg:px-6 grid grid-cols-1 gap-6 @5xl/main:grid-cols-3">
-              <ChartAreaDefault />
-              <ChartBarHorizontal />
-              <ChartPieSeparatorNone />
             </div>
           </div>
         </div>

@@ -35,17 +35,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import {
-  AlertTriangle,
-  ArrowUpDown,
-  CheckCircle,
-  PackagePlusIcon,
-} from "lucide-react";
+import { AlertTriangle, ArrowUpDown, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Image from "next/image";
 import { ProductForm } from "./form";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export const schema = z.object({
   id: z.number(),
@@ -56,7 +50,7 @@ export const schema = z.object({
   price: z.string(),
   quantity: z.number(),
   last_update: z.date(),
-  image: z.string(),
+  image: z.string().optional(),
 });
 
 export const columns: ColumnDef<z.infer<typeof schema>>[] = [
@@ -86,11 +80,11 @@ export const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  {
-    id: "id",
-    header: "Código",
-    cell: () => <div suppressHydrationWarning>{crypto.randomUUID()}</div>,
-  },
+  // {
+  //   id: "id",
+  //   header: "Código",
+  //   cell: () => <div suppressHydrationWarning>{crypto.randomUUID()}</div>,
+  // },
   {
     accessorKey: "image",
     header: () => null,
