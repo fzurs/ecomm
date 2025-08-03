@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Delius } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ReactQueryProvider } from "@/components/react-query-provider";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/theme-provider";
 
-const delius = Delius({
-  subsets: ["latin"],
-  weight: "400",
-});
+import { ThemeProvider } from "@/components/theme-provider";
+import Providers from "./providers";
+import { Toaster } from "@/components/ui/sonner";
+
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +32,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={delius.style}
       >
         <ThemeProvider
           attribute="class"
@@ -44,20 +39,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ReactQueryProvider>
-            <SidebarProvider
-              style={
-                {
-                  "--sidebar-width": "calc(var(--spacing) * 72)",
-                  "--header-height": "calc(var(--spacing) * 12)",
-                } as React.CSSProperties
-              }
-            >
-              <AppSidebar />
-              <SidebarInset>{children}</SidebarInset>
-            </SidebarProvider>
-            <Toaster position="top-center" />
-          </ReactQueryProvider>
+          <Providers>
+            <NuqsAdapter>
+              <main>{children}</main>
+              <Toaster />
+            </NuqsAdapter>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

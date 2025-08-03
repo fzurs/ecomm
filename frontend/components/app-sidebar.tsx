@@ -1,43 +1,124 @@
-import * as React from "react";
+"use client";
 
+import * as React from "react";
+import {
+  IconCamera,
+  IconChartBar,
+  IconChartLine,
+  IconDashboard,
+  IconDatabase,
+  IconFileAi,
+  IconFileDescription,
+  IconFileWord,
+  IconFolder,
+  IconHelp,
+  IconHome,
+  IconHome2,
+  IconInnerShadowTop,
+  IconListDetails,
+  IconNotebook,
+  IconPackage,
+  IconPackageExport,
+  IconPackageImport,
+  IconReport,
+  IconSearch,
+  IconSettings,
+  IconUsers,
+  IconUserShield,
+} from "@tabler/icons-react";
+
+import { NavDocuments } from "@/components/nav-documents";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
-import {
-  ChartLineIcon,
-  HomeIcon,
-  NotepadText,
-  Package2,
-  ScrollText,
-  Tag,
-  Users,
-} from "lucide-react";
 import Link from "next/link";
 
-const data = [
-  { title: "Pedidos", url: "#", icon: <Package2 /> },
-  { title: "Productos", url: "/products", icon: <Tag /> },
-  { title: "Inventario", url: "/inventory", icon: <NotepadText /> },
-  { title: "Clientes", url: "#", icon: <Users /> },
-  {
-    title: "Informes y estadísticas",
-    url: "#",
-    icon: <ChartLineIcon />,
+const data = {
+  user: {
+    name: "franco",
+    email: "fzursch@gmail.com",
+    avatar: "",
   },
-  { title: "Facturacion", url: "#", icon: <ScrollText /> },
-];
+  navMain: [
+    {
+      title: "Inicio",
+      url: "/",
+      icon: IconHome2,
+    },
+    {
+      title: "Pedidos",
+      url: "/orders",
+      icon: IconPackageExport,
+    },
+    {
+      title: "Productos",
+      url: "/products",
+      icon: IconPackage,
+    },
+    {
+      title: "Inventario",
+      url: "/inventory",
+      icon: IconNotebook,
+    },
+    {
+      title: "Clientes",
+      url: "/customers",
+      icon: IconUsers,
+    },
+    {
+      title: "Informes y estadísticas",
+      url: "/analytics",
+      icon: IconChartLine,
+    },
+  ],
+  navSecondary: [
+    {
+      title: "Settings",
+      url: "#",
+      icon: IconSettings,
+    },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: IconHelp,
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: IconSearch,
+    },
+  ],
+  documents: [
+    {
+      name: "Data Library",
+      url: "#",
+      icon: IconDatabase,
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: IconReport,
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: IconFileWord,
+    },
+  ],
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -46,33 +127,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/">
-                <HomeIcon className="!size-5" />
-                <span className="text-base font-semibold">
-                  Ejemplo de tienda online
-                </span>
+                <IconUserShield />
+                <span className="text-base font-semibold">Panel del admin</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            {data.map((item) => (
-              <SidebarMenu key={item.title}>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      {item.icon} {item.title}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            ))}
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain items={data.navMain} />
+        <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarRail />
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
