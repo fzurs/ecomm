@@ -40,7 +40,7 @@ const data = {
   },
   navMain: [
     {
-      title: "Inicio",
+      title: "Inicio *",
       url: "/",
       icon: IconHome2,
     },
@@ -50,7 +50,7 @@ const data = {
       icon: IconPackageExport,
     },
     {
-      title: "Productos",
+      title: "Productos *",
       url: "/products",
       icon: IconPackage,
     },
@@ -65,7 +65,7 @@ const data = {
       icon: IconUsers,
     },
     {
-      title: "Informes y estadísticas",
+      title: "Informes y estadísticas *",
       url: "/analytics",
       icon: IconChartLine,
     },
