@@ -34,12 +34,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, ArrowUpDown, CheckCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Image from "next/image";
 import { ProductForm } from "./product-form";
 import { Product } from "../_lib/types";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -100,7 +101,9 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "category",
-    header: "Categoria",
+    header: ({ column }) => (
+      <DataTableColumnHeader title="Categoría" column={column} />
+    ),
     cell: ({ row }) => (
       <div className="w-32">
         <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -111,18 +114,9 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "price",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-8 px-2"
-        >
-          Precio
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader title="Precio" column={column} />
+    ),
     cell: ({ row }) => {
       const price = row.getValue("price") as string;
       return (
@@ -134,18 +128,9 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "quantity",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-8 px-2"
-        >
-          Cantidad
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader title="Cantidad" column={column} />
+    ),
     cell: ({ row }) => {
       const quantity = row.original.quantity;
       const status = row.original.status;
@@ -194,18 +179,9 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "last_update",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-8 px-2"
-        >
-          Última Actualización
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader title="Última actualización" column={column} />
+    ),
     cell: ({ row }) => {
       const date = row.getValue("last_update") as Date;
 

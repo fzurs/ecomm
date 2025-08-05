@@ -31,11 +31,11 @@ export function DataTableViewOptions() {
         <Button
           variant="outline"
           role="combobox"
-          size="icon"
+          size="sm"
           aria-expanded={open}
         >
-          <Settings2 className="h-4 w-4" />
-          <span className="sr-only">View</span>
+          <Settings2 />
+          <span className="sr-only md:not-sr-only">Columnas</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent side="bottom" align="end" className="w-[200px] p-0">

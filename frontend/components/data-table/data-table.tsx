@@ -15,12 +15,16 @@ export function DataTable() {
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
-        <TableHeader className="bg-muted sticky top-0 z-10">
+        <TableHeader className="bg-muted/50 dark:hover:bg-muted/50 sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
+                  <TableHead
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className="text-muted-foreground"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
