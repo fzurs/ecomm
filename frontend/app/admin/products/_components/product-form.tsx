@@ -10,8 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { schema } from "./columns";
-import z from "zod";
+import { Product } from "../_lib/types";
 
 export const categories = [
   "Analgésicos",
@@ -29,7 +28,7 @@ export const categories = [
   "Vitaminas y Suplementos",
 ];
 
-export function ProductForm({ item }: { item: z.infer<typeof schema> }) {
+export function ProductForm({ item }: { item: Product }) {
   return (
     <form className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">

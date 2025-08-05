@@ -4,7 +4,6 @@ import * as React from "react";
 import { IconDotsVertical, IconTrendingUp } from "@tabler/icons-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -39,21 +38,10 @@ import { AlertTriangle, ArrowUpDown, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Image from "next/image";
-import { ProductForm } from "./form";
+import { ProductForm } from "./product-form";
+import { Product } from "../_lib/types";
 
-export const schema = z.object({
-  id: z.number(),
-  title: z.string(),
-  description: z.string(),
-  category: z.string(),
-  status: z.string(),
-  price: z.string(),
-  quantity: z.number(),
-  last_update: z.date(),
-  image: z.string().optional(),
-});
-
-export const columns: ColumnDef<z.infer<typeof schema>>[] = [
+export const columns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -80,11 +68,6 @@ export const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   id: "id",
-  //   header: "Código",
-  //   cell: () => <div suppressHydrationWarning>{crypto.randomUUID()}</div>,
-  // },
   {
     accessorKey: "image",
     header: () => null,
@@ -325,7 +308,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item }: { item: Product }) {
   const isMobile = useIsMobile();
 
   return (

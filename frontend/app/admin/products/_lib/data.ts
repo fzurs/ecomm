@@ -1,0 +1,170 @@
+import { Product } from "./types";
+
+export const data: Product[] = [
+  {
+    id: 1,
+    title: "Paracetamol 500mg",
+    description:
+      "Analgésico y antipirético para el alivio del dolor y la fiebre. Caja con 20 tabletas.",
+    category: "Analgésicos",
+    status: "En stock",
+    price: "$12.50",
+    quantity: 150,
+    last_update: new Date("2024-12-15T10:30:00.000z"),
+  },
+  {
+    id: 2,
+    title: "Ibuprofeno 400mg",
+    description:
+      "Antiinflamatorio no esteroideo para dolor, inflamación y fiebre. Caja con 30 cápsulas.",
+    category: "Antiinflamatorios",
+    status: "En stock",
+    price: "$18.75",
+    quantity: 89,
+    last_update: new Date("2024-12-14T15:45:00.000z"),
+  },
+  {
+    id: 3,
+    title: "Vitamina C 1000mg",
+    description:
+      "Suplemento vitamínico para fortalecer el sistema inmunológico. Frasco con 60 tabletas efervescentes.",
+    category: "Vitaminas y Suplementos",
+    status: "En stock",
+    price: "$24.99",
+    quantity: 45,
+    last_update: new Date("2024-12-13T09:15:00.000z"),
+  },
+  {
+    id: 4,
+    title: "Jarabe para la Tos",
+    description:
+      "Jarabe expectorante y antitusivo con miel y eucalipto. Frasco de 120ml.",
+    category: "Medicamentos Respiratorios",
+    status: "En stock",
+    price: "$16.25",
+    quantity: 72,
+    last_update: new Date("2024-12-12T14:20:00.000z"),
+  },
+  {
+    id: 5,
+    title: "Termómetro Digital",
+    description:
+      "Termómetro digital de precisión con pantalla LCD y alarma de fiebre.",
+    category: "Dispositivos Médicos",
+    status: "En stock",
+    price: "$35.00",
+    quantity: 25,
+    last_update: new Date("2024-12-11T11:30:00.000z"),
+  },
+  {
+    id: 6,
+    title: "Alcohol Isopropílico 70%",
+    description:
+      "Desinfectante de uso externo para limpieza y antisepsia. Frasco de 250ml.",
+    category: "Antisépticos",
+    status: "En stock",
+    price: "$8.50",
+    quantity: 120,
+    last_update: new Date("2024-12-10T16:45:00.000z"),
+    image: "/products/Alcohol Isopropílico.webp",
+  },
+  {
+    id: 7,
+    title: "Omeprazol 20mg",
+    description:
+      "Inhibidor de la bomba de protones para el tratamiento de úlceras y reflujo. Caja con 14 cápsulas.",
+    category: "Gastroenterología",
+    status: "Agotado",
+    price: "$22.80",
+    quantity: 0,
+    last_update: new Date("2024-12-09T08:00:00.000z"),
+  },
+  {
+    id: 8,
+    title: "Vendas Elásticas",
+    description:
+      "Vendas elásticas autoadhesivas para soporte y compresión. Pack de 3 unidades de 5cm x 4.5m.",
+    category: "Material de Curación",
+    status: "En stock",
+    price: "$14.75",
+    quantity: 38,
+    last_update: new Date("2024-12-08T13:10:00.000z"),
+  },
+  {
+    id: 9,
+    title: "Loratadina 10mg",
+    description:
+      "Antihistamínico para el tratamiento de alergias y rinitis. Caja con 10 tabletas.",
+    category: "Antihistamínicos",
+    status: "En stock",
+    price: "$19.90",
+    quantity: 67,
+    last_update: new Date("2024-12-07T12:25:00.000z"),
+  },
+  {
+    id: 10,
+    title: "Suero Fisiológico",
+    description:
+      "Solución salina estéril para limpieza nasal y ocular. Caja con 20 ampollas de 5ml.",
+    category: "Soluciones",
+    status: "En stock",
+    price: "$11.30",
+    quantity: 95,
+    last_update: new Date("2024-12-06T17:30:00.000z"),
+  },
+  {
+    id: 11,
+    title: "Multivitamínico Adulto",
+    description:
+      "Complejo multivitamínico con minerales para adultos. Frasco con 30 tabletas.",
+    category: "Vitaminas y Suplementos",
+    status: "En stock",
+    price: "$28.50",
+    quantity: 52,
+    last_update: new Date("2024-12-05T10:15:00.000z"),
+  },
+  {
+    id: 12,
+    title: "Crema Hidratante Corporal",
+    description:
+      "Crema hidratante con aloe vera y vitamina E para piel seca. Tubo de 200ml.",
+    category: "Cuidado Personal",
+    status: "En stock",
+    price: "$21.75",
+    quantity: 41,
+    last_update: new Date("2024-12-04T14:50:00.000z"),
+  },
+  {
+    id: 13,
+    title: "Glucómetro Digital",
+    description:
+      "Medidor de glucosa en sangre con 10 tiras reactivas incluidas y lancetas.",
+    category: "Dispositivos Médicos",
+    status: "Poco stock",
+    price: "$89.99",
+    quantity: 8,
+    last_update: new Date("2024-12-03T09:40:00.000z"),
+  },
+  {
+    id: 14,
+    title: "Aspirina 100mg",
+    description:
+      "Ácido acetilsalicílico para prevención cardiovascular. Caja con 28 tabletas recubiertas.",
+    category: "Cardiología",
+    status: "En stock",
+    price: "$15.60",
+    quantity: 78,
+    last_update: new Date("2024-12-02T11:20:00.000z"),
+  },
+  {
+    id: 15,
+    title: "Mascarillas Quirúrgicas",
+    description:
+      "Mascarillas desechables de 3 capas con filtro bacteriano. Caja con 50 unidades.",
+    category: "Protección Personal",
+    status: "En stock",
+    price: "$32.00",
+    quantity: 156,
+    last_update: new Date("2024-12-01T16:05:00.000z"),
+  },
+];
