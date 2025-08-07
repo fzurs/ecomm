@@ -6,19 +6,16 @@ import {
   IconDatabase,
   IconFileText,
   IconFileWord,
-  IconHelp,
   IconHome2,
   IconNotebook,
   IconPackage,
   IconPackageExport,
   IconReport,
-  IconSearch,
   IconSettings,
   IconUsers,
   IconUserShield,
 } from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";

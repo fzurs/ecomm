@@ -2,8 +2,6 @@
 
 import * as React from "react";
 
-import { Input } from "@/components/ui/input";
-
 import { productsTableColumns } from "./products-table-columns";
 
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
