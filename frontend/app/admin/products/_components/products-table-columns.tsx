@@ -41,6 +41,7 @@ import Image from "next/image";
 import { ProductForm } from "./product-form";
 import { Product } from "../_lib/types";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { formatHumanDate } from "@/lib/humanized";
 
 export const productsTableColumns: ColumnDef<Product>[] = [
   {
@@ -81,6 +82,7 @@ export const productsTableColumns: ColumnDef<Product>[] = [
         className="h-12 w-12 rounded-lg"
       />
     ),
+    meta: { label: "Imagen" },
   },
   {
     accessorKey: "title",
@@ -89,6 +91,7 @@ export const productsTableColumns: ColumnDef<Product>[] = [
       return <TableCellViewer item={row.original} />;
     },
     enableHiding: false,
+    meta: { label: "Título" },
   },
   {
     accessorKey: "description",
@@ -98,11 +101,15 @@ export const productsTableColumns: ColumnDef<Product>[] = [
         {row.original.description}
       </p>
     ),
+    meta: { label: "Descripción" },
   },
   {
     accessorKey: "category",
     header: ({ column }) => (
-      <DataTableColumnHeader title="Categoría" column={column} />
+      <DataTableColumnHeader
+        title={(column.columnDef.meta as { label: string }).label}
+        column={column}
+      />
     ),
     cell: ({ row }) => (
       <div className="w-32">
@@ -111,25 +118,32 @@ export const productsTableColumns: ColumnDef<Product>[] = [
         </Badge>
       </div>
     ),
+    meta: { label: "Categoría" },
   },
   {
     accessorKey: "price",
     header: ({ column }) => (
-      <DataTableColumnHeader title="Precio" column={column} />
+      <DataTableColumnHeader
+        title={(column.columnDef.meta as { label: string }).label}
+        column={column}
+      />
     ),
-    cell: ({ row }) => {
-      const price = row.getValue("price") as string;
-      return (
-        <div className="font-medium text-right">
-          <span className="text-green-600 font-semibold">{price}</span>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="font-medium text-right">
+        <span className="text-green-600 font-semibold">
+          {row.getValue("price")}
+        </span>
+      </div>
+    ),
+    meta: { label: "Precio" },
   },
   {
     accessorKey: "quantity",
     header: ({ column }) => (
-      <DataTableColumnHeader title="Cantidad" column={column} />
+      <DataTableColumnHeader
+        title={(column.columnDef.meta as { label: string }).label}
+        column={column}
+      />
     ),
     cell: ({ row }) => {
       const quantity = row.original.quantity;
@@ -168,7 +182,7 @@ export const productsTableColumns: ColumnDef<Product>[] = [
       };
 
       return (
-        <div className="flex items-center">
+        <div className="flex items-center justify-end">
           <span className="font-medium min-w-[3rem] text-right">
             {quantity.toLocaleString()}
           </span>
@@ -176,68 +190,22 @@ export const productsTableColumns: ColumnDef<Product>[] = [
         </div>
       );
     },
+    meta: { label: "Cantidad" },
   },
   {
     accessorKey: "last_update",
     header: ({ column }) => (
-      <DataTableColumnHeader title="Última actualización" column={column} />
+      <DataTableColumnHeader
+        title={(column.columnDef.meta as { label: string }).label}
+        column={column}
+      />
     ),
-    cell: ({ row }) => {
-      const date = row.getValue("last_update") as Date;
-
-      // Format the date
-      const formattedDate = format(new Date(date), "dd/MM/yyyy", {
-        locale: es,
-      });
-      const formattedTime = format(new Date(date), "HH:mm", { locale: es });
-
-      // Calculate days since last update
-      const daysSince = Math.floor(
-        (Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      const getUpdateBadge = (days: number) => {
-        if (days === 0) {
-          return (
-            <Badge variant="default" className="ml-2 bg-blue-100 text-blue-800">
-              Hoy
-            </Badge>
-          );
-        } else if (days <= 7) {
-          return (
-            <Badge variant="secondary" className="ml-2">
-              Reciente
-            </Badge>
-          );
-        } else if (days <= 30) {
-          return (
-            <Badge variant="outline" className="ml-2">
-              Este mes
-            </Badge>
-          );
-        } else {
-          return (
-            <Badge variant="secondary" className="ml-2">
-              Antigua
-            </Badge>
-          );
-        }
-      };
-
-      return (
-        <div className="flex flex-col space-y-1">
-          <div className="flex items-center">
-            <div className="text-sm">
-              <div className="font-medium">{formattedDate}</div>
-              <div className="text-muted-foreground text-xs">
-                {formattedTime}
-              </div>
-            </div>
-            {getUpdateBadge(daysSince)}
-          </div>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="text-muted-foreground text-sm text-end">
+        {formatHumanDate(row.original.last_update)}
+      </div>
+    ),
+    meta: { label: "Última actualización" },
   },
   {
     id: "actions",
