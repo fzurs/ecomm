@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   IconChartLine,
   IconDatabase,
+  IconFileText,
   IconFileWord,
   IconHelp,
   IconHome2,
@@ -69,23 +70,28 @@ const data = {
       url: "/analytics",
       icon: IconChartLine,
     },
+    {
+      title: "Facturación",
+      url: "/billing",
+      icon: IconFileText,
+    },
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Configuración",
       url: "#",
       icon: IconSettings,
     },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
+    // {
+    //   title: "Get Help",
+    //   url: "#",
+    //   icon: IconHelp,
+    // },
+    // {
+    //   title: "Buscador",
+    //   url: "#",
+    //   icon: IconSearch,
+    // },
   ],
   documents: [
     {
@@ -126,7 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
