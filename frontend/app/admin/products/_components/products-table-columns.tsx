@@ -46,7 +46,7 @@ export const productsTableColumns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center w-fit">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -58,7 +58,7 @@ export const productsTableColumns: ColumnDef<Product>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center w-fit">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
