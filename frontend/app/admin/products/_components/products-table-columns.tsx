@@ -42,7 +42,7 @@ import { ProductForm } from "./product-form";
 import { Product } from "../_lib/types";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 
-export const columns: ColumnDef<Product>[] = [
+export const productsTableColumns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (

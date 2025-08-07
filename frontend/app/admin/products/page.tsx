@@ -1,4 +1,4 @@
-import { ProductsDataTable } from "./_components/products-data-table";
+import { ProductsTable } from "./_components/products-table";
 import { SiteHeader } from "@/components/site-header";
 import {
   Breadcrumb,
@@ -25,7 +25,7 @@ export default function Page() {
         <div className="@container/main flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
             <Suspense>
-              <ProductsDataTable data={data} />
+              <ProductsTable data={data} />
             </Suspense>
           </div>
         </div>

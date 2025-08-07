@@ -23,9 +23,9 @@ export function CreateProductDrawner() {
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <PackagePlusIcon />
-          <span className="hidden lg:inline">Agregar producto</span>
+          <span className="sr-only md:not-sr-only">Agregar producto</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent>

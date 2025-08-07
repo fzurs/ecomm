@@ -18,10 +18,13 @@ import {
 } from "@/components/ui/popover";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useDataTable } from "./data-table-provider";
+import { type Table as TanstackTable } from "@tanstack/react-table";
 
-export function DataTableViewOptions() {
-  const table = useDataTable();
+export function DataTableViewOptions<TData>({
+  table,
+}: {
+  table: TanstackTable<TData>;
+}) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -31,8 +34,8 @@ export function DataTableViewOptions() {
         <Button
           variant="outline"
           role="combobox"
-          size="sm"
           aria-expanded={open}
+          className="rounded-sm"
         >
           <Settings2 />
           <span className="sr-only md:not-sr-only">Columnas</span>
@@ -64,20 +67,16 @@ export function DataTableViewOptions() {
                     }
                     className={"capitalize"}
                   >
-                    <div
-                      className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        column.getIsVisible()
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
-                      )}
-                    >
-                      <Check className={cn("h-4 w-4")} />
-                    </div>
                     <span>
                       {(column.columnDef.meta as { label?: string })?.label ||
                         column.id}
                     </span>
+                    <Check
+                      className={cn(
+                        "ml-auto",
+                        column.getIsVisible() ? "opacity-100" : "opacity-0"
+                      )}
+                    />
                   </CommandItem>
                 ))}
             </CommandGroup>

@@ -23,7 +23,7 @@ const paginationUrlKeys = {
   pageSize: "perPage",
 };
 
-export function useDataTableLogic<TData extends RowData>(
+export function useDataTable<TData extends RowData>(
   props: Omit<TableOptions<TData>, "getCoreRowModel">
 ) {
   const [rowSelection, setRowSelection] = React.useState({});

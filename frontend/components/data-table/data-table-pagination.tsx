@@ -15,11 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useDataTable } from "./data-table-provider";
+import { type Table as TanstackTable } from "@tanstack/react-table";
 
-export function DataTablePagination() {
-  const table = useDataTable();
-
+export function DataTablePagination<TData>({
+  table,
+}: {
+  table: TanstackTable<TData>;
+}) {
   return (
     <div className="flex items-center justify-between px-4">
       <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
@@ -56,7 +58,7 @@ export function DataTablePagination() {
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            className="hidden h-8 w-8 p-0 lg:flex rounded-xs"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
@@ -65,7 +67,7 @@ export function DataTablePagination() {
           </Button>
           <Button
             variant="outline"
-            className="size-8"
+            className="size-8 rounded-xs"
             size="icon"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -75,7 +77,7 @@ export function DataTablePagination() {
           </Button>
           <Button
             variant="outline"
-            className="size-8"
+            className="size-8 rounded-xs"
             size="icon"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -85,7 +87,7 @@ export function DataTablePagination() {
           </Button>
           <Button
             variant="outline"
-            className="hidden size-8 lg:flex"
+            className="hidden size-8 lg:flex rounded-xs"
             size="icon"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
