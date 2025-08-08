@@ -12,8 +12,8 @@ import { CreateProductDrawner } from "./create-product-drawner";
 import { Product } from "../_lib/types";
 import { DataTableFilterInput } from "@/components/data-table/data-table-filter-input";
 
-export function ProductsTable({ data }: { data: Product[] }) {
-  const table = useDataTable({ data, columns: productsTableColumns });
+export function ProductsTable({ products }: { products: Product[] }) {
+  const table = useDataTable({ data: products, columns: productsTableColumns });
 
   return (
     <div className="w-full flex flex-col justify-start gap-4">

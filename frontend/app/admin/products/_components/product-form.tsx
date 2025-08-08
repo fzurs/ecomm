@@ -11,22 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Product } from "../_lib/types";
-
-export const categories = [
-  "Analgésicos",
-  "Antihistamínicos",
-  "Antiinflamatorios",
-  "Antisépticos",
-  "Cardiología",
-  "Cuidado Personal",
-  "Dispositivos Médicos",
-  "Gastroenterología",
-  "Material de Curación",
-  "Medicamentos Respiratorios",
-  "Protección Personal",
-  "Soluciones",
-  "Vitaminas y Suplementos",
-];
+import { ProductCategorySelect } from "./product-category-select";
 
 export function ProductForm({ item }: { item: Product }) {
   return (
@@ -41,18 +26,7 @@ export function ProductForm({ item }: { item: Product }) {
       </div>
       <div className="flex flex-col gap-3">
         <Label htmlFor="category">Categoría</Label>
-        <Select defaultValue={item.category}>
-          <SelectTrigger id="category" className="w-full">
-            <SelectValue placeholder="Selecciona una categoría" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ProductCategorySelect />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-3">

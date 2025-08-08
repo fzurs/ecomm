@@ -34,14 +34,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, CheckCircle } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import Image from "next/image";
+import { AlertTriangle, CheckCircle, Package, XCircle } from "lucide-react";
 import { ProductForm } from "./product-form";
 import { Product } from "../_lib/types";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { formatHumanDate } from "@/lib/humanized";
+import { priceColumnOptimized } from "./product-price-column-optimized";
+
+const getStatusSortValue = (status: string) => {
+  switch (status) {
+    case "Agotado":
+      return 3; // Mayor prioridad (crítico)
+    case "Stock Bajo":
+      return 2; // Media prioridad
+    case "Disponible":
+      return 1; // Menor prioridad (normal)
+    default:
+      return 0;
+  }
+};
 
 export const productsTableColumns: ColumnDef<Product>[] = [
   {
@@ -69,20 +80,6 @@ export const productsTableColumns: ColumnDef<Product>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: "image",
-    header: () => null,
-    cell: ({ row }) => (
-      <Image
-        src={row.original.image ?? `/products/${row.original.title}.webp`}
-        alt=""
-        width={50}
-        height={50}
-        className="h-12 w-12 rounded-lg"
-      />
-    ),
-    meta: { label: "Imagen" },
   },
   {
     accessorKey: "title",
@@ -120,23 +117,8 @@ export const productsTableColumns: ColumnDef<Product>[] = [
     ),
     meta: { label: "Categoría" },
   },
-  {
-    accessorKey: "price",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        title={(column.columnDef.meta as { label: string }).label}
-        column={column}
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="font-medium text-right">
-        <span className="text-green-600 font-semibold">
-          {row.getValue("price")}
-        </span>
-      </div>
-    ),
-    meta: { label: "Precio" },
-  },
+  // price column optimized
+  priceColumnOptimized as ColumnDef<Product>,
   {
     accessorKey: "quantity",
     header: ({ column }) => (
@@ -146,51 +128,93 @@ export const productsTableColumns: ColumnDef<Product>[] = [
       />
     ),
     cell: ({ row }) => {
-      const quantity = row.original.quantity;
-      const status = row.original.status;
+      const quantity = row.getValue("quantity") as number;
 
-      // Determine stock status and styling
-      const getStockBadge = (qty: number, status: string) => {
-        if (qty === 0 || status === "Agotado") {
-          return (
-            <Badge variant="destructive" className="ml-2">
-              <AlertTriangle className="w-3 h-3 mr-1" />
-              Agotado
-            </Badge>
-          );
-        } else if (qty <= 10 || status === "Poco stock") {
-          return (
-            <Badge
-              variant="secondary"
-              className="ml-2 bg-yellow-100 text-yellow-800"
-            >
-              <AlertTriangle className="w-3 h-3 mr-1" />
-              Poco stock
-            </Badge>
-          );
-        } else {
-          return (
-            <Badge
-              variant="default"
-              className="ml-2 bg-green-100 text-green-800"
-            >
-              <CheckCircle className="w-3 h-3 mr-1" />
-              En stock
-            </Badge>
-          );
-        }
+      const getQuantityVariant = (qty: number) => {
+        if (qty === 0) return "destructive";
+        if (qty <= 5) return "secondary";
+        return "default";
       };
 
       return (
-        <div className="flex items-center justify-end">
-          <span className="font-medium min-w-[3rem] text-right">
-            {quantity.toLocaleString()}
-          </span>
-          {getStockBadge(quantity, status)}
+        <div className="flex justify-center">
+          <Badge variant={getQuantityVariant(quantity)} className="font-mono">
+            {quantity}
+          </Badge>
         </div>
       );
     },
-    meta: { label: "Cantidad" },
+    meta: { label: "Cantidad", className: "text-center" },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        title={(column.columnDef.meta as { label: string }).label}
+        column={column}
+      />
+    ),
+    sortingFn: (rowA, rowB, columnId) => {
+      const statusA = rowA.getValue(columnId) as string;
+      const statusB = rowB.getValue(columnId) as string;
+      return getStatusSortValue(statusA) - getStatusSortValue(statusB);
+    },
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+
+      const getStatusConfig = (status: string) => {
+        switch (status) {
+          case "Disponible":
+            return {
+              variant: "default",
+              icon: CheckCircle,
+              className:
+                "bg-green-50 text-green-700 hover:bg-green-100 border-green-200",
+            };
+          case "Agotado":
+            return {
+              variant: "destructive",
+              icon: XCircle,
+              className: "",
+            };
+          case "Stock Bajo":
+            return {
+              variant: "secondary",
+              icon: AlertTriangle,
+              className:
+                "bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200",
+            };
+          default:
+            return {
+              variant: "outline",
+              icon: Package,
+              className: "",
+            };
+        }
+      };
+
+      const config = getStatusConfig(status);
+      const IconComponent = config.icon;
+
+      return (
+        <div className="flex justify-center">
+          <Badge
+            variant={
+              config.variant as
+                | "default"
+                | "destructive"
+                | "secondary"
+                | "outline"
+            }
+            className={`flex items-center gap-1.5 ${config.className}`}
+          >
+            <IconComponent className="w-3 h-3" />
+            {status}
+          </Badge>
+        </div>
+      );
+    },
+    meta: { label: "Estado" },
   },
   {
     accessorKey: "last_update",
