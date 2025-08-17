@@ -1,21 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { IconDotsVertical, IconTrendingUp } from "@tabler/icons-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Product } from "../_lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Checkbox } from "@/components/ui/checkbox";
-
 import {
   Drawer,
   DrawerClose,
@@ -30,29 +18,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, CheckCircle, Package, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ProductForm } from "./product-form";
-import { Product } from "../_lib/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { parseAsBoolean, useQueryState } from "nuqs";
+import {
+  Copy,
+  Delete,
+  Edit,
+  EllipsisVertical,
+  Star,
+  StarHalf,
+  View,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { formatHumanDate } from "@/lib/humanized";
-import { priceColumnOptimized } from "./product-price-column-optimized";
-
-const getStatusSortValue = (status: string) => {
-  switch (status) {
-    case "Agotado":
-      return 3; // Mayor prioridad (crítico)
-    case "Stock Bajo":
-      return 2; // Media prioridad
-    case "Disponible":
-      return 1; // Menor prioridad (normal)
-    default:
-      return 0;
-  }
-};
+import { Separator } from "@/components/ui/separator";
 
 export const productsTableColumns: ColumnDef<Product>[] = [
   {
@@ -83,283 +69,235 @@ export const productsTableColumns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "title",
-    header: "Título",
-    cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />;
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Title" column={column} />;
     },
-    enableHiding: false,
-    meta: { label: "Título" },
+    cell: ({ row }) => {
+      return <TableCellViewer product={row.original} />;
+    },
   },
   {
     accessorKey: "description",
-    header: "Descripción",
-    cell: ({ row }) => (
-      <p className="text-muted-foreground text-sm text-balance max-w-sm">
-        {row.original.description}
-      </p>
-    ),
-    meta: { label: "Descripción" },
+    header: "Description",
+    cell: ({ row }) => {
+      return (
+        <div className="max-w-[200px] text-muted-foreground truncate">
+          {row.original.description}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "category",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        title={(column.columnDef.meta as { label: string }).label}
-        column={column}
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Category" column={column} />;
+    },
+    cell: ({ row }) => {
+      return (
+        <Badge variant="outline" className="capitalize">
           {row.original.category}
         </Badge>
-      </div>
-    ),
-    meta: { label: "Categoría" },
+      );
+    },
   },
-  // price column optimized
-  priceColumnOptimized as ColumnDef<Product>,
   {
-    accessorKey: "quantity",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        title={(column.columnDef.meta as { label: string }).label}
-        column={column}
-      />
-    ),
+    accessorKey: "price",
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Price" column={column} />;
+    },
+  },
+  {
+    accessorKey: "rating",
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Rating" column={column} />;
+    },
     cell: ({ row }) => {
-      const quantity = row.getValue("quantity") as number;
-
-      const getQuantityVariant = (qty: number) => {
-        if (qty === 0) return "destructive";
-        if (qty <= 5) return "secondary";
-        return "default";
-      };
-
+      const { rating, reviews } = row.original;
       return (
-        <div className="flex justify-center">
-          <Badge variant={getQuantityVariant(quantity)} className="font-mono">
-            {quantity}
-          </Badge>
+        <div className="flex items-center gap-2">
+          <StarRating rating={rating} />
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold">{rating}</span>
+            {reviews.length > 0 && (
+              <span className="text-xs">({reviews.length} reviews)</span>
+            )}
+          </div>
         </div>
       );
     },
-    meta: { label: "Cantidad", className: "text-center" },
   },
   {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        title={(column.columnDef.meta as { label: string }).label}
-        column={column}
-      />
-    ),
-    sortingFn: (rowA, rowB, columnId) => {
-      const statusA = rowA.getValue(columnId) as string;
-      const statusB = rowB.getValue(columnId) as string;
-      return getStatusSortValue(statusA) - getStatusSortValue(statusB);
+    accessorKey: "stock",
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Stock" column={column} />;
     },
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const stock = row.original.stock;
 
-      const getStatusConfig = (status: string) => {
-        switch (status) {
-          case "Disponible":
-            return {
-              variant: "default",
-              icon: CheckCircle,
-              className:
-                "bg-green-50 text-green-700 hover:bg-green-100 border-green-200",
-            };
-          case "Agotado":
-            return {
-              variant: "destructive",
-              icon: XCircle,
-              className: "",
-            };
-          case "Stock Bajo":
-            return {
-              variant: "secondary",
-              icon: AlertTriangle,
-              className:
-                "bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200",
-            };
-          default:
-            return {
-              variant: "outline",
-              icon: Package,
-              className: "",
-            };
+      function getStockColor(stock: number) {
+        let className: string;
+        if (stock === 0) {
+          className = "bg-red-100 text-red-800 border-red-200";
+        } else if (stock <= 5) {
+          className = "bg-orange-100 text-orange-800 border-orange-200";
+        } else if (stock <= 10) {
+          className = "bg-amber-100 text-amber-800 border-amber-200";
+        } else {
+          className = "bg-green-100 text-green-800 border-green-200";
         }
-      };
+        return className;
+      }
 
-      const config = getStatusConfig(status);
-      const IconComponent = config.icon;
-
-      return (
-        <div className="flex justify-center">
-          <Badge
-            variant={
-              config.variant as
-                | "default"
-                | "destructive"
-                | "secondary"
-                | "outline"
-            }
-            className={`flex items-center gap-1.5 ${config.className}`}
-          >
-            <IconComponent className="w-3 h-3" />
-            {status}
-          </Badge>
-        </div>
-      );
+      return <Badge className={cn(getStockColor(stock))}>{stock} units</Badge>;
     },
-    meta: { label: "Estado" },
   },
   {
-    accessorKey: "last_update",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        title={(column.columnDef.meta as { label: string }).label}
-        column={column}
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="text-muted-foreground text-sm text-end">
-        {formatHumanDate(row.original.last_update)}
-      </div>
-    ),
-    meta: { label: "Última actualización" },
+    id: "createdAt",
+    header: "Created at",
+    cell: ({ row }) => {
+      return row.original.meta.createdAt.toDateString();
+    },
+  },
+  {
+    id: "updatedAt",
+    header: "Updated at",
+    cell: ({ row }) => {
+      return row.original.meta.updatedAt.toDateString();
+    },
   },
   {
     id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Editar</DropdownMenuItem>
-          <DropdownMenuItem>Copiar ID</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Borrar</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => {
+      return <TableColumnAction productId={row.original.id} />;
+    },
   },
 ];
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
+function useViewerSearchParam(productId: number) {
+  return useQueryState(
+    `viewer_${productId}`,
+    parseAsBoolean.withDefault(false)
+  );
+}
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig;
-
-function TableCellViewer({ item }: { item: Product }) {
+function TableCellViewer({ product }: { product: Product }) {
+  const [open, setOpen] = useViewerSearchParam(product.id);
   const isMobile = useIsMobile();
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      direction={isMobile ? "bottom" : "right"}
+    >
       <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.title}
+        <Button variant="link" className="px-0 text-foreground">
+          {product.title}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.title}</DrawerTitle>
-          <DrawerDescription>
-            Total de ventas en los ultimos 6 meses
+        <DrawerHeader>
+          <DrawerTitle>{product.title}</DrawerTitle>
+          <DrawerDescription className="text-muted-foreground leading-5.5">
+            {product.description}
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {!isMobile && (
-            <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 0,
-                    right: 10,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                    hide
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.6}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-              <Separator />
-              <div className="grid gap-2">
-                <div className="flex gap-2 leading-none font-medium">
-                  Se registro un aumento del 1.5% en este mes{" "}
-                  <IconTrendingUp className="size-4" />
-                </div>
-                <div className="text-muted-foreground">
-                  Se muestra el total de ventas de los últimos 6 meses. Este es
-                  solo un texto aleatorio para probar el diseño. Ocupa varias
-                  líneas y debería ajustarse.
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
-          <ProductForm item={item} />
+          <div className="grid gap-1 justify-center text-center md:text-start md:justify-start">
+            <span className="text-muted-foreground text-sm">
+              Rating: {product.rating}/5
+            </span>
+            <StarRating rating={product.rating} />
+          </div>
+          <Separator />
+          <ProductForm product={product} />
         </div>
         <DrawerFooter>
-          <Button>Guardar cambios</Button>
+          <Button>Save changes</Button>
           <DrawerClose asChild>
-            <Button variant="outline">Cerrar</Button>
+            <Button variant="outline">Done</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  );
+}
+
+function StarRating({
+  rating,
+  maxRating = 5,
+}: {
+  rating: number;
+  maxRating?: number;
+}) {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
+  const emptyStars = maxRating - fullStars - (hasHalfStar ? 1 : 0);
+
+  return (
+    <div className="flex items-center gap-1">
+      {/* Estrellas llenas */}
+      {Array.from({ length: fullStars }).map((_, i) => (
+        <Star
+          key={`full-${i}`}
+          className="w-4 h-4 fill-muted-foreground text-muted-foreground"
+        />
+      ))}
+
+      {/* Media estrella */}
+      {hasHalfStar && (
+        <div className="relative">
+          <Star className="absolute w-4 h-4 text-muted-foreground" />
+          <StarHalf className="w-4 h-4 fill-muted-foreground text-muted-foreground" />
+        </div>
+      )}
+
+      {/* Estrellas vacías */}
+      {Array.from({ length: emptyStars }).map((_, i) => (
+        <Star key={`empty-${i}`} className="w-4 h-4 text-muted-foreground" />
+      ))}
+    </div>
+  );
+}
+
+function TableColumnAction({ productId }: { productId: number }) {
+  const [open, setOpen] = React.useState(false);
+  const setViewerOpen = useViewerSearchParam(productId)[1];
+
+  const handleClick = () => {
+    setOpen(false);
+    setViewerOpen(true);
+  };
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant={"ghost"}>
+          <EllipsisVertical />
+          <span className="sr-only">Actions</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleClick}>
+          <View />
+          View more
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleClick}>
+          <Edit />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Copy />
+          Copy ID
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive">
+          <Delete />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

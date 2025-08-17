@@ -26,7 +26,6 @@ export function DataTableViewOptions<TData>({
   table: TanstackTable<TData>;
 }) {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -35,7 +34,7 @@ export function DataTableViewOptions<TData>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="rounded-sm"
+          className="size-9 md:w-auto"
         >
           <Settings2 />
           <span className="sr-only md:not-sr-only">Columnas</span>
@@ -43,11 +42,7 @@ export function DataTableViewOptions<TData>({
       </PopoverTrigger>
       <PopoverContent side="bottom" align="end" className="w-[200px] p-0">
         <Command>
-          <CommandInput
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Search options..."
-          />
+          <CommandInput placeholder="Search options..." />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>

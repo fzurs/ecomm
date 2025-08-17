@@ -6,8 +6,8 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
 } from "@tabler/icons-react";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -39,7 +39,7 @@ export function DataTablePagination<TData>({
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger size="sm" className="w-20 rounded-xs" id="rows-per-page">
+            <SelectTrigger size="sm" className="w-20" id="rows-per-page">
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
@@ -58,7 +58,7 @@ export function DataTablePagination<TData>({
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex rounded-xs"
+            className="hidden h-8 w-8 p-0 lg:flex"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
@@ -67,7 +67,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="size-8 rounded-xs"
+            className="size-8"
             size="icon"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -77,7 +77,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="size-8 rounded-xs"
+            className="size-8"
             size="icon"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -87,7 +87,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="hidden size-8 lg:flex rounded-xs"
+            className="hidden size-8 lg:flex"
             size="icon"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}

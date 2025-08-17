@@ -1,56 +1,117 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Product } from "../_lib/types";
-import { ProductCategorySelect } from "./product-category-select";
+import { CategorySelector } from "./category-selector";
 
-export function ProductForm({ item }: { item: Product }) {
+export function ProductForm({ product }: { product?: Product }) {
+  const form = useForm<Product>({
+    defaultValues: product ?? { title: "", description: "" },
+  });
+
   return (
-    <form className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3">
-        <Label htmlFor="title">Título</Label>
-        <Input id="title" defaultValue={item.title} />
-      </div>
-      <div className="flex flex-col gap-3">
-        <Label htmlFor="description">Descripción</Label>
-        <Textarea id="description" defaultValue={item.description} />
-      </div>
-      <div className="flex flex-col gap-3">
-        <Label htmlFor="category">Categoría</Label>
-        <ProductCategorySelect />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="price">Precio (pesos)</Label>
-          <Input type="string" id="price" defaultValue={item.price} />
-        </div>
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="quantity">Cantidad</Label>
-          <Input type="string" id="quantity" defaultValue={item.quantity} />
-        </div>
-      </div>
-      <div className="flex flex-col gap-3">
-        <Label htmlFor="status">Status</Label>
-        <Select defaultValue={item.status}>
-          <SelectTrigger id="status" className="w-full">
-            <SelectValue placeholder="Selecciona el estado del producto" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="En stock">En stock</SelectItem>
-            <SelectItem value="Poco stock">Poco stock</SelectItem>
-            <SelectItem value="Agotado">Agotado</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </form>
+    <Form {...form}>
+      <FormField
+        control={form.control}
+        name="title"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Title</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormDescription>
+              The product must have a unique name.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Describe a little about the product you want to add."
+                {...field}
+              />
+            </FormControl>
+            <FormDescription />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="category"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Category</FormLabel>
+            <FormControl>
+              <CategorySelector {...field} />
+            </FormControl>
+            <FormDescription />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="price"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Price</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="150.00"
+                {...field}
+                value={field.value ?? ""}
+              />
+            </FormControl>
+            <FormDescription>
+              Give me a number that represents the value of the product in
+              dollars.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="stock"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Stock</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="10"
+                {...field}
+                value={field.value ?? ""}
+              />
+            </FormControl>
+            <FormDescription>
+              The quantity of products you have in stock.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </Form>
   );
 }

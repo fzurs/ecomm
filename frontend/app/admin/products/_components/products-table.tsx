@@ -8,20 +8,27 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { useDataTable } from "@/hooks/use-data-table";
-import { CreateProductDrawner } from "./create-product-drawner";
+import { CreateProductDrawer } from "./create-product-drawer";
 import { Product } from "../_lib/types";
-import { DataTableFilterInput } from "@/components/data-table/data-table-filter-input";
+import { DataTableSearchInput } from "@/components/data-table/data-table-search-input";
+import { DataTableCategoryFilter } from "./data-table-category-filter";
 
 export function ProductsTable({ products }: { products: Product[] }) {
   const table = useDataTable({ data: products, columns: productsTableColumns });
 
   return (
-    <div className="w-full flex flex-col justify-start gap-4">
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <DataTableFilterInput table={table} />
-        <div className="flex items-center gap-2">
+    <div className="w-full flex flex-col justify-start gap-6">
+      <div className="flex gap-2 px-4 lg:px-6">
+        <DataTableSearchInput
+          table={table}
+          columnId="title"
+          placeholder="Search titles..."
+          className="max-w-full w-full md:max-w-[300px]"
+        />
+        <div className="ml-auto flex gap-2">
+          <DataTableCategoryFilter table={table} />
           <DataTableViewOptions table={table} />
-          <CreateProductDrawner />
+          <CreateProductDrawer />
         </div>
       </div>
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
