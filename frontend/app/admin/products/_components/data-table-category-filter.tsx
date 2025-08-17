@@ -69,9 +69,9 @@ export function DataTableCategoryFilter<TData>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="md:justify-between md:w-[200px] size-9"
+          className="lg:justify-between lg:w-[200px] size-9"
         >
-          <span className="sr-only md:not-sr-only">
+          <span className="sr-only lg:not-sr-only">
             {currentValue ? currentValue.name : "Filter by categories"}
           </span>
           <ListFilter />
