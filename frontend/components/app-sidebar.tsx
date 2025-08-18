@@ -17,6 +17,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconShoppingBag,
   IconUsers,
 } from "@tabler/icons-react";
 
@@ -41,6 +42,11 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
+    {
+      title: "Orders",
+      url: "/admin/orders",
+      icon: IconShoppingBag,
+    },
     {
       title: "Products",
       url: "/admin/products",

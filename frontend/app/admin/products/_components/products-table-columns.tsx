@@ -272,7 +272,7 @@ function TableColumnAction({ productId }: { productId: number }) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant={"ghost"}>
+        <Button variant={"ghost"} size="icon">
           <EllipsisVertical />
           <span className="sr-only">Actions</span>
         </Button>
