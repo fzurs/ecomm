@@ -152,18 +152,20 @@ export const productsTableColumns: ColumnDef<Product>[] = [
     },
   },
   {
-    id: "createdAt",
+    accessorKey: "createdAt",
     header: "Created at",
     cell: ({ row }) => {
       return row.original.meta.createdAt.toDateString();
     },
+    meta: { label: "Created at" },
   },
   {
-    id: "updatedAt",
+    accessorKey: "updatedAt",
     header: "Updated at",
     cell: ({ row }) => {
       return row.original.meta.updatedAt.toDateString();
     },
+    meta: { label: "Updated at" },
   },
   {
     id: "actions",

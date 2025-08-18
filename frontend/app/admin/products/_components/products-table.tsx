@@ -18,6 +18,8 @@ export function ProductsTable({ products }: { products: Product[] }) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       description: false,
+      createdAt: false,
+      updatedAt: false,
     });
 
   const table = useDataTable({

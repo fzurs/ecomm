@@ -118,12 +118,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>Applications</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
-                <Link href="/">
-                  <SidebarMenuButton tooltip="Online store">
+                <SidebarMenuButton asChild>
+                  <Link href="/">
                     <IconBuildingStore />
                     <span>Online store</span>
-                  </SidebarMenuButton>
-                </Link>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
