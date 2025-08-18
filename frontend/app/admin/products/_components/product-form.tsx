@@ -12,7 +12,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Product } from "../_lib/types";
+import { Product } from "../_lib/product-schema";
 import { CategorySelector } from "./category-selector";
 
 export function ProductForm({ product }: { product?: Product }) {

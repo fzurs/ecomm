@@ -19,13 +19,13 @@ export function DataTableSearchInput<TData>({
   ...props
 }: {
   table: TanstackTable<TData>;
-  columnId: keyof TData;
+  columnId: string;
   debounceMs?: number;
   queryKey?: string;
 } & Omit<React.ComponentProps<"input">, "value" | "onChange">) {
-  const column = table.getColumn(columnId as string) as Column<TData>;
+  const column = table.getColumn(columnId) as Column<TData>;
 
-  const searchKey = queryKey ?? String(columnId);
+  const searchKey = queryKey ?? columnId;
   const [queryValue, setQueryValue] = useQueryState(
     searchKey,
     parseAsString.withDefault("")

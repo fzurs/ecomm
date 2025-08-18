@@ -72,7 +72,7 @@ export function DataTableCategoryFilter<TData>({
           className="lg:justify-between lg:w-[200px] size-9"
         >
           <span className="sr-only lg:not-sr-only">
-            {currentValue ? currentValue.name : "Filter by categories"}
+            {currentValue ? currentValue.name : "Filter by category"}
           </span>
           <ListFilter />
         </Button>

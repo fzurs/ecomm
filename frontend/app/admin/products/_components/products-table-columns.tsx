@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Product } from "../_lib/types";
+import { Product } from "../_lib/product-schema";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,

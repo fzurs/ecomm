@@ -2,20 +2,25 @@
 
 import * as React from "react";
 import {
-  IconChartLine,
+  IconCamera,
+  IconChartBar,
+  IconDashboard,
   IconDatabase,
-  IconFileText,
+  IconFileAi,
+  IconFileDescription,
   IconFileWord,
-  IconHome2,
-  IconNotebook,
+  IconFolder,
+  IconHelp,
+  IconInnerShadowTop,
+  IconListDetails,
   IconPackage,
-  IconPackageExport,
   IconReport,
+  IconSearch,
   IconSettings,
   IconUsers,
-  IconUserShield,
 } from "@tabler/icons-react";
 
+import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
@@ -28,67 +33,114 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 
 const data = {
   user: {
-    name: "franco",
+    name: "Franco Z",
     email: "fzursch@gmail.com",
-    avatar: "",
+    avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
-      title: "Inicio *",
-      url: "/",
-      icon: IconHome2,
-    },
-    {
-      title: "Pedidos",
-      url: "/orders",
-      icon: IconPackageExport,
-    },
-    {
-      title: "Productos *",
-      url: "/products",
+      title: "Products",
+      url: "/admin/products",
       icon: IconPackage,
     },
     {
-      title: "Inventario",
-      url: "/inventory",
-      icon: IconNotebook,
-    },
-    {
-      title: "Clientes",
-      url: "/customers",
+      title: "Customers",
+      url: "/admin/customers",
       icon: IconUsers,
     },
     {
-      title: "Informes y estadísticas *",
-      url: "/analytics",
-      icon: IconChartLine,
+      title: "Dashboard",
+      url: "#",
+      icon: IconDashboard,
     },
     {
-      title: "Facturación",
-      url: "/billing",
-      icon: IconFileText,
+      title: "Lifecycle",
+      url: "#",
+      icon: IconListDetails,
+    },
+    {
+      title: "Analytics",
+      url: "#",
+      icon: IconChartBar,
+    },
+    {
+      title: "Projects",
+      url: "#",
+      icon: IconFolder,
+    },
+    {
+      title: "Team",
+      url: "#",
+      icon: IconUsers,
+    },
+  ],
+  navClouds: [
+    {
+      title: "Capture",
+      icon: IconCamera,
+      isActive: true,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Proposal",
+      icon: IconFileDescription,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Prompts",
+      icon: IconFileAi,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
     },
   ],
   navSecondary: [
     {
-      title: "Configuración",
+      title: "Settings",
       url: "#",
       icon: IconSettings,
     },
-    // {
-    //   title: "Get Help",
-    //   url: "#",
-    //   icon: IconHelp,
-    // },
-    // {
-    //   title: "Buscador",
-    //   url: "#",
-    //   icon: IconSearch,
-    // },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: IconHelp,
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: IconSearch,
+    },
   ],
   documents: [
     {
@@ -119,17 +171,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link href="/">
-                <IconUserShield />
-                <span className="text-base font-semibold">Panel del admin</span>
-              </Link>
+              <a href="#">
+                <IconInnerShadowTop className="!size-5" />
+                <span className="text-base font-semibold">Acme Inc.</span>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {/* <NavDocuments items={data.documents} /> */}
+        <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
