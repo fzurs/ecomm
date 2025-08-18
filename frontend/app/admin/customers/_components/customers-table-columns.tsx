@@ -28,7 +28,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { Copy, Delete, Edit, EllipsisVertical, Send, View } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 export const customersTableColumns: ColumnDef<Customer>[] = [
