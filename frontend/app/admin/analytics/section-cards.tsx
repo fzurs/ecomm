@@ -9,85 +9,71 @@ import {
 } from "@/components/ui/card";
 import { IconPackage, IconTrendingUp } from "@tabler/icons-react";
 
+const data = [
+  {
+    title: "Total of orders",
+    description: "1",
+    badgeText: "+100% vs last month",
+    icon: IconTrendingUp,
+    footer: {
+      text1: "Trending up this month",
+      text2: "Orders for the last 30 days",
+    },
+  },
+  {
+    title: "Total of products",
+    description: "30",
+    badgeText: "100% in stock",
+    icon: IconPackage,
+    footer: {
+      text1: "Inventory stable",
+      text2: "15 products added this month",
+    },
+  },
+  {
+    title: "Total of customers",
+    description: "15",
+    badgeText: "+3 new",
+    icon: IconTrendingUp,
+    footer: {
+      text1: "Growing customer base",
+      text2: "Customer growth in the last quarter",
+    },
+  },
+  {
+    title: "Monthly Revenue",
+    description: "$1,365",
+    badgeText: "+8.2% vs last month",
+    icon: IconTrendingUp,
+    footer: {
+      text1: "Revenue increasing",
+      text2: "Revenue trend for the last 3 months",
+    },
+  },
+];
+
 export function SectionCards() {
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 *:data-[slot=card]:shadow-xs">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total of orders</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">+100% vs last month</Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Orders for the last 30 days
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total of products</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            30
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">100% in stock</Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Inventory stable <IconPackage className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            15 products added this month
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total of customers</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            15
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">+3 new</Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Growing customer base <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Customer growth in the last quarter
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Monthly Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,365
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">+8.2% vs last month</Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Revenue increasing <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Revenue trend for the last 3 months
-          </div>
-        </CardFooter>
-      </Card>
+      {data.map(({ title, description, badgeText, icon: Icon, footer }, i) => (
+        <Card className="@container/card" key={i}>
+          <CardHeader>
+            <CardDescription>{title}</CardDescription>
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              {description}
+            </CardTitle>
+            <CardAction>
+              <Badge variant="outline">{badgeText}</Badge>
+            </CardAction>
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-1.5 text-sm">
+            <div className="line-clamp-1 flex gap-2 font-medium">
+              {footer.text1} <Icon className="size-4" />
+            </div>
+            <div className="text-muted-foreground">{footer.text2}</div>
+          </CardFooter>
+        </Card>
+      ))}
     </div>
   );
 }
