@@ -4,16 +4,14 @@ export default function Page() {
   return (
     <>
       <SiteHeader title="Admin" />
-      <div className="flex flex-1 flex-col">
-        <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-            <div className="container max-w-4xl mx-auto px-4 lg:px-6">
-              <h1 className="text-3xl font-bold tracking-tight text-balance scroll-m-20">
-                ¡Te damos la bienvenida al panel de administración!
-              </h1>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-col w-full max-w-3xl p-4 md:p-6 mx-auto">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+          Welcome to Admin
+        </h1>
+        <p className="leading-7 [&:not(:first-child)]:mt-6 text-muted-foreground">
+          This is your online store's administration panel. Here you
+          can view and edit your products, orders, and customers.
+        </p>
       </div>
     </>
   );
