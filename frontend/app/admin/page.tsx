@@ -9,7 +9,7 @@ export default function Page() {
           Welcome to Admin
         </h1>
         <p className="leading-7 [&:not(:first-child)]:mt-6 text-muted-foreground">
-          This is your online store's administration panel. Here you
+          This is your online store&apos;s administration panel. Here you
           can view and edit your products, orders, and customers.
         </p>
       </div>
