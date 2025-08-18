@@ -10,7 +10,7 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import { useDataTable } from "@/hooks/use-data-table";
 import { Order } from "../_lib/order-schema";
 import { Button } from "@/components/ui/button";
-import { IconShoppingBag } from "@tabler/icons-react";
+import { IconShoppingBagPlus } from "@tabler/icons-react";
 
 export function OrdersTable({ orders }: { orders: Order[] }) {
   const table = useDataTable({
@@ -24,7 +24,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         <div className="ml-auto flex gap-2">
           <DataTableViewOptions table={table} />
           <Button variant="outline" className="size-9 md:w-auto">
-            <IconShoppingBag />
+            <IconShoppingBagPlus />
             <span className="sr-only md:not-sr-only">Create new Order</span>
           </Button>
         </div>
