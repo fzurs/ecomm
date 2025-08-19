@@ -62,7 +62,7 @@ export function ProductForm({ product }: { product?: Product }) {
           <FormItem>
             <FormLabel>Category</FormLabel>
             <FormControl>
-              <CategorySelector {...field} />
+              <CategorySelector defaultValue={field.value} onValueChange={field.onChange} />
             </FormControl>
             <FormDescription />
             <FormMessage />

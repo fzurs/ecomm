@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Category } from "../_lib/product-schema";
 
 async function getCategories() {
@@ -7,7 +7,7 @@ async function getCategories() {
 }
 
 export function useCategories() {
-  return useQuery<Category[]>({
+  return useSuspenseQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: getCategories,
   });

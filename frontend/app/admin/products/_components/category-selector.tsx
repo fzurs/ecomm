@@ -1,58 +1,39 @@
 "use client";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { ChevronDown } from "lucide-react";
+import * as React from "react";
 import { useCategories } from "../_hooks/use-categories";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export function CategorySelector({
-  value,
-  onChange,
-}: {
+export function CategorySelector(props: {
   value?: string;
-  onChange?: ((value: string) => void) | undefined;
+  defaultValue?: string;
+  onValueChange?(value: string): void;
 }) {
   const { data: categories } = useCategories();
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" className="justify-between">
-          <span>{value ? value : "Select a category"}</span>
-          <ChevronDown className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0">
-        <Command>
-          <CommandInput placeholder="Search category..." />
-          <CommandList>
-            <CommandEmpty>No category found.</CommandEmpty>
-            <CommandGroup>
-              {categories?.map((category) => (
-                <CommandItem
-                  key={category.slug}
-                  value={category.name}
-                  onSelect={() => onChange && onChange(category.slug)}
-                >
-                  {category.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <Select {...props}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select a category" />
+      </SelectTrigger>
+      <SelectContent className="max-h-[400px]">
+        <SelectGroup>
+          <SelectLabel>Categories</SelectLabel>
+          {categories.map((category) => (
+            <SelectItem key={category.slug} value={category.slug}>
+              {category.name}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }
