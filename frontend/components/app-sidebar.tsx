@@ -32,7 +32,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { Badge } from "./ui/badge";
 import { NavLocale } from "./nav-locale";
 
 const data = {
