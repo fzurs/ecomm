@@ -13,6 +13,7 @@ export default function Home() {
       <Link href="/" locale="en">
         Cambiar a ingles
       </Link>
+      <Link href="/admin">Admin</Link>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { IconDotsVertical, IconLogout } from "@tabler/icons-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { Badge } from "./ui/badge";
+import { NavLocale } from "./nav-locale";
 
 const data = {
   user: {
@@ -136,6 +137,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <NavLocale />
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

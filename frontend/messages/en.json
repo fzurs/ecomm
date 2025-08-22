@@ -1,5 +1,18 @@
 {
   "HomePage": {
     "title": "Hello world!"
+  },
+  "AdminPage": {
+    "title": "Welcome to Admin",
+    "description": "This is your online store's administration panel. Here you canview and edit your products, orders, and customers."
+  },
+  "components": {
+    "navLocale": {
+      "label": "Languages",
+      "languages": {
+        "en": "English",
+        "es": "Spanish"
+      }
+    }
   }
 }
