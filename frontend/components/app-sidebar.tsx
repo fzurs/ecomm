@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   IconBuildingStore,
   IconChartBar,
+  IconDashboard,
   IconHelp,
   IconHome,
   IconPackage,
@@ -94,17 +95,23 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link href="/admin" className="justify-between">
-                <span className="text-base font-semibold">Ecommerce</span>
-                <Badge variant="outline">Admin</Badge>
+              <Link href="/admin">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <IconDashboard className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">Ecommerce</span>
+                  <span className="truncate text-xs">Admin</span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
