@@ -1,20 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconBuildingStore,
-  IconChartBar,
-  IconHelp,
-  IconHome,
-  IconPackage,
-  IconReceipt,
-  IconReport,
-  IconSettings,
-  IconShoppingBag,
-  IconUsers,
-} from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
@@ -22,16 +9,21 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { Badge } from "./ui/badge";
+import {
+  ChartBar,
+  CircleQuestionMark,
+  Layers2,
+  Package,
+  Settings,
+  ShoppingBag,
+  Users,
+} from "lucide-react";
 
 const data = {
   user: {
@@ -41,70 +33,55 @@ const data = {
   },
   navMain: [
     {
-      title: "Home",
-      url: "/admin",
-      icon: IconHome,
-    },
-    {
       title: "Orders",
       url: "/admin/orders",
-      icon: IconShoppingBag,
+      icon: ShoppingBag,
     },
     {
       title: "Products",
       url: "/admin/products",
-      icon: IconPackage,
+      icon: Package,
     },
     {
       title: "Customers",
       url: "/admin/customers",
-      icon: IconUsers,
+      icon: Users,
     },
     {
       title: "Analytics",
       url: "/admin/analytics",
-      icon: IconChartBar,
+      icon: ChartBar,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
-      icon: IconSettings,
+      url: "/admin/settings",
+      icon: Settings,
     },
     {
       title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-  ],
-  documents: [
-    {
-      name: "Billing",
-      url: "#",
-      icon: IconReceipt,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
+      url: "/admin/help",
+      icon: CircleQuestionMark,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <Link href="/admin" className="justify-between">
-                <span className="text-base font-semibold">Ecommerce</span>
-                <Badge variant="outline">Admin</Badge>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/admin">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <Layers2 className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">Ecommerce</span>
+                  <span className="truncate text-xs">Admin</span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -112,22 +89,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <SidebarGroup>
-          <SidebarGroupLabel>Store</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/">
-                    <IconBuildingStore />
-                    <span>Online store</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

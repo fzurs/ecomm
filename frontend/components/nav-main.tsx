@@ -1,7 +1,5 @@
 "use client";
 
-import { type Icon } from "@tabler/icons-react";
-
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,6 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
 export function NavMain({
@@ -17,18 +16,18 @@ export function NavMain({
   items: {
     title: string;
     url: string;
-    icon: Icon;
+    icon: LucideIcon;
   }[];
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupContent>
+      <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton tooltip={item.title} asChild>
                 <Link href={item.url}>
-                  {item.icon && <item.icon />}
+                  <item.icon />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

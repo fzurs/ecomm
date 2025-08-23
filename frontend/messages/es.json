@@ -1,0 +1,39 @@
+{
+  "HomePage": {
+    "title": "Hola mundo!"
+  },
+  "AdminPage": {
+    "title": "Bienvenido a el panel de administración",
+    "description": "Este es el panel de administración de tu tienda online. Aquí puedes ver y editar tus productos, pedidos y clientes."
+  },
+  "SettingsPage": {
+    "title": "Configuración",
+    "sections": {
+      "theme": {
+        "title": "Tema de la interfaz",
+        "description": "Selecciona tu tema preferido"
+      },
+      "language": {
+        "title": "Idioma",
+        "description": "Selecciona el idioma que vas a usar"
+      }
+    }
+  },
+  "components": {
+    "localeSelector": {
+      "label": "Idiomas",
+      "languages": {
+        "en": "Inglés",
+        "es": "Español"
+      }
+    },
+    "modeToggle": {
+      "label": "Temas",
+      "themes": {
+        "dark": "Oscuro",
+        "light": "Claro",
+        "system": "Sistema"
+      }
+    }
+  }
+}
