@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import Product, Inventory, Category
+from .models import Product, Category
 
-admin.site.register([Product, Inventory, Category])
+admin.site.register([Product, Category])

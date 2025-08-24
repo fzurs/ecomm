@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Product } from "../_lib/product-schema";
+import { Product } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
@@ -93,6 +93,8 @@ export const productsTableColumns: ColumnDef<Product>[] = [
       return <DataTableColumnHeader title="Category" column={column} />;
     },
     cell: ({ row }) => {
+      const category = row.original.category;
+      if (!category) return null;
       return (
         <Badge variant="outline" className="capitalize">
           {row.original.category}
@@ -106,33 +108,33 @@ export const productsTableColumns: ColumnDef<Product>[] = [
       return <DataTableColumnHeader title="Price" column={column} />;
     },
   },
-  {
-    accessorKey: "rating",
-    header: ({ column }) => {
-      return <DataTableColumnHeader title="Rating" column={column} />;
-    },
-    cell: ({ row }) => {
-      const { rating, reviews } = row.original;
-      return (
-        <div className="flex items-center gap-2">
-          <StarRating rating={rating} />
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">{rating}</span>
-            {reviews.length > 0 && (
-              <span className="text-xs">({reviews.length} reviews)</span>
-            )}
-          </div>
-        </div>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "rating",
+  //   header: ({ column }) => {
+  //     return <DataTableColumnHeader title="Rating" column={column} />;
+  //   },
+  //   cell: ({ row }) => {
+  //     const { rating, reviews } = row.original;
+  //     return (
+  //       <div className="flex items-center gap-2">
+  //         <StarRating rating={rating} />
+  //         <div className="flex flex-col">
+  //           <span className="text-sm font-semibold">{rating}</span>
+  //           {reviews.length > 0 && (
+  //             <span className="text-xs">({reviews.length} reviews)</span>
+  //           )}
+  //         </div>
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "stock",
     header: ({ column }) => {
       return <DataTableColumnHeader title="Stock" column={column} />;
     },
     cell: ({ row }) => {
-      const stock = row.original.stock;
+      const stock = Number(row.original.stock);
 
       function getStockColor(stock: number) {
         let className: string;
@@ -155,7 +157,8 @@ export const productsTableColumns: ColumnDef<Product>[] = [
     accessorKey: "createdAt",
     header: "Created at",
     cell: ({ row }) => {
-      return row.original.meta.createdAt.toDateString();
+      const createdAt = new Date(row.original["created_at"] ?? "");
+      return new Date(createdAt).toDateString();
     },
     meta: { label: "Created at" },
   },
@@ -163,7 +166,7 @@ export const productsTableColumns: ColumnDef<Product>[] = [
     accessorKey: "updatedAt",
     header: "Updated at",
     cell: ({ row }) => {
-      return row.original.meta.updatedAt.toDateString();
+      return new Date(row.original["updated_at"]).toDateString();
     },
     meta: { label: "Updated at" },
   },
@@ -205,12 +208,12 @@ function TableCellViewer({ product }: { product: Product }) {
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <div className="grid gap-1 justify-center text-center md:text-start md:justify-start">
+          {/* <div className="grid gap-1 justify-center text-center md:text-start md:justify-start">
             <span className="text-muted-foreground text-sm">
               Rating: {product.rating}/5
             </span>
             <StarRating rating={product.rating} />
-          </div>
+          </div> */}
           <Separator />
           <ProductForm product={product} />
         </div>

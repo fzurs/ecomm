@@ -28,7 +28,7 @@ export function CategorySelector(props: {
         <SelectGroup>
           <SelectLabel>Categories</SelectLabel>
           {categories.map((category) => (
-            <SelectItem key={category.slug} value={category.slug}>
+            <SelectItem key={category.id} value={category.id.toString()}>
               {category.name}
             </SelectItem>
           ))}

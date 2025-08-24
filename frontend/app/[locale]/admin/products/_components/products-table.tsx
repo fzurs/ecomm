@@ -9,7 +9,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { useDataTable } from "@/hooks/use-data-table";
 import { CreateProductDrawer } from "./create-product-drawer";
-import { Product } from "../_lib/product-schema";
+import { Product } from "@/lib/api";
 import { DataTableSearchInput } from "@/components/data-table/data-table-search-input";
 import { DataTableCategoryFilter } from "./data-table-category-filter";
 import { VisibilityState } from "@tanstack/react-table";

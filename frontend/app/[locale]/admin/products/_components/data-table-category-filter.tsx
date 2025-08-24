@@ -18,7 +18,7 @@ import {
 import { Check, ListFilter } from "lucide-react";
 import { Column, Table } from "@tanstack/react-table";
 import { useCategories } from "../_hooks/use-categories";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { cn } from "@/lib/utils";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -53,13 +53,13 @@ export function DataTableCategoryFilter<TData>({
     }
   }, [column, queryValue]);
 
-  const debouncedSetValue = useDebouncedCallback((value: string | null) => {
+  const debouncedSetValue = useDebouncedCallback((value: typeof queryValue) => {
     setQueryValue(value || null);
     column.setFilterValue(value || undefined);
   }, 300);
 
   const currentValue = categories?.find(
-    (category) => category.slug === inputValue
+    (category) => category.name === inputValue
   );
 
   return (
@@ -85,11 +85,11 @@ export function DataTableCategoryFilter<TData>({
             <CommandGroup>
               {categories?.map((category) => (
                 <CommandItem
-                  key={category.slug}
+                  key={category.id}
                   value={category.name}
                   onSelect={() => {
                     const value =
-                      category.slug === inputValue ? null : category.slug;
+                      category.name === inputValue ? null : category.name;
                     setInputValue(value);
                     debouncedSetValue(value);
                     setOpen(false);
@@ -99,7 +99,7 @@ export function DataTableCategoryFilter<TData>({
                   <Check
                     className={cn(
                       "ml-auto",
-                      inputValue === category.slug ? "opacity-100" : "opacity-0"
+                      inputValue === category.name ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

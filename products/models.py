@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -18,19 +19,11 @@ class Product(models.Model):
         Category, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-    img = models.ImageField(null=True, blank=True)
+    # img = models.ImageField(null=True, blank=True)
+    created_at = models.DateTimeField(
+        auto_created=True, default=timezone.now())
+    updated_at = models.DateTimeField(auto_now=True)
+    stock = models.PositiveIntegerField(default=0)
 
     def __str__(self) -> str:
         return self.title
-
-
-class Inventory(models.Model):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=0)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name_plural = "inventories"
-
-    def __str__(self) -> str:
-        return f'{self.product.title} x {self.quantity}'

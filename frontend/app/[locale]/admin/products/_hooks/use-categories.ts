@@ -1,14 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Category } from "../_lib/product-schema";
-
-async function getCategories() {
-  const response = await fetch("https://dummyjson.com/products/categories");
-  return response.json();
-}
+import { categoriesApi } from "@/lib/api";
 
 export function useCategories() {
-  return useSuspenseQuery<Category[]>({
+  return useSuspenseQuery({
     queryKey: ["categories"],
-    queryFn: getCategories,
+    queryFn: () => categoriesApi.categoriesList().then((res) => res.data),
   });
 }

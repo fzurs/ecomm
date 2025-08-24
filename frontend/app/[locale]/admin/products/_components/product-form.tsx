@@ -12,7 +12,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Product } from "../_lib/product-schema";
+import { Product } from "@/lib/api";
 import { CategorySelector } from "./category-selector";
 
 export function ProductForm({ product }: { product?: Product }) {
@@ -62,7 +62,10 @@ export function ProductForm({ product }: { product?: Product }) {
           <FormItem>
             <FormLabel>Category</FormLabel>
             <FormControl>
-              <CategorySelector defaultValue={field.value} onValueChange={field.onChange} />
+              <CategorySelector
+                defaultValue={field.value}
+                onValueChange={field.onChange}
+              />
             </FormControl>
             <FormDescription />
             <FormMessage />
