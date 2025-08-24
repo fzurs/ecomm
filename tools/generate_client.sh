@@ -1,11 +1,11 @@
 #!/bin/bash
 TMPFILE=$(mktemp)
 
-apps/api/manage.py spectacular --color --file schema.yml
+apps/api/manage.py spectacular --color --file "$TMPFILE"
 
 pnpm exec openapi-generator-cli generate \
-    -i "TMPFILE" \
+    -i "$TMPFILE" \
     -g typescript-axios \
-    -o packages/sdk/
+    -o packages/sdks/typescript-axios
 
 rm "$TMPFILE"
