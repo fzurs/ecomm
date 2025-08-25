@@ -1,6 +1,8 @@
 #!/bin/bash
+
 TMPFILE=$(mktemp)
 
+# require python enviroment
 apps/api/manage.py spectacular --color --file "$TMPFILE"
 
 pnpm exec openapi-generator-cli generate \
