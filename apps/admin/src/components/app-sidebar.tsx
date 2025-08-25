@@ -1,38 +1,99 @@
-import Link from "next/link";
+"use client";
+
+import * as React from "react";
+
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "./ui/sidebar";
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import {
+  ChartBar,
+  CircleQuestionMark,
+  Layers2,
+  Package,
+  Settings,
+  ShoppingBag,
+  Users,
+} from "lucide-react";
 
-export function AppSidebar() {
+const data = {
+  user: {
+    name: "Franco Z",
+    email: "fzursch@gmail.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  navMain: [
+    {
+      title: "Orders",
+      url: "/admin/orders",
+      icon: ShoppingBag,
+    },
+    {
+      title: "Products",
+      url: "/admin/products",
+      icon: Package,
+    },
+    {
+      title: "Customers",
+      url: "/admin/customers",
+      icon: Users,
+    },
+    {
+      title: "Analytics",
+      url: "/admin/analytics",
+      icon: ChartBar,
+    },
+  ],
+  navSecondary: [
+    {
+      title: "Settings",
+      url: "/admin/settings",
+      icon: Settings,
+    },
+    {
+      title: "Get Help",
+      url: "/admin/help",
+      icon: CircleQuestionMark,
+    },
+  ],
+};
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>Ecommerce Admin</SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/admin">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <Layers2 className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">Ecommerce</span>
+                  <span className="truncate text-xs">Admin</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/products">Products</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain items={data.navMain} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
