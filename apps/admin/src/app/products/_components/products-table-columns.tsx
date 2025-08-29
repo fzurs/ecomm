@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { Product } from "@sdk";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -32,144 +32,146 @@ import { cn } from "@/lib/utils";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { productsApi } from "@/lib/api";
-import { productsQueryOptions } from "@/lib/queries";
+import { categoriesQueryOptions, productsQueryOptions } from "@/lib/queries";
 
-export const productsTableColumns: ColumnDef<Product>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+function getStockColor(stock: number) {
+  let className: string;
+  if (stock === 0) {
+    className = "bg-red-100 text-red-800 border-red-200";
+  } else if (stock <= 5) {
+    className = "bg-orange-100 text-orange-800 border-orange-200";
+  } else if (stock <= 10) {
+    className = "bg-amber-100 text-amber-800 border-amber-200";
+  } else {
+    className = "bg-green-100 text-green-800 border-green-200";
+  }
+  return className;
+}
+
+const columnHelper = createColumnHelper<Product>();
+
+export function useProductColumns() {
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions);
+
+  return React.useMemo(
+    () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+              aria-label="Select all"
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Select row"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      }),
+      columnHelper.accessor("name", {
+        header: ({ column }) => (
+          <DataTableColumnHeader title="Name" column={column} />
+        ),
+        cell: ({ row }) => <TableCellViewer product={row.original} />,
+      }),
+      columnHelper.accessor("description", {
+        header: "Description",
+        cell: ({ getValue }) => (
+          <div className="max-w-[200px] text-muted-foreground truncate">
+            {getValue()}
+          </div>
+        ),
+      }),
+      columnHelper.accessor("category", {
+        header: ({ column }) => (
+          <DataTableColumnHeader title="Category" column={column} />
+        ),
+        cell: ({ getValue }) => (
+          <Badge variant="outline" className="capitalize">
+            {getValue()?.name}
+          </Badge>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+          const cellValue = row.getValue(columnId);
+
+          if (!filterValue) return true;
+
+          if (
+            cellValue &&
+            typeof cellValue === "object" &&
+            "slug" in cellValue &&
+            typeof cellValue.slug === "string"
+          ) {
+            return cellValue.slug
+              .toLowerCase()
+              .includes(filterValue.toLowerCase());
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => {
-      return <DataTableColumnHeader title="Name" column={column} />;
-    },
-    cell: ({ row }) => {
-      return <TableCellViewer product={row.original} />;
-    },
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => {
-      return (
-        <div className="max-w-[200px] text-muted-foreground truncate">
-          {row.original.description}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "category",
-    header: ({ column }) => {
-      return <DataTableColumnHeader title="Category" column={column} />;
-    },
-    cell: ({ row }) => {
-      if (!row.original.category) return null;
-      return (
-        <Badge variant="outline" className="capitalize">
-          {row.original.category.name}
-        </Badge>
-      );
-    },
-    filterFn: (row, columnId, filterValue) => {
-      const cellValue = row.getValue(columnId);
 
-      if (!filterValue) return true;
-
-      if (
-        cellValue &&
-        typeof cellValue === "object" &&
-        "slug" in cellValue &&
-        typeof cellValue.slug === "string"
-      ) {
-        return cellValue.slug.toLowerCase().includes(filterValue.toLowerCase());
-      }
-
-      return false;
-    },
-  },
-  {
-    accessorKey: "price",
-    header: ({ column }) => {
-      return <DataTableColumnHeader title="Price" column={column} />;
-    },
-    cell: ({ row }) => <div>${Number(row.original.price)}</div>,
-  },
-  {
-    accessorKey: "stock_quantity",
-    header: ({ column }) => {
-      return <DataTableColumnHeader title="Stock" column={column} />;
-    },
-    cell: ({ row }) => {
-      const stock = row.original.stock_quantity;
-
-      if (!stock) return null;
-
-      function getStockColor(stock: number) {
-        let className: string;
-        if (stock === 0) {
-          className = "bg-red-100 text-red-800 border-red-200";
-        } else if (stock <= 5) {
-          className = "bg-orange-100 text-orange-800 border-orange-200";
-        } else if (stock <= 10) {
-          className = "bg-amber-100 text-amber-800 border-amber-200";
-        } else {
-          className = "bg-green-100 text-green-800 border-green-200";
-        }
-        return className;
-      }
-
-      return <Badge className={cn(getStockColor(stock))}>{stock} units</Badge>;
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created at",
-    cell: ({ row }) => {
-      return new Date(row.original["created_at"]).toDateString();
-    },
-    meta: { label: "Created at" },
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Updated at",
-    cell: ({ row }) => {
-      return new Date(row.original["updated_at"]).toDateString();
-    },
-    meta: { label: "Updated at" },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      return <TableColumnAction product={row.original} />;
-    },
-  },
-];
+          return false;
+        },
+        meta: {
+          variant: "select",
+          options: categories.map((category) => ({
+            label: category.name,
+            value: category.slug,
+          })),
+        },
+      }),
+      columnHelper.accessor("price", {
+        header: ({ column }) => (
+          <DataTableColumnHeader title="Price" column={column} />
+        ),
+        cell: ({ getValue }) => <div>${getValue()}</div>,
+      }),
+      columnHelper.accessor("stock_quantity", {
+        header: ({ column }) => (
+          <DataTableColumnHeader title="Stock" column={column} />
+        ),
+        cell: ({ getValue }) => (
+          <Badge className={cn(getStockColor(getValue() ?? 0))}>
+            {getValue()} units
+          </Badge>
+        ),
+      }),
+      columnHelper.accessor("created_at", {
+        header: "Created at",
+        cell: ({ row }) => new Date(row.original["created_at"]).toDateString(),
+        meta: { label: "Created at" },
+      }),
+      columnHelper.accessor("updated_at", {
+        header: "Updated at",
+        cell: ({ row }) => new Date(row.original["updated_at"]).toDateString(),
+        meta: { label: "Updated at" },
+      }),
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => <TableColumnAction product={row.original} />,
+      }),
+    ],
+    [categories]
+  );
+}
 
 function useViewerSearchParams(id: string) {
   return useQueryState(`viewer_${id}`, parseAsBoolean.withDefault(false));

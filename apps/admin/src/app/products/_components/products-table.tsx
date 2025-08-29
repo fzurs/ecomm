@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { productsTableColumns } from "./products-table-columns";
+import { useProductColumns } from "./products-table-columns";
 
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { DataTable } from "@/components/data-table/data-table";
@@ -12,11 +12,14 @@ import { CreateProductDrawer } from "./create-product-drawer";
 import { Product } from "@sdk";
 import { DataTableSearchInput } from "@/components/data-table/data-table-search-input";
 import { DataTableCategoryFilter } from "./data-table-category-filter";
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 
 export function ProductsTable({ products }: { products: Product[] }) {
+  const columns = useProductColumns();
+
   const table = useDataTable({
     data: products,
-    columns: productsTableColumns,
+    columns,
   });
 
   return (
@@ -28,6 +31,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
           placeholder="Search products..."
           className="max-w-full w-full md:max-w-[300px]"
         />
+        <DataTableToolbar table={table} />
         <div className="ml-auto flex gap-2">
           <DataTableCategoryFilter table={table} />
           <DataTableViewOptions table={table} />
