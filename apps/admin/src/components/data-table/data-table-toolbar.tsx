@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Column, Table } from "@tanstack/table-core";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { Input } from "../ui/input";
 
 export function DataTableToolbar<TData>({ table }: { table: Table<TData> }) {
   const columns = table
@@ -26,12 +27,20 @@ function DataTableToolbarFilter<TData>({ column }: { column: Column<TData> }) {
 
     switch (columnMeta.variant) {
       case "text":
-        return <div>TExt</div>;
+        return (
+          <Input
+            placeholder={columnMeta.placeholder ?? columnMeta.label}
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(event) => column.setFilterValue(event.target.value)}
+            className="h-8 w-40 lg:w-56"
+          />
+        );
       case "select":
         return (
           <DataTableFacetedFilter
             column={column}
             options={columnMeta.options ?? []}
+            title={columnMeta.label ?? column.id}
           />
         );
       default:

@@ -94,6 +94,7 @@ export function useProductColumns() {
           <DataTableColumnHeader title="Name" column={column} />
         ),
         cell: ({ row }) => <TableCellViewer product={row.original} />,
+        meta: { variant: "text" },
       }),
       columnHelper.accessor("description", {
         header: "Description",
@@ -131,6 +132,7 @@ export function useProductColumns() {
           return false;
         },
         meta: {
+          label: "Category",
           variant: "select",
           options: categories.map((category) => ({
             label: category.name,
