@@ -27,18 +27,14 @@ import { ProductForm } from "./product-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { parseAsBoolean, useQueryState } from "nuqs";
-import {
-  Copy,
-  Delete,
-  Edit,
-  EllipsisVertical,
-  Star,
-  StarHalf,
-  View,
-} from "lucide-react";
+import { Copy, Delete, Edit, EllipsisVertical, View } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Separator } from "@/components/ui/separator";
+import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { productsApi } from "@/lib/api";
+import { productsQueryOptions } from "@/lib/queries";
 
 export const productsTableColumns: ColumnDef<Product>[] = [
   {
@@ -68,157 +64,183 @@ export const productsTableColumns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "title",
+    accessorKey: "name",
     header: ({ column }) => {
-      return <DataTableColumnHeader title="Title" column={column} />;
+      return <DataTableColumnHeader title="Name" column={column} />;
     },
     cell: ({ row }) => {
       return <TableCellViewer product={row.original} />;
     },
   },
-  // {
-  //   accessorKey: "description",
-  //   header: "Description",
-  //   cell: ({ row }) => {
-  //     return (
-  //       <div className="max-w-[200px] text-muted-foreground truncate">
-  //         {row.original.description}
-  //       </div>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "category",
-  //   header: ({ column }) => {
-  //     return <DataTableColumnHeader title="Category" column={column} />;
-  //   },
-  //   cell: ({ row }) => {
-  //     const category = row.original.category;
-  //     if (!category) return null;
-  //     return (
-  //       <Badge variant="outline" className="capitalize">
-  //         {row.original.category}
-  //       </Badge>
-  //     );
-  //   },
-  // },
+  {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({ row }) => {
+      return (
+        <div className="max-w-[200px] text-muted-foreground truncate">
+          {row.original.description}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Category" column={column} />;
+    },
+    cell: ({ row }) => {
+      if (!row.original.category) return null;
+      return (
+        <Badge variant="outline" className="capitalize">
+          {row.original.category.name}
+        </Badge>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const cellValue = row.getValue(columnId);
+
+      if (!filterValue) return true;
+
+      if (
+        cellValue &&
+        typeof cellValue === "object" &&
+        "slug" in cellValue &&
+        typeof cellValue.slug === "string"
+      ) {
+        return cellValue.slug.toLowerCase().includes(filterValue.toLowerCase());
+      }
+
+      return false;
+    },
+  },
   {
     accessorKey: "price",
     header: ({ column }) => {
       return <DataTableColumnHeader title="Price" column={column} />;
     },
+    cell: ({ row }) => <div>${Number(row.original.price)}</div>,
   },
-  // {
-  //   accessorKey: "rating",
-  //   header: ({ column }) => {
-  //     return <DataTableColumnHeader title="Rating" column={column} />;
-  //   },
-  //   cell: ({ row }) => {
-  //     const { rating, reviews } = row.original;
-  //     return (
-  //       <div className="flex items-center gap-2">
-  //         <StarRating rating={rating} />
-  //         <div className="flex flex-col">
-  //           <span className="text-sm font-semibold">{rating}</span>
-  //           {reviews.length > 0 && (
-  //             <span className="text-xs">({reviews.length} reviews)</span>
-  //           )}
-  //         </div>
-  //       </div>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "stock",
-  //   header: ({ column }) => {
-  //     return <DataTableColumnHeader title="Stock" column={column} />;
-  //   },
-  //   cell: ({ row }) => {
-  //     const stock = Number(row.original.stock);
+  {
+    accessorKey: "stock_quantity",
+    header: ({ column }) => {
+      return <DataTableColumnHeader title="Stock" column={column} />;
+    },
+    cell: ({ row }) => {
+      const stock = row.original.stock_quantity;
 
-  //     function getStockColor(stock: number) {
-  //       let className: string;
-  //       if (stock === 0) {
-  //         className = "bg-red-100 text-red-800 border-red-200";
-  //       } else if (stock <= 5) {
-  //         className = "bg-orange-100 text-orange-800 border-orange-200";
-  //       } else if (stock <= 10) {
-  //         className = "bg-amber-100 text-amber-800 border-amber-200";
-  //       } else {
-  //         className = "bg-green-100 text-green-800 border-green-200";
-  //       }
-  //       return className;
-  //     }
+      if (!stock) return null;
 
-  //     return <Badge className={cn(getStockColor(stock))}>{stock} units</Badge>;
-  //   },
-  // },
-  // {
-  //   accessorKey: "createdAt",
-  //   header: "Created at",
-  //   cell: ({ row }) => {
-  //     const createdAt = new Date(row.original["created_at"] ?? "");
-  //     return new Date(createdAt).toDateString();
-  //   },
-  //   meta: { label: "Created at" },
-  // },
-  // {
-  //   accessorKey: "updatedAt",
-  //   header: "Updated at",
-  //   cell: ({ row }) => {
-  //     return new Date(row.original["updated_at"]).toDateString();
-  //   },
-  //   meta: { label: "Updated at" },
-  // },
+      function getStockColor(stock: number) {
+        let className: string;
+        if (stock === 0) {
+          className = "bg-red-100 text-red-800 border-red-200";
+        } else if (stock <= 5) {
+          className = "bg-orange-100 text-orange-800 border-orange-200";
+        } else if (stock <= 10) {
+          className = "bg-amber-100 text-amber-800 border-amber-200";
+        } else {
+          className = "bg-green-100 text-green-800 border-green-200";
+        }
+        return className;
+      }
+
+      return <Badge className={cn(getStockColor(stock))}>{stock} units</Badge>;
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created at",
+    cell: ({ row }) => {
+      return new Date(row.original["created_at"]).toDateString();
+    },
+    meta: { label: "Created at" },
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Updated at",
+    cell: ({ row }) => {
+      return new Date(row.original["updated_at"]).toDateString();
+    },
+    meta: { label: "Updated at" },
+  },
   {
     id: "actions",
     cell: ({ row }) => {
-      return <TableColumnAction productId={row.original.id} />;
+      return <TableColumnAction product={row.original} />;
     },
   },
 ];
 
-function useViewerSearchParam(productId: number) {
-  return useQueryState(
-    `viewer_${productId}`,
-    parseAsBoolean.withDefault(false)
-  );
+function useViewerSearchParams(id: string) {
+  return useQueryState(`viewer_${id}`, parseAsBoolean.withDefault(false));
 }
 
 function TableCellViewer({ product }: { product: Product }) {
-  const [open, setOpen] = useViewerSearchParam(product.id);
+  const formId = `update-product-form-${product.id}`;
+  const [viewerOpen, setViewerOpen] = useViewerSearchParams(product.id);
   const isMobile = useIsMobile();
+
+  const form = useForm<Product>({ defaultValues: product });
+
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: Product) =>
+      productsApi.productsUpdate(product.id, data).then((res) => res.data),
+    onMutate: async (newProduct) => {
+      await queryClient.cancelQueries(productsQueryOptions);
+      const previousProducts = queryClient.getQueryData<Product[]>(
+        productsQueryOptions.queryKey
+      );
+      queryClient.setQueryData<Product[]>(
+        productsQueryOptions.queryKey,
+        (old) => {
+          if (!old) return old;
+          return old.map((item) =>
+            newProduct.id === item.id ? newProduct : item
+          );
+        }
+      );
+      return { previousProducts };
+    },
+    onError: (err, newProduct, context) => {
+      queryClient.setQueryData(
+        productsQueryOptions.queryKey,
+        context?.previousProducts
+      );
+    },
+    onSettled: () => queryClient.invalidateQueries(productsQueryOptions),
+    onSuccess: () => {
+      setViewerOpen(false);
+    },
+  });
 
   return (
     <Drawer
-      open={open}
-      onOpenChange={setOpen}
+      open={viewerOpen}
+      onOpenChange={setViewerOpen}
       direction={isMobile ? "bottom" : "right"}
     >
       <DrawerTrigger asChild>
         <Button variant="link" className="px-0 text-foreground">
-          {product.title}
+          {product.name}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{product.title}</DrawerTitle>
+          <DrawerTitle>{product.name}</DrawerTitle>
           <DrawerDescription className="text-muted-foreground leading-5.5">
             {product.description}
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {/* <div className="grid gap-1 justify-center text-center md:text-start md:justify-start">
-            <span className="text-muted-foreground text-sm">
-              Rating: {product.rating}/5
-            </span>
-            <StarRating rating={product.rating} />
-          </div> */}
           <Separator />
-          {/* <ProductForm product={product} /> */}
+          <ProductForm form={form} onSubmit={mutate} formId={formId} />
         </div>
         <DrawerFooter>
-          <Button>Save changes</Button>
+          <Button form={formId} disabled={isPending}>
+            Save changes
+          </Button>
           <DrawerClose asChild>
             <Button variant="outline">Done</Button>
           </DrawerClose>
@@ -228,48 +250,11 @@ function TableCellViewer({ product }: { product: Product }) {
   );
 }
 
-function StarRating({
-  rating,
-  maxRating = 5,
-}: {
-  rating: number;
-  maxRating?: number;
-}) {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 !== 0;
-  const emptyStars = maxRating - fullStars - (hasHalfStar ? 1 : 0);
-
-  return (
-    <div className="flex items-center gap-1">
-      {/* Estrellas llenas */}
-      {Array.from({ length: fullStars }).map((_, i) => (
-        <Star
-          key={`full-${i}`}
-          className="w-4 h-4 fill-muted-foreground text-muted-foreground"
-        />
-      ))}
-
-      {/* Media estrella */}
-      {hasHalfStar && (
-        <div className="relative">
-          <Star className="absolute w-4 h-4 text-muted-foreground" />
-          <StarHalf className="w-4 h-4 fill-muted-foreground text-muted-foreground" />
-        </div>
-      )}
-
-      {/* Estrellas vacías */}
-      {Array.from({ length: emptyStars }).map((_, i) => (
-        <Star key={`empty-${i}`} className="w-4 h-4 text-muted-foreground" />
-      ))}
-    </div>
-  );
-}
-
-function TableColumnAction({ productId }: { productId: number }) {
+function TableColumnAction({ product }: { product: Product }) {
   const [open, setOpen] = React.useState(false);
-  const setViewerOpen = useViewerSearchParam(productId)[1];
+  const setViewerOpen = useViewerSearchParams(product.id)[1];
 
-  const handleClick = () => {
+  const toggleViewer = () => {
     setOpen(false);
     setViewerOpen(true);
   };
@@ -285,11 +270,11 @@ function TableColumnAction({ productId }: { productId: number }) {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleClick}>
+        <DropdownMenuItem onClick={toggleViewer}>
           <View />
           View more
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleClick}>
+        <DropdownMenuItem onClick={toggleViewer}>
           <Edit />
           Edit
         </DropdownMenuItem>
@@ -298,11 +283,48 @@ function TableColumnAction({ productId }: { productId: number }) {
           Copy ID
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        <DestroyDropdownMenuItem product={product}>
           <Delete />
           Delete
-        </DropdownMenuItem>
+        </DestroyDropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export function DestroyDropdownMenuItem({
+  product,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuItem> & { product: Product }) {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => productsApi.productsDestroy(product.id),
+    onMutate: async () => {
+      await queryClient.cancelQueries(productsQueryOptions);
+      const previousProducts = queryClient.getQueryData<Product[]>(
+        productsQueryOptions.queryKey
+      );
+      queryClient.setQueryData<Product[]>(
+        productsQueryOptions.queryKey,
+        (old) => old?.filter((productOld) => productOld.id !== product.id)
+      );
+      return { previousProducts };
+    },
+    onError: (err, newProduct, context) => {
+      queryClient.setQueryData(
+        productsQueryOptions.queryKey,
+        context?.previousProducts
+      );
+    },
+    onSettled: () => queryClient.invalidateQueries(productsQueryOptions),
+  });
+
+  return (
+    <DropdownMenuItem
+      onSelect={() => mutate()}
+      disabled={isPending}
+      {...props}
+    />
   );
 }

@@ -5,8 +5,19 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **number** |  | [readonly] [default to undefined]
+**id** | **string** |  | [readonly] [default to undefined]
+**category** | [**Category**](Category.md) |  | [readonly] [default to undefined]
+**category_id** | **number** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
+**slug** | **string** |  | [optional] [default to undefined]
+**sku** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**price** | **string** |  | [optional] [default to undefined]
+**stock_quantity** | **number** |  | [optional] [default to undefined]
+**status** | [**StatusEnum**](StatusEnum.md) |  | [optional] [default to undefined]
+**created_at** | **string** |  | [readonly] [default to undefined]
+**updated_at** | **string** |  | [readonly] [default to undefined]
+**brand** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -15,7 +26,18 @@ import { Product } from './api';
 
 const instance: Product = {
     id,
+    category,
+    category_id,
     name,
+    slug,
+    sku,
+    description,
+    price,
+    stock_quantity,
+    status,
+    created_at,
+    updated_at,
+    brand,
 };
 ```
 

@@ -10,6 +10,7 @@ import { ReactQueryProvider } from "@/components/react-query-provider";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,14 +36,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <NuqsAdapter>
-            <ReactQueryProvider>
+        <NuqsAdapter>
+          <ReactQueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
               <SidebarProvider
                 style={
                   {
@@ -54,9 +55,10 @@ export default function RootLayout({
                 <AppSidebar />
                 <SidebarInset>{children}</SidebarInset>
               </SidebarProvider>
-            </ReactQueryProvider>
-          </NuqsAdapter>
-        </ThemeProvider>
+              <Toaster />
+            </ThemeProvider>
+          </ReactQueryProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

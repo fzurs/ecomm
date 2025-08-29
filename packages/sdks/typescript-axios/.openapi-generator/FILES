@@ -4,8 +4,12 @@ api.ts
 base.ts
 common.ts
 configuration.ts
+docs/CategoriesApi.md
+docs/Category.md
+docs/PatchedCategory.md
 docs/PatchedProduct.md
 docs/Product.md
 docs/ProductsApi.md
+docs/StatusEnum.md
 git_push.sh
 index.ts

@@ -5,8 +5,19 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **number** |  | [optional] [readonly] [default to undefined]
+**id** | **string** |  | [optional] [readonly] [default to undefined]
+**category** | [**Category**](Category.md) |  | [optional] [readonly] [default to undefined]
+**category_id** | **number** |  | [optional] [default to undefined]
 **name** | **string** |  | [optional] [default to undefined]
+**slug** | **string** |  | [optional] [default to undefined]
+**sku** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**price** | **string** |  | [optional] [default to undefined]
+**stock_quantity** | **number** |  | [optional] [default to undefined]
+**status** | [**StatusEnum**](StatusEnum.md) |  | [optional] [default to undefined]
+**created_at** | **string** |  | [optional] [readonly] [default to undefined]
+**updated_at** | **string** |  | [optional] [readonly] [default to undefined]
+**brand** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -15,7 +26,18 @@ import { PatchedProduct } from './api';
 
 const instance: PatchedProduct = {
     id,
+    category,
+    category_id,
     name,
+    slug,
+    sku,
+    description,
+    price,
+    stock_quantity,
+    status,
+    created_at,
+    updated_at,
+    brand,
 };
 ```
 

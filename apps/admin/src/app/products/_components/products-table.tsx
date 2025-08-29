@@ -12,21 +12,11 @@ import { CreateProductDrawer } from "./create-product-drawer";
 import { Product } from "@sdk";
 import { DataTableSearchInput } from "@/components/data-table/data-table-search-input";
 import { DataTableCategoryFilter } from "./data-table-category-filter";
-import { VisibilityState } from "@tanstack/react-table";
 
 export function ProductsTable({ products }: { products: Product[] }) {
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      description: false,
-      createdAt: false,
-      updatedAt: false,
-    });
-
   const table = useDataTable({
     data: products,
     columns: productsTableColumns,
-    state: { columnVisibility },
-    onColumnVisibilityChange: setColumnVisibility,
   });
 
   return (
@@ -34,12 +24,12 @@ export function ProductsTable({ products }: { products: Product[] }) {
       <div className="flex gap-2 px-4 lg:px-6">
         <DataTableSearchInput
           table={table}
-          columnId="title"
-          placeholder="Search titles..."
+          columnId="name"
+          placeholder="Search products..."
           className="max-w-full w-full md:max-w-[300px]"
         />
         <div className="ml-auto flex gap-2">
-          {/* <DataTableCategoryFilter table={table} /> */}
+          <DataTableCategoryFilter table={table} />
           <DataTableViewOptions table={table} />
           <CreateProductDrawer />
         </div>

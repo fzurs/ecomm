@@ -1,36 +1,36 @@
-# ProductsApi
+# CategoriesApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**productsCreate**](#productscreate) | **POST** /products/ | |
-|[**productsDestroy**](#productsdestroy) | **DELETE** /products/{id}/ | |
-|[**productsList**](#productslist) | **GET** /products/ | |
-|[**productsPartialUpdate**](#productspartialupdate) | **PATCH** /products/{id}/ | |
-|[**productsRetrieve**](#productsretrieve) | **GET** /products/{id}/ | |
-|[**productsUpdate**](#productsupdate) | **PUT** /products/{id}/ | |
+|[**categoriesCreate**](#categoriescreate) | **POST** /categories/ | |
+|[**categoriesDestroy**](#categoriesdestroy) | **DELETE** /categories/{id}/ | |
+|[**categoriesList**](#categorieslist) | **GET** /categories/ | |
+|[**categoriesPartialUpdate**](#categoriespartialupdate) | **PATCH** /categories/{id}/ | |
+|[**categoriesRetrieve**](#categoriesretrieve) | **GET** /categories/{id}/ | |
+|[**categoriesUpdate**](#categoriesupdate) | **PUT** /categories/{id}/ | |
 
-# **productsCreate**
-> Product productsCreate(product)
+# **categoriesCreate**
+> Category categoriesCreate(category)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CategoriesApi,
     Configuration,
-    Product
+    Category
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CategoriesApi(configuration);
 
-let product: Product; //
+let category: Category; //
 
-const { status, data } = await apiInstance.productsCreate(
-    product
+const { status, data } = await apiInstance.categoriesCreate(
+    category
 );
 ```
 
@@ -38,12 +38,12 @@ const { status, data } = await apiInstance.productsCreate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **product** | **Product**|  | |
+| **category** | **Category**|  | |
 
 
 ### Return type
 
-**Product**
+**Category**
 
 ### Authorization
 
@@ -62,24 +62,24 @@ const { status, data } = await apiInstance.productsCreate(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsDestroy**
-> productsDestroy()
+# **categoriesDestroy**
+> categoriesDestroy()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CategoriesApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
+let id: number; //A unique integer value identifying this category. (default to undefined)
 
-const { status, data } = await apiInstance.productsDestroy(
+const { status, data } = await apiInstance.categoriesDestroy(
     id
 );
 ```
@@ -88,7 +88,7 @@ const { status, data } = await apiInstance.productsDestroy(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **id** | [**number**] | A unique integer value identifying this category. | defaults to undefined|
 
 
 ### Return type
@@ -112,22 +112,22 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsList**
-> Array<Product> productsList()
+# **categoriesList**
+> Array<Category> categoriesList()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CategoriesApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CategoriesApi(configuration);
 
-const { status, data } = await apiInstance.productsList();
+const { status, data } = await apiInstance.categoriesList();
 ```
 
 ### Parameters
@@ -136,7 +136,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**Array<Product>**
+**Array<Category>**
 
 ### Authorization
 
@@ -155,28 +155,28 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsPartialUpdate**
-> Product productsPartialUpdate()
+# **categoriesPartialUpdate**
+> Category categoriesPartialUpdate()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CategoriesApi,
     Configuration,
-    PatchedProduct
+    PatchedCategory
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
-let patchedProduct: PatchedProduct; // (optional)
+let id: number; //A unique integer value identifying this category. (default to undefined)
+let patchedCategory: PatchedCategory; // (optional)
 
-const { status, data } = await apiInstance.productsPartialUpdate(
+const { status, data } = await apiInstance.categoriesPartialUpdate(
     id,
-    patchedProduct
+    patchedCategory
 );
 ```
 
@@ -184,13 +184,13 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **patchedProduct** | **PatchedProduct**|  | |
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **patchedCategory** | **PatchedCategory**|  | |
+| **id** | [**number**] | A unique integer value identifying this category. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Category**
 
 ### Authorization
 
@@ -209,24 +209,24 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsRetrieve**
-> Product productsRetrieve()
+# **categoriesRetrieve**
+> Category categoriesRetrieve()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CategoriesApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
+let id: number; //A unique integer value identifying this category. (default to undefined)
 
-const { status, data } = await apiInstance.productsRetrieve(
+const { status, data } = await apiInstance.categoriesRetrieve(
     id
 );
 ```
@@ -235,12 +235,12 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **id** | [**number**] | A unique integer value identifying this category. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Category**
 
 ### Authorization
 
@@ -259,28 +259,28 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsUpdate**
-> Product productsUpdate(product)
+# **categoriesUpdate**
+> Category categoriesUpdate(category)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CategoriesApi,
     Configuration,
-    Product
+    Category
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
-let product: Product; //
+let id: number; //A unique integer value identifying this category. (default to undefined)
+let category: Category; //
 
-const { status, data } = await apiInstance.productsUpdate(
+const { status, data } = await apiInstance.categoriesUpdate(
     id,
-    product
+    category
 );
 ```
 
@@ -288,13 +288,13 @@ const { status, data } = await apiInstance.productsUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **product** | **Product**|  | |
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **category** | **Category**|  | |
+| **id** | [**number**] | A unique integer value identifying this category. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Category**
 
 ### Authorization
 

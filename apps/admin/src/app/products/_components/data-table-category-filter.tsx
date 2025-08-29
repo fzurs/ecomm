@@ -20,24 +20,24 @@ import { Column, Table } from "@tanstack/react-table";
 import { parseAsString, useQueryState } from "nuqs";
 import { cn } from "@/lib/utils";
 import { useDebouncedCallback } from "use-debounce";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { categoriesQueryOptions } from "@/lib/queries";
+import { Product } from "@sdk";
 
-const columnId = "category";
+const columnId: keyof Product = "category";
 
 export function DataTableCategoryFilter<TData>({
   table,
 }: {
   table: Table<TData>;
 }) {
-  const column = table.getColumn(columnId) as Column<TData>;
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions);
 
-  const categories: { id: number; name: string }[] = [];
+  const column = table.getColumn(columnId) as Column<TData>;
 
   const [open, setOpen] = React.useState(false);
 
-  const [queryValue, setQueryValue] = useQueryState(
-    columnId as string,
-    parseAsString
-  );
+  const [queryValue, setQueryValue] = useQueryState(columnId, parseAsString);
 
   const [inputValue, setInputValue] = React.useState(queryValue);
 
@@ -58,7 +58,17 @@ export function DataTableCategoryFilter<TData>({
   }, 300);
 
   const currentValue = categories?.find(
-    (category) => category.name === inputValue
+    (category) => category.slug === inputValue
+  );
+
+  const onSelect = React.useCallback(
+    (value: string) => {
+      const newValue = value === inputValue ? null : value;
+      setInputValue(newValue);
+      debouncedSetValue(newValue);
+      setOpen(false);
+    },
+    [inputValue, setInputValue, debouncedSetValue, setOpen]
   );
 
   return (
@@ -82,23 +92,17 @@ export function DataTableCategoryFilter<TData>({
           <CommandList>
             <CommandEmpty>No category found.</CommandEmpty>
             <CommandGroup>
-              {categories?.map((category) => (
+              {categories.map((category) => (
                 <CommandItem
                   key={category.id}
-                  value={category.name}
-                  onSelect={() => {
-                    const value =
-                      category.name === inputValue ? null : category.name;
-                    setInputValue(value);
-                    debouncedSetValue(value);
-                    setOpen(false);
-                  }}
+                  value={category.slug}
+                  onSelect={onSelect}
                 >
                   {category.name}
                   <Check
                     className={cn(
                       "ml-auto",
-                      inputValue === category.name ? "opacity-100" : "opacity-0"
+                      inputValue === category.slug ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

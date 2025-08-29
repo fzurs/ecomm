@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { useProducts } from "@/lib/api/products";
+import { productsQueryOptions } from "@/lib/queries";
 import { ProductsTable } from "./_components/products-table";
 import { SiteHeader } from "@/components/site-header";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function Page() {
-  const { data: products } = useProducts();
+  const { data: products } = useSuspenseQuery(productsQueryOptions);
 
   return (
     <>

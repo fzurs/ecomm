@@ -34,34 +34,34 @@ const data = {
   navMain: [
     {
       title: "Orders",
-      url: "/admin/orders",
+      url: "/orders",
       icon: ShoppingBag,
     },
     {
       title: "Products",
-      url: "/admin/products",
+      url: "/products",
       icon: Package,
     },
     {
       title: "Customers",
-      url: "/admin/customers",
+      url: "/customers",
       icon: Users,
     },
     {
       title: "Analytics",
-      url: "/admin/analytics",
+      url: "/analytics",
       icon: ChartBar,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "/admin/settings",
+      url: "/settings",
       icon: Settings,
     },
     {
       title: "Get Help",
-      url: "/admin/help",
+      url: "/help",
       icon: CircleQuestionMark,
     },
   ],
@@ -74,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/admin">
+              <Link href="">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Layers2 className="size-4" />
                 </div>

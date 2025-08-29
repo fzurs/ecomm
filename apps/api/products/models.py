@@ -46,15 +46,17 @@ class Product(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
-    sku = models.CharField(max_length=100, unique=True, verbose_name="SKU")
+    sku = models.CharField(max_length=100, unique=True, blank=True, verbose_name="SKU")
 
     description = models.TextField(blank=True)
 
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     brand = models.ForeignKey(
         Brand,
@@ -85,4 +87,29 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        if not self.sku:
+            self.sku = self.generate_sku()
         super().save(*args, **kwargs)
+
+    def generate_sku(self):
+        """SKU simple: primeras letras + número secuencial"""
+        # Tomar primeras letras de cada palabra
+        words = self.name.split()[:3]
+        code = "".join(word[0].upper() for word in words)
+
+        # Buscar el siguiente número disponible
+        last_product = (
+            Product.objects.filter(sku__startswith=code).order_by("-sku").first()
+        )
+
+        if last_product:
+            # Extraer número del último SKU
+            try:
+                last_num = int(last_product.sku.split("-")[-1])
+                new_num = last_num + 1
+            except:
+                new_num = 1
+        else:
+            new_num = 1
+
+        return f"{code}-{new_num:04d}"  # MCT-0001, MCT-0002...

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Product } from "@sdk";
 import { UseFormReturn } from "react-hook-form";
+import { CategorySelect } from "./category-select";
 
 export function ProductForm({
   form,
@@ -25,13 +26,17 @@ export function ProductForm({
 }) {
   return (
     <Form {...form}>
-      <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        id={formId}
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <FormField
           control={form.control}
-          name="title"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -61,15 +66,15 @@ export function ProductForm({
         />
         <FormField
           control={form.control}
-          name="category"
-          render={({ field }) => (
+          name="category_id"
+          render={({ field, formState }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
               <FormControl>
-                {/* <CategorySelector
-                  defaultValue={field.value}
+                <CategorySelect
+                  defaultValue={formState.defaultValues?.category?.id?.toString()}
                   onValueChange={field.onChange}
-                /> */}
+                />
               </FormControl>
               <FormDescription />
               <FormMessage />
@@ -100,7 +105,7 @@ export function ProductForm({
         />
         <FormField
           control={form.control}
-          name="stock"
+          name="stock_quantity"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Stock</FormLabel>
