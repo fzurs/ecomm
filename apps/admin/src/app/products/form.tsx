@@ -27,6 +27,7 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { useCallback, useMemo, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 
 const statuses = [
   {
@@ -209,8 +211,11 @@ export function ProductForm({
 }
 
 export function useInfiniteCategories() {
+  const [searchValue, setSearchValue] = useState("");
+  const [search, setSearch] = useState("");
+
   const infiniteQuery = useInfiniteQuery(
-    getCategoriesInfiniteQueryOptions([10])
+    getCategoriesInfiniteQueryOptions([10, undefined, search])
   );
 
   const categories = useMemo(
@@ -231,7 +236,18 @@ export function useInfiniteCategories() {
     [infiniteQuery]
   );
 
-  return { categories, handleScroll, ...infiniteQuery };
+  const debounceOnSearchChange = useDebouncedCallback(setSearch, 300);
+
+  return {
+    categories,
+    handleScroll,
+    ...infiniteQuery,
+    search: searchValue,
+    onSearchChange: (value: string) => {
+      setSearchValue(value);
+      debounceOnSearchChange(value);
+    },
+  };
 }
 
 function CategorySelect({
@@ -245,7 +261,18 @@ function CategorySelect({
 
   const [internalValue, setInternalValue] = useState(original);
 
-  const { categories, handleScroll } = useInfiniteCategories();
+  const { categories, handleScroll, search, onSearchChange } =
+    useInfiniteCategories();
+
+  const onSelect = useCallback(
+    (item: Category) => {
+      const newValue = internalValue?.id === item.id ? undefined : item;
+      onValueChange?.(newValue?.id);
+      setInternalValue(newValue);
+      setOpen(false);
+    },
+    [internalValue?.id, onValueChange]
+  );
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
@@ -256,22 +283,17 @@ function CategorySelect({
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <Command className="mt-1 border border-input">
-          {/* <CommandInput placeholder="Search..." /> */}
+        <Command className="mt-1 border border-input" shouldFilter={false}>
+          <CommandInput
+            placeholder="Search category..."
+            value={search}
+            onValueChange={onSearchChange}
+          />
           <CommandList onScroll={handleScroll}>
             <CommandEmpty>No category found.</CommandEmpty>
             <CommandGroup>
               {categories?.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  onSelect={() => {
-                    const newValue =
-                      internalValue?.id === item.id ? undefined : item;
-                    onValueChange?.(newValue?.id);
-                    setInternalValue(newValue);
-                    setOpen(false);
-                  }}
-                >
+                <CommandItem key={item.id} onSelect={() => onSelect(item)}>
                   {item.name}
                   <Check
                     className={cn(

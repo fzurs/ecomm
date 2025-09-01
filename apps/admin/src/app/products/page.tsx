@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { productsApi } from "@/lib/api";
 import { cn, handleBadRequestError } from "@/lib/utils";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   Popover,
@@ -50,6 +50,7 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -178,7 +179,17 @@ function CategoryFilter({
 }) {
   const [open, setOpen] = useState(false);
 
-  const { categories, handleScroll } = useInfiniteCategories();
+  const { categories, handleScroll, search, onSearchChange } =
+    useInfiniteCategories();
+
+  const onSelect = useCallback(
+    (item: Category) => {
+      const newValue = value?.id === item.id ? null : item;
+      onValueChange(newValue);
+      setOpen(false);
+    },
+    [onValueChange, value?.id]
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -194,20 +205,17 @@ function CategoryFilter({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[200px]">
-        <Command>
-          {/* <CommandInput placeholder="Search..." /> */}
+        <Command shouldFilter={false}>
+          <CommandInput
+            value={search}
+            onValueChange={onSearchChange}
+            placeholder="Search category..."
+          />
           <CommandList onScroll={handleScroll}>
             <CommandEmpty>No category found.</CommandEmpty>
             <CommandGroup>
               {categories?.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  onSelect={() => {
-                    const newValue = value?.id === item.id ? null : item;
-                    onValueChange(newValue);
-                    setOpen(false);
-                  }}
-                >
+                <CommandItem key={item.id} onSelect={() => onSelect(item)}>
                   {item.name}
                   <Check
                     className={cn(
