@@ -158,7 +158,7 @@ export interface PatchedProduct {
      * @type {number}
      * @memberof PatchedProduct
      */
-    'category_id'?: number;
+    'category_id'?: number | null;
     /**
      * 
      * @type {string}
@@ -245,7 +245,7 @@ export interface Product {
      * @type {number}
      * @memberof Product
      */
-    'category_id': number;
+    'category_id'?: number | null;
     /**
      * 
      * @type {string}
@@ -417,10 +417,11 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
          * 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
+         * @param {string} [search] A search term.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        categoriesList: async (limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        categoriesList: async (limit?: number, offset?: number, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/categories/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -445,6 +446,10 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
 
             if (offset !== undefined) {
                 localVarQueryParameter['offset'] = offset;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
             }
 
 
@@ -623,11 +628,12 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
          * 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
+         * @param {string} [search] A search term.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async categoriesList(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedCategoryList>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesList(limit, offset, options);
+        async categoriesList(limit?: number, offset?: number, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedCategoryList>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesList(limit, offset, search, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesList']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -702,11 +708,12 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
          * 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
+         * @param {string} [search] A search term.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        categoriesList(limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCategoryList> {
-            return localVarFp.categoriesList(limit, offset, options).then((request) => request(axios, basePath));
+        categoriesList(limit?: number, offset?: number, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCategoryList> {
+            return localVarFp.categoriesList(limit, offset, search, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -773,12 +780,13 @@ export class CategoriesApi extends BaseAPI {
      * 
      * @param {number} [limit] Number of results to return per page.
      * @param {number} [offset] The initial index from which to return the results.
+     * @param {string} [search] A search term.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CategoriesApi
      */
-    public categoriesList(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return CategoriesApiFp(this.configuration).categoriesList(limit, offset, options).then((request) => request(this.axios, this.basePath));
+    public categoriesList(limit?: number, offset?: number, search?: string, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesList(limit, offset, search, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-TMPFILE=$(mktemp)
+TMPFILE=$(mktemp --suffix=.yml)
 
 # require python enviroment
-apps/api/manage.py spectacular --color --file "$TMPFILE"
+./apps/api/manage.py spectacular --color --file "$TMPFILE"
 
 pnpm exec openapi-generator-cli generate \
     -i "$TMPFILE" \

@@ -8,6 +8,8 @@ from .serializers import CategorySerializer, ProductSerializer
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.order_by("name")
     serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -20,4 +22,4 @@ class ProductViewSet(viewsets.ModelViewSet):
     ]
     search_fields = ["name", "description"]
     filterset_fields = ["category"]
-    ordering_fields = ["name", "created_at"]
+    ordering_fields = ["name", "created_at", "updated_at", "price", "stock_quantity"]

@@ -129,10 +129,12 @@ const apiInstance = new CategoriesApi(configuration);
 
 let limit: number; //Number of results to return per page. (optional) (default to undefined)
 let offset: number; //The initial index from which to return the results. (optional) (default to undefined)
+let search: string; //A search term. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.categoriesList(
     limit,
-    offset
+    offset,
+    search
 );
 ```
 
@@ -142,6 +144,7 @@ const { status, data } = await apiInstance.categoriesList(
 |------------- | ------------- | ------------- | -------------|
 | **limit** | [**number**] | Number of results to return per page. | (optional) defaults to undefined|
 | **offset** | [**number**] | The initial index from which to return the results. | (optional) defaults to undefined|
+| **search** | [**string**] | A search term. | (optional) defaults to undefined|
 
 
 ### Return type

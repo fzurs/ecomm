@@ -20,7 +20,7 @@ export const getCategoriesInfiniteQueryOptions = (
     queryFn: async ({ pageParam }) => {
       const limit = params[0] ?? defaultPageSize;
       return categoriesApi
-        .categoriesList(limit, limit * pageParam)
+        .categoriesList(limit, limit * pageParam, params[2])
         .then((res) => res.data);
     },
     initialPageParam: 0,
