@@ -234,7 +234,7 @@ export function useInfiniteCategories() {
   return { categories, handleScroll, ...infiniteQuery };
 }
 
-export function CategorySelect({
+function CategorySelect({
   original,
   onValueChange,
 }: {
