@@ -113,7 +113,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productsList**
-> Array<Product> productsList()
+> PaginatedProductList productsList()
 
 
 ### Example
@@ -127,16 +127,35 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
 
-const { status, data } = await apiInstance.productsList();
+let category: number; // (optional) (default to undefined)
+let limit: number; //Number of results to return per page. (optional) (default to undefined)
+let offset: number; //The initial index from which to return the results. (optional) (default to undefined)
+let ordering: string; //Which field to use when ordering the results. (optional) (default to undefined)
+let search: string; //A search term. (optional) (default to undefined)
+
+const { status, data } = await apiInstance.productsList(
+    category,
+    limit,
+    offset,
+    ordering,
+    search
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **category** | [**number**] |  | (optional) defaults to undefined|
+| **limit** | [**number**] | Number of results to return per page. | (optional) defaults to undefined|
+| **offset** | [**number**] | The initial index from which to return the results. | (optional) defaults to undefined|
+| **ordering** | [**string**] | Which field to use when ordering the results. | (optional) defaults to undefined|
+| **search** | [**string**] | A search term. | (optional) defaults to undefined|
 
 
 ### Return type
 
-**Array<Product>**
+**PaginatedProductList**
 
 ### Authorization
 

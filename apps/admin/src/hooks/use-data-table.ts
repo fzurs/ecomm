@@ -1,14 +1,18 @@
 import {
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   RowData,
+  SortingState,
   TableOptions,
+  Updater,
   useReactTable,
 } from "@tanstack/react-table";
-
-import { parseAsIndex, parseAsInteger, useQueryStates } from "nuqs";
+import {
+  parseAsIndex,
+  parseAsInteger,
+  parseAsString,
+  useQueryState,
+  useQueryStates,
+} from "nuqs";
 
 const paginationParsers = {
   pageIndex: parseAsIndex.withDefault(0),
@@ -20,24 +24,73 @@ const paginationUrlKeys = {
   pageSize: "perPage",
 };
 
-export function useDataTable<TData extends RowData>(
-  props: Omit<TableOptions<TData>, "getCoreRowModel">
-) {
-  const [pagination, setPagination] = useQueryStates(paginationParsers, {
+export function usePagination() {
+  return useQueryStates(paginationParsers, {
     urlKeys: paginationUrlKeys,
   });
+}
+
+export function useOrdering() {
+  return useQueryState(
+    "ordering",
+    parseAsString.withOptions({ clearOnDefault: true })
+  );
+}
+
+function parseSortParam(param: string | null) {
+  if (!param) return [];
+  return [
+    param.startsWith("-")
+      ? { id: param.slice(1), desc: true }
+      : { id: param, desc: false },
+  ];
+}
+
+function serializeSorting(
+  sorting: { id: string; desc?: boolean }[] | undefined
+) {
+  if (!sorting) return "";
+  if (sorting.length === 0) return null;
+  const first = sorting[0];
+  return first.desc ? `-${first.id}` : first.id;
+}
+
+function useSingleSorting() {
+  const [ordering, setOrdering] = useOrdering();
+
+  const sorting = parseSortParam(ordering);
+
+  const onSortingChange = (updater: Updater<SortingState>) => {
+    const newSorting =
+      typeof updater === "function" ? updater(sorting) : updater;
+
+    setOrdering(serializeSorting(newSorting));
+  };
+
+  return { sorting, onSortingChange };
+}
+
+export function useDataTable<TData extends RowData>({
+  data = { results: [], count: 0 },
+  ...options
+}: Omit<TableOptions<TData>, "getCoreRowModel" | "data"> & {
+  data?: { results: TData[]; count: number };
+}) {
+  const [pagination, setPagination] = usePagination();
+  const { sorting, onSortingChange } = useSingleSorting();
 
   return useReactTable({
-    ...props,
-    state: {
-      ...props.state,
-      pagination,
-    },
-    enableRowSelection: true,
-    onPaginationChange: setPagination,
+    ...options,
+    data: data.results,
+    pageCount: Math.ceil(data.count / pagination.pageSize),
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    state: {
+      pagination,
+      sorting,
+    },
+    onPaginationChange: setPagination,
+    onSortingChange,
+    manualPagination: true,
+    manualSorting: true,
   });
 }

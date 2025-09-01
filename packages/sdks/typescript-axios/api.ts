@@ -51,6 +51,68 @@ export interface Category {
 /**
  * 
  * @export
+ * @interface PaginatedCategoryList
+ */
+export interface PaginatedCategoryList {
+    /**
+     * 
+     * @type {number}
+     * @memberof PaginatedCategoryList
+     */
+    'count': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedCategoryList
+     */
+    'next'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedCategoryList
+     */
+    'previous'?: string | null;
+    /**
+     * 
+     * @type {Array<Category>}
+     * @memberof PaginatedCategoryList
+     */
+    'results': Array<Category>;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedProductList
+ */
+export interface PaginatedProductList {
+    /**
+     * 
+     * @type {number}
+     * @memberof PaginatedProductList
+     */
+    'count': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedProductList
+     */
+    'next'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedProductList
+     */
+    'previous'?: string | null;
+    /**
+     * 
+     * @type {Array<Product>}
+     * @memberof PaginatedProductList
+     */
+    'results': Array<Product>;
+}
+/**
+ * 
+ * @export
  * @interface PatchedCategory
  */
 export interface PatchedCategory {
@@ -353,10 +415,12 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
         },
         /**
          * 
+         * @param {number} [limit] Number of results to return per page.
+         * @param {number} [offset] The initial index from which to return the results.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        categoriesList: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        categoriesList: async (limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/categories/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -374,6 +438,14 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
 
 
     
@@ -549,11 +621,13 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [limit] Number of results to return per page.
+         * @param {number} [offset] The initial index from which to return the results.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async categoriesList(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Category>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesList(options);
+        async categoriesList(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedCategoryList>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesList(limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesList']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -626,11 +700,13 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
         },
         /**
          * 
+         * @param {number} [limit] Number of results to return per page.
+         * @param {number} [offset] The initial index from which to return the results.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        categoriesList(options?: RawAxiosRequestConfig): AxiosPromise<Array<Category>> {
-            return localVarFp.categoriesList(options).then((request) => request(axios, basePath));
+        categoriesList(limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCategoryList> {
+            return localVarFp.categoriesList(limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -695,12 +771,14 @@ export class CategoriesApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} [limit] Number of results to return per page.
+     * @param {number} [offset] The initial index from which to return the results.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CategoriesApi
      */
-    public categoriesList(options?: RawAxiosRequestConfig) {
-        return CategoriesApiFp(this.configuration).categoriesList(options).then((request) => request(this.axios, this.basePath));
+    public categoriesList(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesList(limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -829,10 +907,15 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {number} [category] 
+         * @param {number} [limit] Number of results to return per page.
+         * @param {number} [offset] The initial index from which to return the results.
+         * @param {string} [ordering] Which field to use when ordering the results.
+         * @param {string} [search] A search term.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsList: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsList: async (category?: number, limit?: number, offset?: number, ordering?: string, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/products/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -850,6 +933,26 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
+
+            if (category !== undefined) {
+                localVarQueryParameter['category'] = category;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+            if (ordering !== undefined) {
+                localVarQueryParameter['ordering'] = ordering;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
 
 
     
@@ -1025,11 +1128,16 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [category] 
+         * @param {number} [limit] Number of results to return per page.
+         * @param {number} [offset] The initial index from which to return the results.
+         * @param {string} [ordering] Which field to use when ordering the results.
+         * @param {string} [search] A search term.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsList(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Product>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productsList(options);
+        async productsList(category?: number, limit?: number, offset?: number, ordering?: string, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedProductList>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsList(category, limit, offset, ordering, search, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsList']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1102,11 +1210,16 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @param {number} [category] 
+         * @param {number} [limit] Number of results to return per page.
+         * @param {number} [offset] The initial index from which to return the results.
+         * @param {string} [ordering] Which field to use when ordering the results.
+         * @param {string} [search] A search term.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsList(options?: RawAxiosRequestConfig): AxiosPromise<Array<Product>> {
-            return localVarFp.productsList(options).then((request) => request(axios, basePath));
+        productsList(category?: number, limit?: number, offset?: number, ordering?: string, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedProductList> {
+            return localVarFp.productsList(category, limit, offset, ordering, search, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1171,12 +1284,17 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} [category] 
+     * @param {number} [limit] Number of results to return per page.
+     * @param {number} [offset] The initial index from which to return the results.
+     * @param {string} [ordering] Which field to use when ordering the results.
+     * @param {string} [search] A search term.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProductsApi
      */
-    public productsList(options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productsList(options).then((request) => request(this.axios, this.basePath));
+    public productsList(category?: number, limit?: number, offset?: number, ordering?: string, search?: string, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsList(category, limit, offset, ordering, search, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

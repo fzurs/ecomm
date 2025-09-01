@@ -113,7 +113,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **categoriesList**
-> Array<Category> categoriesList()
+> PaginatedCategoryList categoriesList()
 
 
 ### Example
@@ -127,16 +127,26 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-const { status, data } = await apiInstance.categoriesList();
+let limit: number; //Number of results to return per page. (optional) (default to undefined)
+let offset: number; //The initial index from which to return the results. (optional) (default to undefined)
+
+const { status, data } = await apiInstance.categoriesList(
+    limit,
+    offset
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **limit** | [**number**] | Number of results to return per page. | (optional) defaults to undefined|
+| **offset** | [**number**] | The initial index from which to return the results. | (optional) defaults to undefined|
 
 
 ### Return type
 
-**Array<Category>**
+**PaginatedCategoryList**
 
 ### Authorization
 

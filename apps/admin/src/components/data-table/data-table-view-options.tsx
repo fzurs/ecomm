@@ -16,7 +16,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { type Table as TanstackTable } from "@tanstack/react-table";
 
@@ -25,19 +24,12 @@ export function DataTableViewOptions<TData>({
 }: {
   table: TanstackTable<TData>;
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="size-9 md:w-auto"
-        >
+        <Button variant="outline" role="combobox" className="size-9 md:w-auto">
           <Settings2 />
-          <span className="sr-only md:not-sr-only">Columnas</span>
+          <span className="sr-only md:not-sr-only">Columns</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent side="bottom" align="end" className="w-[200px] p-0">
@@ -60,12 +52,9 @@ export function DataTableViewOptions<TData>({
                     onSelect={() =>
                       column.toggleVisibility(!column.getIsVisible())
                     }
-                    className={"capitalize"}
+                    className="capitalize"
                   >
-                    <span>
-                      {(column.columnDef.meta as { label?: string })?.label ||
-                        column.id}
-                    </span>
+                    <span>{column.columnDef.meta?.label || column.id}</span>
                     <Check
                       className={cn(
                         "ml-auto",

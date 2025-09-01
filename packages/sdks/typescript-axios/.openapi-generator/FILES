@@ -6,6 +6,8 @@ common.ts
 configuration.ts
 docs/CategoriesApi.md
 docs/Category.md
+docs/PaginatedCategoryList.md
+docs/PaginatedProductList.md
 docs/PatchedCategory.md
 docs/PatchedProduct.md
 docs/Product.md

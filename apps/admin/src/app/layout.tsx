@@ -3,14 +3,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
-
-import { NuqsAdapter } from "nuqs/adapters/next/app";
-
 import { ReactQueryProvider } from "@/components/react-query-provider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Toaster } from "@/components/ui/sonner";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Toaster } from "@/components/ui/sonner";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,7 +52,9 @@ export default function RootLayout({
                 }
               >
                 <AppSidebar />
-                <SidebarInset>{children}</SidebarInset>
+                <SidebarInset>
+                  <Suspense>{children}</Suspense>
+                </SidebarInset>
               </SidebarProvider>
               <Toaster />
             </ThemeProvider>
