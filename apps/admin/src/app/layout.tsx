@@ -51,7 +51,7 @@ export default function RootLayout({
                   } as React.CSSProperties
                 }
               >
-                <AppSidebar />
+                <AppSidebar collapsible="icon" />
                 <SidebarInset>
                   <Suspense>{children}</Suspense>
                 </SidebarInset>

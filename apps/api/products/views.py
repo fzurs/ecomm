@@ -22,4 +22,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     ]
     search_fields = ["name", "description"]
     filterset_fields = ["category"]
-    ordering_fields = ["name", "created_at", "updated_at", "price", "stock_quantity"]
+    ordering_fields = [
+        "name",
+        "created_at",
+        "updated_at",
+        "price",
+        "stock_quantity",
+        "status",
+    ]

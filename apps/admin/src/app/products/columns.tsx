@@ -6,13 +6,20 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EllipsisVertical, Loader2, PackageMinus } from "lucide-react";
+import {
+  CopyPlus,
+  EllipsisVertical,
+  Loader2,
+  PackageMinus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi } from "@/lib/api";
@@ -31,9 +38,11 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useForm } from "react-hook-form";
 import { Separator } from "@/components/ui/separator";
-import { ProductForm } from "./form";
+import { ProductForm, statuses } from "./form";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useEffect } from "react";
+import { isAxiosError } from "axios";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -108,7 +117,7 @@ export const columns: ColumnDef<Product>[] = [
               {item.name}
             </Button>
           </DrawerTrigger>
-          <DrawerContent forceMount>
+          <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>{item.name}</DrawerTitle>
               <DrawerDescription></DrawerDescription>
@@ -213,6 +222,20 @@ export const columns: ColumnDef<Product>[] = [
     meta: { label: "Stock" },
   },
   {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader title="Status" column={column} />
+    ),
+    cell: ({ row }) => {
+      const status = statuses.find(
+        (status) => status.value === row.original.status
+      );
+      if (!status) return null;
+
+      return <Badge variant={"secondary"}>{status.label}</Badge>;
+    },
+  },
+  {
     id: "Created at",
     accessorKey: "created_at",
     header: () => <div className="text-right">Created at</div>,
@@ -235,10 +258,36 @@ export const columns: ColumnDef<Product>[] = [
   {
     id: "actions",
     cell: function Cell({ row }) {
+      const product = row.original;
       const productId = row.original.id;
+
       const queryClient = useQueryClient();
 
-      const { mutate, isPending } = useMutation({
+      const createACopyMutation = useMutation({
+        mutationFn: () =>
+          productsApi
+            .productsCreate({
+              ...product,
+              name: `${product.name} copy`,
+              sku: "",
+              slug: "",
+              category_id: product?.category?.id,
+            })
+            .then((res) => res.data),
+        onError: (err) => {
+          toast.error("The product copy could not be created.", {
+            description: err.message,
+          });
+        },
+        onSuccess: (data) => {
+          toast.success("A copy of the product was successfully created.", {
+            description: data.name,
+          });
+          queryClient.invalidateQueries(getProductsQueryOptions());
+        },
+      });
+
+      const destroyMutation = useMutation({
         mutationFn: () => productsApi.productsDestroy(productId),
         onMutate: async () => {
           await queryClient.cancelQueries(getProductsQueryOptions());
@@ -276,6 +325,9 @@ export const columns: ColumnDef<Product>[] = [
             queryClient.setQueryData(queryKey, data);
           });
         },
+        onSuccess: () => {
+          toast.success(`The product "${product.name}" has been destroyed`);
+        },
         onSettled: () => {
           queryClient.invalidateQueries(getProductsQueryOptions());
         },
@@ -293,14 +345,26 @@ export const columns: ColumnDef<Product>[] = [
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Actions
             </DropdownMenuLabel>
-            <DropdownMenuItem
-              onSelect={() => mutate()}
-              disabled={isPending}
-              variant="destructive"
-            >
-              <PackageMinus />
-              Destroy
-            </DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => createACopyMutation.mutate()}
+                disabled={createACopyMutation.isPending}
+              >
+                <CopyPlus />
+                Create a copy
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onSelect={() => destroyMutation.mutate()}
+                disabled={destroyMutation.isPending}
+                variant="destructive"
+              >
+                <PackageMinus />
+                Destroy
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       );

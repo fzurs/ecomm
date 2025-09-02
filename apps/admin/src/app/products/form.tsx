@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { Category, Product } from "@sdk";
+import { Category, Product, StatusEnum } from "@sdk";
 import { cn } from "@/lib/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
@@ -42,7 +42,7 @@ import { Button } from "@/components/ui/button";
 import { useCallback, useMemo, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
-const statuses = [
+export const statuses: { label: string; value: StatusEnum }[] = [
   {
     value: "draft",
     label: "Draft",
@@ -139,8 +139,8 @@ export function ProductForm({
               <FormLabel>Category</FormLabel>
               <FormControl>
                 <CategorySelect
-                  original={form.formState.defaultValues?.category as Category}
-                  onValueChange={field.onChange}
+                  value={form.formState.defaultValues?.category as Category}
+                  onValueChange={(value) => field.onChange(value?.id)}
                 />
               </FormControl>
               <FormDescription />
@@ -251,15 +251,15 @@ export function useInfiniteCategories() {
 }
 
 function CategorySelect({
-  original,
+  value,
   onValueChange,
 }: {
-  original?: Category;
-  onValueChange?: (id?: number) => void;
+  value?: Category;
+  onValueChange?: (value?: Category) => void;
 }) {
   const [open, setOpen] = useState(false);
 
-  const [internalValue, setInternalValue] = useState(original);
+  const [internalValue, setInternalValue] = useState(value);
 
   const { categories, handleScroll, search, onSearchChange } =
     useInfiniteCategories();
@@ -267,7 +267,7 @@ function CategorySelect({
   const onSelect = useCallback(
     (item: Category) => {
       const newValue = internalValue?.id === item.id ? undefined : item;
-      onValueChange?.(newValue?.id);
+      onValueChange?.(newValue);
       setInternalValue(newValue);
       setOpen(false);
     },
