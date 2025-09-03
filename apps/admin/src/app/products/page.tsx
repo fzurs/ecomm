@@ -6,16 +6,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table } from "@tanstack/react-table";
 import {
   Check,
-  ChevronDown,
-  ChevronsUpDown,
-  Circle,
-  CircleCheck,
   CircleDashed,
-  CircleDot,
   CircleDotDashed,
   PackageMinus,
   PackagePlus,
-  SquircleDashedIcon,
+  Tags,
   X,
 } from "lucide-react";
 import { parseAsStringEnum, useQueryState } from "nuqs";
@@ -41,9 +36,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -77,7 +70,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectValue,
 } from "@/components/ui/select";
 
 import { DataTable } from "@/components/data-table/data-table";
@@ -136,7 +128,7 @@ export default function Page() {
       <SiteHeader items={[{ label: "Products" }]} />
       <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex gap-2 px-4 lg:px-6 justify-between">
-          <div className="flex flex-1 md:flex-wrap gap-2">
+          <div className="flex flex-1 flex-wrap gap-2">
             <SearchFilter placeholder="Search products..." />
             <CategoryFilter category={category} setCategory={setCategory} />
             <StatusFilter />
@@ -222,7 +214,7 @@ function ProductsTableActionBar({ table }: { table: Table<Product> }) {
       >
         <SelectPrimitive.SelectTrigger asChild>
           <DataTableActionBarAction tooltip="Update status">
-            <CircleDotDashed />
+            <CircleDashed className="opacity-50" />
             Status
           </DataTableActionBarAction>
         </SelectPrimitive.SelectTrigger>
@@ -347,8 +339,8 @@ function CategoryFilter({
           aria-expanded={open}
           className="justify-between"
         >
+          <Tags className="opacity-50" />
           {category?.name ?? "Category"}
-          <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[200px]" align="start">
@@ -373,12 +365,16 @@ function StatusFilter() {
         <Button variant="outline" role="combobox" className="justify-between">
           {!currentStatus ? (
             <>
-              <CircleDotDashed />
+              <CircleDashed className="opacity-50" />
               Status
             </>
           ) : (
             <>
-              {currentStatus.icon && <currentStatus.icon />}
+              {currentStatus.icon ? (
+                <currentStatus.icon />
+              ) : (
+                <CircleDotDashed />
+              )}
               {currentStatus.label}
             </>
           )}

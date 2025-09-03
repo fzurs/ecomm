@@ -1,4 +1,4 @@
-import { CircleCheckBig, CircleMinus, LucideIcon } from "lucide-react";
+import { CircleCheck, CircleMinus, LucideIcon } from "lucide-react";
 
 import { StatusEnum } from "@sdk";
 
@@ -6,7 +6,7 @@ export const statusesValueLabel: Record<
   StatusEnum,
   { icon?: LucideIcon; label: string }
 > = {
-  active: { label: "Active", icon: CircleCheckBig },
+  active: { label: "Active", icon: CircleCheck },
   discontinued: { label: "Discontinued" },
   draft: { label: "Draft" },
   inactive: { label: "Inactive", icon: CircleMinus },
