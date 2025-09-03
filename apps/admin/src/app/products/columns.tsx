@@ -1,30 +1,30 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Product } from "@sdk";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   CopyPlus,
   EllipsisVertical,
   Loader2,
   PackageMinus,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { parseAsBoolean, useQueryState } from "nuqs";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { useEffect } from "react";
+
+import { Product } from "@sdk";
+
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { cn } from "@/lib/utils";
+
+import { useIsMobile } from "@/hooks/use-mobile";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Drawer,
   DrawerClose,
@@ -35,13 +35,20 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useForm } from "react-hook-form";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+
 import { ProductForm, statuses } from "./form";
-import { parseAsBoolean, useQueryState } from "nuqs";
-import { useEffect } from "react";
-import { toast } from "sonner";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -81,7 +88,7 @@ export const columns: ColumnDef<Product>[] = [
 
       const [open, setOpen] = useQueryState(
         `viewer_${item.id}`,
-        parseAsBoolean.withDefault(false)
+        parseAsBoolean.withDefault(false),
       );
 
       const isMobile = useIsMobile();
@@ -233,7 +240,7 @@ export const columns: ColumnDef<Product>[] = [
     ),
     cell: ({ row }) => {
       const status = statuses.find(
-        (status) => status.value === row.original.status
+        (status) => status.value === row.original.status,
       );
       if (!status) return null;
 
@@ -323,9 +330,9 @@ export const columns: ColumnDef<Product>[] = [
                   old && {
                     ...old,
                     results: old.results.filter(
-                      (item) => item.id !== productId
+                      (item) => item.id !== productId,
                     ),
-                  }
+                  },
               );
             });
 

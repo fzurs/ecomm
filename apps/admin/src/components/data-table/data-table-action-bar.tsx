@@ -1,14 +1,17 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { Separator } from "../ui/separator";
+import { VariantProps, cva } from "class-variance-authority";
 import { X } from "lucide-react";
+import * as ReactDOM from "react-dom";
+
+import * as React from "react";
+
 import { cn } from "@/lib/utils";
+
 import { Button, buttonVariants } from "../ui/button";
+import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { cva, VariantProps } from "class-variance-authority";
 
 export function DataTableActionBar<TData>({
   children,
@@ -47,12 +50,12 @@ export function DataTableActionBar<TData>({
         "fixed inset-x-0 bottom-6 z-50 mx-auto",
         "flex w-fit p-2 items-center",
         "bg-background border border-border shadow-sm rounded-lg",
-        visible ? "flex" : "hidden"
+        visible ? "flex" : "hidden",
       )}
     >
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -81,7 +84,7 @@ export function DataTableActionBarAction({
       size={size}
       className={cn(
         variant === "destructive" && "text-destructive hover:bg-destructive/20",
-        className
+        className,
       )}
       {...props}
     />
@@ -123,7 +126,7 @@ export function DataTableActionBarSeparator({
       orientation={orientation}
       className={cn(
         "hidden data-[orientation=vertical]:h-5 sm:block mx-2",
-        className
+        className,
       )}
       {...props}
     />

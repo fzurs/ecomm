@@ -1,19 +1,9 @@
 "use client";
 
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import {
-  useDataTable,
-  useOrdering,
-  usePagination,
-} from "@/hooks/use-data-table";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import { useQuery } from "@tanstack/react-query";
-import { columns } from "./columns";
-import { SiteHeader } from "@/components/site-header";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
-import { getProductsQueryOptions } from "@/lib/queries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+import { Table } from "@tanstack/react-table";
 import {
   Check,
   CircleCheck,
@@ -23,18 +13,33 @@ import {
   Tag,
   X,
 } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { parseAsStringEnum, useQueryState } from "nuqs";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import * as React from "react";
+
 import { Category, Product, StatusEnum } from "@sdk";
-import { Input } from "@/components/ui/input";
+
+import { productsApi } from "@/lib/api";
+import { getProductsQueryOptions } from "@/lib/queries";
+import { cn, handleBadRequestError } from "@/lib/utils";
+
+import {
+  useDataTable,
+  useOrdering,
+  usePagination,
+} from "@/hooks/use-data-table";
+
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogClose,
@@ -45,25 +50,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { productsApi } from "@/lib/api";
-import * as React from "react";
-import { cn, handleBadRequestError } from "@/lib/utils";
-
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { statuses, useInfiniteCategories } from "./form";
-import { SearchFilter, useSearch } from "@/components/search-filter";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+} from "@/components/ui/select";
+
+import { DataTable } from "@/components/data-table/data-table";
 import {
   DataTableActionBar,
   DataTableActionBarAction,
@@ -71,21 +80,18 @@ import {
   DataTableActionBarSelection,
   DataTableActionBarSeparator,
 } from "@/components/data-table/data-table-action-bar";
-import { Table } from "@tanstack/react-table";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-} from "@/components/ui/select";
-import * as SelectPrimitive from "@radix-ui/react-select";
-import { toast } from "sonner";
-import { parseAsStringEnum, useQueryState } from "nuqs";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import {
   DataTableToolbar,
   DataTableToolbarControls,
   DataTableToolbarFilters,
 } from "@/components/data-table/data-table-toolbar";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import { SearchFilter, useSearch } from "@/components/search-filter";
+import { SiteHeader } from "@/components/site-header";
+
+import { columns } from "./columns";
+import { statuses, useInfiniteCategories } from "./form";
 
 function useStatus() {
   return useQueryState("status", parseAsStringEnum(Object.values(StatusEnum)));
@@ -106,7 +112,7 @@ export default function Page() {
       ordering ?? undefined,
       search ?? undefined,
       status ?? undefined,
-    ])
+    ]),
   );
 
   const table = useDataTable({
@@ -165,8 +171,8 @@ function ProductsTableActionBar({ table }: { table: Table<Product> }) {
       let errorCount = 0;
       await Promise.all(
         productIds.map((id) =>
-          productsApi.productsDestroy(id).catch(() => (errorCount += 1))
-        )
+          productsApi.productsDestroy(id).catch(() => (errorCount += 1)),
+        ),
       );
       return { errorCount };
     },
@@ -193,8 +199,8 @@ function ProductsTableActionBar({ table }: { table: Table<Product> }) {
         productIds.map((id) =>
           productsApi
             .productsPartialUpdate(id, { status })
-            .catch(() => (errorCount += 1))
-        )
+            .catch(() => (errorCount += 1)),
+        ),
       );
       return { errorCount };
     },
@@ -339,7 +345,7 @@ function CategoryFilter({
       onValueChange(newValue);
       setOpen(false);
     },
-    [onValueChange, value?.id]
+    [onValueChange, value?.id],
   );
 
   return (
@@ -373,7 +379,7 @@ function CategoryFilter({
                   <Check
                     className={cn(
                       "ml-auto",
-                      value?.id === item.id ? "opacity-100" : "opacity-0"
+                      value?.id === item.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
@@ -421,7 +427,7 @@ function StatusFilter() {
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === status ? "opacity-100" : "opacity-0"
+                      value === status ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

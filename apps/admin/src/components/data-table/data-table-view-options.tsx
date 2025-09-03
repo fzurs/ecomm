@@ -1,6 +1,9 @@
 "use client";
 
+import { type Table as TanstackTable } from "@tanstack/react-table";
 import { Check, Settings2 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,8 +19,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { type Table as TanstackTable } from "@tanstack/react-table";
 
 export function DataTableViewOptions<TData>({
   table,
@@ -43,7 +44,7 @@ export function DataTableViewOptions<TData>({
                 .filter(
                   (column) =>
                     typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
+                    column.getCanHide(),
                 )
                 .map((column) => (
                   <CommandItem
@@ -58,7 +59,7 @@ export function DataTableViewOptions<TData>({
                     <Check
                       className={cn(
                         "ml-auto",
-                        column.getIsVisible() ? "opacity-100" : "opacity-0"
+                        column.getIsVisible() ? "opacity-100" : "opacity-0",
                       )}
                     />
                   </CommandItem>

@@ -1,5 +1,31 @@
 "use client";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { UseFormReturn } from "react-hook-form";
+import { useDebouncedCallback } from "use-debounce";
+
+import { useCallback, useMemo, useState } from "react";
+
+import { Category, Product, StatusEnum } from "@sdk";
+
+import { getCategoriesInfiniteQueryOptions } from "@/lib/queries";
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -10,7 +36,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -19,28 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UseFormReturn } from "react-hook-form";
-import { Category, Product, StatusEnum } from "@sdk";
-import { cn } from "@/lib/utils";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { getCategoriesInfiniteQueryOptions } from "@/lib/queries";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
-import { useCallback, useMemo, useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
+import { Textarea } from "@/components/ui/textarea";
 
 export const statuses: { label: string; value: StatusEnum }[] = [
   {
@@ -215,12 +219,12 @@ export function useInfiniteCategories() {
   const [search, setSearch] = useState("");
 
   const infiniteQuery = useInfiniteQuery(
-    getCategoriesInfiniteQueryOptions([10, undefined, search])
+    getCategoriesInfiniteQueryOptions([10, undefined, search]),
   );
 
   const categories = useMemo(
     () => infiniteQuery.data?.pages.flatMap((page) => page.results),
-    [infiniteQuery.data?.pages]
+    [infiniteQuery.data?.pages],
   );
 
   const handleScroll = useCallback(
@@ -233,7 +237,7 @@ export function useInfiniteCategories() {
         infiniteQuery.fetchNextPage();
       }
     },
-    [infiniteQuery]
+    [infiniteQuery],
   );
 
   const debounceOnSearchChange = useDebouncedCallback(setSearch, 300);
@@ -271,7 +275,7 @@ function CategorySelect({
       setInternalValue(newValue);
       setOpen(false);
     },
-    [internalValue?.id, onValueChange]
+    [internalValue?.id, onValueChange],
   );
 
   return (
@@ -300,7 +304,7 @@ function CategorySelect({
                       "ml-auto",
                       internalValue?.id === item.id
                         ? "opacity-100"
-                        : "opacity-0"
+                        : "opacity-0",
                     )}
                   />
                 </CommandItem>
