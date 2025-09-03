@@ -29,7 +29,7 @@ export function SearchFilter({
   return (
     <Input
       type="search"
-      className={cn("max-w-[300px]", className)}
+      className={cn("w-fit", className)}
       value={inputValue}
       onChange={(e) => {
         const value = e.target.value;

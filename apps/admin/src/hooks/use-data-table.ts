@@ -94,5 +94,6 @@ export function useDataTable<TData extends RowData>({
     onSortingChange,
     manualPagination: true,
     manualSorting: true,
+    manualFiltering: true,
   });
 }

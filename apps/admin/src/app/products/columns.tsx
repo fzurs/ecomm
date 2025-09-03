@@ -41,7 +41,6 @@ import { Separator } from "@/components/ui/separator";
 import { ProductForm, statuses } from "./form";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useEffect } from "react";
-import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
 export const columns: ColumnDef<Product>[] = [
@@ -142,6 +141,9 @@ export const columns: ColumnDef<Product>[] = [
         </Drawer>
       );
     },
+    meta: {
+      variant: "search",
+    },
   },
   {
     accessorKey: "description",
@@ -152,6 +154,7 @@ export const columns: ColumnDef<Product>[] = [
           {row.original.description}
         </div>
       ),
+    enableColumnFilter: false,
   },
   {
     accessorKey: "category",
@@ -183,6 +186,7 @@ export const columns: ColumnDef<Product>[] = [
 
       return <div className="text-right font-medium">{formatted}</div>;
     },
+    enableColumnFilter: false,
   },
   {
     accessorKey: "stock_quantity",
@@ -219,6 +223,7 @@ export const columns: ColumnDef<Product>[] = [
         </Badge>
       );
     },
+    enableColumnFilter: false,
     meta: { label: "Stock" },
   },
   {
@@ -234,6 +239,9 @@ export const columns: ColumnDef<Product>[] = [
 
       return <Badge variant={"secondary"}>{status.label}</Badge>;
     },
+    meta: {
+      variant: "status",
+    },
   },
   {
     id: "Created at",
@@ -244,6 +252,8 @@ export const columns: ColumnDef<Product>[] = [
         {new Date(row.original.created_at).toDateString()}
       </div>
     ),
+    enableColumnFilter: false,
+    meta: { label: "Created at" },
   },
   {
     accessorKey: "updated_at",
@@ -253,6 +263,7 @@ export const columns: ColumnDef<Product>[] = [
         {new Date(row.original.updated_at).toDateString()}
       </div>
     ),
+    enableColumnFilter: false,
     meta: { label: "Updated at" },
   },
   {

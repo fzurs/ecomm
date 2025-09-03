@@ -132,13 +132,15 @@ let limit: number; //Number of results to return per page. (optional) (default t
 let offset: number; //The initial index from which to return the results. (optional) (default to undefined)
 let ordering: string; //Which field to use when ordering the results. (optional) (default to undefined)
 let search: string; //A search term. (optional) (default to undefined)
+let status: 'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'; //* `draft` - Draft * `active` - Active * `inactive` - Inactive * `out_of_stock` - Out of stock * `discontinued` - Discontinued (optional) (default to undefined)
 
 const { status, data } = await apiInstance.productsList(
     category,
     limit,
     offset,
     ordering,
-    search
+    search,
+    status
 );
 ```
 
@@ -151,6 +153,7 @@ const { status, data } = await apiInstance.productsList(
 | **offset** | [**number**] | The initial index from which to return the results. | (optional) defaults to undefined|
 | **ordering** | [**string**] | Which field to use when ordering the results. | (optional) defaults to undefined|
 | **search** | [**string**] | A search term. | (optional) defaults to undefined|
+| **status** | [**&#39;active&#39; | &#39;discontinued&#39; | &#39;draft&#39; | &#39;inactive&#39; | &#39;out_of_stock&#39;**]**Array<&#39;active&#39; &#124; &#39;discontinued&#39; &#124; &#39;draft&#39; &#124; &#39;inactive&#39; &#124; &#39;out_of_stock&#39;>** | * &#x60;draft&#x60; - Draft * &#x60;active&#x60; - Active * &#x60;inactive&#x60; - Inactive * &#x60;out_of_stock&#x60; - Out of stock * &#x60;discontinued&#x60; - Discontinued | (optional) defaults to undefined|
 
 
 ### Return type

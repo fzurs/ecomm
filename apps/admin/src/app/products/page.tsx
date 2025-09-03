@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import {
   Check,
   CircleCheck,
+  CirclePlus,
   PackageMinus,
   PackagePlus,
   Tag,
@@ -45,8 +46,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { productsApi } from "@/lib/api";
-import { cn, handleBadRequestError } from "@/lib/utils";
 import * as React from "react";
+import { cn, handleBadRequestError } from "@/lib/utils";
 
 import {
   Popover,
@@ -77,14 +78,25 @@ import {
   SelectGroup,
   SelectItem,
 } from "@/components/ui/select";
-import { SelectTrigger } from "@radix-ui/react-select";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import { toast } from "sonner";
+import { parseAsStringEnum, useQueryState } from "nuqs";
+import {
+  DataTableToolbar,
+  DataTableToolbarControls,
+  DataTableToolbarFilters,
+} from "@/components/data-table/data-table-toolbar";
+
+function useStatus() {
+  return useQueryState("status", parseAsStringEnum(Object.values(StatusEnum)));
+}
 
 export default function Page() {
   const [category, setCategory] = React.useState<Category | null>(null);
   const pagination = usePagination()[0];
   const ordering = useOrdering()[0];
   const [search, setSearch] = useSearch();
+  const [status, setStatus] = useStatus();
 
   const { data } = useQuery(
     getProductsQueryOptions([
@@ -93,6 +105,7 @@ export default function Page() {
       pagination.pageIndex * pagination.pageSize,
       ordering ?? undefined,
       search ?? undefined,
+      status ?? undefined,
     ])
   );
 
@@ -101,32 +114,35 @@ export default function Page() {
     columns,
   });
 
+  const isFiltered = !!search || !!category || !!status;
+
+  const resetFilters = () => {
+    setSearch(null);
+    setCategory(null);
+    setStatus(null);
+  };
+
   return (
     <>
       <SiteHeader items={[{ label: "Products" }]} />
       <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="flex gap-2 px-4 lg:px-6">
-          <SearchFilter placeholder="Search products..." />
-          <CategoryFilter value={category} onValueChange={setCategory} />
-          {!!search ||
-            (!!category && (
-              <Button
-                variant="ghost"
-                className="border-2 border-dashed"
-                onClick={() => {
-                  setSearch(null);
-                  setCategory(null);
-                }}
-              >
+        <DataTableToolbar>
+          <DataTableToolbarFilters>
+            <SearchFilter placeholder="Search products..." />
+            <CategoryFilter value={category} onValueChange={setCategory} />
+            <StatusFilter />
+            {isFiltered && (
+              <Button variant="ghost" onClick={resetFilters}>
                 <X />
-                Reset
+                <span className="sr-only md:not-sr-only">Reset</span>
               </Button>
-            ))}
-          <div className="ml-auto flex gap-2">
+            )}
+          </DataTableToolbarFilters>
+          <DataTableToolbarControls>
             <DataTableViewOptions table={table} />
             <QuickCreateProductDialog />
-          </div>
-        </div>
+          </DataTableToolbarControls>
+        </DataTableToolbar>
         <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
           <DataTable table={table} />
           <DataTablePagination table={table} />
@@ -204,12 +220,12 @@ function ProductsTableActionBar({ table }: { table: Table<Product> }) {
           })
         }
       >
-        <SelectTrigger asChild>
+        <SelectPrimitive.SelectTrigger asChild>
           <DataTableActionBarAction tooltip="Update status">
             <CircleCheck />
             Status
           </DataTableActionBarAction>
-        </SelectTrigger>
+        </SelectPrimitive.SelectTrigger>
         <SelectContent className="p-0 w-fit">
           <SelectGroup>
             {statuses.map(({ label, value }) => (
@@ -259,9 +275,9 @@ function QuickCreateProductDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="size-9 md:w-auto">
           <PackagePlus />
-          Create new Product
+          <span className="sr-only md:not-sr-only">Create new Product</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -333,13 +349,15 @@ function CategoryFilter({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="md:w-auto md:justify-between size-9"
         >
-          {value?.name ?? "Filter by category"}
           <Tag />
+          <span className="sr-only md:not-sr-only">
+            {value?.name ?? "Filter by category"}
+          </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-[200px]">
+      <PopoverContent className="p-0 w-[200px]" align="start">
         <Command shouldFilter={false}>
           <CommandInput
             value={search}
@@ -356,6 +374,54 @@ function CategoryFilter({
                     className={cn(
                       "ml-auto",
                       value?.id === item.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function StatusFilter() {
+  const [open, setOpen] = React.useState(false);
+  const [status, setStatus] = useStatus();
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="size-9 md:w-auto md:justify-between"
+        >
+          <CirclePlus />
+          <span className="sr-only md:not-sr-only">
+            {statuses.find((item) => item.value === status)?.label ?? "Status"}
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-fit" align="start">
+        <Command>
+          <CommandList>
+            <CommandGroup>
+              {statuses.map(({ value, label }) => (
+                <CommandItem
+                  key={value}
+                  value={value}
+                  onSelect={() => {
+                    setStatus(value === status ? null : value);
+                    setOpen(false);
+                  }}
+                >
+                  {label}
+                  <Check
+                    className={cn(
+                      "ml-auto",
+                      value === status ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
