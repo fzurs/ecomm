@@ -99,7 +99,7 @@ export default function Page() {
   const [search, setSearch] = useSearch();
   const [status, setStatus] = useStatus();
 
-  const { data } = useQuery(
+  const { data, isError } = useQuery(
     getProductsQueryOptions([
       category?.id,
       pagination.pageSize,

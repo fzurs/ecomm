@@ -1,9 +1,20 @@
-import { CategoriesApi, Configuration, ProductsApi } from "@sdk";
+import { env } from "@/env";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { CategoriesApi, ProductsApi } from "@sdk";
 
-const config = new Configuration({ basePath: apiUrl });
+export const api = axios.create({
+  baseURL: env.API_URL,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
+});
 
-export const productsApi = new ProductsApi(config);
+api.interceptors.request.use(async (config) => {
+  config.headers["X-CSRFToken"] = Cookies.get("csrftoken");
+  return config;
+});
 
-export const categoriesApi = new CategoriesApi(config);
+export const productsApi = new ProductsApi(undefined, undefined, api);
+
+export const categoriesApi = new CategoriesApi(undefined, undefined, api);
