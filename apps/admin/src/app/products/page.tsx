@@ -6,11 +6,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table } from "@tanstack/react-table";
 import {
   Check,
+  ChevronDown,
+  ChevronsUpDown,
+  Circle,
   CircleCheck,
-  CirclePlus,
+  CircleDashed,
+  CircleDot,
+  CircleDotDashed,
   PackageMinus,
   PackagePlus,
-  Tag,
+  SquircleDashedIcon,
   X,
 } from "lucide-react";
 import { parseAsStringEnum, useQueryState } from "nuqs";
@@ -20,6 +25,8 @@ import { toast } from "sonner";
 import * as React from "react";
 
 import { Category, Product, StatusEnum } from "@sdk";
+
+import { statuses, statusesValueLabel } from "@/config/constants";
 
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
@@ -70,6 +77,7 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectValue,
 } from "@/components/ui/select";
 
 import { DataTable } from "@/components/data-table/data-table";
@@ -81,24 +89,19 @@ import {
   DataTableActionBarSeparator,
 } from "@/components/data-table/data-table-action-bar";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import {
-  DataTableToolbar,
-  DataTableToolbarControls,
-  DataTableToolbarFilters,
-} from "@/components/data-table/data-table-toolbar";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { SearchFilter, useSearch } from "@/components/search-filter";
 import { SiteHeader } from "@/components/site-header";
 
 import { columns } from "./columns";
-import { statuses, useInfiniteCategories } from "./form";
+import { CategoryList } from "./form";
 
 function useStatus() {
   return useQueryState("status", parseAsStringEnum(Object.values(StatusEnum)));
 }
 
 export default function Page() {
-  const [category, setCategory] = React.useState<Category | null>(null);
+  const [category, setCategory] = React.useState<Category>();
   const pagination = usePagination()[0];
   const ordering = useOrdering()[0];
   const [search, setSearch] = useSearch();
@@ -122,20 +125,20 @@ export default function Page() {
 
   const isFiltered = !!search || !!category || !!status;
 
-  const resetFilters = () => {
+  function resetFilters() {
     setSearch(null);
-    setCategory(null);
+    setCategory(undefined);
     setStatus(null);
-  };
+  }
 
   return (
     <>
       <SiteHeader items={[{ label: "Products" }]} />
       <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <DataTableToolbar>
-          <DataTableToolbarFilters>
+        <div className="flex gap-2 px-4 lg:px-6 justify-between">
+          <div className="flex flex-1 md:flex-wrap gap-2">
             <SearchFilter placeholder="Search products..." />
-            <CategoryFilter value={category} onValueChange={setCategory} />
+            <CategoryFilter category={category} setCategory={setCategory} />
             <StatusFilter />
             {isFiltered && (
               <Button variant="ghost" onClick={resetFilters}>
@@ -143,12 +146,12 @@ export default function Page() {
                 <span className="sr-only md:not-sr-only">Reset</span>
               </Button>
             )}
-          </DataTableToolbarFilters>
-          <DataTableToolbarControls>
+          </div>
+          <div className="flex flex-wrap-reverse justify-end h-fit gap-2">
             <DataTableViewOptions table={table} />
             <QuickCreateProductDialog />
-          </DataTableToolbarControls>
-        </DataTableToolbar>
+          </div>
+        </div>
         <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
           <DataTable table={table} />
           <DataTablePagination table={table} />
@@ -160,29 +163,23 @@ export default function Page() {
 }
 
 function ProductsTableActionBar({ table }: { table: Table<Product> }) {
-  const productIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original.id);
+  const rows = table.getSelectedRowModel().rows;
+  const productIds = rows.map((row) => row.original.id);
 
   const queryClient = useQueryClient();
 
   const destroyMutation = useMutation({
     mutationFn: async (productIds: string[]) => {
-      let errorCount = 0;
       await Promise.all(
-        productIds.map((id) =>
-          productsApi.productsDestroy(id).catch(() => (errorCount += 1)),
-        ),
+        productIds.map((id) => productsApi.productsDestroy(id)),
       );
-      return { errorCount };
     },
-    onSuccess: (data) => {
+    onError: () => {
+      toast.error("Failed to destroy the selected products.");
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries(getProductsQueryOptions());
-      if (data.errorCount) {
-        toast.info("Not all of them could be eliminated.");
-      } else {
-        toast.success("The selected products were successfully removed.");
-      }
+      toast.success("The selected products were successfully removed.");
     },
   });
 
@@ -194,23 +191,20 @@ function ProductsTableActionBar({ table }: { table: Table<Product> }) {
       productIds: string[];
       status: StatusEnum;
     }) => {
-      let errorCount = 0;
       await Promise.all(
         productIds.map((id) =>
-          productsApi
-            .productsPartialUpdate(id, { status })
-            .catch(() => (errorCount += 1)),
+          productsApi.productsPartialUpdate(id, { status }),
         ),
       );
-      return { errorCount };
     },
-    onSuccess: (data) => {
+    onError: () => {
+      toast.error(
+        "An error occurred while trying to update the status of the products.",
+      );
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries(getProductsQueryOptions());
-      if (data.errorCount) {
-        toast.info("Some failed to update the status.");
-      } else {
-        toast.success("They were updated successfully.");
-      }
+      toast.success("They were updated successfully.");
     },
   });
 
@@ -228,7 +222,7 @@ function ProductsTableActionBar({ table }: { table: Table<Product> }) {
       >
         <SelectPrimitive.SelectTrigger asChild>
           <DataTableActionBarAction tooltip="Update status">
-            <CircleCheck />
+            <CircleDotDashed />
             Status
           </DataTableActionBarAction>
         </SelectPrimitive.SelectTrigger>
@@ -328,24 +322,20 @@ function QuickCreateProductDialog() {
 }
 
 function CategoryFilter({
-  value,
-  onValueChange,
+  category,
+  setCategory,
 }: {
-  value: Category | null;
-  onValueChange: (value: Category | null) => void;
+  category?: Category;
+  setCategory?: (category?: Category) => void;
 }) {
   const [open, setOpen] = React.useState(false);
 
-  const { categories, handleScroll, search, onSearchChange } =
-    useInfiniteCategories();
-
-  const onSelect = React.useCallback(
-    (item: Category) => {
-      const newValue = value?.id === item.id ? null : item;
-      onValueChange(newValue);
+  const onSelectCategory = React.useCallback(
+    (newCategory: Category) => {
+      setCategory?.(category?.id === newCategory.id ? undefined : newCategory);
       setOpen(false);
     },
-    [onValueChange, value?.id],
+    [setCategory, category?.id],
   );
 
   return (
@@ -355,38 +345,17 @@ function CategoryFilter({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="md:w-auto md:justify-between size-9"
+          className="justify-between"
         >
-          <Tag />
-          <span className="sr-only md:not-sr-only">
-            {value?.name ?? "Filter by category"}
-          </span>
+          {category?.name ?? "Category"}
+          <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[200px]" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput
-            value={search}
-            onValueChange={onSearchChange}
-            placeholder="Search category..."
-          />
-          <CommandList onScroll={handleScroll}>
-            <CommandEmpty>No category found.</CommandEmpty>
-            <CommandGroup>
-              {categories?.map((item) => (
-                <CommandItem key={item.id} onSelect={() => onSelect(item)}>
-                  {item.name}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value?.id === item.id ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+        <CategoryList
+          selectedCategory={category}
+          onSelectCategory={onSelectCategory}
+        />
       </PopoverContent>
     </Popover>
   );
@@ -396,18 +365,23 @@ function StatusFilter() {
   const [open, setOpen] = React.useState(false);
   const [status, setStatus] = useStatus();
 
+  const currentStatus = status && statusesValueLabel[status];
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="size-9 md:w-auto md:justify-between"
-        >
-          <CirclePlus />
-          <span className="sr-only md:not-sr-only">
-            {statuses.find((item) => item.value === status)?.label ?? "Status"}
-          </span>
+        <Button variant="outline" role="combobox" className="justify-between">
+          {!currentStatus ? (
+            <>
+              <CircleDotDashed />
+              Status
+            </>
+          ) : (
+            <>
+              {currentStatus.icon && <currentStatus.icon />}
+              {currentStatus.label}
+            </>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-fit" align="start">

@@ -1,10 +1,11 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+
 import { categoriesApi, productsApi } from "./api";
 
 export const defaultPageSize = 100;
 
 export const getProductsQueryOptions = (
-  params: Parameters<typeof productsApi.productsList> = []
+  params: Parameters<typeof productsApi.productsList> = [],
 ) =>
   queryOptions({
     queryKey: ["products", "list", params],
@@ -13,7 +14,7 @@ export const getProductsQueryOptions = (
   });
 
 export const getCategoriesInfiniteQueryOptions = (
-  params: Parameters<typeof categoriesApi.categoriesList> = []
+  params: Parameters<typeof categoriesApi.categoriesList> = [],
 ) =>
   infiniteQueryOptions({
     queryKey: ["categories", "list", params],

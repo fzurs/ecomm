@@ -16,6 +16,8 @@ import { useEffect } from "react";
 
 import { Product } from "@sdk";
 
+import { statuses } from "@/config/constants";
+
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
@@ -48,7 +50,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 
-import { ProductForm, statuses } from "./form";
+import { ProductForm } from "./form";
 
 export const columns: ColumnDef<Product>[] = [
   {
