@@ -1,15 +1,16 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-import { ThemeProvider } from "@/components/theme-provider";
-import { ReactQueryProvider } from "@/components/react-query-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+
+import * as React from "react";
+
+import type { Metadata } from "next";
+
 import { Toaster } from "@/components/ui/sonner";
 
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Suspense } from "react";
+import { ReactQueryProvider } from "@/components/react-query-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,19 +44,11 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <SidebarProvider
-                style={
-                  {
-                    "--sidebar-width": "calc(var(--spacing) * 72)",
-                    "--header-height": "calc(var(--spacing) * 12)",
-                  } as React.CSSProperties
-                }
+              <React.Suspense
+                fallback={<div className="bg-red-500">Loading...</div>}
               >
-                <AppSidebar collapsible="icon" />
-                <SidebarInset>
-                  <Suspense>{children}</Suspense>
-                </SidebarInset>
-              </SidebarProvider>
+                {children}
+              </React.Suspense>
               <Toaster />
             </ThemeProvider>
           </ReactQueryProvider>

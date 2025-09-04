@@ -47,7 +47,7 @@ const { status, data } = await apiInstance.categoriesCreate(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -97,7 +97,7 @@ void (empty response body)
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -153,7 +153,7 @@ const { status, data } = await apiInstance.categoriesList(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -207,7 +207,7 @@ const { status, data } = await apiInstance.categoriesPartialUpdate(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -257,7 +257,7 @@ const { status, data } = await apiInstance.categoriesRetrieve(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -311,7 +311,7 @@ const { status, data } = await apiInstance.categoriesUpdate(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 

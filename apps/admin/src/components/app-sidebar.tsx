@@ -1,5 +1,6 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ChartBar,
   CircleQuestionMark,
@@ -12,6 +13,10 @@ import {
 import Link from "next/link";
 
 import * as React from "react";
+
+import { UserDetails } from "@sdk";
+
+import { userDetailsQueryOptions } from "@/lib/queries";
 
 import {
   Sidebar,
@@ -28,11 +33,6 @@ import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 
 const data = {
-  user: {
-    name: "Franco Z",
-    email: "fzursch@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Orders",
@@ -69,7 +69,10 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { user: UserDetails }) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -94,7 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

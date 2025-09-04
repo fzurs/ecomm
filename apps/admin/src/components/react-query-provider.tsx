@@ -6,6 +6,7 @@ import {
   isServer,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 import * as React from "react";
 
 function makeQueryClient() {

@@ -51,6 +51,31 @@ export interface Category {
 /**
  * 
  * @export
+ * @interface Login
+ */
+export interface Login {
+    /**
+     * 
+     * @type {string}
+     * @memberof Login
+     */
+    'username'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Login
+     */
+    'email'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Login
+     */
+    'password': string;
+}
+/**
+ * 
+ * @export
  * @interface PaginatedCategoryList
  */
 export interface PaginatedCategoryList {
@@ -109,6 +134,69 @@ export interface PaginatedProductList {
      * @memberof PaginatedProductList
      */
     'results': Array<Product>;
+}
+/**
+ * 
+ * @export
+ * @interface PasswordChange
+ */
+export interface PasswordChange {
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordChange
+     */
+    'new_password1': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordChange
+     */
+    'new_password2': string;
+}
+/**
+ * Serializer for requesting a password reset e-mail.
+ * @export
+ * @interface PasswordReset
+ */
+export interface PasswordReset {
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordReset
+     */
+    'email': string;
+}
+/**
+ * Serializer for confirming a password reset attempt.
+ * @export
+ * @interface PasswordResetConfirm
+ */
+export interface PasswordResetConfirm {
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetConfirm
+     */
+    'new_password1': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetConfirm
+     */
+    'new_password2': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetConfirm
+     */
+    'uid': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetConfirm
+     */
+    'token': string;
 }
 /**
  * 
@@ -223,6 +311,43 @@ export interface PatchedProduct {
 
 
 /**
+ * User model w/o password
+ * @export
+ * @interface PatchedUserDetails
+ */
+export interface PatchedUserDetails {
+    /**
+     * 
+     * @type {number}
+     * @memberof PatchedUserDetails
+     */
+    'pk'?: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * @type {string}
+     * @memberof PatchedUserDetails
+     */
+    'username'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PatchedUserDetails
+     */
+    'email'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PatchedUserDetails
+     */
+    'first_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PatchedUserDetails
+     */
+    'last_name'?: string;
+}
+/**
  * 
  * @export
  * @interface Product
@@ -310,6 +435,19 @@ export interface Product {
 
 
 /**
+ * 
+ * @export
+ * @interface RestAuthDetail
+ */
+export interface RestAuthDetail {
+    /**
+     * 
+     * @type {string}
+     * @memberof RestAuthDetail
+     */
+    'detail': string;
+}
+/**
  * * `draft` - Draft * `active` - Active * `inactive` - Inactive * `out_of_stock` - Out of stock * `discontinued` - Discontinued
  * @export
  * @enum {string}
@@ -324,6 +462,627 @@ export const StatusEnum = {
 } as const;
 
 export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+
+
+/**
+ * Serializer for Token model.
+ * @export
+ * @interface Token
+ */
+export interface Token {
+    /**
+     * 
+     * @type {string}
+     * @memberof Token
+     */
+    'key': string;
+}
+/**
+ * User model w/o password
+ * @export
+ * @interface UserDetails
+ */
+export interface UserDetails {
+    /**
+     * 
+     * @type {number}
+     * @memberof UserDetails
+     */
+    'pk': number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * @type {string}
+     * @memberof UserDetails
+     */
+    'username': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDetails
+     */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDetails
+     */
+    'first_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDetails
+     */
+    'last_name'?: string;
+}
+
+/**
+ * AuthApi - axios parameter creator
+ * @export
+ */
+export const AuthApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Check the credentials and return the REST Token if the credentials are valid and authenticated. Calls Django Auth login method to register User ID in Django session framework  Accept the following POST parameters: username, password Return the REST Framework Token Object\'s key.
+         * @param {Login} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authLoginCreate: async (login: Login, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'login' is not null or undefined
+            assertParamExists('authLoginCreate', 'login', login)
+            const localVarPath = `/auth/login/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(login, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Calls Django logout method and delete the Token object assigned to the current User object.  Accepts/Returns nothing.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authLogoutCreate: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/auth/logout/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Calls Django Auth SetPasswordForm save method.  Accepts the following POST parameters: new_password1, new_password2 Returns the success/fail message.
+         * @param {PasswordChange} passwordChange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authPasswordChangeCreate: async (passwordChange: PasswordChange, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'passwordChange' is not null or undefined
+            assertParamExists('authPasswordChangeCreate', 'passwordChange', passwordChange)
+            const localVarPath = `/auth/password/change/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(passwordChange, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Password reset e-mail link is confirmed, therefore this resets the user\'s password.  Accepts the following POST parameters: token, uid,     new_password1, new_password2 Returns the success/fail message.
+         * @param {PasswordResetConfirm} passwordResetConfirm 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authPasswordResetConfirmCreate: async (passwordResetConfirm: PasswordResetConfirm, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'passwordResetConfirm' is not null or undefined
+            assertParamExists('authPasswordResetConfirmCreate', 'passwordResetConfirm', passwordResetConfirm)
+            const localVarPath = `/auth/password/reset/confirm/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(passwordResetConfirm, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Calls Django Auth PasswordResetForm save method.  Accepts the following POST parameters: email Returns the success/fail message.
+         * @param {PasswordReset} passwordReset 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authPasswordResetCreate: async (passwordReset: PasswordReset, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'passwordReset' is not null or undefined
+            assertParamExists('authPasswordResetCreate', 'passwordReset', passwordReset)
+            const localVarPath = `/auth/password/reset/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(passwordReset, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {PatchedUserDetails} [patchedUserDetails] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authUserPartialUpdate: async (patchedUserDetails?: PatchedUserDetails, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/auth/user/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(patchedUserDetails, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authUserRetrieve: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/auth/user/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {UserDetails} userDetails 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authUserUpdate: async (userDetails: UserDetails, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userDetails' is not null or undefined
+            assertParamExists('authUserUpdate', 'userDetails', userDetails)
+            const localVarPath = `/auth/user/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(userDetails, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AuthApi - functional programming interface
+ * @export
+ */
+export const AuthApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AuthApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Check the credentials and return the REST Token if the credentials are valid and authenticated. Calls Django Auth login method to register User ID in Django session framework  Accept the following POST parameters: username, password Return the REST Framework Token Object\'s key.
+         * @param {Login} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authLoginCreate(login: Login, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Token>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authLoginCreate(login, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authLoginCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Calls Django logout method and delete the Token object assigned to the current User object.  Accepts/Returns nothing.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authLogoutCreate(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RestAuthDetail>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authLogoutCreate(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authLogoutCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Calls Django Auth SetPasswordForm save method.  Accepts the following POST parameters: new_password1, new_password2 Returns the success/fail message.
+         * @param {PasswordChange} passwordChange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authPasswordChangeCreate(passwordChange: PasswordChange, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RestAuthDetail>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authPasswordChangeCreate(passwordChange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authPasswordChangeCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Password reset e-mail link is confirmed, therefore this resets the user\'s password.  Accepts the following POST parameters: token, uid,     new_password1, new_password2 Returns the success/fail message.
+         * @param {PasswordResetConfirm} passwordResetConfirm 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authPasswordResetConfirmCreate(passwordResetConfirm: PasswordResetConfirm, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RestAuthDetail>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authPasswordResetConfirmCreate(passwordResetConfirm, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authPasswordResetConfirmCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Calls Django Auth PasswordResetForm save method.  Accepts the following POST parameters: email Returns the success/fail message.
+         * @param {PasswordReset} passwordReset 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authPasswordResetCreate(passwordReset: PasswordReset, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RestAuthDetail>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authPasswordResetCreate(passwordReset, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authPasswordResetCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {PatchedUserDetails} [patchedUserDetails] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authUserPartialUpdate(patchedUserDetails?: PatchedUserDetails, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDetails>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authUserPartialUpdate(patchedUserDetails, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authUserPartialUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authUserRetrieve(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDetails>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authUserRetrieve(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authUserRetrieve']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {UserDetails} userDetails 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authUserUpdate(userDetails: UserDetails, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDetails>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authUserUpdate(userDetails, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.authUserUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AuthApi - factory interface
+ * @export
+ */
+export const AuthApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AuthApiFp(configuration)
+    return {
+        /**
+         * Check the credentials and return the REST Token if the credentials are valid and authenticated. Calls Django Auth login method to register User ID in Django session framework  Accept the following POST parameters: username, password Return the REST Framework Token Object\'s key.
+         * @param {Login} login 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authLoginCreate(login: Login, options?: RawAxiosRequestConfig): AxiosPromise<Token> {
+            return localVarFp.authLoginCreate(login, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Calls Django logout method and delete the Token object assigned to the current User object.  Accepts/Returns nothing.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authLogoutCreate(options?: RawAxiosRequestConfig): AxiosPromise<RestAuthDetail> {
+            return localVarFp.authLogoutCreate(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Calls Django Auth SetPasswordForm save method.  Accepts the following POST parameters: new_password1, new_password2 Returns the success/fail message.
+         * @param {PasswordChange} passwordChange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authPasswordChangeCreate(passwordChange: PasswordChange, options?: RawAxiosRequestConfig): AxiosPromise<RestAuthDetail> {
+            return localVarFp.authPasswordChangeCreate(passwordChange, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Password reset e-mail link is confirmed, therefore this resets the user\'s password.  Accepts the following POST parameters: token, uid,     new_password1, new_password2 Returns the success/fail message.
+         * @param {PasswordResetConfirm} passwordResetConfirm 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authPasswordResetConfirmCreate(passwordResetConfirm: PasswordResetConfirm, options?: RawAxiosRequestConfig): AxiosPromise<RestAuthDetail> {
+            return localVarFp.authPasswordResetConfirmCreate(passwordResetConfirm, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Calls Django Auth PasswordResetForm save method.  Accepts the following POST parameters: email Returns the success/fail message.
+         * @param {PasswordReset} passwordReset 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authPasswordResetCreate(passwordReset: PasswordReset, options?: RawAxiosRequestConfig): AxiosPromise<RestAuthDetail> {
+            return localVarFp.authPasswordResetCreate(passwordReset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {PatchedUserDetails} [patchedUserDetails] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authUserPartialUpdate(patchedUserDetails?: PatchedUserDetails, options?: RawAxiosRequestConfig): AxiosPromise<UserDetails> {
+            return localVarFp.authUserPartialUpdate(patchedUserDetails, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authUserRetrieve(options?: RawAxiosRequestConfig): AxiosPromise<UserDetails> {
+            return localVarFp.authUserRetrieve(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+         * @param {UserDetails} userDetails 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authUserUpdate(userDetails: UserDetails, options?: RawAxiosRequestConfig): AxiosPromise<UserDetails> {
+            return localVarFp.authUserUpdate(userDetails, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AuthApi - object-oriented interface
+ * @export
+ * @class AuthApi
+ * @extends {BaseAPI}
+ */
+export class AuthApi extends BaseAPI {
+    /**
+     * Check the credentials and return the REST Token if the credentials are valid and authenticated. Calls Django Auth login method to register User ID in Django session framework  Accept the following POST parameters: username, password Return the REST Framework Token Object\'s key.
+     * @param {Login} login 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authLoginCreate(login: Login, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authLoginCreate(login, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Calls Django logout method and delete the Token object assigned to the current User object.  Accepts/Returns nothing.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authLogoutCreate(options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authLogoutCreate(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Calls Django Auth SetPasswordForm save method.  Accepts the following POST parameters: new_password1, new_password2 Returns the success/fail message.
+     * @param {PasswordChange} passwordChange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authPasswordChangeCreate(passwordChange: PasswordChange, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authPasswordChangeCreate(passwordChange, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Password reset e-mail link is confirmed, therefore this resets the user\'s password.  Accepts the following POST parameters: token, uid,     new_password1, new_password2 Returns the success/fail message.
+     * @param {PasswordResetConfirm} passwordResetConfirm 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authPasswordResetConfirmCreate(passwordResetConfirm: PasswordResetConfirm, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authPasswordResetConfirmCreate(passwordResetConfirm, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Calls Django Auth PasswordResetForm save method.  Accepts the following POST parameters: email Returns the success/fail message.
+     * @param {PasswordReset} passwordReset 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authPasswordResetCreate(passwordReset: PasswordReset, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authPasswordResetCreate(passwordReset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+     * @param {PatchedUserDetails} [patchedUserDetails] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authUserPartialUpdate(patchedUserDetails?: PatchedUserDetails, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authUserPartialUpdate(patchedUserDetails, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authUserRetrieve(options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authUserRetrieve(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default accepted fields: username, first_name, last_name Default display fields: pk, username, email, first_name, last_name Read-only fields: pk, email  Returns UserModel fields.
+     * @param {UserDetails} userDetails 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public authUserUpdate(userDetails: UserDetails, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authUserUpdate(userDetails, options).then((request) => request(this.axios, this.basePath));
+    }
+}
 
 
 
@@ -353,10 +1112,6 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
 
@@ -396,10 +1151,6 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -433,10 +1184,6 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
 
@@ -486,10 +1233,6 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -528,10 +1271,6 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -569,10 +1308,6 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
 
@@ -854,10 +1589,6 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -896,10 +1627,6 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -936,10 +1663,6 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
 
@@ -1001,10 +1724,6 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -1043,10 +1762,6 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
-
             // authentication cookieAuth required
 
 
@@ -1084,10 +1799,6 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication basicAuth required
-            // http basic authentication required
-            setBasicAuthToObject(localVarRequestOptions, configuration)
 
             // authentication cookieAuth required
 

@@ -2,7 +2,7 @@ import { env } from "@/env";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-import { CategoriesApi, ProductsApi } from "@sdk";
+import { AuthApi, CategoriesApi, ProductsApi } from "@sdk";
 
 export const api = axios.create({
   baseURL: env.API_URL,
@@ -18,3 +18,5 @@ api.interceptors.request.use(async (config) => {
 export const productsApi = new ProductsApi(undefined, undefined, api);
 
 export const categoriesApi = new CategoriesApi(undefined, undefined, api);
+
+export const authApi = new AuthApi(undefined, undefined, api);

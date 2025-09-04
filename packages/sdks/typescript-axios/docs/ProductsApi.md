@@ -47,7 +47,7 @@ const { status, data } = await apiInstance.productsCreate(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -97,7 +97,7 @@ void (empty response body)
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -162,7 +162,7 @@ const { status, data } = await apiInstance.productsList(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -216,7 +216,7 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -266,7 +266,7 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 
@@ -320,7 +320,7 @@ const { status, data } = await apiInstance.productsUpdate(
 
 ### Authorization
 
-[basicAuth](../README.md#basicAuth), [cookieAuth](../README.md#cookieAuth)
+[cookieAuth](../README.md#cookieAuth)
 
 ### HTTP request headers
 

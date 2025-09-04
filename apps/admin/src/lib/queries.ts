@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 
-import { categoriesApi, productsApi } from "./api";
+import { authApi, categoriesApi, productsApi } from "./api";
 
 export const defaultPageSize = 100;
 
@@ -28,3 +28,9 @@ export const getCategoriesInfiniteQueryOptions = (
     getNextPageParam: (lastPage, allPages) =>
       lastPage.next ? allPages.length : undefined,
   });
+
+export const userDetailsQueryOptions = queryOptions({
+  queryKey: ["users", "me"],
+  queryFn: () => authApi.authUserRetrieve().then((res) => res.data),
+  retry: 0,
+});

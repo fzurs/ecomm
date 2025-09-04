@@ -1,19 +1,18 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChevronsUpDown, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { UserDetails } from "@sdk";
+
+import { authApi } from "@/lib/api";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -26,16 +25,38 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export function NavUser({ user }: { user: UserDetails }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const avatar = (
+    <Avatar className="h-8 w-8 rounded-lg">
+      <AvatarImage src="" alt={user.username} />
+      <AvatarFallback className="rounded-lg uppercase">
+        {user.username.slice(0, 2)}
+      </AvatarFallback>
+    </Avatar>
+  );
+
+  const details = (
+    <div className="grid flex-1 text-left text-sm leading-tight">
+      <span className="truncate font-medium">{user.username}</span>
+      <span className="truncate text-xs">{user.email}</span>
+    </div>
+  );
+
+  const { mutate } = useMutation({
+    mutationFn: () => authApi.authLogoutCreate(),
+    onError: () => {
+      toast.error("Fail to logout.");
+    },
+    onSuccess: () => {
+      queryClient.clear();
+      toast.success("Successful logout!");
+      router.push("/login");
+    },
+  });
 
   return (
     <SidebarMenu>
@@ -46,14 +67,8 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
-              </div>
+              {avatar}
+              {details}
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -65,40 +80,12 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
-                </div>
+                {avatar}
+                {details}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={() => mutate()}>
               <LogOut />
               Log out
             </DropdownMenuItem>
