@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Login } from "@sdk";
+import { Login } from "@workspace/typescript-axios-client";
 
 import { authApi } from "@/lib/api";
 import { cn, handleBadRequestError } from "@/lib/utils";

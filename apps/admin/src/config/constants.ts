@@ -1,6 +1,6 @@
 import { CircleCheck, CircleMinus, LucideIcon } from "lucide-react";
 
-import { StatusEnum } from "@sdk";
+import { StatusEnum } from "@workspace/typescript-axios-client";
 
 export const statusesValueLabel: Record<
   StatusEnum,

@@ -6,7 +6,7 @@
     "^react$",
     "^next$",
     "^types$",
-    "^@sdk$",
+    "^@workspace/(.*)$",
     "^@/types/(.*)$",
     "^@/config/(.*)$",
     "^@/lib/(.*)$",

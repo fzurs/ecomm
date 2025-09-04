@@ -2,7 +2,7 @@ import { env } from "@/env";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-import { AuthApi, CategoriesApi, ProductsApi } from "@sdk";
+import { AuthApi, CategoriesApi, ProductsApi } from "@workspace/typescript-axios-client";
 
 export const api = axios.create({
   baseURL: env.API_URL,

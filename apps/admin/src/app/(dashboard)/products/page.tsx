@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 import * as React from "react";
 
-import { Category, Product, StatusEnum } from "@sdk";
+import { Category, Product, StatusEnum } from "@workspace/typescript-axios-client";
 
 import { statuses, statusesValueLabel } from "@/config/constants";
 

@@ -7,7 +7,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
-import { Category, Product } from "@sdk";
+import { Category, Product } from "@workspace/typescript-axios-client";
 
 import { statuses } from "@/config/constants";
 

@@ -5,7 +5,7 @@ import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { UserDetails } from "@sdk";
+import { UserDetails } from "@workspace/typescript-axios-client";
 
 import { authApi } from "@/lib/api";
 

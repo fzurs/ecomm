@@ -14,7 +14,7 @@ import Link from "next/link";
 
 import * as React from "react";
 
-import { UserDetails } from "@sdk";
+import { UserDetails } from "@workspace/typescript-axios-client";
 
 import { userDetailsQueryOptions } from "@/lib/queries";
 

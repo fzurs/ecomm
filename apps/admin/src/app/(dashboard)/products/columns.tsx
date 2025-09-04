@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 import { useEffect } from "react";
 
-import { Product } from "@sdk";
+import { Product } from "@workspace/typescript-axios-client";
 
 import { statuses } from "@/config/constants";
 
