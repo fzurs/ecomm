@@ -108,9 +108,6 @@ export const columns: ColumnDef<Product>[] = [
         </Drawer>
       );
     },
-    meta: {
-      variant: "search",
-    },
   },
   {
     accessorKey: "description",
@@ -121,7 +118,6 @@ export const columns: ColumnDef<Product>[] = [
           {row.original.description}
         </div>
       ),
-    enableColumnFilter: false,
   },
   {
     accessorKey: "category",
@@ -153,7 +149,6 @@ export const columns: ColumnDef<Product>[] = [
 
       return <div className="text-right font-medium">{formatted}</div>;
     },
-    enableColumnFilter: false,
   },
   {
     accessorKey: "stock_quantity",
@@ -190,7 +185,6 @@ export const columns: ColumnDef<Product>[] = [
         </Badge>
       );
     },
-    enableColumnFilter: false,
     meta: { label: "Stock" },
   },
   {
@@ -206,31 +200,37 @@ export const columns: ColumnDef<Product>[] = [
 
       return <Badge variant={"secondary"}>{status.label}</Badge>;
     },
-    meta: {
-      variant: "status",
-    },
   },
   {
     id: "Created at",
     accessorKey: "created_at",
     header: () => <div className="text-right">Created at</div>,
     cell: ({ row }) => (
-      <div className="text-right">
-        {new Date(row.original.created_at).toDateString()}
+      <div className="text-right text-muted-foreground">
+        {new Date(row.original.created_at).toLocaleDateString(undefined, {
+          day: "2-digit",
+          year: "numeric",
+          month: "long",
+        })}
       </div>
     ),
-    enableColumnFilter: false,
     meta: { label: "Created at" },
   },
   {
     accessorKey: "updated_at",
     header: () => <div className="text-right">Updated at</div>,
     cell: ({ row }) => (
-      <div className="text-right">
-        {new Date(row.original.updated_at).toDateString()}
+      <div className="text-right text-muted-foreground">
+        {new Date(row.original.updated_at).toLocaleDateString(undefined, {
+          day: "2-digit",
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          hour: "numeric",
+          minute: "numeric",
+        })}
       </div>
     ),
-    enableColumnFilter: false,
     meta: { label: "Updated at" },
   },
   {
