@@ -1,9 +1,9 @@
 import {
-  getCoreRowModel,
   RowData,
   SortingState,
   TableOptions,
   Updater,
+  getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -33,7 +33,7 @@ export function usePagination() {
 export function useOrdering() {
   return useQueryState(
     "ordering",
-    parseAsString.withOptions({ clearOnDefault: true })
+    parseAsString.withOptions({ clearOnDefault: true }),
   );
 }
 
@@ -47,7 +47,7 @@ function parseSortParam(param: string | null) {
 }
 
 function serializeSorting(
-  sorting: { id: string; desc?: boolean }[] | undefined
+  sorting: { id: string; desc?: boolean }[] | undefined,
 ) {
   if (!sorting) return "";
   if (sorting.length === 0) return null;

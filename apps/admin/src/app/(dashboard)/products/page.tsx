@@ -25,6 +25,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -103,9 +104,10 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries(getProductsQueryOptions());
       setOpen(false);
-      form.reset();
     },
   });
+
+  const onAnimationEnd = () => !open && form.reset();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -115,9 +117,10 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
           New Product
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent onAnimationEnd={onAnimationEnd}>
         <DialogHeader>
           <DialogTitle>Create new Product</DialogTitle>
+          <DialogDescription />
         </DialogHeader>
         <Form {...form}>
           <form
