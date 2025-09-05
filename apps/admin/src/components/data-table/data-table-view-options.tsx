@@ -1,7 +1,7 @@
 "use client";
 
 import { type Table as TanstackTable } from "@tanstack/react-table";
-import { Check, Settings2 } from "lucide-react";
+import { Check, ChevronDown, Columns } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -28,16 +28,17 @@ export function DataTableViewOptions<TData>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" className="size-9 md:w-auto">
-          <Settings2 />
-          <span className="sr-only md:not-sr-only">Columns</span>
+        <Button variant="outline" role="combobox">
+          <Columns />
+          Columns
+          <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent side="bottom" align="end" className="w-[200px] p-0">
+      <PopoverContent side="bottom" align="end" className="p-0">
         <Command>
-          <CommandInput placeholder="Search options..." />
+          <CommandInput placeholder="Search columns..." />
           <CommandList>
-            <CommandEmpty>No option found.</CommandEmpty>
+            <CommandEmpty>No columns found.</CommandEmpty>
             <CommandGroup>
               {table
                 .getAllColumns()

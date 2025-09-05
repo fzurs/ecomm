@@ -20,7 +20,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-    search_fields = ["name", "description"]
+    search_fields = ["name", "description", "category__name"]
     filterset_fields = ["category", "status"]
     ordering_fields = [
         "name",

@@ -1,14 +1,15 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ChartBar,
   CircleQuestionMark,
   Layers2,
   Package,
+  Package2,
   Settings,
   ShoppingBag,
   Users,
+  Users2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -16,12 +17,9 @@ import * as React from "react";
 
 import { UserDetails } from "@workspace/typescript-axios-client";
 
-import { userDetailsQueryOptions } from "@/lib/queries";
-
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -30,7 +28,6 @@ import {
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
 
 const data = {
   navMain: [
@@ -69,10 +66,7 @@ const data = {
   ],
 };
 
-export function AppSidebar({
-  user,
-  ...props
-}: React.ComponentProps<typeof Sidebar> & { user: UserDetails }) {
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -96,9 +90,6 @@ export function AppSidebar({
         <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={user} />
-      </SidebarFooter>
     </Sidebar>
   );
 }

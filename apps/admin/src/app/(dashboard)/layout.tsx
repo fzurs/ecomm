@@ -15,7 +15,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
-  const { data: user, isLoading, isError } = useQuery(userDetailsQueryOptions);
+  const { isPending, isError } = useQuery(userDetailsQueryOptions);
 
   React.useEffect(() => {
     if (isError) {
@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [isError, router]);
 
-  if (isError || isLoading || !user) {
+  if (isError || isPending) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -43,7 +43,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         } as React.CSSProperties
       }
     >
-      <AppSidebar collapsible="icon" user={user} />
+      <AppSidebar variant="inset" />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );

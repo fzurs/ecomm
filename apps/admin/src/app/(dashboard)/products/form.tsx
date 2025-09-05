@@ -1,9 +1,6 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
@@ -11,23 +8,8 @@ import { Category, Product } from "@workspace/typescript-axios-client";
 
 import { statuses } from "@/config/constants";
 
-import { getCategoriesInfiniteQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -47,6 +29,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+import { CategorySelect } from "@/components/category-select";
 
 export function ProductForm({
   form,
@@ -122,8 +106,8 @@ export function ProductForm({
               <FormLabel>Category</FormLabel>
               <FormControl>
                 <CategorySelect
-                  original={form.formState.defaultValues?.category as Category}
-                  onCategoryChange={(category) => field.onChange(category?.id)}
+                  category={form.formState.defaultValues?.category as Category}
+                  onCategoryIdChange={field.onChange}
                 />
               </FormControl>
               <FormDescription />
@@ -190,108 +174,5 @@ export function ProductForm({
         />
       </form>
     </Form>
-  );
-}
-
-function CategorySelect({
-  original,
-  onCategoryChange,
-}: {
-  original?: Category;
-  onCategoryChange?: (category?: Category) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = React.useState(original);
-
-  const onSelectCategory = React.useCallback(
-    (category: Category) => {
-      const newSelectedCategory =
-        selectedCategory?.id === category.id ? undefined : category;
-      onCategoryChange?.(newSelectedCategory);
-      setSelectedCategory(newSelectedCategory);
-      setOpen(false);
-    },
-    [selectedCategory?.id, onCategoryChange],
-  );
-
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger asChild>
-        <Button variant="outline" className="w-full justify-between">
-          {selectedCategory?.name ?? "Select a category"}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 h-72">
-        <CategoryList
-          selectedCategory={selectedCategory}
-          onSelectCategory={onSelectCategory}
-        />
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-export function CategoryList({
-  selectedCategory,
-  onSelectCategory,
-}: {
-  selectedCategory?: Category;
-  onSelectCategory?: (category: Category) => void;
-}) {
-  const [search, setSearch] = React.useState("");
-
-  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
-    getCategoriesInfiniteQueryOptions([10, undefined, search]),
-  );
-
-  const categories = React.useMemo(
-    () => data?.pages.flatMap((page) => page.results),
-    [data?.pages],
-  );
-
-  const onScroll = React.useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const target = e.currentTarget;
-      if (
-        hasNextPage &&
-        target.scrollTop + target.clientHeight >= target.scrollHeight
-      ) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, fetchNextPage],
-  );
-
-  const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
-
-  return (
-    <Command shouldFilter={false}>
-      <CommandInput
-        placeholder="Search category..."
-        onValueChange={debouncedSetSearch}
-      />
-      <CommandList onScroll={onScroll}>
-        <CommandEmpty>No category found.</CommandEmpty>
-        <CommandGroup>
-          {categories?.map((item) => (
-            <CommandItem
-              key={item.id}
-              onSelect={() => onSelectCategory?.(item)}
-            >
-              {item.name}
-              <Check
-                className={cn(
-                  "ml-auto",
-                  selectedCategory?.id === item.id
-                    ? "opacity-100"
-                    : "opacity-0",
-                )}
-              />
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
   );
 }

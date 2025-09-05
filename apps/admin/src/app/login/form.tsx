@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -19,8 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-
 import {
   Form,
   FormControl,
@@ -29,14 +28,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const queryClient = useQueryClient();
+
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   const form = useForm<Login>({
     defaultValues: { username: "", password: "" },
@@ -47,14 +51,18 @@ export function LoginForm({
     mutationFn: (data: Login) =>
       authApi.authLoginCreate(data).then((res) => res.data),
     onError: (err) => {
-      handleBadRequestError(err, form.setError);
-      toast.error("Fail to login.", {
-        description: form.formState.errors.root?.message || err.message,
+      handleBadRequestError(err, form);
+
+      toast.error("Could not log in", {
+        description: form.formState.errors.root?.message ?? "",
       });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries();
-      router.push("/products");
+
+      router.push(callbackUrl);
+
+      toast.success("Session started!");
     },
   });
 
@@ -100,7 +108,8 @@ export function LoginForm({
                 )}
               />
               <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin" />}Login
+                {isPending && <Loader2 className="animate-spin" />}
+                Login
               </Button>
             </form>
           </Form>

@@ -14,7 +14,7 @@ export const getProductsQueryOptions = (
   });
 
 export const getCategoriesInfiniteQueryOptions = (
-  params: Parameters<typeof categoriesApi.categoriesList> = [],
+  params: Parameters<typeof categoriesApi.categoriesList>,
 ) =>
   infiniteQueryOptions({
     queryKey: ["categories", "list", params],
@@ -27,6 +27,7 @@ export const getCategoriesInfiniteQueryOptions = (
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.next ? allPages.length : undefined,
+    placeholderData: (prev) => prev,
   });
 
 export const userDetailsQueryOptions = queryOptions({

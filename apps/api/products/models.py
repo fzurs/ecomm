@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from datetime import datetime
 import uuid
 
 
@@ -92,14 +93,19 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def generate_sku(self):
-        """SKU simple: primeras letras + número secuencial"""
+        """Genera un SKU único: iniciales + fecha + número secuencial"""
         # Tomar primeras letras de cada palabra
         words = self.name.split()[:3]
         code = "".join(word[0].upper() for word in words)
 
-        # Buscar el siguiente número disponible
+        # Fecha actual en formato YYYYMMDD
+        today_str = datetime.now().strftime("%Y%m%d")
+
+        # Buscar el último producto con el mismo código y fecha
         last_product = (
-            Product.objects.filter(sku__startswith=code).order_by("-sku").first()
+            Product.objects.filter(sku__startswith=f"{code}-{today_str}")
+            .order_by("-sku")
+            .first()
         )
 
         if last_product:
@@ -107,9 +113,9 @@ class Product(models.Model):
             try:
                 last_num = int(last_product.sku.split("-")[-1])
                 new_num = last_num + 1
-            except:
+            except ValueError:
                 new_num = 1
         else:
             new_num = 1
 
-        return f"{code}-{new_num:04d}"  # MCT-0001, MCT-0002...
+        return f"{code}-{today_str}-{new_num:04d}"

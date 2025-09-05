@@ -2,17 +2,11 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  CopyPlus,
-  EllipsisVertical,
-  Loader2,
-  PackageMinus,
-} from "lucide-react";
-import { parseAsBoolean, useQueryState } from "nuqs";
+import { EllipsisVertical, Loader2, PackageMinus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { useEffect } from "react";
+import * as React from "react";
 
 import { Product } from "@workspace/typescript-axios-client";
 
@@ -20,13 +14,12 @@ import { statuses } from "@/config/constants";
 
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
-import { cn } from "@/lib/utils";
+import { cn, handleBadRequestError } from "@/lib/utils";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Drawer,
   DrawerClose,
@@ -43,10 +36,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 
@@ -54,62 +45,29 @@ import { ProductForm } from "./form";
 
 export const columns: ColumnDef<Product>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "name",
     header: ({ column }) => (
       <DataTableColumnHeader title="Name" column={column} />
     ),
     cell: function Cell({ row }) {
-      const item = row.original;
-      const formId = `viewer-form-${item.id}`;
+      const product = row.original;
+      const formId = `update-form-${product.id}`;
 
-      const [open, setOpen] = useQueryState(
-        `viewer_${item.id}`,
-        parseAsBoolean.withDefault(false),
-      );
+      const [open, setOpen] = React.useState(false);
 
       const isMobile = useIsMobile();
       const queryClient = useQueryClient();
 
-      const form = useForm<Product>({ defaultValues: item });
-
-      // prevents the form from being left with old default values
-      useEffect(() => {
-        form.reset(item);
-      }, [item, form]);
+      const form = useForm<Product>({ defaultValues: product });
 
       const { mutate, isPending } = useMutation({
         mutationFn: (data: Product) =>
-          productsApi.productsUpdate(item.id, data),
-        onSettled: () => {
-          queryClient.invalidateQueries(getProductsQueryOptions());
+          productsApi.productsUpdate(product.id, data),
+        onError: (err) => {
+          handleBadRequestError(err, form);
         },
         onSuccess: () => {
+          queryClient.invalidateQueries(getProductsQueryOptions());
           setOpen(false);
         },
       });
@@ -119,28 +77,28 @@ export const columns: ColumnDef<Product>[] = [
           open={open}
           onOpenChange={setOpen}
           direction={isMobile ? "bottom" : "right"}
+          modal={false} // category combobox scroll
         >
           <DrawerTrigger asChild>
             <Button variant="link" size="sm">
-              {item.name}
+              {product.name}
             </Button>
           </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>{item.name}</DrawerTitle>
+              <DrawerTitle>{product.name}</DrawerTitle>
               <DrawerDescription></DrawerDescription>
             </DrawerHeader>
-            <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-              <Separator />
-              <ProductForm
-                form={form}
-                onSubmit={form.handleSubmit((data) => mutate(data))}
-                id={formId}
-              />
-            </div>
+            <ProductForm
+              form={form}
+              onSubmit={form.handleSubmit((data) => mutate(data))}
+              id={formId}
+              className="px-4 overflow-auto"
+            />
             <DrawerFooter>
               <Button type="submit" form={formId} disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin" />} Save
+                {isPending && <Loader2 className="animate-spin" />}
+                {isPending ? "Saving..." : "Save"}
               </Button>
               <DrawerClose asChild>
                 <Button variant="outline">Close</Button>
@@ -279,77 +237,16 @@ export const columns: ColumnDef<Product>[] = [
     id: "actions",
     cell: function Cell({ row }) {
       const product = row.original;
-      const productId = row.original.id;
-
       const queryClient = useQueryClient();
 
-      const createACopyMutation = useMutation({
-        mutationFn: () =>
-          productsApi
-            .productsCreate({
-              ...product,
-              name: `${product.name} copy`,
-              sku: "",
-              slug: "",
-              category_id: product?.category?.id,
-            })
-            .then((res) => res.data),
-        onError: (err) => {
-          toast.error("The product copy could not be created.", {
-            description: err.message,
-          });
-        },
-        onSuccess: (data) => {
-          toast.success("A copy of the product was successfully created.", {
-            description: data.name,
-          });
-          queryClient.invalidateQueries(getProductsQueryOptions());
-        },
-      });
-
-      const destroyMutation = useMutation({
-        mutationFn: () => productsApi.productsDestroy(productId),
-        onMutate: async () => {
-          await queryClient.cancelQueries(getProductsQueryOptions());
-
-          const previousData = queryClient
-            .getQueryCache()
-            .findAll(getProductsQueryOptions())
-            .map(({ queryKey }) => ({
-              queryKey,
-              data: queryClient.getQueryData(queryKey),
-            }));
-
-          queryClient
-            .getQueryCache()
-            .findAll(getProductsQueryOptions())
-            .forEach(({ queryKey }) => {
-              queryClient.setQueryData(
-                queryKey as ReturnType<
-                  typeof getProductsQueryOptions
-                >["queryKey"],
-                (old) =>
-                  old && {
-                    ...old,
-                    results: old.results.filter(
-                      (item) => item.id !== productId,
-                    ),
-                  },
-              );
-            });
-
-          return { previousData };
-        },
-        onError: (err, _, context) => {
-          context?.previousData.forEach(({ queryKey, data }) => {
-            queryClient.setQueryData(queryKey, data);
-          });
-        },
+      const { mutate, isPending } = useMutation({
+        mutationFn: () => productsApi.productsDestroy(product.id),
         onSuccess: () => {
-          toast.success(`The product "${product.name}" has been destroyed`);
-        },
-        onSettled: () => {
           queryClient.invalidateQueries(getProductsQueryOptions());
+          toast.success("Product destroyed");
+        },
+        onError: () => {
+          toast.error("The product could not be destroyed");
         },
       });
 
@@ -367,18 +264,8 @@ export const columns: ColumnDef<Product>[] = [
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               <DropdownMenuItem
-                onClick={() => createACopyMutation.mutate()}
-                disabled={createACopyMutation.isPending}
-              >
-                <CopyPlus />
-                Create a copy
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                onSelect={() => destroyMutation.mutate()}
-                disabled={destroyMutation.isPending}
+                onSelect={() => mutate()}
+                disabled={isPending}
                 variant="destructive"
               >
                 <PackageMinus />
