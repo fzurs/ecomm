@@ -55,7 +55,7 @@ export function useInfiniteCategories() {
   const onSearchChange = React.useCallback((value: string) => {
     setSearchInternal(value);
     debouncedSetSearch(value);
-  }, []);
+  }, [debouncedSetSearch]);
 
   return { categories, onScroll, search: searchInternal, onSearchChange };
 }

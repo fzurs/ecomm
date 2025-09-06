@@ -85,7 +85,9 @@ export function useDataTable<TData extends RowData>({
     pageCount: Math.ceil(data.count / pagination.pageSize),
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row, index) =>
-      (row as any).id ? String((row as any).id) : String(index),
+      (row as { id: unknown }).id
+        ? String((row as { id: unknown }).id)
+        : String(index),
     state: {
       pagination,
       sorting,

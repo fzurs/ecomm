@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { Loader2, PackagePlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 
@@ -136,7 +135,7 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
                     Name<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} required />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

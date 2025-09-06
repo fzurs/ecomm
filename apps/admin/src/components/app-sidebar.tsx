@@ -5,17 +5,13 @@ import {
   CircleQuestionMark,
   Layers2,
   Package,
-  Package2,
   Settings,
   ShoppingBag,
   Users,
-  Users2,
 } from "lucide-react";
 import Link from "next/link";
 
 import * as React from "react";
-
-import { UserDetails } from "@workspace/typescript-axios-client";
 
 import {
   Sidebar,
