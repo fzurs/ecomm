@@ -1,21 +1,25 @@
 from django.db import models
 from django.utils.text import slugify
 from datetime import datetime
+from django.contrib.auth import get_user_model
 import uuid
+
+UserModel = get_user_model()
+
+
+class Customer(models.Model):
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
+    customer_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+
+    def __str__(self):
+        return " ".join([self.user.__str__(), self.customer_id.__str__()])
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
-    class Meta:
-        ordering = ["name"]
-
     def __str__(self):
         return self.name
-
-    @property
-    def slug(self):
-        return slugify(self.name)
 
 
 class Brand(models.Model):
@@ -25,16 +29,6 @@ class Brand(models.Model):
     website = models.URLField(
         blank=True,
     )
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def slug(self):
-        return slugify(self.name)
 
 
 class Product(models.Model):
@@ -93,15 +87,11 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def generate_sku(self):
-        """Genera un SKU único: iniciales + fecha + número secuencial"""
-        # Tomar primeras letras de cada palabra
         words = self.name.split()[:3]
         code = "".join(word[0].upper() for word in words)
 
-        # Fecha actual en formato YYYYMMDD
         today_str = datetime.now().strftime("%Y%m%d")
 
-        # Buscar el último producto con el mismo código y fecha
         last_product = (
             Product.objects.filter(sku__startswith=f"{code}-{today_str}")
             .order_by("-sku")
@@ -109,7 +99,6 @@ class Product(models.Model):
         )
 
         if last_product:
-            # Extraer número del último SKU
             try:
                 last_num = int(last_product.sku.split("-")[-1])
                 new_num = last_num + 1
@@ -119,3 +108,31 @@ class Product(models.Model):
             new_num = 1
 
         return f"{code}-{today_str}-{new_num:04d}"
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("paid", "Paid"),
+        ("shipped", "Shipped"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="orders",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.status}"
