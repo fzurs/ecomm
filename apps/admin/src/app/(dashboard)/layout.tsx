@@ -1,41 +1,30 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import * as React from "react";
 
-import { userDetailsQueryOptions } from "@/lib/queries";
+import { authApi } from "@/lib/api";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import { AppSidebar } from "@/components/app-sidebar";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await authApi
+    .authUserRetrieve()
+    .then((res) => res.data)
+    .catch(() => null);
 
-  const { isPending, isError } = useQuery(userDetailsQueryOptions);
-
-  React.useEffect(() => {
-    if (isError) {
-      router.push("/login");
-    }
-  }, [isError, router]);
-
-  if (isError || isPending) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-muted-foreground text-sm">Verifying session...</p>
-        </div>
-      </div>
-    );
+  if (!user?.is_staff) {
+    redirect("/login");
   }
 
   return (
     <SidebarProvider
+      defaultOpen={false}
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -43,7 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="sidebar" />
+      <AppSidebar collapsible="icon" variant="sidebar" />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );

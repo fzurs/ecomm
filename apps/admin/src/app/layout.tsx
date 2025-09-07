@@ -44,11 +44,7 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <React.Suspense
-                fallback={<div className="bg-red-500">Loading...</div>}
-              >
-                {children}
-              </React.Suspense>
+              <React.Suspense>{children}</React.Suspense>
               <Toaster />
             </ThemeProvider>
           </ReactQueryProvider>

@@ -1,21 +1,23 @@
-# Category
+# PatchedBrand
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **number** |  | [readonly] [default to undefined]
-**name** | **string** |  | [default to undefined]
+**id** | **number** |  | [optional] [readonly] [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
+**website** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { Category } from './api';
+import { PatchedBrand } from './api';
 
-const instance: Category = {
+const instance: PatchedBrand = {
     id,
     name,
+    website,
 };
 ```
 

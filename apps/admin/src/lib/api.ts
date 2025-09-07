@@ -2,7 +2,11 @@ import { env } from "@/env";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-import { AuthApi, CategoriesApi, ProductsApi } from "@workspace/typescript-axios-client";
+import {
+  AuthApi,
+  CategoriesApi,
+  ProductsApi,
+} from "@workspace/typescript-axios-client";
 
 export const api = axios.create({
   baseURL: env.API_URL,
@@ -11,7 +15,15 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  config.headers["X-CSRFToken"] = Cookies.get("csrftoken");
+  const isServer = typeof window === "undefined";
+
+  if (isServer) {
+    const { cookies } = require("next/headers");
+    const cookieStore = await cookies();
+    config.headers["Cookie"] = cookieStore;
+  } else {
+    config.headers["X-CSRFToken"] = Cookies.get("csrftoken");
+  }
   return config;
 });
 

@@ -1,36 +1,36 @@
-# ProductsApi
+# OrdersApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**productsCreate**](#productscreate) | **POST** /products/ | |
-|[**productsDestroy**](#productsdestroy) | **DELETE** /products/{id}/ | |
-|[**productsList**](#productslist) | **GET** /products/ | |
-|[**productsPartialUpdate**](#productspartialupdate) | **PATCH** /products/{id}/ | |
-|[**productsRetrieve**](#productsretrieve) | **GET** /products/{id}/ | |
-|[**productsUpdate**](#productsupdate) | **PUT** /products/{id}/ | |
+|[**ordersCreate**](#orderscreate) | **POST** /orders/ | |
+|[**ordersDestroy**](#ordersdestroy) | **DELETE** /orders/{id}/ | |
+|[**ordersList**](#orderslist) | **GET** /orders/ | |
+|[**ordersPartialUpdate**](#orderspartialupdate) | **PATCH** /orders/{id}/ | |
+|[**ordersRetrieve**](#ordersretrieve) | **GET** /orders/{id}/ | |
+|[**ordersUpdate**](#ordersupdate) | **PUT** /orders/{id}/ | |
 
-# **productsCreate**
-> Product productsCreate(product)
+# **ordersCreate**
+> Order ordersCreate()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    OrdersApi,
     Configuration,
-    Product
+    Order
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new OrdersApi(configuration);
 
-let product: Product; //
+let order: Order; // (optional)
 
-const { status, data } = await apiInstance.productsCreate(
-    product
+const { status, data } = await apiInstance.ordersCreate(
+    order
 );
 ```
 
@@ -38,12 +38,12 @@ const { status, data } = await apiInstance.productsCreate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **product** | **Product**|  | |
+| **order** | **Order**|  | |
 
 
 ### Return type
 
-**Product**
+**Order**
 
 ### Authorization
 
@@ -62,24 +62,24 @@ const { status, data } = await apiInstance.productsCreate(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsDestroy**
-> productsDestroy()
+# **ordersDestroy**
+> ordersDestroy()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    OrdersApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new OrdersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
+let id: number; //A unique integer value identifying this order. (default to undefined)
 
-const { status, data } = await apiInstance.productsDestroy(
+const { status, data } = await apiInstance.ordersDestroy(
     id
 );
 ```
@@ -88,7 +88,7 @@ const { status, data } = await apiInstance.productsDestroy(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **id** | [**number**] | A unique integer value identifying this order. | defaults to undefined|
 
 
 ### Return type
@@ -112,31 +112,27 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsList**
-> PaginatedProductList productsList()
+# **ordersList**
+> PaginatedOrderList ordersList()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    OrdersApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new OrdersApi(configuration);
 
 let limit: number; //Number of results to return per page. (optional) (default to undefined)
 let offset: number; //The initial index from which to return the results. (optional) (default to undefined)
-let ordering: string; //Which field to use when ordering the results. (optional) (default to undefined)
-let search: string; //A search term. (optional) (default to undefined)
 
-const { status, data } = await apiInstance.productsList(
+const { status, data } = await apiInstance.ordersList(
     limit,
-    offset,
-    ordering,
-    search
+    offset
 );
 ```
 
@@ -146,13 +142,11 @@ const { status, data } = await apiInstance.productsList(
 |------------- | ------------- | ------------- | -------------|
 | **limit** | [**number**] | Number of results to return per page. | (optional) defaults to undefined|
 | **offset** | [**number**] | The initial index from which to return the results. | (optional) defaults to undefined|
-| **ordering** | [**string**] | Which field to use when ordering the results. | (optional) defaults to undefined|
-| **search** | [**string**] | A search term. | (optional) defaults to undefined|
 
 
 ### Return type
 
-**PaginatedProductList**
+**PaginatedOrderList**
 
 ### Authorization
 
@@ -171,28 +165,28 @@ const { status, data } = await apiInstance.productsList(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsPartialUpdate**
-> Product productsPartialUpdate()
+# **ordersPartialUpdate**
+> Order ordersPartialUpdate()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    OrdersApi,
     Configuration,
-    PatchedProduct
+    PatchedOrder
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new OrdersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
-let patchedProduct: PatchedProduct; // (optional)
+let id: number; //A unique integer value identifying this order. (default to undefined)
+let patchedOrder: PatchedOrder; // (optional)
 
-const { status, data } = await apiInstance.productsPartialUpdate(
+const { status, data } = await apiInstance.ordersPartialUpdate(
     id,
-    patchedProduct
+    patchedOrder
 );
 ```
 
@@ -200,13 +194,13 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **patchedProduct** | **PatchedProduct**|  | |
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **patchedOrder** | **PatchedOrder**|  | |
+| **id** | [**number**] | A unique integer value identifying this order. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Order**
 
 ### Authorization
 
@@ -225,24 +219,24 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsRetrieve**
-> Product productsRetrieve()
+# **ordersRetrieve**
+> Order ordersRetrieve()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    OrdersApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new OrdersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
+let id: number; //A unique integer value identifying this order. (default to undefined)
 
-const { status, data } = await apiInstance.productsRetrieve(
+const { status, data } = await apiInstance.ordersRetrieve(
     id
 );
 ```
@@ -251,12 +245,12 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **id** | [**number**] | A unique integer value identifying this order. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Order**
 
 ### Authorization
 
@@ -275,28 +269,28 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsUpdate**
-> Product productsUpdate(product)
+# **ordersUpdate**
+> Order ordersUpdate()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    OrdersApi,
     Configuration,
-    Product
+    Order
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new OrdersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
-let product: Product; //
+let id: number; //A unique integer value identifying this order. (default to undefined)
+let order: Order; // (optional)
 
-const { status, data } = await apiInstance.productsUpdate(
+const { status, data } = await apiInstance.ordersUpdate(
     id,
-    product
+    order
 );
 ```
 
@@ -304,13 +298,13 @@ const { status, data } = await apiInstance.productsUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **product** | **Product**|  | |
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **order** | **Order**|  | |
+| **id** | [**number**] | A unique integer value identifying this order. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Order**
 
 ### Authorization
 

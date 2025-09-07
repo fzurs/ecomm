@@ -1,36 +1,36 @@
-# ProductsApi
+# CustomersApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**productsCreate**](#productscreate) | **POST** /products/ | |
-|[**productsDestroy**](#productsdestroy) | **DELETE** /products/{id}/ | |
-|[**productsList**](#productslist) | **GET** /products/ | |
-|[**productsPartialUpdate**](#productspartialupdate) | **PATCH** /products/{id}/ | |
-|[**productsRetrieve**](#productsretrieve) | **GET** /products/{id}/ | |
-|[**productsUpdate**](#productsupdate) | **PUT** /products/{id}/ | |
+|[**customersCreate**](#customerscreate) | **POST** /customers/ | |
+|[**customersDestroy**](#customersdestroy) | **DELETE** /customers/{id}/ | |
+|[**customersList**](#customerslist) | **GET** /customers/ | |
+|[**customersPartialUpdate**](#customerspartialupdate) | **PATCH** /customers/{id}/ | |
+|[**customersRetrieve**](#customersretrieve) | **GET** /customers/{id}/ | |
+|[**customersUpdate**](#customersupdate) | **PUT** /customers/{id}/ | |
 
-# **productsCreate**
-> Product productsCreate(product)
+# **customersCreate**
+> Customer customersCreate(customer)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CustomersApi,
     Configuration,
-    Product
+    Customer
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CustomersApi(configuration);
 
-let product: Product; //
+let customer: Customer; //
 
-const { status, data } = await apiInstance.productsCreate(
-    product
+const { status, data } = await apiInstance.customersCreate(
+    customer
 );
 ```
 
@@ -38,12 +38,12 @@ const { status, data } = await apiInstance.productsCreate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **product** | **Product**|  | |
+| **customer** | **Customer**|  | |
 
 
 ### Return type
 
-**Product**
+**Customer**
 
 ### Authorization
 
@@ -62,24 +62,24 @@ const { status, data } = await apiInstance.productsCreate(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsDestroy**
-> productsDestroy()
+# **customersDestroy**
+> customersDestroy()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CustomersApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CustomersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
+let id: number; //A unique integer value identifying this customer. (default to undefined)
 
-const { status, data } = await apiInstance.productsDestroy(
+const { status, data } = await apiInstance.customersDestroy(
     id
 );
 ```
@@ -88,7 +88,7 @@ const { status, data } = await apiInstance.productsDestroy(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **id** | [**number**] | A unique integer value identifying this customer. | defaults to undefined|
 
 
 ### Return type
@@ -112,30 +112,28 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsList**
-> PaginatedProductList productsList()
+# **customersList**
+> PaginatedCustomerList customersList()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CustomersApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CustomersApi(configuration);
 
 let limit: number; //Number of results to return per page. (optional) (default to undefined)
 let offset: number; //The initial index from which to return the results. (optional) (default to undefined)
-let ordering: string; //Which field to use when ordering the results. (optional) (default to undefined)
 let search: string; //A search term. (optional) (default to undefined)
 
-const { status, data } = await apiInstance.productsList(
+const { status, data } = await apiInstance.customersList(
     limit,
     offset,
-    ordering,
     search
 );
 ```
@@ -146,13 +144,12 @@ const { status, data } = await apiInstance.productsList(
 |------------- | ------------- | ------------- | -------------|
 | **limit** | [**number**] | Number of results to return per page. | (optional) defaults to undefined|
 | **offset** | [**number**] | The initial index from which to return the results. | (optional) defaults to undefined|
-| **ordering** | [**string**] | Which field to use when ordering the results. | (optional) defaults to undefined|
 | **search** | [**string**] | A search term. | (optional) defaults to undefined|
 
 
 ### Return type
 
-**PaginatedProductList**
+**PaginatedCustomerList**
 
 ### Authorization
 
@@ -171,28 +168,28 @@ const { status, data } = await apiInstance.productsList(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsPartialUpdate**
-> Product productsPartialUpdate()
+# **customersPartialUpdate**
+> Customer customersPartialUpdate()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CustomersApi,
     Configuration,
-    PatchedProduct
+    PatchedCustomer
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CustomersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
-let patchedProduct: PatchedProduct; // (optional)
+let id: number; //A unique integer value identifying this customer. (default to undefined)
+let patchedCustomer: PatchedCustomer; // (optional)
 
-const { status, data } = await apiInstance.productsPartialUpdate(
+const { status, data } = await apiInstance.customersPartialUpdate(
     id,
-    patchedProduct
+    patchedCustomer
 );
 ```
 
@@ -200,13 +197,13 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **patchedProduct** | **PatchedProduct**|  | |
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **patchedCustomer** | **PatchedCustomer**|  | |
+| **id** | [**number**] | A unique integer value identifying this customer. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Customer**
 
 ### Authorization
 
@@ -225,24 +222,24 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsRetrieve**
-> Product productsRetrieve()
+# **customersRetrieve**
+> Customer customersRetrieve()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CustomersApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CustomersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
+let id: number; //A unique integer value identifying this customer. (default to undefined)
 
-const { status, data } = await apiInstance.productsRetrieve(
+const { status, data } = await apiInstance.customersRetrieve(
     id
 );
 ```
@@ -251,12 +248,12 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **id** | [**number**] | A unique integer value identifying this customer. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Customer**
 
 ### Authorization
 
@@ -275,28 +272,28 @@ const { status, data } = await apiInstance.productsRetrieve(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productsUpdate**
-> Product productsUpdate(product)
+# **customersUpdate**
+> Customer customersUpdate(customer)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductsApi,
+    CustomersApi,
     Configuration,
-    Product
+    Customer
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductsApi(configuration);
+const apiInstance = new CustomersApi(configuration);
 
-let id: string; //A UUID string identifying this product. (default to undefined)
-let product: Product; //
+let id: number; //A unique integer value identifying this customer. (default to undefined)
+let customer: Customer; //
 
-const { status, data } = await apiInstance.productsUpdate(
+const { status, data } = await apiInstance.customersUpdate(
     id,
-    product
+    customer
 );
 ```
 
@@ -304,13 +301,13 @@ const { status, data } = await apiInstance.productsUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **product** | **Product**|  | |
-| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+| **customer** | **Customer**|  | |
+| **id** | [**number**] | A unique integer value identifying this customer. | defaults to undefined|
 
 
 ### Return type
 
-**Product**
+**Customer**
 
 ### Authorization
 

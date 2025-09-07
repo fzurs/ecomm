@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  BadgeMinus,
   ChartBar,
   CircleQuestionMark,
   Layers2,
   Package,
   Settings,
   ShoppingBag,
+  Tags,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -28,19 +30,30 @@ import { NavSecondary } from "@/components/nav-secondary";
 const data = {
   navMain: [
     {
-      title: "Orders",
-      url: "/orders",
-      icon: ShoppingBag,
+      title: "Customers",
+      url: "/customers",
+      icon: Users,
     },
+    {
+      title: "Categories",
+      url: "/categories",
+      icon: Tags,
+    },
+    {
+      title: "Brands",
+      url: "/brands",
+      icon: BadgeMinus,
+    },
+
     {
       title: "Products",
       url: "/products",
       icon: Package,
     },
     {
-      title: "Customers",
-      url: "/customers",
-      icon: Users,
+      title: "Orders",
+      url: "/orders",
+      icon: ShoppingBag,
     },
     {
       title: "Analytics",
@@ -69,7 +82,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="">
+              <Link href="/">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Layers2 className="size-4" />
                 </div>

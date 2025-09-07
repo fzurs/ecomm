@@ -1,4 +1,4 @@
-# Category
+# Customer
 
 
 ## Properties
@@ -6,16 +6,18 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [readonly] [default to undefined]
-**name** | **string** |  | [default to undefined]
+**customer_id** | **string** |  | [readonly] [default to undefined]
+**user** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { Category } from './api';
+import { Customer } from './api';
 
-const instance: Category = {
+const instance: Customer = {
     id,
-    name,
+    customer_id,
+    user,
 };
 ```
 

@@ -1,16 +1,16 @@
 # PatchedUserDetails
 
-User model w/o password
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**pk** | **number** |  | [optional] [readonly] [default to undefined]
-**username** | **string** | Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. | [optional] [default to undefined]
-**email** | **string** |  | [optional] [readonly] [default to undefined]
+**id** | **number** |  | [optional] [readonly] [default to undefined]
 **first_name** | **string** |  | [optional] [default to undefined]
 **last_name** | **string** |  | [optional] [default to undefined]
+**email** | **string** |  | [optional] [default to undefined]
+**username** | **string** | Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. | [optional] [default to undefined]
+**is_staff** | **boolean** | Designates whether the user can log into this admin site. | [optional] [default to undefined]
 
 ## Example
 
@@ -18,11 +18,12 @@ Name | Type | Description | Notes
 import { PatchedUserDetails } from './api';
 
 const instance: PatchedUserDetails = {
-    pk,
-    username,
-    email,
+    id,
     first_name,
     last_name,
+    email,
+    username,
+    is_staff,
 };
 ```
 

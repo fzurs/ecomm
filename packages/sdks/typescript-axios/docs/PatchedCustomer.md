@@ -1,4 +1,4 @@
-# PatchedCategory
+# PatchedCustomer
 
 
 ## Properties
@@ -6,16 +6,18 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [optional] [readonly] [default to undefined]
-**name** | **string** |  | [optional] [default to undefined]
+**customer_id** | **string** |  | [optional] [readonly] [default to undefined]
+**user** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { PatchedCategory } from './api';
+import { PatchedCustomer } from './api';
 
-const instance: PatchedCategory = {
+const instance: PatchedCustomer = {
     id,
-    name,
+    customer_id,
+    user,
 };
 ```
 

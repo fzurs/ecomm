@@ -1,16 +1,16 @@
 # UserDetails
 
-User model w/o password
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**pk** | **number** |  | [readonly] [default to undefined]
-**username** | **string** | Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. | [default to undefined]
-**email** | **string** |  | [readonly] [default to undefined]
+**id** | **number** |  | [readonly] [default to undefined]
 **first_name** | **string** |  | [optional] [default to undefined]
 **last_name** | **string** |  | [optional] [default to undefined]
+**email** | **string** |  | [optional] [default to undefined]
+**username** | **string** | Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. | [default to undefined]
+**is_staff** | **boolean** | Designates whether the user can log into this admin site. | [optional] [default to undefined]
 
 ## Example
 
@@ -18,11 +18,12 @@ Name | Type | Description | Notes
 import { UserDetails } from './api';
 
 const instance: UserDetails = {
-    pk,
-    username,
-    email,
+    id,
     first_name,
     last_name,
+    email,
+    username,
+    is_staff,
 };
 ```
 

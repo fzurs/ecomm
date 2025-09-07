@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -18,11 +18,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { Skeleton } from "./ui/skeleton";
+
 export function NavUser() {
   const router = useRouter();
-  const queryClient = useQueryClient();
 
-  const { data: user, isPending, error } = useQuery(userDetailsQueryOptions);
+  const { data: user, isPending, isError } = useQuery(userDetailsQueryOptions);
 
   const { mutate } = useMutation({
     mutationFn: () => authApi.authLogoutCreate(),
@@ -30,13 +31,13 @@ export function NavUser() {
       toast.error("Fail to logout.");
     },
     onSuccess: () => {
-      queryClient.clear();
       toast.success("Successful logout!");
       router.push("/login");
+      router.refresh();
     },
   });
 
-  if (error || isPending) return null;
+  if (isError || isPending) return <Skeleton className="size-8 rounded-full" />;
 
   return (
     <DropdownMenu>

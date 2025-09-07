@@ -143,6 +143,9 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
+REST_AUTH = {
+    "USER_DETAILS_SERIALIZER": "store.serializers.UserDetailsSerializer",
+}
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 

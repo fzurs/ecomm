@@ -55,7 +55,6 @@ export default function Page() {
 
   const { data } = useQuery(
     getProductsQueryOptions([
-      undefined,
       pagination.pageSize,
       pagination.pageIndex * pagination.pageSize,
       ordering ?? undefined,

@@ -1,4 +1,4 @@
-# Category
+# Brand
 
 
 ## Properties
@@ -7,15 +7,17 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [readonly] [default to undefined]
 **name** | **string** |  | [default to undefined]
+**website** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { Category } from './api';
+import { Brand } from './api';
 
-const instance: Category = {
+const instance: Brand = {
     id,
     name,
+    website,
 };
 ```
 
