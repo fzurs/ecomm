@@ -74,8 +74,11 @@ export default function Page() {
       <div className="@container/main flex flex-1 flex-col py-4 gap-6 md:py-6">
         <div className="flex flex-col gap-2 md:gap-4 px-4 lg:px-6 md:flex-row-reverse">
           <QuickCreateProductDialog />
-          <div className="flex gap-2 md:gap-4 w-full">
-            <SearchInput placeholder="Search for a product..." />
+          <div className="flex gap-2 md:gap-4 w-full justify-between">
+            <SearchInput
+              placeholder="Search for a product..."
+              className="md:max-w-92"
+            />
             <DataTableViewOptions table={table} />
           </div>
         </div>
