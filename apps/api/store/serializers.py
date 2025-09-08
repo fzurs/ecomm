@@ -31,10 +31,18 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    brand = BrandSerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         source="category",
         queryset=Category.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+
+    brand = BrandSerializer(read_only=True)
+    brand_id = serializers.PrimaryKeyRelatedField(
+        source="brand",
+        queryset=Brand.objects.all(),
         write_only=True,
         required=False,
         allow_null=True,

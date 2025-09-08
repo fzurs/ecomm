@@ -1,7 +1,7 @@
 "use client";
 
 import { Column } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,13 @@ export function DataTableColumnHeader<TData, TValue>({
       className={cn(className)}
     >
       {title}
-      <ArrowUpDown />
+      {column.getIsSorted() === "asc" ? (
+        <ArrowUp />
+      ) : column.getIsSorted() === "desc" ? (
+        <ArrowDown />
+      ) : (
+        <ArrowUpDown />
+      )}
     </Button>
   );
 }

@@ -1,14 +1,12 @@
 "use client";
 
 import {
-  BadgeMinus,
   ChartBar,
   CircleQuestionMark,
   Layers2,
   Package,
   Settings,
   ShoppingBag,
-  Tags,
   Users,
 } from "lucide-react";
 import Link from "next/link";

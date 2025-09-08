@@ -7,8 +7,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [optional] [readonly] [default to undefined]
 **category** | [**Category**](Category.md) |  | [optional] [readonly] [default to undefined]
-**brand** | [**Brand**](Brand.md) |  | [optional] [readonly] [default to undefined]
 **category_id** | **number** |  | [optional] [default to undefined]
+**brand** | [**Brand**](Brand.md) |  | [optional] [readonly] [default to undefined]
+**brand_id** | **number** |  | [optional] [default to undefined]
 **name** | **string** |  | [optional] [default to undefined]
 **slug** | **string** |  | [optional] [default to undefined]
 **sku** | **string** |  | [optional] [default to undefined]
@@ -27,8 +28,9 @@ import { PatchedProduct } from './api';
 const instance: PatchedProduct = {
     id,
     category,
-    brand,
     category_id,
+    brand,
+    brand_id,
     name,
     slug,
     sku,

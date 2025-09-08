@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import { BrandSelect } from "@/components/brand-select";
 import { CategorySelect } from "@/components/category-select";
 
 export function ProductForm({
@@ -106,8 +107,25 @@ export function ProductForm({
               <FormLabel>Category</FormLabel>
               <FormControl>
                 <CategorySelect
-                  category={form.formState.defaultValues?.category as Category}
+                  category={form.getValues().category}
                   onCategoryIdChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="brand_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Brand</FormLabel>
+              <FormControl>
+                <BrandSelect
+                  brand={form.getValues().brand}
+                  onBrandIdChange={field.onChange}
                 />
               </FormControl>
               <FormDescription />

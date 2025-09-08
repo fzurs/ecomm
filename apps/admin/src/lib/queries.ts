@@ -1,8 +1,8 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 
-import { authApi, brandsApi, categoriesApi, productsApi } from "./api";
+import { defaultPageSize } from "@/config/constants";
 
-export const defaultPageSize = 100;
+import { authApi, brandsApi, categoriesApi, productsApi } from "./api";
 
 export const getProductsQueryOptions = (
   params: Parameters<typeof productsApi.productsList> = [],
@@ -20,6 +20,7 @@ export const getCategoriesQueryOptions = (
     queryKey: ["categories", "list", params],
     queryFn: () =>
       categoriesApi.categoriesList(...params).then((res) => res.data),
+    placeholderData: (prev) => prev,
   });
 
 export const getCategoriesInfiniteQueryOptions = (
@@ -39,8 +40,25 @@ export const getCategoriesInfiniteQueryOptions = (
     placeholderData: (prev) => prev,
   });
 
+export const getBrandsInfiniteQueryOptions = (
+  params: Parameters<typeof categoriesApi.categoriesList>,
+) =>
+  infiniteQueryOptions({
+    queryKey: ["brands", "list", params],
+    queryFn: async ({ pageParam }) => {
+      const limit = params[0] ?? defaultPageSize;
+      return brandsApi
+        .brandsList(limit, limit * pageParam, params[2])
+        .then((res) => res.data);
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.next ? allPages.length : undefined,
+    placeholderData: (prev) => prev,
+  });
+
 export const userDetailsQueryOptions = queryOptions({
-  queryKey: ["users", "me"],
+  queryKey: ["current-user"],
   queryFn: () => authApi.authUserRetrieve().then((res) => res.data),
   retry: 0,
 });
@@ -51,4 +69,5 @@ export const getBrandsQueryOptions = (
   queryOptions({
     queryKey: ["brands", "list", params],
     queryFn: () => brandsApi.brandsList(...params).then((res) => res.data),
+    placeholderData: (prev) => prev,
   });

@@ -519,6 +519,12 @@ export interface PatchedProduct {
     'category'?: Category;
     /**
      * 
+     * @type {number}
+     * @memberof PatchedProduct
+     */
+    'category_id'?: number | null;
+    /**
+     * 
      * @type {Brand}
      * @memberof PatchedProduct
      */
@@ -528,7 +534,7 @@ export interface PatchedProduct {
      * @type {number}
      * @memberof PatchedProduct
      */
-    'category_id'?: number | null;
+    'brand_id'?: number | null;
     /**
      * 
      * @type {string}
@@ -649,6 +655,12 @@ export interface Product {
     'category': Category;
     /**
      * 
+     * @type {number}
+     * @memberof Product
+     */
+    'category_id'?: number | null;
+    /**
+     * 
      * @type {Brand}
      * @memberof Product
      */
@@ -658,7 +670,7 @@ export interface Product {
      * @type {number}
      * @memberof Product
      */
-    'category_id'?: number | null;
+    'brand_id'?: number | null;
     /**
      * 
      * @type {string}

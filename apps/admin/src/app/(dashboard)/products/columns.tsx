@@ -10,7 +10,7 @@ import * as React from "react";
 
 import { Product } from "@workspace/typescript-axios-client";
 
-import { statuses } from "@/config/constants";
+import { statusEnum } from "@/config/constants";
 
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
@@ -128,6 +128,38 @@ export const columns: ColumnDef<Product>[] = [
       ),
   },
   {
+    accessorKey: "brand",
+    header: "Brand",
+    cell: ({ row }) =>
+      row.original.brand && (
+        <Badge variant="secondary">{row.original.brand.name}</Badge>
+      ),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        title="Status"
+        column={column}
+        className="flex mx-auto"
+      />
+    ),
+    cell: ({ row }) => {
+      const status = row.original.status;
+      if (!status) return null;
+      const { icon: StatusIcon, label, iconClassName } = statusEnum[status];
+      return (
+        <Badge
+          variant="outline"
+          className="text-muted-foreground px-1.5 mx-auto flex"
+        >
+          {StatusIcon && <StatusIcon className={iconClassName} />}
+          {label}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "price",
     header: ({ column }) => (
       <DataTableColumnHeader
@@ -159,48 +191,12 @@ export const columns: ColumnDef<Product>[] = [
         className="flex ms-auto"
       />
     ),
-    cell: ({ row }) => {
-      const stock = row.original.stock_quantity;
-      if (!stock) return null;
-
-      function getStockColor(stock: number) {
-        let className: string;
-
-        if (stock === 0) {
-          className = "bg-red-100 text-red-800 border-red-200";
-        } else if (stock <= 5) {
-          className = "bg-orange-100 text-orange-800 border-orange-200";
-        } else if (stock <= 10) {
-          className = "bg-amber-100 text-amber-800 border-amber-200";
-        } else {
-          className = "bg-green-100 text-green-800 border-green-200";
-        }
-
-        return className;
-      }
-
-      return (
-        <Badge className={cn("flex ms-auto", getStockColor(stock))}>
-          {stock} units
-        </Badge>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="text-right">{row.original.stock_quantity} units</div>
+    ),
     meta: { label: "Stock" },
   },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader title="Status" column={column} />
-    ),
-    cell: ({ row }) => {
-      const status = statuses.find(
-        (status) => status.value === row.original.status,
-      );
-      if (!status) return null;
 
-      return <Badge variant={"secondary"}>{status.label}</Badge>;
-    },
-  },
   {
     id: "Created at",
     accessorKey: "created_at",
