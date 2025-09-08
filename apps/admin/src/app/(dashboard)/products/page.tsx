@@ -104,7 +104,7 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
       handleBadRequestError(err, form);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getProductsQueryOptions());
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       setOpen(false);
     },
   });

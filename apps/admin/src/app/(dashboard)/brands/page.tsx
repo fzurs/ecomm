@@ -85,7 +85,7 @@ function CreateBrandDialog() {
       handleBadRequestError(err, form);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getBrandsQueryOptions());
+      queryClient.invalidateQueries({ queryKey: ["brands"] });
       setOpen(false);
     },
   });

@@ -96,7 +96,7 @@ function QuickCreateCategoryDialog() {
       handleBadRequestError(err, form);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getCategoriesQueryOptions());
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       setOpen(false);
     },
   });

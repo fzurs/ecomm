@@ -59,7 +59,7 @@ export const columns: ColumnDef<Brand>[] = [
           handleBadRequestError(err, form);
         },
         onSuccess: () => {
-          queryClient.invalidateQueries(getBrandsQueryOptions());
+          queryClient.invalidateQueries({ queryKey: ["brands"] });
           setOpen(false);
         },
       });
@@ -127,7 +127,7 @@ export const columns: ColumnDef<Brand>[] = [
       const { mutate, isPending } = useMutation({
         mutationFn: () => brandsApi.brandsDestroy({ id: brand.id }),
         onSuccess: () => {
-          queryClient.invalidateQueries(getBrandsQueryOptions());
+          queryClient.invalidateQueries({ queryKey: ["brands"] });
           toast.success("Brand destroyed");
         },
         onError: () => {

@@ -13,7 +13,6 @@ import { Product } from "@workspace/api-client";
 import { statusEnum } from "@/config/constants";
 
 import { productsApi } from "@/lib/api";
-import { getProductsQueryOptions } from "@/lib/queries";
 import { handleBadRequestError } from "@/lib/utils";
 
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -67,7 +66,7 @@ export const columns: ColumnDef<Product>[] = [
           handleBadRequestError(err, form);
         },
         onSuccess: () => {
-          queryClient.invalidateQueries(getProductsQueryOptions());
+          queryClient.invalidateQueries({ queryKey: ["products"] });
           setOpen(false);
         },
       });
@@ -238,7 +237,7 @@ export const columns: ColumnDef<Product>[] = [
       const { mutate, isPending } = useMutation({
         mutationFn: () => productsApi.productsDestroy({ id: product.id }),
         onSuccess: () => {
-          queryClient.invalidateQueries(getProductsQueryOptions());
+          queryClient.invalidateQueries({ queryKey: ["products"] });
           toast.success("Product destroyed");
         },
         onError: () => {

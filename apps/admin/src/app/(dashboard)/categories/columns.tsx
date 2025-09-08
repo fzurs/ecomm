@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Category } from "@workspace/api-client";
 
 import { categoriesApi } from "@/lib/api";
-import { getCategoriesQueryOptions } from "@/lib/queries";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +32,7 @@ export const columns: ColumnDef<Category>[] = [
       const { mutate, isPending } = useMutation({
         mutationFn: () => categoriesApi.categoriesDestroy({ id: category.id }),
         onSuccess: () => {
-          queryClient.invalidateQueries(getCategoriesQueryOptions());
+          queryClient.invalidateQueries({ queryKey: ["categories"] });
           toast.success("Category destroyed");
         },
         onError: () => {
