@@ -49,33 +49,18 @@ import { SiteHeader } from "@/components/site-header";
 import { columns } from "./columns";
 
 export default function Page() {
-  const queryClient = useQueryClient();
-
   const pagination = usePagination()[0];
   const ordering = useOrdering()[0];
   const search = useSearch()[0];
 
-  const params = React.useMemo(
-    () => ({
+  const { data } = useQuery(
+    getProductsQueryOptions({
       limit: pagination.pageSize,
       offset: pagination.pageIndex * pagination.pageSize,
       ordering,
       search,
     }),
-    [pagination, ordering, search],
   );
-
-  const { data } = useQuery(getProductsQueryOptions(params));
-
-  React.useEffect(() => {
-    if (!data) return;
-    queryClient.prefetchQuery(
-      getProductsQueryOptions({
-        ...params,
-        offset: params.offset + pagination.pageSize,
-      }),
-    );
-  }, [data, queryClient, params, pagination.pageSize]);
 
   const table = useDataTable({
     data,
