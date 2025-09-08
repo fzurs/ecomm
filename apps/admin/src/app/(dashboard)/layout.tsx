@@ -24,7 +24,6 @@ export default async function Layout({
 
   return (
     <SidebarProvider
-      defaultOpen={false}
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",

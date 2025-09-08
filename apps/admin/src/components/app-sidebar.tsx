@@ -30,31 +30,32 @@ import { NavSecondary } from "@/components/nav-secondary";
 const data = {
   navMain: [
     {
-      title: "Customers",
-      url: "/customers",
-      icon: Users,
-    },
-    {
-      title: "Categories",
-      url: "/categories",
-      icon: Tags,
-    },
-    {
-      title: "Brands",
-      url: "/brands",
-      icon: BadgeMinus,
-    },
-
-    {
-      title: "Products",
-      url: "/products",
-      icon: Package,
-    },
-    {
       title: "Orders",
       url: "/orders",
       icon: ShoppingBag,
     },
+    {
+      title: "Products",
+      url: "/products",
+      icon: Package,
+      isActive: true,
+      items: [
+        {
+          title: "Categories",
+          url: "/categories",
+        },
+        {
+          title: "Brands",
+          url: "/brands",
+        },
+      ],
+    },
+    {
+      title: "Customers",
+      url: "/customers",
+      icon: Users,
+    },
+
     {
       title: "Analytics",
       url: "/analytics",
