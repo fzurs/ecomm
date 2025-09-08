@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 
 import {
   AuthApi,
+  BrandsApi,
   CategoriesApi,
   ProductsApi,
 } from "@workspace/typescript-axios-client";
@@ -28,7 +29,7 @@ api.interceptors.request.use(async (config) => {
 });
 
 export const productsApi = new ProductsApi(undefined, undefined, api);
-
 export const categoriesApi = new CategoriesApi(undefined, undefined, api);
+export const brandsApi = new BrandsApi(undefined, undefined, api);
 
 export const authApi = new AuthApi(undefined, undefined, api);
