@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  ChartBar,
-  CircleQuestionMark,
-  Layers2,
-  Package,
-  Settings,
-  ShoppingBag,
-  Users,
-} from "lucide-react";
+import { ChartBar, Layers2, Package, ShoppingBag, Users } from "lucide-react";
 import Link from "next/link";
 
 import * as React from "react";
@@ -16,14 +8,17 @@ import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
+
+import { NavUser } from "./nav-user";
 
 const data = {
   navMain: [
@@ -36,17 +31,6 @@ const data = {
       title: "Products",
       url: "/products",
       icon: Package,
-      isActive: true,
-      items: [
-        {
-          title: "Categories",
-          url: "/categories",
-        },
-        {
-          title: "Brands",
-          url: "/brands",
-        },
-      ],
     },
     {
       title: "Customers",
@@ -58,18 +42,6 @@ const data = {
       title: "Analytics",
       url: "/analytics",
       icon: ChartBar,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-    {
-      title: "Get Help",
-      url: "/help",
-      icon: CircleQuestionMark,
     },
   ],
 };
@@ -96,8 +68,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

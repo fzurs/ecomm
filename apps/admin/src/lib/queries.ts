@@ -63,7 +63,7 @@ export const getBrandsInfiniteQueryOptions = (
     placeholderData: (prev) => prev,
   });
 
-export const userDetailsQueryOptions = queryOptions({
+export const currentUserQueryOptions = queryOptions({
   queryKey: ["current-user"],
   queryFn: () => authApi.authUserRetrieve().then((res) => res.data),
   retry: 0,

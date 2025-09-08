@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { github } from "@/config/site";
 
 import { Button } from "@/components/ui/button";
@@ -17,16 +19,11 @@ export function SiteHeader({ title }: { title: string }) {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" asChild size="sm" className="hidden">
-            <a
-              href={github}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
+          <Button variant="ghost" asChild size="sm">
+            <Link href={github} rel="noopener noreferrer" target="_blank">
               GitHub
-            </a>
+            </Link>
           </Button>
-          <NavUser />
         </div>
       </div>
     </header>
