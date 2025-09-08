@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import * as React from "react";
 
-import { Brand } from "@workspace/sdks/typescript-axios";
+import { Brand } from "@workspace/api-client";
 
 import { brandsApi } from "@/lib/api";
 import { getBrandsQueryOptions } from "@/lib/queries";
@@ -53,7 +53,8 @@ export const columns: ColumnDef<Brand>[] = [
       const form = useForm<Brand>({ defaultValues: brand });
 
       const { mutate, isPending } = useMutation({
-        mutationFn: (data: Brand) => brandsApi.brandsUpdate(brand.id, data),
+        mutationFn: (data: Brand) =>
+          brandsApi.brandsUpdate({ brand: data, id: brand.id }),
         onError: (err) => {
           handleBadRequestError(err, form);
         },
@@ -124,7 +125,7 @@ export const columns: ColumnDef<Brand>[] = [
       const queryClient = useQueryClient();
 
       const { mutate, isPending } = useMutation({
-        mutationFn: () => brandsApi.brandsDestroy(brand.id),
+        mutationFn: () => brandsApi.brandsDestroy({ id: brand.id }),
         onSuccess: () => {
           queryClient.invalidateQueries(getBrandsQueryOptions());
           toast.success("Brand destroyed");

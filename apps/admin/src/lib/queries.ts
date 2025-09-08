@@ -5,34 +5,37 @@ import { defaultPageSize } from "@/config/constants";
 import { authApi, brandsApi, categoriesApi, productsApi } from "./api";
 
 export const getProductsQueryOptions = (
-  params: Parameters<typeof productsApi.productsList> = [],
+  ...params: Parameters<typeof productsApi.productsList>
 ) =>
   queryOptions({
-    queryKey: ["products", "list", params],
+    queryKey: ["products", "list", params[0]],
     queryFn: () => productsApi.productsList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
   });
 
 export const getCategoriesQueryOptions = (
-  params: Parameters<typeof categoriesApi.categoriesList> = [],
+  ...params: Parameters<typeof categoriesApi.categoriesList>
 ) =>
   queryOptions({
-    queryKey: ["categories", "list", params],
+    queryKey: ["categories", "list", params[0]],
     queryFn: () =>
       categoriesApi.categoriesList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
   });
 
 export const getCategoriesInfiniteQueryOptions = (
-  params: Parameters<typeof categoriesApi.categoriesList>,
+  ...params: Parameters<typeof categoriesApi.categoriesList>
 ) =>
   infiniteQueryOptions({
-    queryKey: ["categories", "list", params],
+    queryKey: ["categories", "list", params[0]],
     queryFn: async ({ pageParam }) => {
-      const limit = params[0] ?? defaultPageSize;
-      return categoriesApi
-        .categoriesList(limit, limit * pageParam, params[2])
-        .then((res) => res.data);
+      const limit = params[0]?.limit ?? defaultPageSize;
+      params[0] = {
+        limit,
+        offset: limit * pageParam,
+        ...params[0],
+      };
+      return categoriesApi.categoriesList(...params).then((res) => res.data);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
@@ -41,15 +44,18 @@ export const getCategoriesInfiniteQueryOptions = (
   });
 
 export const getBrandsInfiniteQueryOptions = (
-  params: Parameters<typeof categoriesApi.categoriesList>,
+  ...params: Parameters<typeof categoriesApi.categoriesList>
 ) =>
   infiniteQueryOptions({
-    queryKey: ["brands", "list", params],
+    queryKey: ["brands", "list", params[0]],
     queryFn: async ({ pageParam }) => {
-      const limit = params[0] ?? defaultPageSize;
-      return brandsApi
-        .brandsList(limit, limit * pageParam, params[2])
-        .then((res) => res.data);
+      const limit = params[0]?.limit ?? defaultPageSize;
+      params[0] = {
+        limit,
+        offset: limit * pageParam,
+        ...params[0],
+      };
+      return brandsApi.brandsList(...params).then((res) => res.data);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
@@ -64,10 +70,10 @@ export const userDetailsQueryOptions = queryOptions({
 });
 
 export const getBrandsQueryOptions = (
-  params: Parameters<typeof brandsApi.brandsList> = [],
+  ...params: Parameters<typeof brandsApi.brandsList>
 ) =>
   queryOptions({
-    queryKey: ["brands", "list", params],
+    queryKey: ["brands", "list", params[0]],
     queryFn: () => brandsApi.brandsList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
   });

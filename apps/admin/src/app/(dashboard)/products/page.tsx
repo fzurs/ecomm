@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 
 import * as React from "react";
 
-import { Product } from "@workspace/typescript-axios-client";
+import { Product } from "@workspace/api-client";
 
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
@@ -49,18 +49,33 @@ import { SiteHeader } from "@/components/site-header";
 import { columns } from "./columns";
 
 export default function Page() {
+  const queryClient = useQueryClient();
+
   const pagination = usePagination()[0];
   const ordering = useOrdering()[0];
   const search = useSearch()[0];
 
-  const { data } = useQuery(
-    getProductsQueryOptions([
-      pagination.pageSize,
-      pagination.pageIndex * pagination.pageSize,
-      ordering ?? undefined,
-      search ?? undefined,
-    ]),
+  const params = React.useMemo(
+    () => ({
+      limit: pagination.pageSize,
+      offset: pagination.pageIndex * pagination.pageSize,
+      ordering,
+      search,
+    }),
+    [pagination, ordering, search],
   );
+
+  const { data } = useQuery(getProductsQueryOptions(params));
+
+  React.useEffect(() => {
+    if (!data) return;
+    queryClient.prefetchQuery(
+      getProductsQueryOptions({
+        ...params,
+        offset: params.offset + pagination.pageSize,
+      }),
+    );
+  }, [data, queryClient, params, pagination.pageSize]);
 
   const table = useDataTable({
     data,
@@ -98,7 +113,8 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
   const form = useForm<Product>({ defaultValues: { name: "" } });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Product) => productsApi.productsCreate(data),
+    mutationFn: (data: Product) =>
+      productsApi.productsCreate({ product: data }),
     onError: (err) => {
       handleBadRequestError(err, form);
     },

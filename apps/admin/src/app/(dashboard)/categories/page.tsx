@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 
 import * as React from "react";
 
-import { Category } from "@workspace/sdks/typescript-axios";
+import { Category } from "@workspace/api-client";
 
 import { categoriesApi } from "@/lib/api";
 import { getCategoriesQueryOptions } from "@/lib/queries";
@@ -44,15 +44,15 @@ import { SiteHeader } from "@/components/site-header";
 import { columns } from "./columns";
 
 export default function Page() {
-  const search = useSearch()[0];
   const pagination = usePagination()[0];
+  const search = useSearch()[0];
 
   const { data } = useQuery(
-    getCategoriesQueryOptions([
-      pagination.pageSize,
-      pagination.pageSize * pagination.pageIndex,
+    getCategoriesQueryOptions({
+      limit: pagination.pageSize,
+      offset: pagination.pageSize * pagination.pageIndex,
       search,
-    ]),
+    }),
   );
 
   const table = useDataTable({ data, columns });
@@ -89,7 +89,9 @@ function QuickCreateCategoryDialog() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Category) =>
-      categoriesApi.categoriesCreate(data).then((res) => res.data),
+      categoriesApi
+        .categoriesCreate({ category: data })
+        .then((res) => res.data),
     onError: (err) => {
       handleBadRequestError(err, form);
     },

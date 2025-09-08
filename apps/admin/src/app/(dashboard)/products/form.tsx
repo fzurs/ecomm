@@ -4,7 +4,7 @@ import { UseFormReturn } from "react-hook-form";
 
 import * as React from "react";
 
-import { Category, Product } from "@workspace/typescript-axios-client";
+import { Product } from "@workspace/api-client";
 
 import { statuses } from "@/config/constants";
 

@@ -6,7 +6,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
-import { Brand } from "@workspace/sdks/typescript-axios";
+import { Brand } from "@workspace/api-client";
 
 import { getBrandsInfiniteQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ export function useInfiniteBrands() {
   const [searchInternal, setSearchInternal] = React.useState("");
 
   const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
-    getBrandsInfiniteQueryOptions([PAGE_SIZE, undefined, search]),
+    getBrandsInfiniteQueryOptions({ limit: PAGE_SIZE, search }),
   );
 
   const categories = React.useMemo(

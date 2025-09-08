@@ -2,7 +2,7 @@
 
 import { UseFormReturn } from "react-hook-form";
 
-import { Brand } from "@workspace/sdks/typescript-axios";
+import { Brand } from "@workspace/api-client";
 
 import { cn } from "@/lib/utils";
 

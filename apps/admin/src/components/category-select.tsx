@@ -6,7 +6,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
-import { Category } from "@workspace/sdks/typescript-axios";
+import { Category } from "@workspace/api-client";
 
 import { getCategoriesInfiniteQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ export function useInfiniteCategories() {
   const [searchInternal, setSearchInternal] = React.useState("");
 
   const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
-    getCategoriesInfiniteQueryOptions([PAGE_SIZE, undefined, search]),
+    getCategoriesInfiniteQueryOptions({ limit: PAGE_SIZE, search }),
   );
 
   const categories = React.useMemo(
@@ -52,10 +52,13 @@ export function useInfiniteCategories() {
 
   const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
 
-  const onSearchChange = React.useCallback((value: string) => {
-    setSearchInternal(value);
-    debouncedSetSearch(value);
-  }, [debouncedSetSearch]);
+  const onSearchChange = React.useCallback(
+    (value: string) => {
+      setSearchInternal(value);
+      debouncedSetSearch(value);
+    },
+    [debouncedSetSearch],
+  );
 
   return { categories, onScroll, search: searchInternal, onSearchChange };
 }

@@ -31,10 +31,7 @@ export function usePagination() {
 }
 
 export function useOrdering() {
-  return useQueryState(
-    "ordering",
-    parseAsString.withOptions({ clearOnDefault: true }),
-  );
+  return useQueryState("ordering", parseAsString.withDefault(""));
 }
 
 function parseSortParam(param: string | null) {

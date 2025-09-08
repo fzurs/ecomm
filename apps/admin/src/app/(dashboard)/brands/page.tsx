@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 
 import * as React from "react";
 
-import { Brand } from "@workspace/sdks/typescript-axios";
+import { Brand } from "@workspace/api-client";
 
 import { brandsApi } from "@/lib/api";
 import { getBrandsQueryOptions } from "@/lib/queries";
@@ -35,15 +35,15 @@ import { columns } from "./columns";
 import { BrandForm } from "./form";
 
 export default function Page() {
-  const search = useSearch()[0];
   const pagination = usePagination()[0];
+  const search = useSearch()[0];
 
   const { data } = useQuery(
-    getBrandsQueryOptions([
-      pagination.pageSize,
-      pagination.pageSize * pagination.pageIndex,
+    getBrandsQueryOptions({
+      limit: pagination.pageSize,
+      offset: pagination.pageSize * pagination.pageIndex,
       search,
-    ]),
+    }),
   );
 
   const table = useDataTable({ data, columns });
@@ -80,7 +80,7 @@ function CreateBrandDialog() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Brand) =>
-      brandsApi.brandsCreate(data).then((res) => res.data),
+      brandsApi.brandsCreate({ brand: data }).then((res) => res.data),
     onError: (err) => {
       handleBadRequestError(err, form);
     },

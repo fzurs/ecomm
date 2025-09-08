@@ -7,7 +7,7 @@ import {
   PauseCircle,
 } from "lucide-react";
 
-import { ProductStatusEnum } from "@workspace/typescript-axios-client";
+import { ProductStatusEnum } from "@workspace/api-client";
 
 export const statusEnum: Record<
   ProductStatusEnum,

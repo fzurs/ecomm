@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Login } from "@workspace/typescript-axios-client";
+import { Login } from "@workspace/api-client";
 
 import { authApi } from "@/lib/api";
 import { cn, handleBadRequestError } from "@/lib/utils";
@@ -48,7 +48,7 @@ export function LoginForm({
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Login) =>
-      authApi.authLoginCreate(data).then((res) => res.data),
+      authApi.authLoginCreate({ login: data }).then((res) => res.data),
     onError: (err) => {
       handleBadRequestError(err, form);
 

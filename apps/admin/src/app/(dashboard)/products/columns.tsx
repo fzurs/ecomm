@@ -8,13 +8,13 @@ import { toast } from "sonner";
 
 import * as React from "react";
 
-import { Product } from "@workspace/typescript-axios-client";
+import { Product } from "@workspace/api-client";
 
 import { statusEnum } from "@/config/constants";
 
 import { productsApi } from "@/lib/api";
 import { getProductsQueryOptions } from "@/lib/queries";
-import { cn, handleBadRequestError } from "@/lib/utils";
+import { handleBadRequestError } from "@/lib/utils";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -62,7 +62,7 @@ export const columns: ColumnDef<Product>[] = [
 
       const { mutate, isPending } = useMutation({
         mutationFn: (data: Product) =>
-          productsApi.productsUpdate(product.id, data),
+          productsApi.productsUpdate({ product: data, id: product.id }),
         onError: (err) => {
           handleBadRequestError(err, form);
         },
@@ -236,7 +236,7 @@ export const columns: ColumnDef<Product>[] = [
       const queryClient = useQueryClient();
 
       const { mutate, isPending } = useMutation({
-        mutationFn: () => productsApi.productsDestroy(product.id),
+        mutationFn: () => productsApi.productsDestroy({ id: product.id }),
         onSuccess: () => {
           queryClient.invalidateQueries(getProductsQueryOptions());
           toast.success("Product destroyed");

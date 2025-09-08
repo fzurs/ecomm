@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical, Trash } from "lucide-react";
 import { toast } from "sonner";
 
-import { Category } from "@workspace/sdks/typescript-axios";
+import { Category } from "@workspace/api-client";
 
 import { categoriesApi } from "@/lib/api";
 import { getCategoriesQueryOptions } from "@/lib/queries";
@@ -31,7 +31,7 @@ export const columns: ColumnDef<Category>[] = [
       const queryClient = useQueryClient();
 
       const { mutate, isPending } = useMutation({
-        mutationFn: () => categoriesApi.categoriesDestroy(category.id),
+        mutationFn: () => categoriesApi.categoriesDestroy({ id: category.id }),
         onSuccess: () => {
           queryClient.invalidateQueries(getCategoriesQueryOptions());
           toast.success("Category destroyed");

@@ -8,6 +8,10 @@ TMPFILE=$(mktemp --suffix=.yml)
 pnpm exec openapi-generator-cli generate \
     -i "$TMPFILE" \
     -g typescript-axios \
-    -o packages/sdks/typescript-axios
+    -o packages/api-client-v1 \
+    --additional-properties=\
+useSingleRequestParameter=true,\
+withInterfaces=true,\
+npmName=@workspace/api-client-v1
 
 rm "$TMPFILE"
