@@ -1,6 +1,14 @@
 "use client";
 
-import { ChartBar, Layers2, Package, ShoppingBag, Users } from "lucide-react";
+import {
+  Award,
+  ChartBar,
+  Layers2,
+  Package,
+  ShoppingBag,
+  Tags,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 
 import * as React from "react";
@@ -33,11 +41,20 @@ const data = {
       icon: Package,
     },
     {
+      title: "Categories",
+      url: "/categories",
+      icon: Tags,
+    },
+    {
+      title: "Brands",
+      url: "/brands",
+      icon: Award,
+    },
+    {
       title: "Customers",
       url: "/customers",
       icon: Users,
     },
-
     {
       title: "Analytics",
       url: "/analytics",

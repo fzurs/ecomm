@@ -1,4 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 
 import { defaultPageSize } from "@/config/constants";
 
@@ -63,9 +64,20 @@ export const getBrandsInfiniteQueryOptions = (
     placeholderData: (prev) => prev,
   });
 
+export async function currentUser() {
+  return authApi
+    .authUserRetrieve()
+    .then((res) => res.data)
+    .catch((err) =>
+      isAxiosError(err) && err.response?.status === 403
+        ? null
+        : Promise.reject(err),
+    );
+}
+
 export const currentUserQueryOptions = queryOptions({
   queryKey: ["current-user"],
-  queryFn: () => authApi.authUserRetrieve().then((res) => res.data),
+  queryFn: currentUser,
   retry: 0,
 });
 

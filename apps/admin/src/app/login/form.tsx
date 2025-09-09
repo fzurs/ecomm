@@ -1,15 +1,13 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { Login } from "@workspace/api-client";
 
-import { authApi } from "@/lib/api";
-import { cn, handleBadRequestError } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+
+import { useLogin } from "@/hooks/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,36 +32,11 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const queryClient = useQueryClient();
-
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
-
   const form = useForm<Login>({
     defaultValues: { username: "", password: "" },
-    shouldFocusError: false,
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: Login) =>
-      authApi.authLoginCreate({ login: data }).then((res) => res.data),
-    onError: (err) => {
-      handleBadRequestError(err, form);
-
-      toast.error("Could not log in", {
-        description: form.formState.errors.root?.message ?? "",
-      });
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries();
-
-      router.push(callbackUrl);
-
-      toast.success("Session started!");
-    },
-  });
+  const { login, isPending } = useLogin();
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -74,10 +47,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit((data) => mutate(data))}
-              className="space-y-6"
-            >
+            <form onSubmit={form.handleSubmit(login)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="username"

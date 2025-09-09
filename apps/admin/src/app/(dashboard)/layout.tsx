@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 
-import * as React from "react";
-
-import { authApi } from "@/lib/api";
+import { currentUser } from "@/lib/queries";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -13,10 +11,7 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await authApi
-    .authUserRetrieve()
-    .then((res) => res.data)
-    .catch(() => null);
+  const user = await currentUser();
 
   if (!user?.is_staff) {
     redirect("/login");
