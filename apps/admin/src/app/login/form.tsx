@@ -1,13 +1,15 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Login } from "@workspace/api-client";
 
+import { authApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
-
-import { useLogin } from "@/hooks/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,11 +34,24 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
   const form = useForm<Login>({
     defaultValues: { username: "", password: "" },
   });
 
-  const { login, isPending } = useLogin();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: Login) => authApi.authLoginCreate({ login: data }),
+    onError: () => {
+      toast.error("Could not log in");
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+      router.push("/");
+      toast.success("Session started!");
+    },
+  });
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -47,7 +62,10 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(login)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit((data) => mutate(data))}
+              className="space-y-6"
+            >
               <FormField
                 control={form.control}
                 name="username"

@@ -13,9 +13,7 @@ export default async function Layout({
 }) {
   const user = await currentUser();
 
-  if (!user?.is_staff) {
-    redirect("/login");
-  }
+  if (!user?.is_staff) redirect("/login");
 
   return (
     <SidebarProvider
