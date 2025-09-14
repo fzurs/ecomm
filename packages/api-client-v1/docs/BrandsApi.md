@@ -22,7 +22,7 @@ import {
     BrandsApi,
     Configuration,
     Brand
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new BrandsApi(configuration);
@@ -72,7 +72,7 @@ const { status, data } = await apiInstance.brandsCreate(
 import {
     BrandsApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new BrandsApi(configuration);
@@ -122,7 +122,7 @@ void (empty response body)
 import {
     BrandsApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new BrandsApi(configuration);
@@ -179,7 +179,7 @@ import {
     BrandsApi,
     Configuration,
     PatchedBrand
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new BrandsApi(configuration);
@@ -232,7 +232,7 @@ const { status, data } = await apiInstance.brandsPartialUpdate(
 import {
     BrandsApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new BrandsApi(configuration);
@@ -283,7 +283,7 @@ import {
     BrandsApi,
     Configuration,
     Brand
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new BrandsApi(configuration);

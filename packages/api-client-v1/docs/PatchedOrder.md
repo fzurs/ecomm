@@ -10,11 +10,12 @@ Name | Type | Description | Notes
 **created_at** | **string** |  | [optional] [readonly] [default to undefined]
 **updated_at** | **string** |  | [optional] [readonly] [default to undefined]
 **customer** | **number** |  | [optional] [default to undefined]
+**products** | **Array&lt;string&gt;** |  | [optional] [readonly] [default to undefined]
 
 ## Example
 
 ```typescript
-import { PatchedOrder } from '@workspace/api-client-v1';
+import { PatchedOrder } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: PatchedOrder = {
     id,
@@ -22,6 +23,7 @@ const instance: PatchedOrder = {
     created_at,
     updated_at,
     customer,
+    products,
 };
 ```
 

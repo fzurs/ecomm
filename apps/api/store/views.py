@@ -1,4 +1,7 @@
-from rest_framework import viewsets, filters
+import re
+from rest_framework import viewsets, filters, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .serializers import (
     CustomerSerializer,
     CategorySerializer,
@@ -43,6 +46,53 @@ class ProductViewSet(viewsets.ModelViewSet):
         "stock_quantity",
         "status",
     ]
+
+    @action(detail=True, methods=["post"])
+    def duplicate(self, request, *args, **kwargs):
+        product = self.get_object()
+
+        data = ProductSerializer(product).data
+        data["name"] = self.get_next_copy_name(product)
+
+        data["category_id"] = product.category.id
+        data["brand_id"] = product.brand.id
+
+        del data["sku"]
+        del data["slug"]
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
+    def get_next_copy_name(self, product):
+        pattern = re.compile(r"^(.*?)(?: copy(?: \((\d+)\))?)?$")
+
+        match = pattern.match(product.name)
+        if match:
+            base_name = match.group(1)
+        else:
+            base_name = product.name
+
+        existing = self.queryset.model.objects.filter(
+            **{f"name__startswith": base_name}
+        )
+
+        max_counter = 0
+        for obj in existing:
+            m = pattern.match(getattr(obj, "name"))
+            if m and m.group(2):
+                max_counter = max(max_counter, int(m.group(2)))
+            elif m and not m.group(2) and getattr(obj, "name") == f"{base_name} copy":
+                max_counter = max(max_counter, 1)
+
+        if max_counter == 0:
+            return f"{base_name} copy"
+        else:
+            return f"{base_name} copy ({max_counter + 1})"
 
 
 class OrderViewSet(viewsets.ModelViewSet):

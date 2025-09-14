@@ -81,16 +81,16 @@ export interface Customer {
     'id': number;
     /**
      * 
+     * @type {UserDetails}
+     * @memberof Customer
+     */
+    'user': UserDetails;
+    /**
+     * 
      * @type {string}
      * @memberof Customer
      */
     'customer_id': string;
-    /**
-     * 
-     * @type {number}
-     * @memberof Customer
-     */
-    'user': number;
 }
 /**
  * 
@@ -153,6 +153,12 @@ export interface Order {
      * @memberof Order
      */
     'customer'?: number | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof Order
+     */
+    'products': Array<string>;
 }
 
 
@@ -449,16 +455,16 @@ export interface PatchedCustomer {
     'id'?: number;
     /**
      * 
+     * @type {UserDetails}
+     * @memberof PatchedCustomer
+     */
+    'user'?: UserDetails;
+    /**
+     * 
      * @type {string}
      * @memberof PatchedCustomer
      */
     'customer_id'?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof PatchedCustomer
-     */
-    'user'?: number;
 }
 /**
  * 
@@ -496,6 +502,12 @@ export interface PatchedOrder {
      * @memberof PatchedOrder
      */
     'customer'?: number | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PatchedOrder
+     */
+    'products'?: Array<string>;
 }
 
 
@@ -2840,13 +2852,11 @@ export const CustomersApiAxiosParamCreator = function (configuration?: Configura
     return {
         /**
          * 
-         * @param {Customer} customer 
+         * @param {Customer} [customer] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customersCreate: async (customer: Customer, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'customer' is not null or undefined
-            assertParamExists('customersCreate', 'customer', customer)
+        customersCreate: async (customer?: Customer, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/customers/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3033,15 +3043,13 @@ export const CustomersApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} id A unique integer value identifying this customer.
-         * @param {Customer} customer 
+         * @param {Customer} [customer] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customersUpdate: async (id: number, customer: Customer, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        customersUpdate: async (id: number, customer?: Customer, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('customersUpdate', 'id', id)
-            // verify required parameter 'customer' is not null or undefined
-            assertParamExists('customersUpdate', 'customer', customer)
             const localVarPath = `/customers/{id}/`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -3083,11 +3091,11 @@ export const CustomersApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @param {Customer} customer 
+         * @param {Customer} [customer] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async customersCreate(customer: Customer, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Customer>> {
+        async customersCreate(customer?: Customer, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Customer>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.customersCreate(customer, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CustomersApi.customersCreate']?.[localVarOperationServerIndex]?.url;
@@ -3147,11 +3155,11 @@ export const CustomersApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} id A unique integer value identifying this customer.
-         * @param {Customer} customer 
+         * @param {Customer} [customer] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async customersUpdate(id: number, customer: Customer, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Customer>> {
+        async customersUpdate(id: number, customer?: Customer, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Customer>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.customersUpdate(id, customer, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CustomersApi.customersUpdate']?.[localVarOperationServerIndex]?.url;
@@ -3173,7 +3181,7 @@ export const CustomersApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customersCreate(requestParameters: CustomersApiCustomersCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<Customer> {
+        customersCreate(requestParameters: CustomersApiCustomersCreateRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Customer> {
             return localVarFp.customersCreate(requestParameters.customer, options).then((request) => request(axios, basePath));
         },
         /**
@@ -3237,7 +3245,7 @@ export interface CustomersApiInterface {
      * @throws {RequiredError}
      * @memberof CustomersApiInterface
      */
-    customersCreate(requestParameters: CustomersApiCustomersCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<Customer>;
+    customersCreate(requestParameters?: CustomersApiCustomersCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<Customer>;
 
     /**
      * 
@@ -3297,7 +3305,7 @@ export interface CustomersApiCustomersCreateRequest {
      * @type {Customer}
      * @memberof CustomersApiCustomersCreate
      */
-    readonly customer: Customer
+    readonly customer?: Customer
 }
 
 /**
@@ -3395,7 +3403,7 @@ export interface CustomersApiCustomersUpdateRequest {
      * @type {Customer}
      * @memberof CustomersApiCustomersUpdate
      */
-    readonly customer: Customer
+    readonly customer?: Customer
 }
 
 /**
@@ -3412,7 +3420,7 @@ export class CustomersApi extends BaseAPI implements CustomersApiInterface {
      * @throws {RequiredError}
      * @memberof CustomersApi
      */
-    public customersCreate(requestParameters: CustomersApiCustomersCreateRequest, options?: RawAxiosRequestConfig) {
+    public customersCreate(requestParameters: CustomersApiCustomersCreateRequest = {}, options?: RawAxiosRequestConfig) {
         return CustomersApiFp(this.configuration).customersCreate(requestParameters.customer, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -4179,6 +4187,47 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {string} id A UUID string identifying this product.
+         * @param {Product} product 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsDuplicateCreate: async (id: string, product: Product, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsDuplicateCreate', 'id', id)
+            // verify required parameter 'product' is not null or undefined
+            assertParamExists('productsDuplicateCreate', 'product', product)
+            const localVarPath = `/products/{id}/duplicate/`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication cookieAuth required
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(product, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
          * @param {string} [ordering] Which field to use when ordering the results.
@@ -4379,6 +4428,19 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} id A UUID string identifying this product.
+         * @param {Product} product 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsDuplicateCreate(id: string, product: Product, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Product>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsDuplicateCreate(id, product, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsDuplicateCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
          * @param {string} [ordering] Which field to use when ordering the results.
@@ -4460,6 +4522,15 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @param {ProductsApiProductsDuplicateCreateRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsDuplicateCreate(requestParameters: ProductsApiProductsDuplicateCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<Product> {
+            return localVarFp.productsDuplicateCreate(requestParameters.id, requestParameters.product, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {ProductsApiProductsListRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4520,6 +4591,15 @@ export interface ProductsApiInterface {
      * @memberof ProductsApiInterface
      */
     productsDestroy(requestParameters: ProductsApiProductsDestroyRequest, options?: RawAxiosRequestConfig): AxiosPromise<void>;
+
+    /**
+     * 
+     * @param {ProductsApiProductsDuplicateCreateRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProductsApiInterface
+     */
+    productsDuplicateCreate(requestParameters: ProductsApiProductsDuplicateCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<Product>;
 
     /**
      * 
@@ -4585,6 +4665,27 @@ export interface ProductsApiProductsDestroyRequest {
      * @memberof ProductsApiProductsDestroy
      */
     readonly id: string
+}
+
+/**
+ * Request parameters for productsDuplicateCreate operation in ProductsApi.
+ * @export
+ * @interface ProductsApiProductsDuplicateCreateRequest
+ */
+export interface ProductsApiProductsDuplicateCreateRequest {
+    /**
+     * A UUID string identifying this product.
+     * @type {string}
+     * @memberof ProductsApiProductsDuplicateCreate
+     */
+    readonly id: string
+
+    /**
+     * 
+     * @type {Product}
+     * @memberof ProductsApiProductsDuplicateCreate
+     */
+    readonly product: Product
 }
 
 /**
@@ -4705,6 +4806,17 @@ export class ProductsApi extends BaseAPI implements ProductsApiInterface {
      */
     public productsDestroy(requestParameters: ProductsApiProductsDestroyRequest, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsDestroy(requestParameters.id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ProductsApiProductsDuplicateCreateRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProductsApi
+     */
+    public productsDuplicateCreate(requestParameters: ProductsApiProductsDuplicateCreateRequest, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsDuplicateCreate(requestParameters.id, requestParameters.product, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

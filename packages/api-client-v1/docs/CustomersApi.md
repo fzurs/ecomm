@@ -12,7 +12,7 @@ All URIs are relative to *http://localhost*
 |[**customersUpdate**](#customersupdate) | **PUT** /customers/{id}/ | |
 
 # **customersCreate**
-> Customer customersCreate(customer)
+> Customer customersCreate()
 
 
 ### Example
@@ -22,12 +22,12 @@ import {
     CustomersApi,
     Configuration,
     Customer
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CustomersApi(configuration);
 
-let customer: Customer; //
+let customer: Customer; // (optional)
 
 const { status, data } = await apiInstance.customersCreate(
     customer
@@ -72,7 +72,7 @@ const { status, data } = await apiInstance.customersCreate(
 import {
     CustomersApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CustomersApi(configuration);
@@ -122,7 +122,7 @@ void (empty response body)
 import {
     CustomersApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CustomersApi(configuration);
@@ -179,7 +179,7 @@ import {
     CustomersApi,
     Configuration,
     PatchedCustomer
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CustomersApi(configuration);
@@ -232,7 +232,7 @@ const { status, data } = await apiInstance.customersPartialUpdate(
 import {
     CustomersApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CustomersApi(configuration);
@@ -273,7 +273,7 @@ const { status, data } = await apiInstance.customersRetrieve(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **customersUpdate**
-> Customer customersUpdate(customer)
+> Customer customersUpdate()
 
 
 ### Example
@@ -283,13 +283,13 @@ import {
     CustomersApi,
     Configuration,
     Customer
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CustomersApi(configuration);
 
 let id: number; //A unique integer value identifying this customer. (default to undefined)
-let customer: Customer; //
+let customer: Customer; // (optional)
 
 const { status, data } = await apiInstance.customersUpdate(
     id,

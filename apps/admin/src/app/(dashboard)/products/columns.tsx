@@ -2,7 +2,12 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical, Loader2, PackageMinus } from "lucide-react";
+import {
+  CopyPlus,
+  EllipsisVertical,
+  Loader2,
+  PackageMinus,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -35,10 +40,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 
 import { ProductForm } from "./form";
 
@@ -233,7 +239,7 @@ export const columns: ColumnDef<Product>[] = [
       const product = row.original;
       const queryClient = useQueryClient();
 
-      const { mutate, isPending } = useMutation({
+      const destroyMutation = useMutation({
         mutationFn: () => productsApi.productsDestroy({ id: product.id }),
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -241,6 +247,18 @@ export const columns: ColumnDef<Product>[] = [
         },
         onError: () => {
           toast.error("The product could not be destroyed");
+        },
+      });
+
+      const duplicateMutation = useMutation({
+        mutationFn: () =>
+          productsApi.productsDuplicateCreate({ id: product.id, product }),
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["products"] });
+          toast.success("Product duplicated");
+        },
+        onError: () => {
+          toast.error("The product could not be duplicated");
         },
       });
 
@@ -258,8 +276,16 @@ export const columns: ColumnDef<Product>[] = [
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               <DropdownMenuItem
-                onSelect={() => mutate()}
-                disabled={isPending}
+                onSelect={() => duplicateMutation.mutate()}
+                disabled={duplicateMutation.isPending}
+              >
+                <CopyPlus />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => destroyMutation.mutate()}
+                disabled={destroyMutation.isPending}
                 variant="destructive"
               >
                 <PackageMinus />

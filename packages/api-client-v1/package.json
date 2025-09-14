@@ -1,7 +1,7 @@
 {
-  "name": "@workspace/api-client-v1",
+  "name": "@workspace/api-client-v1--skip-validate-spec",
   "version": "0.0.0",
-  "description": "OpenAPI client for @workspace/api-client-v1",
+  "description": "OpenAPI client for @workspace/api-client-v1--skip-validate-spec",
   "author": "OpenAPI-Generator Contributors",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "typescript",
     "openapi-client",
     "openapi-generator",
-    "@workspace/api-client-v1"
+    "@workspace/api-client-v1--skip-validate-spec"
   ],
   "license": "Unlicense",
   "main": "./dist/index.js",

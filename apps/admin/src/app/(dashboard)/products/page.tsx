@@ -40,9 +40,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import { DataTable } from "@/components/data-table";
+import { DataTablePagination } from "@/components/data-table-pagination";
+import { DataTableViewOptions } from "@/components/data-table-view-options";
 import { SearchInput, useSearch } from "@/components/search-input";
 import { SiteHeader } from "@/components/site-header";
 

@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { Brand } from '@workspace/api-client-v1';
+import { Brand } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: Brand = {
     id,

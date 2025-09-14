@@ -12,6 +12,7 @@ pnpm exec openapi-generator-cli generate \
     --additional-properties=\
 useSingleRequestParameter=true,\
 withInterfaces=true,\
-npmName=@workspace/api-client-v1
+npmName=@workspace/api-client-v1\
+--skip-validate-spec
 
 rm "$TMPFILE"

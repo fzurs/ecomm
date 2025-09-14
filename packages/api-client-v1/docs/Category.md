@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { Category } from '@workspace/api-client-v1';
+import { Category } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: Category = {
     id,

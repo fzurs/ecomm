@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { Token } from '@workspace/api-client-v1';
+import { Token } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: Token = {
     key,

@@ -1,4 +1,4 @@
-## @workspace/api-client-v1@0.0.0
+## @workspace/api-client-v1--skip-validate-spec@0.0.0
 
 This generator creates TypeScript/JavaScript client that utilizes [axios](https://github.com/axios/axios). The generated Node module can be used in the following environments:
 
@@ -36,7 +36,7 @@ navigate to the folder of your consuming project and run one of the following co
 _published:_
 
 ```
-npm install @workspace/api-client-v1@0.0.0 --save
+npm install @workspace/api-client-v1--skip-validate-spec@0.0.0 --save
 ```
 
 _unPublished (not recommended):_
@@ -85,6 +85,7 @@ Class | Method | HTTP request | Description
 *OrdersApi* | [**ordersUpdate**](docs/OrdersApi.md#ordersupdate) | **PUT** /orders/{id}/ | 
 *ProductsApi* | [**productsCreate**](docs/ProductsApi.md#productscreate) | **POST** /products/ | 
 *ProductsApi* | [**productsDestroy**](docs/ProductsApi.md#productsdestroy) | **DELETE** /products/{id}/ | 
+*ProductsApi* | [**productsDuplicateCreate**](docs/ProductsApi.md#productsduplicatecreate) | **POST** /products/{id}/duplicate/ | 
 *ProductsApi* | [**productsList**](docs/ProductsApi.md#productslist) | **GET** /products/ | 
 *ProductsApi* | [**productsPartialUpdate**](docs/ProductsApi.md#productspartialupdate) | **PATCH** /products/{id}/ | 
 *ProductsApi* | [**productsRetrieve**](docs/ProductsApi.md#productsretrieve) | **GET** /products/{id}/ | 

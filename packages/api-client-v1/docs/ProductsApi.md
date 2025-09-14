@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**productsCreate**](#productscreate) | **POST** /products/ | |
 |[**productsDestroy**](#productsdestroy) | **DELETE** /products/{id}/ | |
+|[**productsDuplicateCreate**](#productsduplicatecreate) | **POST** /products/{id}/duplicate/ | |
 |[**productsList**](#productslist) | **GET** /products/ | |
 |[**productsPartialUpdate**](#productspartialupdate) | **PATCH** /products/{id}/ | |
 |[**productsRetrieve**](#productsretrieve) | **GET** /products/{id}/ | |
@@ -22,7 +23,7 @@ import {
     ProductsApi,
     Configuration,
     Product
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
@@ -72,7 +73,7 @@ const { status, data } = await apiInstance.productsCreate(
 import {
     ProductsApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
@@ -112,6 +113,60 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **productsDuplicateCreate**
+> Product productsDuplicateCreate(product)
+
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration,
+    Product
+} from '@workspace/api-client-v1--skip-validate-spec';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; //A UUID string identifying this product. (default to undefined)
+let product: Product; //
+
+const { status, data } = await apiInstance.productsDuplicateCreate(
+    id,
+    product
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **product** | **Product**|  | |
+| **id** | [**string**] | A UUID string identifying this product. | defaults to undefined|
+
+
+### Return type
+
+**Product**
+
+### Authorization
+
+[cookieAuth](../README.md#cookieAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json, application/x-www-form-urlencoded, multipart/form-data
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **productsList**
 > PaginatedProductList productsList()
 
@@ -122,7 +177,7 @@ void (empty response body)
 import {
     ProductsApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
@@ -182,7 +237,7 @@ import {
     ProductsApi,
     Configuration,
     PatchedProduct
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
@@ -235,7 +290,7 @@ const { status, data } = await apiInstance.productsPartialUpdate(
 import {
     ProductsApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
@@ -286,7 +341,7 @@ import {
     ProductsApi,
     Configuration,
     Product
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);

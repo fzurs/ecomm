@@ -3,7 +3,13 @@ import { isAxiosError } from "axios";
 
 import { defaultPageSize } from "@/config/constants";
 
-import { authApi, brandsApi, categoriesApi, productsApi } from "./api";
+import {
+  authApi,
+  brandsApi,
+  categoriesApi,
+  customersApi,
+  productsApi,
+} from "./api";
 
 export const getProductsQueryOptions = (
   ...params: Parameters<typeof productsApi.productsList>
@@ -11,16 +17,6 @@ export const getProductsQueryOptions = (
   queryOptions({
     queryKey: ["products", "list", params[0]],
     queryFn: () => productsApi.productsList(...params).then((res) => res.data),
-    placeholderData: (prev) => prev,
-  });
-
-export const getCategoriesQueryOptions = (
-  ...params: Parameters<typeof categoriesApi.categoriesList>
-) =>
-  queryOptions({
-    queryKey: ["categories", "list", params[0]],
-    queryFn: () =>
-      categoriesApi.categoriesList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
   });
 
@@ -81,11 +77,12 @@ export const currentUserQueryOptions = queryOptions({
   retry: 0,
 });
 
-export const getBrandsQueryOptions = (
-  ...params: Parameters<typeof brandsApi.brandsList>
+export const getCustomersQueryOptions = (
+  ...params: Parameters<typeof customersApi.customersList>
 ) =>
   queryOptions({
-    queryKey: ["brands", "list", params[0]],
-    queryFn: () => brandsApi.brandsList(...params).then((res) => res.data),
+    queryKey: ["customers", "list", params[0]],
+    queryFn: () =>
+      customersApi.customersList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
   });

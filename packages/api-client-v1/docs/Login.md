@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { Login } from '@workspace/api-client-v1';
+import { Login } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: Login = {
     username,

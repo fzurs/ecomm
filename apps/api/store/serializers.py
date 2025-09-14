@@ -12,6 +12,8 @@ class UserDetailsSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    user = UserDetailsSerializer(read_only=True)
+
     class Meta:
         model = Customer
         fields = serializers.ALL_FIELDS

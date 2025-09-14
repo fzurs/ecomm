@@ -22,7 +22,7 @@ import {
     CategoriesApi,
     Configuration,
     Category
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
@@ -72,7 +72,7 @@ const { status, data } = await apiInstance.categoriesCreate(
 import {
     CategoriesApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
@@ -122,7 +122,7 @@ void (empty response body)
 import {
     CategoriesApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
@@ -179,7 +179,7 @@ import {
     CategoriesApi,
     Configuration,
     PatchedCategory
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
@@ -232,7 +232,7 @@ const { status, data } = await apiInstance.categoriesPartialUpdate(
 import {
     CategoriesApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
@@ -283,7 +283,7 @@ import {
     CategoriesApi,
     Configuration,
     Category
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);

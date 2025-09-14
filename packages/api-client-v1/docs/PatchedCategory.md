@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { PatchedCategory } from '@workspace/api-client-v1';
+import { PatchedCategory } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: PatchedCategory = {
     id,

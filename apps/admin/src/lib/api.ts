@@ -6,6 +6,7 @@ import {
   AuthApi,
   BrandsApi,
   CategoriesApi,
+  CustomersApi,
   ProductsApi,
 } from "@workspace/api-client";
 
@@ -29,6 +30,7 @@ api.interceptors.request.use(async (config) => {
 });
 
 export const productsApi = new ProductsApi(...[, , api]);
+export const customersApi = new CustomersApi(...[, , api]);
 export const categoriesApi = new CategoriesApi(...[, , api]);
 export const brandsApi = new BrandsApi(...[, , api]);
 export const authApi = new AuthApi(...[, , api]);

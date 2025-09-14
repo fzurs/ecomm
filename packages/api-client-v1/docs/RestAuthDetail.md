@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { RestAuthDetail } from '@workspace/api-client-v1';
+import { RestAuthDetail } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: RestAuthDetail = {
     detail,

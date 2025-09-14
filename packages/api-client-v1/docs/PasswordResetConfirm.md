@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { PasswordResetConfirm } from '@workspace/api-client-v1';
+import { PasswordResetConfirm } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: PasswordResetConfirm = {
     new_password1,

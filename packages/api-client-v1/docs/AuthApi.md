@@ -25,7 +25,7 @@ import {
     AuthApi,
     Configuration,
     Login
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -76,7 +76,7 @@ Calls Django logout method and delete the Token object assigned to the current U
 import {
     AuthApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -121,7 +121,7 @@ import {
     AuthApi,
     Configuration,
     PasswordChange
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -173,7 +173,7 @@ import {
     AuthApi,
     Configuration,
     PasswordResetConfirm
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -225,7 +225,7 @@ import {
     AuthApi,
     Configuration,
     PasswordReset
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -277,7 +277,7 @@ import {
     AuthApi,
     Configuration,
     PatchedUserDetails
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -328,7 +328,7 @@ Reads and updates UserModel fields Accepts GET, PUT, PATCH methods.  Default acc
 import {
     AuthApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
@@ -373,7 +373,7 @@ import {
     AuthApi,
     Configuration,
     UserDetails
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);

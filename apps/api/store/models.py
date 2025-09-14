@@ -118,6 +118,7 @@ class Order(models.Model):
         ("completed", "Completed"),
         ("cancelled", "Cancelled"),
     ]
+    products = models.ManyToManyField(Product, through="OrderProduct")
     customer = models.ForeignKey(
         Customer,
         on_delete=models.SET_NULL,
@@ -136,3 +137,10 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
+
+
+class OrderProduct(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    quantity = models.PositiveIntegerField(default=1, blank=True)

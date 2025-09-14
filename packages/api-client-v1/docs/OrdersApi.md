@@ -22,7 +22,7 @@ import {
     OrdersApi,
     Configuration,
     Order
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
@@ -72,7 +72,7 @@ const { status, data } = await apiInstance.ordersCreate(
 import {
     OrdersApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
@@ -122,7 +122,7 @@ void (empty response body)
 import {
     OrdersApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
@@ -176,7 +176,7 @@ import {
     OrdersApi,
     Configuration,
     PatchedOrder
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
@@ -229,7 +229,7 @@ const { status, data } = await apiInstance.ordersPartialUpdate(
 import {
     OrdersApi,
     Configuration
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
@@ -280,7 +280,7 @@ import {
     OrdersApi,
     Configuration,
     Order
-} from '@workspace/api-client-v1';
+} from '@workspace/api-client-v1--skip-validate-spec';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);

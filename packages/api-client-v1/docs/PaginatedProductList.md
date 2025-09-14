@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { PaginatedProductList } from '@workspace/api-client-v1';
+import { PaginatedProductList } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: PaginatedProductList = {
     count,

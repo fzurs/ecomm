@@ -6,18 +6,18 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [optional] [readonly] [default to undefined]
+**user** | [**UserDetails**](UserDetails.md) |  | [optional] [readonly] [default to undefined]
 **customer_id** | **string** |  | [optional] [readonly] [default to undefined]
-**user** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { PatchedCustomer } from '@workspace/api-client-v1';
+import { PatchedCustomer } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: PatchedCustomer = {
     id,
-    customer_id,
     user,
+    customer_id,
 };
 ```
 

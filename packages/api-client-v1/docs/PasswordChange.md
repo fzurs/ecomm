@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { PasswordChange } from '@workspace/api-client-v1';
+import { PasswordChange } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: PasswordChange = {
     new_password1,

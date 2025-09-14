@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { UserDetails } from '@workspace/api-client-v1';
+import { UserDetails } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: UserDetails = {
     id,

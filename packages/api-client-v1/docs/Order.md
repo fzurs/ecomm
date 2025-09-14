@@ -10,11 +10,12 @@ Name | Type | Description | Notes
 **created_at** | **string** |  | [readonly] [default to undefined]
 **updated_at** | **string** |  | [readonly] [default to undefined]
 **customer** | **number** |  | [optional] [default to undefined]
+**products** | **Array&lt;string&gt;** |  | [readonly] [default to undefined]
 
 ## Example
 
 ```typescript
-import { Order } from '@workspace/api-client-v1';
+import { Order } from '@workspace/api-client-v1--skip-validate-spec';
 
 const instance: Order = {
     id,
@@ -22,6 +23,7 @@ const instance: Order = {
     created_at,
     updated_at,
     customer,
+    products,
 };
 ```
 
