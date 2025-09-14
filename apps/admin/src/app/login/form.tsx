@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -36,6 +36,8 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   const form = useForm<Login>({
     defaultValues: { username: "", password: "" },
@@ -48,7 +50,7 @@ export function LoginForm({
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries();
-      router.push("/");
+      router.push(callbackUrl);
       toast.success("Session started!");
     },
   });

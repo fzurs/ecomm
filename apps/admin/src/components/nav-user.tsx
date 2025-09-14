@@ -1,12 +1,13 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronsUpDown, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
-import { authApi } from "@/lib/api";
+import * as React from "react";
+
 import { currentUserQueryOptions } from "@/lib/queries";
+
+import { useLogout } from "@/hooks/use-logout";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -27,6 +28,7 @@ import {
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: user } = useQuery(currentUserQueryOptions);
+  const { logout, isPending } = useLogout();
 
   if (!user) return null;
 
@@ -67,37 +69,17 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <LogoutDropdownMenuItem />
+            <DropdownMenuItem
+              variant="destructive"
+              disabled={isPending}
+              onSelect={logout}
+            >
+              <LogOut />
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
-}
-
-function LogoutDropdownMenuItem() {
-  const router = useRouter();
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: () => authApi.authLogoutCreate(),
-    onError: () => {
-      toast.error("Fail to logout.");
-    },
-    onSuccess: () => {
-      toast.success("Successful logout!");
-      router.push("/login");
-      router.refresh();
-    },
-  });
-
-  return (
-    <DropdownMenuItem
-      variant="destructive"
-      disabled={isPending}
-      onSelect={() => mutate()}
-    >
-      <LogOut />
-      Log out
-    </DropdownMenuItem>
   );
 }

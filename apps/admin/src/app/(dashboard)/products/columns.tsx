@@ -195,7 +195,6 @@ export const columns: ColumnDef<Product>[] = [
     ),
     meta: { label: "Stock" },
   },
-
   {
     id: "Created at",
     accessorKey: "created_at",
