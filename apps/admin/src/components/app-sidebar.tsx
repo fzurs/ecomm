@@ -41,16 +41,6 @@ const data = {
       icon: Package,
     },
     {
-      title: "Categories",
-      url: "/categories",
-      icon: Tags,
-    },
-    {
-      title: "Brands",
-      url: "/brands",
-      icon: Award,
-    },
-    {
       title: "Customers",
       url: "/customers",
       icon: Users,
