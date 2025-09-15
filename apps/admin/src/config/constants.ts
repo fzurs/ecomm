@@ -55,4 +55,8 @@ export const statuses: {
   };
 });
 
+export const statusList = Object.keys(statusEnum) as Array<
+  keyof typeof statusEnum
+>;
+
 export const defaultPageSize = 100;

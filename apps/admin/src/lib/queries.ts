@@ -86,3 +86,12 @@ export const getCustomersQueryOptions = (
       customersApi.customersList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
   });
+
+export const getCategoryQueryOptions = (
+  ...params: Parameters<typeof categoriesApi.categoriesRetrieve>
+) =>
+  queryOptions({
+    queryKey: ["categories", params[0]],
+    queryFn: () =>
+      categoriesApi.categoriesRetrieve(...params).then((res) => res.data),
+  });

@@ -5,6 +5,8 @@ TMPFILE=$(mktemp --suffix=.yml)
 # require python enviroment
 ./apps/api/manage.py spectacular --color --file "$TMPFILE"
 
+rm -rf packages/api-client-v1
+
 pnpm exec openapi-generator-cli generate \
     -i "$TMPFILE" \
     -g typescript-axios \
@@ -16,3 +18,5 @@ npmName=@workspace/api-client-v1\
 --skip-validate-spec
 
 rm "$TMPFILE"
+
+pnpm install

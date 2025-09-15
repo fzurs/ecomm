@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [readonly] [default to undefined]
 **name** | **string** |  | [default to undefined]
+**slug** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,6 +17,7 @@ import { Category } from '@workspace/api-client-v1--skip-validate-spec';
 const instance: Category = {
     id,
     name,
+    slug,
 };
 ```
 

@@ -16,7 +16,13 @@ class Customer(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -24,11 +30,19 @@ class Category(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(
-        max_length=100,
+        max_length=200,
+        unique=True,
     )
-    website = models.URLField(
-        blank=True,
-    )
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    website = models.URLField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class Product(models.Model):

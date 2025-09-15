@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [readonly] [default to undefined]
 **name** | **string** |  | [default to undefined]
+**slug** | **string** |  | [optional] [default to undefined]
 **website** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -17,6 +18,7 @@ import { Brand } from '@workspace/api-client-v1--skip-validate-spec';
 const instance: Brand = {
     id,
     name,
+    slug,
     website,
 };
 ```

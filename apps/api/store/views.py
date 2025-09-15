@@ -1,4 +1,5 @@
 import re
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -36,8 +37,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["name", "description", "category__name", "status"]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    ]
+    search_fields = ["name", "description"]
     ordering_fields = [
         "name",
         "created_at",
@@ -46,6 +51,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         "stock_quantity",
         "status",
     ]
+    filterset_fields = ["category", "status", "brand"]
 
     @action(detail=True, methods=["post"])
     def duplicate(self, request, *args, **kwargs):

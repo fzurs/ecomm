@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [optional] [readonly] [default to undefined]
 **name** | **string** |  | [optional] [default to undefined]
+**slug** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,6 +17,7 @@ import { PatchedCategory } from '@workspace/api-client-v1--skip-validate-spec';
 const instance: PatchedCategory = {
     id,
     name,
+    slug,
 };
 ```
 

@@ -46,7 +46,13 @@ export interface Brand {
      * @type {string}
      * @memberof Brand
      */
-    'website'?: string;
+    'slug'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Brand
+     */
+    'website'?: string | null;
 }
 /**
  * 
@@ -66,6 +72,12 @@ export interface Category {
      * @memberof Category
      */
     'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Category
+     */
+    'slug'?: string;
 }
 /**
  * 
@@ -420,7 +432,13 @@ export interface PatchedBrand {
      * @type {string}
      * @memberof PatchedBrand
      */
-    'website'?: string;
+    'slug'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PatchedBrand
+     */
+    'website'?: string | null;
 }
 /**
  * 
@@ -440,6 +458,12 @@ export interface PatchedCategory {
      * @memberof PatchedCategory
      */
     'name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PatchedCategory
+     */
+    'slug'?: string;
 }
 /**
  * 
@@ -4228,14 +4252,17 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {number} [brand] 
+         * @param {number} [category] 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
          * @param {string} [ordering] Which field to use when ordering the results.
          * @param {string} [search] A search term.
+         * @param {ProductsListStatusEnum} [status] * &#x60;draft&#x60; - Draft * &#x60;active&#x60; - Active * &#x60;inactive&#x60; - Inactive * &#x60;out_of_stock&#x60; - Out of stock * &#x60;discontinued&#x60; - Discontinued
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsList: async (limit?: number, offset?: number, ordering?: string, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsList: async (brand?: number, category?: number, limit?: number, offset?: number, ordering?: string, search?: string, status?: ProductsListStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/products/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4249,6 +4276,14 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarQueryParameter = {} as any;
 
             // authentication cookieAuth required
+
+            if (brand !== undefined) {
+                localVarQueryParameter['brand'] = brand;
+            }
+
+            if (category !== undefined) {
+                localVarQueryParameter['category'] = category;
+            }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -4264,6 +4299,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
 
             if (search !== undefined) {
                 localVarQueryParameter['search'] = search;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
             }
 
 
@@ -4441,15 +4480,18 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [brand] 
+         * @param {number} [category] 
          * @param {number} [limit] Number of results to return per page.
          * @param {number} [offset] The initial index from which to return the results.
          * @param {string} [ordering] Which field to use when ordering the results.
          * @param {string} [search] A search term.
+         * @param {ProductsListStatusEnum} [status] * &#x60;draft&#x60; - Draft * &#x60;active&#x60; - Active * &#x60;inactive&#x60; - Inactive * &#x60;out_of_stock&#x60; - Out of stock * &#x60;discontinued&#x60; - Discontinued
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsList(limit?: number, offset?: number, ordering?: string, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedProductList>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productsList(limit, offset, ordering, search, options);
+        async productsList(brand?: number, category?: number, limit?: number, offset?: number, ordering?: string, search?: string, status?: ProductsListStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedProductList>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsList(brand, category, limit, offset, ordering, search, status, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsList']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4536,7 +4578,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         productsList(requestParameters: ProductsApiProductsListRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedProductList> {
-            return localVarFp.productsList(requestParameters.limit, requestParameters.offset, requestParameters.ordering, requestParameters.search, options).then((request) => request(axios, basePath));
+            return localVarFp.productsList(requestParameters.brand, requestParameters.category, requestParameters.limit, requestParameters.offset, requestParameters.ordering, requestParameters.search, requestParameters.status, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4695,6 +4737,20 @@ export interface ProductsApiProductsDuplicateCreateRequest {
  */
 export interface ProductsApiProductsListRequest {
     /**
+     * 
+     * @type {number}
+     * @memberof ProductsApiProductsList
+     */
+    readonly brand?: number
+
+    /**
+     * 
+     * @type {number}
+     * @memberof ProductsApiProductsList
+     */
+    readonly category?: number
+
+    /**
      * Number of results to return per page.
      * @type {number}
      * @memberof ProductsApiProductsList
@@ -4721,6 +4777,13 @@ export interface ProductsApiProductsListRequest {
      * @memberof ProductsApiProductsList
      */
     readonly search?: string
+
+    /**
+     * * &#x60;draft&#x60; - Draft * &#x60;active&#x60; - Active * &#x60;inactive&#x60; - Inactive * &#x60;out_of_stock&#x60; - Out of stock * &#x60;discontinued&#x60; - Discontinued
+     * @type {'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'}
+     * @memberof ProductsApiProductsList
+     */
+    readonly status?: ProductsListStatusEnum
 }
 
 /**
@@ -4827,7 +4890,7 @@ export class ProductsApi extends BaseAPI implements ProductsApiInterface {
      * @memberof ProductsApi
      */
     public productsList(requestParameters: ProductsApiProductsListRequest = {}, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productsList(requestParameters.limit, requestParameters.offset, requestParameters.ordering, requestParameters.search, options).then((request) => request(this.axios, this.basePath));
+        return ProductsApiFp(this.configuration).productsList(requestParameters.brand, requestParameters.category, requestParameters.limit, requestParameters.offset, requestParameters.ordering, requestParameters.search, requestParameters.status, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4864,5 +4927,16 @@ export class ProductsApi extends BaseAPI implements ProductsApiInterface {
     }
 }
 
+/**
+ * @export
+ */
+export const ProductsListStatusEnum = {
+    Active: 'active',
+    Discontinued: 'discontinued',
+    Draft: 'draft',
+    Inactive: 'inactive',
+    OutOfStock: 'out_of_stock'
+} as const;
+export type ProductsListStatusEnum = typeof ProductsListStatusEnum[keyof typeof ProductsListStatusEnum];
 
 

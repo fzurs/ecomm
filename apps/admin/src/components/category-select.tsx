@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, ListFilter } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
@@ -85,10 +85,12 @@ export function CategoryList({
         <CommandGroup>
           {categories?.map((category) => (
             <CommandItem
-              key={category.id}
+              key={category.slug}
               onSelect={() =>
                 setSelectedCategory?.(
-                  selectedCategory?.id === category.id ? undefined : category,
+                  selectedCategory?.slug === category.slug
+                    ? undefined
+                    : category,
                 )
               }
             >
@@ -96,7 +98,7 @@ export function CategoryList({
               <Check
                 className={cn(
                   "ml-auto",
-                  selectedCategory?.id === category.id
+                  selectedCategory?.slug === category.slug
                     ? "opacity-100"
                     : "opacity-0",
                 )}
@@ -114,7 +116,7 @@ export function CategorySelect({
   onCategoryIdChange,
 }: {
   category?: Category;
-  onCategoryIdChange?: (id?: Category["id"]) => void;
+  onCategoryIdChange?: (id?: Category["slug"]) => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState<
@@ -134,7 +136,7 @@ export function CategorySelect({
           selectedCategory={selectedCategory}
           setSelectedCategory={(category) => {
             setSelectedCategory(category);
-            onCategoryIdChange?.(category?.id);
+            onCategoryIdChange?.(category?.slug);
             setOpen(false);
           }}
         />
