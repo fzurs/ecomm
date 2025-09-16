@@ -1,13 +1,38 @@
 "use client";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  ArchiveX,
+  CheckCircle,
+  CircleDotDashed,
+  FilePenLine,
+  PackageX,
+  PauseCircle,
+} from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
-import { Product } from "@workspace/api-client";
+import { Brand, Category, Product } from "@workspace/api-client";
+import { ProductStatusEnum } from "@workspace/api-client";
 
+import {
+  getBrandsInfiniteQueryOptions,
+  getCategoriesInfiniteQueryOptions,
+} from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -18,11 +43,65 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { BrandSelect } from "@/components/brand-select";
-import { CategorySelect } from "@/components/category-select";
-import { StatusSelect } from "@/components/status-select";
+export const statusConfig: Record<
+  ProductStatusEnum,
+  {
+    label: string;
+    icon?: React.JSX.Element;
+  }
+> = {
+  active: {
+    label: "Active",
+    icon: (
+      <CheckCircle className="fill-green-500 dark:fill-green-400 text-background" />
+    ),
+  },
+  discontinued: {
+    label: "Discontinued",
+    icon: (
+      <ArchiveX className="fill-red-500 dark:fill-red-400 text-background" />
+    ),
+  },
+  draft: {
+    label: "Draft",
+    icon: (
+      <FilePenLine className="fill-blue-500 dark:fill-blue-400 text-background" />
+    ),
+  },
+  inactive: {
+    label: "Inactive",
+    icon: (
+      <PauseCircle className="fill-gray-400 dark:fill-gray-500 text-background" />
+    ),
+  },
+  out_of_stock: {
+    label: "Out of stock",
+    icon: (
+      <PackageX className="fill-yellow-500 dark:fill-yellow-400 text-background" />
+    ),
+  },
+};
+
+export const statusOptions = Object.values(ProductStatusEnum).map((value) => ({
+  label: statusConfig[value].label,
+  value,
+  icon: statusConfig[value].icon,
+}));
 
 export function ProductForm({
   form,
@@ -97,10 +176,7 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Category</FormLabel>
               <FormControl>
-                <CategorySelect
-                  category={form.getValues().category}
-                  onCategoryChange={(category) => field.onChange(category?.id)}
-                />
+                <CategorySelect />
               </FormControl>
               <FormDescription />
               <FormMessage />
@@ -115,8 +191,8 @@ export function ProductForm({
               <FormLabel>Brand</FormLabel>
               <FormControl>
                 <BrandSelect
-                  brand={form.getValues().brand}
-                  onBrandChange={(brand) => field.onChange(brand?.id)}
+                  original={form.getValues().brand}
+                  onBrandIdChange={field.onChange}
                 />
               </FormControl>
               <FormDescription />
@@ -158,13 +234,24 @@ export function ProductForm({
           control={form.control}
           name="status"
           render={({ field }) => (
-            <FormItem className="">
+            <FormItem>
               <FormLabel>Status</FormLabel>
               <FormControl>
-                <StatusSelect
-                  status={field.value}
-                  onStatusChange={field.onChange}
-                />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {statusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.icon}
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormDescription />
               <FormMessage />
@@ -173,5 +260,210 @@ export function ProductForm({
         />
       </form>
     </Form>
+  );
+}
+
+export function CategoryList({
+  selectedCategory,
+  onCategorySelect,
+}: {
+  selectedCategory: Category | null;
+  onCategorySelect: (category: Category | null) => void;
+}) {
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
+
+  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
+    getCategoriesInfiniteQueryOptions({
+      limit: 10,
+      search,
+    }),
+  );
+
+  return (
+    <Command shouldFilter={false}>
+      <CommandInput
+        placeholder="Search for a category..."
+        value={searchInput}
+        onValueChange={(value) => {
+          setSearchInput(value);
+          debouncedSetSearch(value);
+        }}
+      />
+      <CommandList
+        onScroll={(e) => {
+          const target = e.currentTarget;
+          if (
+            hasNextPage &&
+            target.scrollTop + target.clientHeight >= target.scrollHeight
+          ) {
+            fetchNextPage();
+          }
+        }}
+      >
+        <CommandEmpty>No category found.</CommandEmpty>
+        <CommandGroup>
+          {data?.pages
+            .flatMap((page) => page.results)
+            ?.map((category) => (
+              <CommandItem
+                key={category.id}
+                onSelect={() =>
+                  onCategorySelect(
+                    selectedCategory?.id !== category.id ? category : null,
+                  )
+                }
+              >
+                {category.name}
+                <Check
+                  className={cn(
+                    "ml-auto",
+                    selectedCategory?.id === category.id
+                      ? "opacity-100"
+                      : "opacity-0",
+                  )}
+                />
+              </CommandItem>
+            ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+}
+
+export function CategorySelect({
+  original,
+  onCategoryIdChange,
+}: {
+  original?: Category | null;
+  onCategoryIdChange?: (id?: number) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+
+  const [selectedCategory, setSelectedCategory] =
+    React.useState<Category | null>(original ?? null);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="justify-between">
+          {selectedCategory?.name ?? "Assign a category"}
+          <ChevronsUpDown className="opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0">
+        <CategoryList
+          selectedCategory={selectedCategory}
+          onCategorySelect={(category) => {
+            setSelectedCategory(category);
+            onCategoryIdChange?.(category?.id);
+            setOpen(false);
+          }}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+export function BrandList({
+  selectedBrand,
+  onBrandSelect,
+}: {
+  selectedBrand: Brand | null;
+  onBrandSelect: (brand: Brand | null) => void;
+}) {
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
+
+  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
+    getBrandsInfiniteQueryOptions({
+      limit: 10,
+      search,
+    }),
+  );
+
+  return (
+    <Command shouldFilter={false}>
+      <CommandInput
+        placeholder="Search for a brand..."
+        value={searchInput}
+        onValueChange={(value) => {
+          setSearchInput(value);
+          debouncedSetSearch(value);
+        }}
+      />
+      <CommandList
+        onScroll={(e) => {
+          const target = e.currentTarget;
+          if (
+            hasNextPage &&
+            target.scrollTop + target.clientHeight >= target.scrollHeight
+          ) {
+            fetchNextPage();
+          }
+        }}
+      >
+        <CommandEmpty>No brand found.</CommandEmpty>
+        <CommandGroup>
+          {data?.pages
+            .flatMap((page) => page.results)
+            ?.map((brand) => (
+              <CommandItem
+                key={brand.id}
+                onSelect={() =>
+                  onBrandSelect(selectedBrand?.id !== brand.id ? brand : null)
+                }
+              >
+                {brand.name}
+                <Check
+                  className={cn(
+                    "ml-auto",
+                    selectedBrand?.id === brand.id
+                      ? "opacity-100"
+                      : "opacity-0",
+                  )}
+                />
+              </CommandItem>
+            ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+}
+
+export function BrandSelect({
+  original,
+  onBrandIdChange,
+}: {
+  original?: Brand | null;
+  onBrandIdChange?: (id?: number) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+
+  const [selectedBrand, setSelectedBrand] = React.useState<Brand | null>(
+    original ?? null,
+  );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="justify-between">
+          {selectedBrand?.name ?? "Assign a brand"}
+          <ChevronsUpDown className="opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0">
+        <BrandList
+          selectedBrand={selectedBrand}
+          onBrandSelect={(brand) => {
+            setSelectedBrand(brand);
+            onBrandIdChange?.(brand?.id);
+            setOpen(false);
+          }}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }

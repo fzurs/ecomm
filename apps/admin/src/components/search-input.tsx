@@ -14,7 +14,7 @@ export function useSearch() {
   return useQueryState("search", parseAsString.withDefault(""));
 }
 
-export function SearchFilter({
+export function SearchInput({
   type = "search",
   placeholder = "Search...",
   className,

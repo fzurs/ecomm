@@ -43,9 +43,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { statusConfig } from "@/components/status-select";
 
-import { ProductForm } from "./form";
+import { ProductForm, statusConfig } from "./form";
 
 export const columns: ColumnDef<Product>[] = [
   {

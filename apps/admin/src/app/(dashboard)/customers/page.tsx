@@ -12,7 +12,7 @@ import {
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
-import { SearchFilter } from "@/components/search-filter";
+import { SearchFilter } from "@/components/search-input";
 import { SiteHeader } from "@/components/site-header";
 
 import { columns } from "./columns";
