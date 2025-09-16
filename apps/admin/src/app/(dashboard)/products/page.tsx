@@ -45,9 +45,9 @@ import {
   CategoryFilter,
   useCategorySearchParams,
 } from "@/components/category-filter";
-import { DataTable } from "@/components/data-table";
-import { DataTablePagination } from "@/components/data-table-pagination";
-import { DataTableViewOptions } from "@/components/data-table-view-options";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { SearchFilter, useSearch } from "@/components/search-filter";
 import { SiteHeader } from "@/components/site-header";
 import {
