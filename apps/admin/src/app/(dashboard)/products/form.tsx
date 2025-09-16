@@ -6,8 +6,6 @@ import * as React from "react";
 
 import { Product } from "@workspace/api-client";
 
-import { statuses } from "@/config/constants";
-
 import { cn } from "@/lib/utils";
 
 import {
@@ -20,18 +18,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import { BrandSelect } from "@/components/brand-select";
 import { CategorySelect } from "@/components/category-select";
+import { StatusSelect } from "@/components/status-select";
 
 export function ProductForm({
   form,
@@ -108,7 +99,7 @@ export function ProductForm({
               <FormControl>
                 <CategorySelect
                   category={form.getValues().category}
-                  onCategoryIdChange={field.onChange}
+                  onCategoryChange={(category) => field.onChange(category?.id)}
                 />
               </FormControl>
               <FormDescription />
@@ -125,7 +116,7 @@ export function ProductForm({
               <FormControl>
                 <BrandSelect
                   brand={form.getValues().brand}
-                  onBrandIdChange={field.onChange}
+                  onBrandChange={(brand) => field.onChange(brand?.id)}
                 />
               </FormControl>
               <FormDescription />
@@ -167,23 +158,13 @@ export function ProductForm({
           control={form.control}
           name="status"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="">
               <FormLabel>Status</FormLabel>
               <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {statuses.map(({ label, value }) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <StatusSelect
+                  status={field.value}
+                  onStatusChange={field.onChange}
+                />
               </FormControl>
               <FormDescription />
               <FormMessage />

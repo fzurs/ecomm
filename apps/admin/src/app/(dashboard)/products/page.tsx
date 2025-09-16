@@ -2,55 +2,24 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Award,
-  Check,
-  Circle,
-  CircleDashed,
-  CircleSmall,
-  List,
-  ListFilter,
-  Loader2,
-  PackagePlus,
-  X,
-} from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  parseAsInteger,
-  parseAsString,
-  parseAsStringEnum,
-  useQueryState,
-  useQueryStates,
-} from "nuqs";
+import { Loader2, PackagePlus, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import * as React from "react";
 
-import { Brand, Category, Product } from "@workspace/api-client";
+import { Product } from "@workspace/api-client";
 
-import { statusEnum, statusList, statuses } from "@/config/constants";
-
-import { brandsApi, categoriesApi, productsApi } from "@/lib/api";
-import {
-  getCategoryQueryOptions,
-  getProductsQueryOptions,
-} from "@/lib/queries";
+import { productsApi } from "@/lib/api";
+import { getProductsQueryOptions } from "@/lib/queries";
 import { cn, handleBadRequestError } from "@/lib/utils";
 
 import {
   useDataTable,
-  useOrdering,
-  usePagination,
+  useOrderingSearchParams,
+  usePaginationSearchParams,
 } from "@/hooks/use-data-table";
 
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Dialog,
   DialogClose,
@@ -70,42 +39,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
-import { BrandList } from "@/components/brand-select";
-import { CategoryList } from "@/components/category-select";
+import { BrandFilter, useBrandSearchParams } from "@/components/brand-filter";
+import {
+  CategoryFilter,
+  useCategorySearchParams,
+} from "@/components/category-filter";
 import { DataTable } from "@/components/data-table";
 import { DataTablePagination } from "@/components/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table-view-options";
-import { SearchInput, useSearch } from "@/components/search-input";
+import { SearchFilter, useSearch } from "@/components/search-filter";
 import { SiteHeader } from "@/components/site-header";
+import {
+  StatusFilter,
+  useStatusSearchParams,
+} from "@/components/status-filter";
 
 import { columns } from "./columns";
 
-function useCategory() {
-  return useQueryState("category", parseAsInteger);
-}
-
-function useStatus() {
-  return useQueryState("status", parseAsStringEnum(statusList));
-}
-
-function useBrand() {
-  return useQueryState("brand", parseAsInteger);
-}
-
 export default function Page() {
-  const pagination = usePagination()[0];
-  const ordering = useOrdering()[0];
+  const pagination = usePaginationSearchParams()[0];
+  const ordering = useOrderingSearchParams()[0];
   const search = useSearch()[0];
 
-  const status = useStatus()[0];
-  const category = useCategory()[0];
-  const brand = useBrand()[0];
+  const [categoryId, setCategoryId] = useCategorySearchParams();
+  const [status, setStatus] = useStatusSearchParams();
+  const [brandId, setBrandId] = useBrandSearchParams();
 
   const { data } = useQuery(
     getProductsQueryOptions({
@@ -113,9 +72,9 @@ export default function Page() {
       offset: pagination.pageIndex * pagination.pageSize,
       ordering,
       search,
-      category: category ?? undefined,
+      category: categoryId ?? undefined,
       status: status ?? undefined,
-      brand: brand ?? undefined,
+      brand: brandId ?? undefined,
     }),
   );
 
@@ -124,6 +83,13 @@ export default function Page() {
     columns,
   });
 
+  const hasFilters = !!categoryId || !!status || !!brandId;
+  const resetFilters = () => {
+    setCategoryId(null);
+    setStatus(null);
+    setBrandId(null);
+  };
+
   return (
     <>
       <SiteHeader title="Products" />
@@ -131,18 +97,17 @@ export default function Page() {
         <div className="flex flex-col gap-2 md:gap-4 px-4 lg:px-6 md:flex-row-reverse">
           <QuickCreateProductDialog />
           <div className="flex gap-2 md:gap-4 w-full justify-between">
-            <div className="flex gap-2 md:gap-4">
-              <SearchInput
-                placeholder="Search for a product..."
-                className="md:max-w-92"
-              />
+            <SearchFilter placeholder="Search for a product..." />
+            <div className="flex flex-wrap w-full gap-2 md:gap-4">
               <CategoryFilter />
               <BrandFilter />
               <StatusFilter />
-              <Button variant={"ghost"} onClick={() => {}}>
-                <X />
-                Reset
-              </Button>
+              {hasFilters && (
+                <Button variant="ghost" onClick={resetFilters}>
+                  <X />
+                  Reset
+                </Button>
+              )}
             </div>
             <DataTableViewOptions table={table} />
           </div>
@@ -223,156 +188,5 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
         </Form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function CategoryFilter() {
-  const [categoryId, setCategoryId] = useCategory();
-  const [selectedCategory, setSelectedCategory] = React.useState<Category>();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["categories", categoryId],
-    queryFn: () =>
-      categoriesApi
-        .categoriesRetrieve({ id: categoryId as number })
-        .then((res) => res.data),
-    enabled: !!categoryId && !selectedCategory,
-    staleTime: Infinity,
-    retry: 0,
-  });
-
-  React.useEffect(() => {
-    if (data) setSelectedCategory(data);
-  }, [data]);
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant={"outline"}>
-          <List />
-          {selectedCategory
-            ? selectedCategory.name
-            : isLoading
-              ? "Loading..."
-              : "Category"}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <CategoryList
-          selectedCategory={selectedCategory}
-          setSelectedCategory={(value) => {
-            setSelectedCategory(value);
-            setCategoryId(value?.id ?? null);
-          }}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function BrandFilter() {
-  const [brandId, setBrandId] = useBrand();
-  const [selectedBrand, setSelectedBrand] = React.useState<Brand>();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["brands", brandId],
-    queryFn: () =>
-      brandsApi
-        .brandsRetrieve({ id: brandId as number })
-        .then((res) => res.data),
-    enabled: !!brandId && !selectedBrand,
-    staleTime: Infinity,
-    retry: 0,
-  });
-
-  React.useEffect(() => {
-    if (data) setSelectedBrand(data);
-  }, [data]);
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant={"outline"}>
-          <Award />
-          {selectedBrand
-            ? selectedBrand.name
-            : isLoading
-              ? "Loading..."
-              : "Brand"}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <BrandList
-          selectedBrand={selectedBrand}
-          setSelectedBrand={(value) => {
-            setSelectedBrand(value);
-            setBrandId(value?.id ?? null);
-          }}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function StatusFilter() {
-  const [open, setOpen] = React.useState(false);
-  const [statusValue, setStatusValue] = useStatus();
-
-  const currentStatus = statusValue && statusEnum[statusValue];
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant={"outline"}>
-          {currentStatus ? (
-            <>
-              {currentStatus.icon && (
-                <currentStatus.icon className={currentStatus.iconClassName} />
-              )}
-              {currentStatus.label}
-            </>
-          ) : (
-            <>
-              <CircleDashed />
-              Status
-            </>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <Command>
-          <CommandInput placeholder="Search for a status" />
-          <CommandGroup>
-            <CommandList>
-              {statuses.map((status) => (
-                <CommandItem
-                  key={status.value}
-                  value={status.value}
-                  onSelect={() => {
-                    setStatusValue(
-                      status.value === statusValue ? null : status.value,
-                    );
-                    setOpen(false);
-                  }}
-                >
-                  {status.icon && (
-                    <status.icon className={status.iconClassName} />
-                  )}
-                  {status.label}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      statusValue === status.value
-                        ? "opacity-100"
-                        : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandList>
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
   );
 }

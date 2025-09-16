@@ -1,6 +1,8 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
+import { Brand, Category } from "@workspace/api-client";
+
 import { defaultPageSize } from "@/config/constants";
 
 import {
@@ -38,6 +40,36 @@ export const getCategoriesInfiniteQueryOptions = (
     getNextPageParam: (lastPage, allPages) =>
       lastPage.next ? allPages.length : undefined,
     placeholderData: (prev) => prev,
+  });
+
+export const getCategoryQueryOptionsOnce = (
+  categoryId: number | null,
+  selectedCategory: Category | null,
+) =>
+  queryOptions({
+    queryKey: ["categories", "detail", categoryId],
+    queryFn: () =>
+      categoriesApi
+        .categoriesRetrieve({ id: categoryId as number })
+        .then((res) => res.data),
+    enabled: !!categoryId && !selectedCategory,
+    staleTime: Infinity,
+    retry: 0,
+  });
+
+export const getBrandQueryOptionsOnce = (
+  brandId: number | null,
+  selectedBrand: Brand | null,
+) =>
+  queryOptions({
+    queryKey: ["brands", "detail", brandId],
+    queryFn: () =>
+      brandsApi
+        .brandsRetrieve({ id: brandId as number })
+        .then((res) => res.data),
+    enabled: !!brandId && !selectedBrand,
+    staleTime: Infinity,
+    retry: 0,
   });
 
 export const getBrandsInfiniteQueryOptions = (
@@ -85,13 +117,4 @@ export const getCustomersQueryOptions = (
     queryFn: () =>
       customersApi.customersList(...params).then((res) => res.data),
     placeholderData: (prev) => prev,
-  });
-
-export const getCategoryQueryOptions = (
-  ...params: Parameters<typeof categoriesApi.categoriesRetrieve>
-) =>
-  queryOptions({
-    queryKey: ["categories", params[0]],
-    queryFn: () =>
-      categoriesApi.categoriesRetrieve(...params).then((res) => res.data),
   });

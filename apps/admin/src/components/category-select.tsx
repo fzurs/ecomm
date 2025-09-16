@@ -1,8 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Check, ChevronsUpDown, ListFilter } from "lucide-react";
-import { useDebouncedCallback } from "use-debounce";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 import * as React from "react";
 
@@ -11,100 +10,75 @@ import { Category } from "@workspace/api-client";
 import { getCategoriesInfiniteQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
+import { DebouncedCommandInput } from "./debounced-command-input";
 import { Button } from "./ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-const PAGE_SIZE = 30;
-
-export function useInfiniteCategories() {
-  const [search, setSearch] = React.useState("");
-  const [searchInternal, setSearchInternal] = React.useState("");
-
-  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
-    getCategoriesInfiniteQueryOptions({ limit: PAGE_SIZE, search }),
-  );
-
-  const categories = React.useMemo(
-    () => data?.pages.flatMap((page) => page.results),
-    [data?.pages],
-  );
-
-  const onScroll = React.useCallback(
-    (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
-      const target = e.currentTarget;
-      if (
-        hasNextPage &&
-        target.scrollTop + target.clientHeight >= target.scrollHeight
-      ) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, fetchNextPage],
-  );
-
-  const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
-
-  const onSearchChange = React.useCallback(
-    (value: string) => {
-      setSearchInternal(value);
-      debouncedSetSearch(value);
-    },
-    [debouncedSetSearch],
-  );
-
-  return { categories, onScroll, search: searchInternal, onSearchChange };
-}
-
 export function CategoryList({
   selectedCategory,
   setSelectedCategory,
 }: {
-  selectedCategory?: Category;
-  setSelectedCategory?: (category?: Category) => void;
+  selectedCategory: Category | null;
+  setSelectedCategory: (category: Category | null) => void;
 }) {
-  const { categories, onScroll, search, onSearchChange } =
-    useInfiniteCategories();
+  const [search, setSearch] = React.useState("");
+
+  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
+    getCategoriesInfiniteQueryOptions({
+      limit: 30,
+      search,
+    }),
+  );
 
   return (
     <Command shouldFilter={false}>
-      <CommandInput
+      <DebouncedCommandInput
         placeholder="Search for a category..."
         value={search}
-        onValueChange={onSearchChange}
+        onValueChange={setSearch}
       />
-      <CommandList onScroll={onScroll}>
+      <CommandList
+        onScroll={(e) => {
+          const target = e.currentTarget;
+          if (
+            hasNextPage &&
+            target.scrollTop + target.clientHeight >= target.scrollHeight
+          ) {
+            fetchNextPage();
+          }
+        }}
+      >
         <CommandEmpty>No category found.</CommandEmpty>
         <CommandGroup>
-          {categories?.map((category) => (
-            <CommandItem
-              key={category.slug}
-              onSelect={() =>
-                setSelectedCategory?.(
-                  selectedCategory?.slug === category.slug
-                    ? undefined
-                    : category,
-                )
-              }
-            >
-              {category.name}
-              <Check
-                className={cn(
-                  "ml-auto",
-                  selectedCategory?.slug === category.slug
-                    ? "opacity-100"
-                    : "opacity-0",
-                )}
-              />
-            </CommandItem>
-          ))}
+          {data?.pages
+            .flatMap((page) => page.results)
+            ?.map((category) => (
+              <CommandItem
+                key={category.id}
+                onSelect={() =>
+                  setSelectedCategory(
+                    category.id !== selectedCategory?.id ? category : null,
+                  )
+                }
+              >
+                {category.name}
+                <Check
+                  className={cn(
+                    "ml-auto",
+                    selectedCategory?.id === category.id
+                      ? "opacity-100"
+                      : "opacity-0",
+                  )}
+                />
+              </CommandItem>
+            ))}
         </CommandGroup>
       </CommandList>
     </Command>
@@ -113,15 +87,14 @@ export function CategoryList({
 
 export function CategorySelect({
   category,
-  onCategoryIdChange,
+  onCategoryChange,
 }: {
-  category?: Category;
-  onCategoryIdChange?: (id?: Category["slug"]) => void;
+  category?: Category | null;
+  onCategoryChange?: (value: Category | null) => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = React.useState<
-    Category | undefined
-  >(category);
+  const [selectedCategory, setSelectedCategory] =
+    React.useState<Category | null>(category ?? null);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -136,7 +109,7 @@ export function CategorySelect({
           selectedCategory={selectedCategory}
           setSelectedCategory={(category) => {
             setSelectedCategory(category);
-            onCategoryIdChange?.(category?.slug);
+            onCategoryChange?.(category);
             setOpen(false);
           }}
         />

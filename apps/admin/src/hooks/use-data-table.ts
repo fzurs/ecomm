@@ -24,13 +24,13 @@ const paginationUrlKeys = {
   pageSize: "perPage",
 };
 
-export function usePagination() {
+export function usePaginationSearchParams() {
   return useQueryStates(paginationParsers, {
     urlKeys: paginationUrlKeys,
   });
 }
 
-export function useOrdering() {
+export function useOrderingSearchParams() {
   return useQueryState("ordering", parseAsString.withDefault(""));
 }
 
@@ -53,7 +53,7 @@ function serializeSorting(
 }
 
 function useSingleSorting() {
-  const [ordering, setOrdering] = useOrdering();
+  const [ordering, setOrdering] = useOrderingSearchParams();
 
   const sorting = parseSortParam(ordering);
 
@@ -73,7 +73,7 @@ export function useDataTable<TData extends RowData>({
 }: Omit<TableOptions<TData>, "getCoreRowModel" | "data"> & {
   data?: { results: TData[]; count: number };
 }) {
-  const [pagination, setPagination] = usePagination();
+  const [pagination, setPagination] = usePaginationSearchParams();
   const { sorting, onSortingChange } = useSingleSorting();
 
   return useReactTable({

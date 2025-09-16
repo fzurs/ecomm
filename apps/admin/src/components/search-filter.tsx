@@ -14,7 +14,7 @@ export function useSearch() {
   return useQueryState("search", parseAsString.withDefault(""));
 }
 
-export function SearchInput({
+export function SearchFilter({
   type = "search",
   placeholder = "Search...",
   className,
@@ -25,7 +25,7 @@ export function SearchInput({
   const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full md:max-w-92">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
       <Input
         type={type}
@@ -34,7 +34,7 @@ export function SearchInput({
           debouncedSetSearch(e.target.value);
         }}
         placeholder={placeholder}
-        className={cn("pl-10", className)}
+        className={cn("pl-10 md:max-w-92", className)}
         {...props}
       />
     </div>

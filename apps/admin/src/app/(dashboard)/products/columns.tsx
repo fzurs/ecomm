@@ -15,8 +15,6 @@ import * as React from "react";
 
 import { Product } from "@workspace/api-client";
 
-import { statusEnum } from "@/config/constants";
-
 import { productsApi } from "@/lib/api";
 import { handleBadRequestError } from "@/lib/utils";
 
@@ -45,6 +43,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { statusConfig } from "@/components/status-select";
 
 import { ProductForm } from "./form";
 
@@ -150,16 +149,15 @@ export const columns: ColumnDef<Product>[] = [
       />
     ),
     cell: ({ row }) => {
-      const status = row.original.status;
-      if (!status) return null;
-      const { icon: StatusIcon, label, iconClassName } = statusEnum[status];
+      if (!row.original.status) return null;
+      const status = statusConfig[row.original.status];
       return (
         <Badge
           variant="outline"
           className="text-muted-foreground px-1.5 mx-auto flex"
         >
-          {StatusIcon && <StatusIcon className={iconClassName} />}
-          {label}
+          {status.icon}
+          {status.label}
         </Badge>
       );
     },

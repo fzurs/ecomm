@@ -22,84 +22,69 @@ import {
 } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-const PAGE_SIZE = 30;
-
-export function useInfiniteBrands() {
-  const [search, setSearch] = React.useState("");
-  const [searchInternal, setSearchInternal] = React.useState("");
-
-  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
-    getBrandsInfiniteQueryOptions({ limit: PAGE_SIZE, search }),
-  );
-
-  const categories = React.useMemo(
-    () => data?.pages.flatMap((page) => page.results),
-    [data?.pages],
-  );
-
-  const onScroll = React.useCallback(
-    (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
-      const target = e.currentTarget;
-      if (
-        hasNextPage &&
-        target.scrollTop + target.clientHeight >= target.scrollHeight
-      ) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, fetchNextPage],
-  );
-
-  const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
-
-  const onSearchChange = React.useCallback(
-    (value: string) => {
-      setSearchInternal(value);
-      debouncedSetSearch(value);
-    },
-    [debouncedSetSearch],
-  );
-
-  return { categories, onScroll, search: searchInternal, onSearchChange };
-}
-
 export function BrandList({
   selectedBrand,
   setSelectedBrand,
 }: {
-  selectedBrand?: Brand;
-  setSelectedBrand?: (brand?: Brand) => void;
+  selectedBrand: Brand | null;
+  setSelectedBrand: (brand: Brand | null) => void;
 }) {
-  const { categories, onScroll, search, onSearchChange } = useInfiniteBrands();
+  const [search, setSearch] = React.useState("");
+  const [searchInternal, setSearchInternal] = React.useState("");
+  const debouncedSetSearch = useDebouncedCallback(setSearch, 300);
+
+  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery(
+    getBrandsInfiniteQueryOptions({
+      limit: 30,
+      search,
+    }),
+  );
 
   return (
     <Command shouldFilter={false}>
       <CommandInput
         placeholder="Search for a brand..."
-        value={search}
-        onValueChange={onSearchChange}
+        value={searchInternal}
+        onValueChange={(value) => {
+          setSearchInternal(value);
+          debouncedSetSearch(value);
+        }}
       />
-      <CommandList onScroll={onScroll}>
+      <CommandList
+        onScroll={(e) => {
+          const target = e.currentTarget;
+          if (
+            hasNextPage &&
+            target.scrollTop + target.clientHeight >= target.scrollHeight
+          ) {
+            fetchNextPage();
+          }
+        }}
+      >
         <CommandEmpty>No brand found.</CommandEmpty>
         <CommandGroup>
-          {categories?.map((brand) => (
-            <CommandItem
-              key={brand.id}
-              onSelect={() =>
-                setSelectedBrand?.(
-                  selectedBrand?.id === brand.id ? undefined : brand,
-                )
-              }
-            >
-              {brand.name}
-              <Check
-                className={cn(
-                  "ml-auto",
-                  selectedBrand?.id === brand.id ? "opacity-100" : "opacity-0",
-                )}
-              />
-            </CommandItem>
-          ))}
+          {data?.pages
+            .flatMap((page) => page.results)
+            ?.map((brand) => (
+              <CommandItem
+                key={brand.id}
+                onSelect={() =>
+                  setSelectedBrand(
+                    brand.id !== selectedBrand?.id ? brand : null,
+                  )
+                }
+              >
+                {brand.name}
+                <Check
+                  className={cn(
+                    "ml-auto",
+                    selectedBrand?.id === brand.id
+                      ? "opacity-100"
+                      : "opacity-0",
+                  )}
+                />
+              </CommandItem>
+            ))}
         </CommandGroup>
       </CommandList>
     </Command>
@@ -108,14 +93,14 @@ export function BrandList({
 
 export function BrandSelect({
   brand,
-  onBrandIdChange,
+  onBrandChange,
 }: {
-  brand?: Brand;
-  onBrandIdChange?: (id?: Brand["id"]) => void;
+  brand?: Brand | null;
+  onBrandChange?: (value: Brand | null) => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [selectedBrand, setSelectedBrand] = React.useState<Brand | undefined>(
-    brand,
+  const [selectedBrand, setSelectedBrand] = React.useState<Brand | null>(
+    brand ?? null,
   );
 
   return (
@@ -131,7 +116,7 @@ export function BrandSelect({
           selectedBrand={selectedBrand}
           setSelectedBrand={(brand) => {
             setSelectedBrand(brand);
-            onBrandIdChange?.(brand?.id);
+            onBrandChange?.(brand);
             setOpen(false);
           }}
         />
