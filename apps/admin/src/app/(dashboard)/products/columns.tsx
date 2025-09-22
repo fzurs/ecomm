@@ -121,6 +121,10 @@ export const columns: ColumnDef<Product>[] = [
           {row.original.description}
         </div>
       ),
+    meta: {
+      variant: "text",
+      placeholder: "Description",
+    },
   },
   {
     accessorKey: "category",

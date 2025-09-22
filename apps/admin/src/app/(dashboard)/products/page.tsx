@@ -1,32 +1,74 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  QueryKey,
+  QueryOptions,
+  UndefinedInitialDataInfiniteOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseQueryOptions,
+  infiniteQueryOptions,
+  keepPreviousData,
+  queryOptions,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Column,
+  ColumnFiltersState,
+  OnChangeFn,
+  PaginationState,
+  SortingState,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { AxiosResponse, all } from "axios";
 import { Check, ChevronDown, Loader2, PackagePlus, X } from "lucide-react";
-import { parseAsInteger, parseAsStringEnum, useQueryState } from "nuqs";
+import {
+  ParserBuilder,
+  createParser,
+  parseAsArrayOf,
+  parseAsIndex,
+  parseAsInteger,
+  parseAsJson,
+  parseAsString,
+  useQueryState,
+  useQueryStates,
+} from "nuqs";
 import { useForm } from "react-hook-form";
+import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
 import {
   Brand,
+  CategoriesApiCategoriesListRequest,
   Category,
+  PaginatedBrandList,
+  PaginatedCategoryList,
+  PaginatedProductList,
   Product,
   ProductStatusEnum,
+  ProductsApiProductsListRequest,
 } from "@workspace/api-client";
 
-import { productsApi } from "@/lib/api";
+import { brandsApi, categoriesApi, productsApi } from "@/lib/api";
 import {
   getBrandQueryOptionsOnce,
+  getBrandsInfiniteQueryOptions,
+  getCategoriesInfiniteQueryOptions,
   getCategoryQueryOptionsOnce,
-  getProductsQueryOptions,
 } from "@/lib/queries";
 import { cn, handleBadRequestError } from "@/lib/utils";
 
 import {
+  parseAsSort,
   useDataTable,
-  useOrdering,
-  usePagination,
+  useGlobalFilterSearchParams,
+  usePaginationSearchParams,
+  useSortingSearchParams,
 } from "@/hooks/use-data-table";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +76,7 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -62,71 +105,83 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import {
+  DebouncedCommandInput,
+  InfiniteCommand,
+  InfiniteCommandInput,
+  InfiniteCommandList,
+  InfiniteCommandOptions,
+  SelectableCommandItem,
+} from "@/components/ui-extra/command";
+import { IdBasedSelect } from "@/components/ui-extra/id-based-select";
+import { SelectItem, SelectValue } from "@/components/ui-extra/select";
+
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import { DebouncedInput } from "@/components/debounced-input";
 import { SearchInput, useSearch } from "@/components/search-input";
 import { SiteHeader } from "@/components/site-header";
 
 import { columns } from "./columns";
 import { BrandList, CategoryList, statusOptions } from "./form";
 
+const getProductsQueryOptions = (
+  params: Parameters<typeof productsApi.productsList>[0],
+) =>
+  queryOptions({
+    queryKey: [productsApi.productsList.name, params],
+    queryFn: () => productsApi.productsList(params).then((res) => res.data),
+    placeholderData: keepPreviousData,
+  });
+
+const getCategoryByIdQueryOptions = (id: Category["id"]) =>
+  queryOptions({
+    queryKey: ["categories", id],
+    queryFn: () =>
+      categoriesApi.categoriesRetrieve({ id }).then((res) => res.data),
+  });
+
+const getBrandByIdQueryOptions = (id: Brand["id"]) =>
+  queryOptions({
+    queryKey: ["brands", id],
+    queryFn: () => brandsApi.brandsRetrieve({ id }).then((res) => res.data),
+  });
+
 export default function Page() {
-  const pagination = usePagination()[0];
-  const ordering = useOrdering()[0];
-  const search = useSearch()[0];
+  const { pageIndex, pageSize } = usePaginationSearchParams()[0];
+  const sorting = useSortingSearchParams()[0];
+  const globalFilter = useGlobalFilterSearchParams()[0];
 
-  const [categoryId, setCategoryId] = useCategoryId();
-  const [brandId, setBrandId] = useBrandId();
-  const [status, setStatus] = useStatus();
-
-  const hasFilters = !!(categoryId || brandId || status);
-  const resetFilters = () => {
-    setCategoryId(null);
-    setBrandId(null);
-    setStatus(null);
-  };
+  const [categoryId, setCategoryId] = useQueryState("category", parseAsInteger);
+  const [brandId, setBrandId] = useQueryState("brand", parseAsInteger);
 
   const { data } = useQuery(
     getProductsQueryOptions({
-      limit: pagination.pageSize,
-      offset: pagination.pageIndex * pagination.pageSize,
-      ordering,
-      search,
-      category: categoryId || undefined,
-      brand: brandId || undefined,
-      status: status || undefined,
+      limit: pageSize,
+      offset: pageIndex * pageSize,
+      ordering: parseAsSort.serialize(sorting),
+      search: globalFilter,
     }),
   );
 
-  const table = useDataTable({
-    data,
-    columns,
-  });
+  const table = useDataTable({ data, columns });
 
   return (
     <>
       <SiteHeader title="Products" />
-      <div className="@container/main flex flex-1 flex-col py-4 gap-6 md:py-6">
-        <div className="flex flex-col gap-2 md:gap-4 px-4 lg:px-6 md:flex-row-reverse">
-          <QuickCreateProductDialog />
-          <div className="flex gap-2 md:gap-4 w-full justify-between">
-            <SearchInput placeholder="Search for a product..." />
-            <div className="flex flex-wrap w-full gap-2 md:gap-4">
-              <CategoryFilter />
-              <BrandFilter />
-              <StatusFilter />
-              {hasFilters && (
-                <Button variant="ghost" onClick={resetFilters}>
-                  <X />
-                  Reset
-                </Button>
-              )}
-            </div>
-            <DataTableViewOptions table={table} />
-          </div>
-        </div>
-        <div className="relative flex flex-col gap-4 px-4 lg:px-6">
+      <div className="@container/main flex flex-1 flex-col p-4 gap-6 md:p-6">
+        <QuickCreateProductDialog />
+        <DebouncedInput
+          value={table.getState().globalFilter}
+          onChange={(e) => table.setGlobalFilter(e.target.value)}
+        />
+        <CategoryIdBasedSelect
+          value={categoryId}
+          onValueChange={setCategoryId}
+        />
+        <BrandIdBasedSelect value={brandId} onValueChange={setBrandId} />
+        <div className="relative flex flex-col gap-4">
           <DataTable table={table} />
           <DataTablePagination table={table} />
         </div>
@@ -205,153 +260,86 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
   );
 }
 
-function useCategoryId() {
-  return useQueryState("category", parseAsInteger);
-}
-
-function CategoryFilter() {
-  const [categoryId, setCategoryId] = useCategoryId();
-
-  const [open, setOpen] = React.useState(false);
-
-  const [selectedCategory, setSelectedCategory] =
-    React.useState<Category | null>(null);
-
-  const { data } = useQuery(
-    getCategoryQueryOptionsOnce(categoryId, selectedCategory),
-  );
-
-  React.useEffect(() => {
-    if (data) {
-      setSelectedCategory(data);
-    } else if (!categoryId) {
-      setSelectedCategory(null);
-    }
-  }, [data, categoryId]);
-
+function CategoryIdBasedSelect({
+  getByIdQueryOptions = getCategoryByIdQueryOptions,
+  ...props
+}: React.ComponentProps<typeof IdBasedSelect<Category>>) {
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="justify-between">
-          {selectedCategory?.name || "Category"}
-          <ChevronDown className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <CategoryList
-          selectedCategory={selectedCategory}
-          onCategorySelect={(category) => {
-            setSelectedCategory(category);
-            setCategoryId(category?.id || null);
-            setOpen(false);
-          }}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function useBrandId() {
-  return useQueryState("brand", parseAsInteger);
-}
-
-function BrandFilter() {
-  const [brandId, setBrandId] = useBrandId();
-
-  const [open, setOpen] = React.useState(false);
-
-  const [selectedBrand, setSelectedBrand] = React.useState<Brand | null>(null);
-
-  const { data } = useQuery(getBrandQueryOptionsOnce(brandId, selectedBrand));
-
-  React.useEffect(() => {
-    if (data) {
-      setSelectedBrand(data);
-    } else if (!brandId) {
-      setSelectedBrand(null);
-    }
-  }, [data, brandId]);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="justify-between">
-          {selectedBrand?.name || "Brand"}
-          <ChevronDown className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <BrandList
-          selectedBrand={selectedBrand}
-          onBrandSelect={(brand) => {
-            setSelectedBrand(brand);
-            setBrandId(brand?.id || null);
-            setOpen(false);
-          }}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function useStatus() {
-  return useQueryState(
-    "status",
-    parseAsStringEnum(Object.values(ProductStatusEnum)),
-  );
-}
-
-export function StatusFilter() {
-  const [open, setOpen] = React.useState(false);
-  const [status, setStatus] = useStatus();
-
-  const currentStatusOption = statusOptions.find(
-    ({ value }) => value === status,
-  );
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <IdBasedSelect getByIdQueryOptions={getByIdQueryOptions} {...props}>
+      <IdBasedSelectTrigger asChild>
         <Button variant="outline">
-          {currentStatusOption ? (
-            <>
-              {currentStatusOption.icon}
-              {currentStatusOption.label}
-            </>
-          ) : (
-            "Status"
-          )}
-          <ChevronDown className="opacity-50 ms-auto" />
+          <SelectValue<Category>>
+            {(value) => value?.name || "Category"}
+          </SelectValue>
         </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <Command>
-          <CommandList>
-            <CommandEmpty>No status found.</CommandEmpty>
-            <CommandGroup>
-              {statusOptions.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={() => {
-                    setStatus(option.value !== status ? option.value : null);
-                    setOpen(false);
-                  }}
-                >
-                  {option.icon}
-                  {option.label}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      status === option.value ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+      </IdBasedSelectTrigger>
+      <IdBasedSelectContent className="p-0">
+        <InfiniteCommand
+          queryOptions={(search) =>
+            getCategoriesInfiniteQueryOptions({ search })
+          }
+        >
+          <InfiniteCommandInput placeholder="Search for a category..." />
+          <InfiniteCommandList>
+            <CommandEmpty>No categories found.</CommandEmpty>
+            <InfiniteCommandOptions<PaginatedCategoryList>>
+              {({ data }) => {
+                const options = React.useMemo(
+                  () => data?.pages.flatMap((page) => page.results) ?? [],
+                  [data],
+                );
+                return options.map((item) => (
+                  <IdBasedSelectItem key={item.id}>
+                    <CommandItem>{item.name}</CommandItem>
+                  </IdBasedSelectItem>
+                ));
+              }}
+            </InfiniteCommandOptions>
+          </InfiniteCommandList>
+        </InfiniteCommand>
+      </IdBasedSelectContent>
+    </IdBasedSelect>
+  );
+}
+
+function BrandIdBasedSelect({
+  getByIdQueryOptions = getBrandByIdQueryOptions,
+  ...props
+}: React.ComponentProps<typeof IdBasedSelect<Brand>>) {
+  return (
+    <IdBasedSelect getByIdQueryOptions={getByIdQueryOptions} {...props}>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline">
+            <SelectValue<Brand>>
+              {(value) => value?.name || "Brand"}
+            </SelectValue>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="p-0">
+          <InfiniteCommand
+            queryOptions={(search) => getBrandsInfiniteQueryOptions({ search })}
+          >
+            <InfiniteCommandInput placeholder="Search for a brand..." />
+            <InfiniteCommandList>
+              <CommandEmpty>No brands found.</CommandEmpty>
+              <InfiniteCommandOptions<PaginatedBrandList>>
+                {({ data }) => {
+                  const options = React.useMemo(
+                    () => data?.pages.flatMap((page) => page.results) ?? [],
+                    [data],
+                  );
+                  return options.map((item) => (
+                    <SelectItem key={item.id} value={item}>
+                      {item.name}
+                    </SelectItem>
+                  ));
+                }}
+              </InfiniteCommandOptions>
+            </InfiniteCommandList>
+          </InfiniteCommand>
+        </PopoverContent>
+      </Popover>
+    </IdBasedSelect>
   );
 }

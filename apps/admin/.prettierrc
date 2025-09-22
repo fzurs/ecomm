@@ -12,6 +12,7 @@
     "^@/lib/(.*)$",
     "^@/hooks/(.*)$",
     "^@/components/ui/(.*)$",
+    "^@/components/ui-extra/(.*)$",
     "^@/components/(.*)$",
     "^@/registry/(.*)$",
     "^@/styles/(.*)$",

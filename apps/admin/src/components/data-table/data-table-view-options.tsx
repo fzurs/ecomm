@@ -28,9 +28,11 @@ export function DataTableViewOptions<TData>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox">
-          <Columns />
-          Columns
+        <Button variant="outline" className="justify-between">
+          <div className="flex gap-2 items-center">
+            <Columns />
+            Columns
+          </div>
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
