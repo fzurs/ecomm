@@ -15,7 +15,8 @@ import * as React from "react";
 
 import { Product } from "@workspace/api-client";
 
-import { productsApi } from "@/lib/api";
+import { productsApi } from "@/lib/apis";
+import { productStatusConfig } from "@/lib/product-status";
 import { handleBadRequestError } from "@/lib/utils";
 
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -44,7 +45,7 @@ import {
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 
-import { ProductForm, statusConfig } from "./form";
+import { ProductForm } from "./form";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -153,13 +154,13 @@ export const columns: ColumnDef<Product>[] = [
     ),
     cell: ({ row }) => {
       if (!row.original.status) return null;
-      const status = statusConfig[row.original.status];
+      const status = productStatusConfig[row.original.status];
       return (
         <Badge
           variant="outline"
           className="text-muted-foreground px-1.5 mx-auto flex"
         >
-          {status.icon}
+          {status.icon && <status.icon />}
           {status.label}
         </Badge>
       );

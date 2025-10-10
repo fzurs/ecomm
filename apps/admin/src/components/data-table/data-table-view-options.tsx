@@ -1,9 +1,7 @@
 "use client";
 
 import { type Table as TanstackTable } from "@tanstack/react-table";
-import { Check, ChevronDown, Columns } from "lucide-react";
-
-import { cn } from "@/lib/utils";
+import { ChevronDown, Columns } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +9,6 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import {
@@ -19,6 +16,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+import { SelectableCommandItem } from "@/components/custom-ui/command";
 
 export function DataTableViewOptions<TData>({
   table,
@@ -50,22 +49,17 @@ export function DataTableViewOptions<TData>({
                     column.getCanHide(),
                 )
                 .map((column) => (
-                  <CommandItem
+                  <SelectableCommandItem
                     key={column.id}
                     value={column.id}
+                    selected={column.getIsVisible()}
                     onSelect={() =>
                       column.toggleVisibility(!column.getIsVisible())
                     }
                     className="capitalize"
                   >
-                    <span>{column.columnDef.meta?.label || column.id}</span>
-                    <Check
-                      className={cn(
-                        "ml-auto",
-                        column.getIsVisible() ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                  </CommandItem>
+                    {column.columnDef.meta?.label || column.id}
+                  </SelectableCommandItem>
                 ))}
             </CommandGroup>
           </CommandList>

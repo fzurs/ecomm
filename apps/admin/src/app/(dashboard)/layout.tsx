@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { currentUser } from "@/lib/queries";
+import { currentUser } from "@/lib/queries/auth";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 

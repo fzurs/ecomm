@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getCustomersQueryOptions } from "@/lib/queries";
+import { getCustomersQueryOptions } from "@/lib/queries.category";
 
 import {
   useDataTable,

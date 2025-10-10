@@ -5,7 +5,7 @@ import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import * as React from "react";
 
-import { currentUserQueryOptions } from "@/lib/queries";
+import { currentUserQueryOptions } from "@/lib/queries/auth";
 
 import { useLogout } from "@/hooks/use-logout";
 

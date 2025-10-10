@@ -2,13 +2,7 @@ import { env } from "@/env";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-import {
-  AuthApi,
-  BrandsApi,
-  CategoriesApi,
-  CustomersApi,
-  ProductsApi,
-} from "@workspace/api-client";
+import { AuthApi, CategoriesApi, ProductsApi } from "@workspace/api-client";
 
 export const api = axios.create({
   baseURL: env.API_URL,
@@ -26,11 +20,10 @@ api.interceptors.request.use(async (config) => {
   } else {
     config.headers["X-CSRFToken"] = Cookies.get("csrftoken");
   }
+
   return config;
 });
 
 export const productsApi = new ProductsApi(...[, , api]);
-export const customersApi = new CustomersApi(...[, , api]);
 export const categoriesApi = new CategoriesApi(...[, , api]);
-export const brandsApi = new BrandsApi(...[, , api]);
 export const authApi = new AuthApi(...[, , api]);

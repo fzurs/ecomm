@@ -1,85 +1,41 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { PackagePlus, Search } from "lucide-react";
 import {
-  InfiniteData,
-  QueryKey,
-  QueryOptions,
-  UndefinedInitialDataInfiniteOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  UseQueryOptions,
-  infiniteQueryOptions,
-  keepPreviousData,
-  queryOptions,
-  useInfiniteQuery,
-  useQuery,
-} from "@tanstack/react-query";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Column,
-  ColumnFiltersState,
-  OnChangeFn,
-  PaginationState,
-  SortingState,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { AxiosResponse, all } from "axios";
-import { Check, ChevronDown, Loader2, PackagePlus, X } from "lucide-react";
-import {
-  ParserBuilder,
-  createParser,
-  parseAsArrayOf,
-  parseAsIndex,
   parseAsInteger,
-  parseAsJson,
   parseAsString,
+  parseAsStringEnum,
   useQueryState,
-  useQueryStates,
 } from "nuqs";
 import { useForm } from "react-hook-form";
-import { useDebouncedCallback } from "use-debounce";
+import { useDebounce } from "use-debounce";
 
 import * as React from "react";
 
-import {
-  Brand,
-  CategoriesApiCategoriesListRequest,
-  Category,
-  PaginatedBrandList,
-  PaginatedCategoryList,
-  PaginatedProductList,
-  Product,
-  ProductStatusEnum,
-  ProductsApiProductsListRequest,
-} from "@workspace/api-client";
+import { Category, Product, ProductStatusEnum } from "@workspace/api-client";
 
-import { brandsApi, categoriesApi, productsApi } from "@/lib/api";
+import { createProductMutationOptions } from "@/lib/mutations";
+import { productStatusOptions } from "@/lib/product-status";
 import {
-  getBrandQueryOptionsOnce,
-  getBrandsInfiniteQueryOptions,
   getCategoriesInfiniteQueryOptions,
-  getCategoryQueryOptionsOnce,
-} from "@/lib/queries";
-import { cn, handleBadRequestError } from "@/lib/utils";
+  getCategoryQueryOptions,
+} from "@/lib/queries/categories";
+import { getProductsQueryOptions } from "@/lib/queries/products";
+import { getPageCount, handleBadRequestError } from "@/lib/utils";
 
 import {
-  parseAsSort,
-  useDataTable,
+  parseAsOrdering,
+  useCategoryIdSearchParams,
   useGlobalFilterSearchParams,
   usePaginationSearchParams,
+  useProductStatusSearchParams,
   useSortingSearchParams,
-} from "@/hooks/use-data-table";
+} from "@/hooks/search-params";
 
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Dialog,
   DialogClose,
@@ -100,87 +56,161 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
-import {
-  DebouncedCommandInput,
-  InfiniteCommand,
-  InfiniteCommandInput,
-  InfiniteCommandList,
-  InfiniteCommandOptions,
-  SelectableCommandItem,
-} from "@/components/ui-extra/command";
-import { IdBasedSelect } from "@/components/ui-extra/id-based-select";
-import { SelectItem, SelectValue } from "@/components/ui-extra/select";
-
+import { SubmitButton } from "@/components/custom-ui/submit-button";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
-import { DebouncedInput } from "@/components/debounced-input";
-import { SearchInput, useSearch } from "@/components/search-input";
+import {
+  InfiniteSelector,
+  InfiniteSelectorContent,
+  InfiniteSelectorEmpty,
+  InfiniteSelectorGroup,
+  InfiniteSelectorInput,
+  InfiniteSelectorItem,
+  InfiniteSelectorList,
+  InfiniteSelectorTrigger,
+  InfiniteSelectorValue,
+} from "@/components/infinite-selector";
+import {
+  Selector,
+  SelectorContent,
+  SelectorEmpty,
+  SelectorGroup,
+  SelectorInput,
+  SelectorItem,
+  SelectorList,
+  SelectorTrigger,
+  SelectorValue,
+} from "@/components/selector";
 import { SiteHeader } from "@/components/site-header";
 
 import { columns } from "./columns";
-import { BrandList, CategoryList, statusOptions } from "./form";
-
-const getProductsQueryOptions = (
-  params: Parameters<typeof productsApi.productsList>[0],
-) =>
-  queryOptions({
-    queryKey: [productsApi.productsList.name, params],
-    queryFn: () => productsApi.productsList(params).then((res) => res.data),
-    placeholderData: keepPreviousData,
-  });
-
-const getCategoryByIdQueryOptions = (id: Category["id"]) =>
-  queryOptions({
-    queryKey: ["categories", id],
-    queryFn: () =>
-      categoriesApi.categoriesRetrieve({ id }).then((res) => res.data),
-  });
-
-const getBrandByIdQueryOptions = (id: Brand["id"]) =>
-  queryOptions({
-    queryKey: ["brands", id],
-    queryFn: () => brandsApi.brandsRetrieve({ id }).then((res) => res.data),
-  });
 
 export default function Page() {
-  const { pageIndex, pageSize } = usePaginationSearchParams()[0];
-  const sorting = useSortingSearchParams()[0];
-  const globalFilter = useGlobalFilterSearchParams()[0];
-
+  const [pagination, setPagination] = usePaginationSearchParams();
+  const [sorting, setSorting] = useSortingSearchParams();
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault(""),
+  );
+  const [debouncedSearch] = useDebounce(search, 300);
   const [categoryId, setCategoryId] = useQueryState("category", parseAsInteger);
-  const [brandId, setBrandId] = useQueryState("brand", parseAsInteger);
+  const [status, setStatus] = useQueryState(
+    "status",
+    parseAsStringEnum(Object.values(ProductStatusEnum)),
+  );
 
   const { data } = useQuery(
     getProductsQueryOptions({
-      limit: pageSize,
-      offset: pageIndex * pageSize,
-      ordering: parseAsSort.serialize(sorting),
-      search: globalFilter,
+      limit: pagination.pageSize,
+      offset: pagination.pageIndex * pagination.pageSize,
+      ordering: parseAsOrdering.serialize(sorting),
+      status: status ?? undefined,
+      category: categoryId ?? undefined,
+      search: debouncedSearch,
     }),
   );
 
-  const table = useDataTable({ data, columns });
+  const table = useReactTable({
+    data: data?.results ?? [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    state: { sorting, pagination },
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    pageCount: getPageCount(data?.count ?? 0, pagination.pageSize),
+    manualSorting: true,
+    manualPagination: true,
+  });
 
   return (
     <>
       <SiteHeader title="Products" />
       <div className="@container/main flex flex-1 flex-col p-4 gap-6 md:p-6">
-        <QuickCreateProductDialog />
-        <DebouncedInput
-          value={table.getState().globalFilter}
-          onChange={(e) => table.setGlobalFilter(e.target.value)}
-        />
-        <CategoryIdBasedSelect
-          value={categoryId}
-          onValueChange={setCategoryId}
-        />
-        <BrandIdBasedSelect value={brandId} onValueChange={setBrandId} />
+        <div className="flex gap-4">
+          <InputGroup>
+            <InputGroupInput
+              placeholder="Search for a product..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+          </InputGroup>
+          <InfiniteSelector
+            value={categoryId?.toString() ?? ""}
+            onValueChange={(value) =>
+              setCategoryId(value ? Number(value) : null)
+            }
+            queryOptions={getCategoriesInfiniteQueryOptions}
+          >
+            <InfiniteSelectorTrigger>
+              <InfiniteSelectorValue
+                placeholder="Category"
+                resolveQuery={({ value }) =>
+                  getCategoryQueryOptions({ id: Number(value) })
+                }
+                render={(item) => item?.name}
+              />
+            </InfiniteSelectorTrigger>
+            <InfiniteSelectorContent>
+              <InfiniteSelectorInput placeholder="Search for a category..." />
+              <InfiniteSelectorList>
+                <InfiniteSelectorEmpty>
+                  No category found.
+                </InfiniteSelectorEmpty>
+                <InfiniteSelectorGroup
+                  render={(products: Category[]) =>
+                    products.map((product) => (
+                      <InfiniteSelectorItem
+                        key={product.id}
+                        value={product.id.toString()}
+                      >
+                        {product.name}
+                      </InfiniteSelectorItem>
+                    ))
+                  }
+                />
+              </InfiniteSelectorList>
+            </InfiniteSelectorContent>
+          </InfiniteSelector>
+          <Selector
+            value={status ?? ""}
+            onValueChange={(value) =>
+              setStatus(value ? (value as ProductStatusEnum) : null)
+            }
+          >
+            <SelectorTrigger>
+              <SelectorValue placeholder="Status" />
+            </SelectorTrigger>
+            <SelectorContent>
+              <SelectorInput placeholder="Search statuses..." />
+              <SelectorList>
+                <SelectorEmpty>No status found.</SelectorEmpty>
+                <SelectorGroup>
+                  {productStatusOptions.map((productStatus) => (
+                    <SelectorItem
+                      key={productStatus.value}
+                      value={productStatus.value}
+                    >
+                      {productStatus.icon && (
+                        <productStatus.icon
+                          className={productStatus.iconClassName}
+                        />
+                      )}
+                      {productStatus.label}
+                    </SelectorItem>
+                  ))}
+                </SelectorGroup>
+              </SelectorList>
+            </SelectorContent>
+          </Selector>
+        </div>
         <div className="relative flex flex-col gap-4">
           <DataTable table={table} />
           <DataTablePagination table={table} />
@@ -190,21 +220,20 @@ export default function Page() {
   );
 }
 
-function QuickCreateProductDialog({ className }: { className?: string }) {
+function QuickCreateProductDialog() {
   const [open, setOpen] = React.useState(false);
 
-  const queryClient = useQueryClient();
-
   const form = useForm<Product>({ defaultValues: { name: "" } });
+  const formId = React.useId();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Product) =>
-      productsApi.productsCreate({ product: data }),
-    onError: (err) => {
-      handleBadRequestError(err, form);
+    ...createProductMutationOptions,
+    onError: (error, variables, context) => {
+      createProductMutationOptions.onError?.(error, variables, context);
+      handleBadRequestError(error, form);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+    onSuccess: (data, variables, context) => {
+      createProductMutationOptions.onSuccess?.(data, variables, context);
       setOpen(false);
     },
   });
@@ -214,7 +243,7 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className={className}>
+        <Button variant="outline">
           <PackagePlus />
           New Product
         </Button>
@@ -227,7 +256,8 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
         <Form {...form}>
           <form
             className="grid gap-4"
-            onSubmit={form.handleSubmit((data) => mutate(data))}
+            onSubmit={form.handleSubmit((product) => mutate({ product }))}
+            id={formId}
           >
             <FormField
               control={form.control}
@@ -244,102 +274,21 @@ function QuickCreateProductDialog({ className }: { className?: string }) {
                 </FormItem>
               )}
             />
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Close</Button>
-              </DialogClose>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin" />}
-                {isPending ? "Creating..." : "Create"}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Close</Button>
+          </DialogClose>
+          <SubmitButton
+            form={formId}
+            isLoading={isPending}
+            loadingState="Creating..."
+          >
+            Create
+          </SubmitButton>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function CategoryIdBasedSelect({
-  getByIdQueryOptions = getCategoryByIdQueryOptions,
-  ...props
-}: React.ComponentProps<typeof IdBasedSelect<Category>>) {
-  return (
-    <IdBasedSelect getByIdQueryOptions={getByIdQueryOptions} {...props}>
-      <IdBasedSelectTrigger asChild>
-        <Button variant="outline">
-          <SelectValue<Category>>
-            {(value) => value?.name || "Category"}
-          </SelectValue>
-        </Button>
-      </IdBasedSelectTrigger>
-      <IdBasedSelectContent className="p-0">
-        <InfiniteCommand
-          queryOptions={(search) =>
-            getCategoriesInfiniteQueryOptions({ search })
-          }
-        >
-          <InfiniteCommandInput placeholder="Search for a category..." />
-          <InfiniteCommandList>
-            <CommandEmpty>No categories found.</CommandEmpty>
-            <InfiniteCommandOptions<PaginatedCategoryList>>
-              {({ data }) => {
-                const options = React.useMemo(
-                  () => data?.pages.flatMap((page) => page.results) ?? [],
-                  [data],
-                );
-                return options.map((item) => (
-                  <IdBasedSelectItem key={item.id}>
-                    <CommandItem>{item.name}</CommandItem>
-                  </IdBasedSelectItem>
-                ));
-              }}
-            </InfiniteCommandOptions>
-          </InfiniteCommandList>
-        </InfiniteCommand>
-      </IdBasedSelectContent>
-    </IdBasedSelect>
-  );
-}
-
-function BrandIdBasedSelect({
-  getByIdQueryOptions = getBrandByIdQueryOptions,
-  ...props
-}: React.ComponentProps<typeof IdBasedSelect<Brand>>) {
-  return (
-    <IdBasedSelect getByIdQueryOptions={getByIdQueryOptions} {...props}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">
-            <SelectValue<Brand>>
-              {(value) => value?.name || "Brand"}
-            </SelectValue>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="p-0">
-          <InfiniteCommand
-            queryOptions={(search) => getBrandsInfiniteQueryOptions({ search })}
-          >
-            <InfiniteCommandInput placeholder="Search for a brand..." />
-            <InfiniteCommandList>
-              <CommandEmpty>No brands found.</CommandEmpty>
-              <InfiniteCommandOptions<PaginatedBrandList>>
-                {({ data }) => {
-                  const options = React.useMemo(
-                    () => data?.pages.flatMap((page) => page.results) ?? [],
-                    [data],
-                  );
-                  return options.map((item) => (
-                    <SelectItem key={item.id} value={item}>
-                      {item.name}
-                    </SelectItem>
-                  ));
-                }}
-              </InfiniteCommandOptions>
-            </InfiniteCommandList>
-          </InfiniteCommand>
-        </PopoverContent>
-      </Popover>
-    </IdBasedSelect>
   );
 }

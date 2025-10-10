@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { Login } from "@workspace/api-client";
 
-import { authApi } from "@/lib/api";
+import { authApi } from "@/lib/apis";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";

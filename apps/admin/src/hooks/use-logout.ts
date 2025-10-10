@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { authApi } from "@/lib/api";
+import { authApi } from "@/lib/apis";
 
 export function useLogout() {
   const router = useRouter();

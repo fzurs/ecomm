@@ -35,3 +35,7 @@ export function handleBadRequestError<TFieldValues extends FieldValues>(
     setFormErrors(error.response.data, form);
   }
 }
+
+export function getPageCount(count: number, pageSize: number) {
+  return Math.ceil(count / pageSize);
+}
