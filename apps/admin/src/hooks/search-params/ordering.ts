@@ -1,6 +1,6 @@
 import { createParser } from "nuqs";
 
-import { parseAsSort } from "./sorting";
+import { parseAsSort } from "../../lib/search-params.sorting";
 
 export const parseAsOrdering = createParser({
   ...parseAsSort,

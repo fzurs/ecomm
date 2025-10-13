@@ -1,46 +1,33 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DialogClose } from "@radix-ui/react-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { PackagePlus, Search } from "lucide-react";
-import {
-  parseAsInteger,
-  parseAsString,
-  parseAsStringEnum,
-  useQueryState,
-} from "nuqs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
+import { PackagePlus } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useDebounce } from "use-debounce";
+import { toast } from "sonner";
+import { z } from "zod";
 
 import * as React from "react";
 
-import { Category, Product, ProductStatusEnum } from "@workspace/api-client";
+import { ProductStatusEnum } from "@workspace/api-client";
+import { Product } from "@workspace/api-client";
 
-import { createProductMutationOptions } from "@/lib/mutations";
-import { productStatusOptions } from "@/lib/product-status";
-import {
-  getCategoriesInfiniteQueryOptions,
-  getCategoryQueryOptions,
-} from "@/lib/queries/categories";
-import { getProductsQueryOptions } from "@/lib/queries/products";
-import { getPageCount, handleBadRequestError } from "@/lib/utils";
+import { productsApi } from "@/lib/apis";
+import { getProductsQueryOptions } from "@/lib/query-options.products";
+import { useColumnFiltersSearchParams } from "@/lib/search-params.column-filters";
+import { useSearch } from "@/lib/search-params.global-filter";
+import { useLimitOffsetSearchParams } from "@/lib/search-params.pagination";
+import { useOrderingSearchParams } from "@/lib/search-params.sorting";
 
-import {
-  parseAsOrdering,
-  useCategoryIdSearchParams,
-  useGlobalFilterSearchParams,
-  usePaginationSearchParams,
-  useProductStatusSearchParams,
-  useSortingSearchParams,
-} from "@/hooks/search-params";
+import { useDataTable } from "@/hooks/use-data-table";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -49,192 +36,77 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 
-import { SubmitButton } from "@/components/custom-ui/submit-button";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import {
-  InfiniteSelector,
-  InfiniteSelectorContent,
-  InfiniteSelectorEmpty,
-  InfiniteSelectorGroup,
-  InfiniteSelectorInput,
-  InfiniteSelectorItem,
-  InfiniteSelectorList,
-  InfiniteSelectorTrigger,
-  InfiniteSelectorValue,
-} from "@/components/infinite-selector";
-import {
-  Selector,
-  SelectorContent,
-  SelectorEmpty,
-  SelectorGroup,
-  SelectorInput,
-  SelectorItem,
-  SelectorList,
-  SelectorTrigger,
-  SelectorValue,
-} from "@/components/selector";
+import { DataTable } from "@/components/data-table";
+import { DataTableToolbar } from "@/components/data-table-toolbar";
 import { SiteHeader } from "@/components/site-header";
+import { Spinner } from "@/components/spinner";
 
 import { columns } from "./columns";
 
-export default function Page() {
-  const [pagination, setPagination] = usePaginationSearchParams();
-  const [sorting, setSorting] = useSortingSearchParams();
-  const [search, setSearch] = useQueryState(
-    "search",
-    parseAsString.withDefault(""),
-  );
-  const [debouncedSearch] = useDebounce(search, 300);
-  const [categoryId, setCategoryId] = useQueryState("category", parseAsInteger);
-  const [status, setStatus] = useQueryState(
-    "status",
-    parseAsStringEnum(Object.values(ProductStatusEnum)),
-  );
+export default function ProductsPage() {
+  const { limit, offset } = useLimitOffsetSearchParams();
+  const { ordering } = useOrderingSearchParams();
+  const [search] = useSearch();
+  const [columnFilters] = useColumnFiltersSearchParams();
+  const status = columnFilters.find(
+    (columnFilter) => columnFilter.id === "status",
+  )?.value as ProductStatusEnum | undefined;
 
   const { data } = useQuery(
-    getProductsQueryOptions({
-      limit: pagination.pageSize,
-      offset: pagination.pageIndex * pagination.pageSize,
-      ordering: parseAsOrdering.serialize(sorting),
-      status: status ?? undefined,
-      category: categoryId ?? undefined,
-      search: debouncedSearch,
-    }),
+    getProductsQueryOptions({ limit, offset, ordering, search, status }),
   );
 
-  const table = useReactTable({
-    data: data?.results ?? [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    state: { sorting, pagination },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    pageCount: getPageCount(data?.count ?? 0, pagination.pageSize),
-    manualSorting: true,
-    manualPagination: true,
-  });
+  const table = useDataTable({ data, columns });
 
   return (
     <>
       <SiteHeader title="Products" />
-      <div className="@container/main flex flex-1 flex-col p-4 gap-6 md:p-6">
-        <div className="flex gap-4">
-          <InputGroup>
-            <InputGroupInput
-              placeholder="Search for a product..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <InputGroupAddon>
-              <Search />
-            </InputGroupAddon>
-          </InputGroup>
-          <InfiniteSelector
-            value={categoryId?.toString() ?? ""}
-            onValueChange={(value) =>
-              setCategoryId(value ? Number(value) : null)
-            }
-            queryOptions={getCategoriesInfiniteQueryOptions}
-          >
-            <InfiniteSelectorTrigger>
-              <InfiniteSelectorValue
-                placeholder="Category"
-                resolveQuery={({ value }) =>
-                  getCategoryQueryOptions({ id: Number(value) })
-                }
-                render={(item) => item?.name}
-              />
-            </InfiniteSelectorTrigger>
-            <InfiniteSelectorContent>
-              <InfiniteSelectorInput placeholder="Search for a category..." />
-              <InfiniteSelectorList>
-                <InfiniteSelectorEmpty>
-                  No category found.
-                </InfiniteSelectorEmpty>
-                <InfiniteSelectorGroup
-                  render={(products: Category[]) =>
-                    products.map((product) => (
-                      <InfiniteSelectorItem
-                        key={product.id}
-                        value={product.id.toString()}
-                      >
-                        {product.name}
-                      </InfiniteSelectorItem>
-                    ))
-                  }
-                />
-              </InfiniteSelectorList>
-            </InfiniteSelectorContent>
-          </InfiniteSelector>
-          <Selector
-            value={status ?? ""}
-            onValueChange={(value) =>
-              setStatus(value ? (value as ProductStatusEnum) : null)
-            }
-          >
-            <SelectorTrigger>
-              <SelectorValue placeholder="Status" />
-            </SelectorTrigger>
-            <SelectorContent>
-              <SelectorInput placeholder="Search statuses..." />
-              <SelectorList>
-                <SelectorEmpty>No status found.</SelectorEmpty>
-                <SelectorGroup>
-                  {productStatusOptions.map((productStatus) => (
-                    <SelectorItem
-                      key={productStatus.value}
-                      value={productStatus.value}
-                    >
-                      {productStatus.icon && (
-                        <productStatus.icon
-                          className={productStatus.iconClassName}
-                        />
-                      )}
-                      {productStatus.label}
-                    </SelectorItem>
-                  ))}
-                </SelectorGroup>
-              </SelectorList>
-            </SelectorContent>
-          </Selector>
-        </div>
-        <div className="relative flex flex-col gap-4">
-          <DataTable table={table} />
-          <DataTablePagination table={table} />
-        </div>
+      <div className="py-4 md:py-6">
+        <DataTable table={table}>
+          <DataTableToolbar table={table}>
+            <QuickCreateProductDialog />
+          </DataTableToolbar>
+        </DataTable>
       </div>
     </>
   );
 }
 
-function QuickCreateProductDialog() {
-  const [open, setOpen] = React.useState(false);
+const formSchema = z.object({ name: z.string().nonempty() });
 
-  const form = useForm<Product>({ defaultValues: { name: "" } });
+export function QuickCreateProductDialog() {
+  const [open, setOpen] = React.useState(false);
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: "" },
+  });
   const formId = React.useId();
 
   const { mutate, isPending } = useMutation({
-    ...createProductMutationOptions,
-    onError: (error, variables, context) => {
-      createProductMutationOptions.onError?.(error, variables, context);
-      handleBadRequestError(error, form);
+    mutationFn: (data: z.infer<typeof formSchema>) =>
+      productsApi.productsCreate({ product: data as Product }),
+    onError: (error) => {
+      const isBadRequest =
+        isAxiosError(error) && error.response?.status === 400;
+      toast.error("Failed to create product.", {
+        description: isBadRequest
+          ? error.response?.data["name"][0]
+          : "Please check the entered data and try again.",
+      });
     },
-    onSuccess: (data, variables, context) => {
-      createProductMutationOptions.onSuccess?.(data, variables, context);
+    onSuccess: () => {
       setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 
@@ -245,18 +117,16 @@ function QuickCreateProductDialog() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <PackagePlus />
-          New Product
+          Add new Product
         </Button>
       </DialogTrigger>
       <DialogContent onAnimationEnd={onAnimationEnd}>
         <DialogHeader>
-          <DialogTitle>Create new Product</DialogTitle>
-          <DialogDescription />
+          <DialogTitle>Add new Product</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
-            className="grid gap-4"
-            onSubmit={form.handleSubmit((product) => mutate({ product }))}
+            onSubmit={form.handleSubmit((data) => mutate(data))}
             id={formId}
           >
             <FormField
@@ -264,12 +134,11 @@ function QuickCreateProductDialog() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Name<span className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} required />
+                    <Input {...field} />
                   </FormControl>
+                  <FormDescription />
                   <FormMessage />
                 </FormItem>
               )}
@@ -278,15 +147,11 @@ function QuickCreateProductDialog() {
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="secondary">Close</Button>
           </DialogClose>
-          <SubmitButton
-            form={formId}
-            isLoading={isPending}
-            loadingState="Creating..."
-          >
-            Create
-          </SubmitButton>
+          <Button type="submit" form={formId}>
+            {isPending && <Spinner />}Create
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

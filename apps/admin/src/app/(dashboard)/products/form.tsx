@@ -1,35 +1,14 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  ArchiveX,
-  CheckCircle,
-  CircleDotDashed,
-  FilePenLine,
-  PackageX,
-  PauseCircle,
-} from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { useDebouncedCallback } from "use-debounce";
 
 import * as React from "react";
 
-import { Brand, Category, Product } from "@workspace/api-client";
-import { ProductStatusEnum } from "@workspace/api-client";
+import { Product } from "@workspace/api-client";
 
-import { productStatusOptions } from "@/lib/product-status";
+import { getCategoriesInfiniteQueryOptions } from "@/lib/queries/categories";
 import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -41,64 +20,45 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import {
+  SelectorContent,
+  SelectorControl,
+  SelectorDebouncedInput,
+  SelectorGroup,
+  SelectorInfiniteOptions,
+  SelectorInfiniteScrollList,
+  SelectorTrigger,
+} from "@/components/selector";
+import {
+  TSelector,
+  TSelectorItem,
+  TSelectorValue,
+} from "@/components/t-selector";
+
+import { statuses } from "./columns";
+
 export function ProductForm({
   form,
   className,
   ...props
-}: {
-  form: UseFormReturn<Product>;
-} & React.ComponentProps<"form">) {
+}: React.ComponentProps<"form"> & { form: UseFormReturn<Product> }) {
   return (
     <Form {...form}>
-      <form className={cn("grid gap-4", className)} {...props}>
+      <form className={cn("space-y-8", className)} {...props}>
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Slug</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="sku"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SKU</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -123,90 +83,72 @@ export function ProductForm({
         />
         <FormField
           control={form.control}
-          name="category_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <FormControl>
-                <CategorySelect />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="brand_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Brand</FormLabel>
-              <FormControl>
-                <BrandSelect
-                  original={form.getValues().brand}
-                  onBrandIdChange={field.onChange}
-                />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="stock_quantity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <FormField
-          control={form.control}
           name="status"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Status</FormLabel>
-              <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder="Assing a status" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {productStatusOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.icon && (
-                            <option.icon className={option.iconClassName} />
-                          )}
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                </FormControl>
+                <SelectContent>
+                  {statuses.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.icon && <status.icon />}
+                      {status.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="category_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <TSelector
+                original={form.getValues().category}
+                onValueChange={field.onChange}
+                renderItem={(item) => item.name}
+              >
+                <FormControl>
+                  <SelectorTrigger>
+                    <TSelectorValue placeholder="Assing a category..." />
+                  </SelectorTrigger>
+                </FormControl>
+                <SelectorContent align="center">
+                  <SelectorControl shouldFilter={false}>
+                    <SelectorInfiniteOptions
+                      options={getCategoriesInfiniteQueryOptions}
+                    >
+                      {(categories) => (
+                        <>
+                          <SelectorDebouncedInput placeholder="Search for a category..." />
+                          <SelectorInfiniteScrollList>
+                            <SelectorGroup>
+                              {categories.map((category) => (
+                                <TSelectorItem
+                                  key={category.id}
+                                  item={category}
+                                >
+                                  {category.name}
+                                </TSelectorItem>
+                              ))}
+                            </SelectorGroup>
+                          </SelectorInfiniteScrollList>
+                        </>
+                      )}
+                    </SelectorInfiniteOptions>
+                  </SelectorControl>
+                </SelectorContent>
+              </TSelector>
               <FormDescription />
               <FormMessage />
             </FormItem>

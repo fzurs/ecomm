@@ -20,3 +20,18 @@ export const parseAsSort = createParser({
 export function useSortingSearchParams() {
   return useQueryState("sort", parseAsSort.withDefault([]));
 }
+
+export const parseAsOrdering = createParser({
+  ...parseAsSort,
+  serialize(value) {
+    if (!value.length) return "";
+    const sort = value[0];
+    return `${sort.desc ? "-" : ""}${sort.id}`;
+  },
+});
+
+export function useOrderingSearchParams() {
+  const [sorting] = useSortingSearchParams();
+  const ordering = parseAsOrdering.serialize(sorting) || undefined;
+  return { ordering };
+}

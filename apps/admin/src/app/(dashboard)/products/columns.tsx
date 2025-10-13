@@ -3,9 +3,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import {
+  CheckCircle,
   CopyPlus,
   EllipsisVertical,
-  Loader2,
   PackageMinus,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -13,11 +13,15 @@ import { toast } from "sonner";
 
 import * as React from "react";
 
-import { Product } from "@workspace/api-client";
+import {
+  PatchedProduct,
+  Product,
+  ProductStatusEnum,
+} from "@workspace/api-client";
 
 import { productsApi } from "@/lib/apis";
+import { handleError } from "@/lib/handle-error";
 import { productStatusConfig } from "@/lib/product-status";
-import { handleBadRequestError } from "@/lib/utils";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -27,7 +31,6 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -43,9 +46,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { Spinner } from "@/components/spinner";
 
 import { ProductForm } from "./form";
+
+export const statuses = [
+  { value: ProductStatusEnum.Active, label: "Active", icon: CheckCircle },
+  { value: ProductStatusEnum.OutOfStock, label: "Out of stock" },
+];
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -53,65 +62,10 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader title="Name" column={column} />
     ),
-    cell: function Cell({ row }) {
-      const product = row.original;
-      const formId = `update-form-${product.id}`;
-
-      const [open, setOpen] = React.useState(false);
-
-      const isMobile = useIsMobile();
-      const queryClient = useQueryClient();
-
-      const form = useForm<Product>({ defaultValues: product });
-
-      const { mutate, isPending } = useMutation({
-        mutationFn: (data: Product) =>
-          productsApi.productsUpdate({ product: data, id: product.id }),
-        onError: (err) => {
-          handleBadRequestError(err, form);
-        },
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["products"] });
-          setOpen(false);
-        },
-      });
-
-      return (
-        <Drawer
-          open={open}
-          onOpenChange={setOpen}
-          direction={isMobile ? "bottom" : "right"}
-          modal={false} // category combobox scroll
-        >
-          <DrawerTrigger asChild>
-            <Button variant="link" size="sm">
-              {product.name}
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>{product.name}</DrawerTitle>
-              <DrawerDescription></DrawerDescription>
-            </DrawerHeader>
-            <ProductForm
-              form={form}
-              onSubmit={form.handleSubmit((data) => mutate(data))}
-              id={formId}
-              className="px-4 overflow-auto"
-            />
-            <DrawerFooter>
-              <Button type="submit" form={formId} disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin" />}
-                {isPending ? "Saving..." : "Save"}
-              </Button>
-              <DrawerClose asChild>
-                <Button variant="outline">Close</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      );
+    cell: ({ row }) => {
+      return <TableCellViewer item={row.original} />;
     },
+    meta: { variant: "globalFilter", placeholder: "Search for a product..." },
   },
   {
     accessorKey: "description",
@@ -122,10 +76,6 @@ export const columns: ColumnDef<Product>[] = [
           {row.original.description}
         </div>
       ),
-    meta: {
-      variant: "text",
-      placeholder: "Description",
-    },
   },
   {
     accessorKey: "category",
@@ -164,6 +114,12 @@ export const columns: ColumnDef<Product>[] = [
           {status.label}
         </Badge>
       );
+    },
+    meta: {
+      variant: "select",
+      label: "Status",
+      placeholder: "Filters statuses...",
+      options: statuses,
     },
   },
   {
@@ -300,3 +256,71 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
 ];
+
+function TableCellViewer({ item }: { item: Product }) {
+  const isMobile = useIsMobile();
+  const [open, setOpen] = React.useState(false);
+
+  const queryClient = useQueryClient();
+
+  const form = useForm({
+    defaultValues: item,
+  });
+  const formId = React.useId();
+  React.useLayoutEffect(() => {
+    form.reset(item);
+  }, [item]);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: PatchedProduct) =>
+      productsApi.productsPartialUpdate({
+        id: item.id,
+        patchedProduct: data,
+      }),
+    onError: (error) => {
+      const message = handleError(error, form);
+      toast.error("Fail to update product.", {
+        description: message,
+        position: "bottom-left",
+      });
+    },
+    onSuccess: () => {
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+
+  return (
+    <Drawer
+      direction={isMobile ? "bottom" : "right"}
+      open={open}
+      onOpenChange={setOpen}
+      modal={false}
+    >
+      <DrawerTrigger asChild>
+        <Button variant="link" size="sm">
+          {item.name}
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent forceMount>
+        <DrawerHeader>
+          <DrawerTitle>{item.name}</DrawerTitle>
+        </DrawerHeader>
+        <ProductForm
+          form={form}
+          id={formId}
+          onSubmit={form.handleSubmit((data) => mutate(data))}
+          className="px-4"
+        />
+        <DrawerFooter>
+          <Button type="submit" form={formId} disabled={isPending}>
+            {isPending && <Spinner />}Save changes
+          </Button>
+          <DrawerClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}

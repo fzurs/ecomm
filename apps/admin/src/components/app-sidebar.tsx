@@ -4,6 +4,7 @@ import {
   Award,
   ChartBar,
   Layers2,
+  LayoutDashboard,
   Package,
   ShoppingBag,
   Tags,
@@ -56,18 +57,13 @@ const data = {
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="border-sidebar-border border-b h-12">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton asChild>
               <Link href="/">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Layers2 className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Ecommerce</span>
-                  <span className="truncate text-xs">Admin</span>
-                </div>
+                <LayoutDashboard />
+                <span className="text-base font-semibold">Ecommerce Admin</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
