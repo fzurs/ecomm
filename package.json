@@ -1,0 +1,14 @@
+{
+  "name": "ecomm",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "devDependencies": {
+    "turbo": "^2.5.8"
+  }
+}
