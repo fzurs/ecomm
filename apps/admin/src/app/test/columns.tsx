@@ -33,7 +33,7 @@ import { ProductForm } from "./form";
 
 export const columns = [
   {
-    id: "name",
+    id: "search",
     accessorKey: "name",
     header: "Name",
     cell: function TableCellViewer({ row }) {
@@ -95,7 +95,9 @@ export const columns = [
     },
     enableColumnFilter: true,
     meta: {
+      variant: "search",
       filterParser: parseAsString,
+      placeholder: "Search for a product...",
     },
   },
   {

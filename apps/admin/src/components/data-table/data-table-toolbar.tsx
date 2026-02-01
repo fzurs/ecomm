@@ -1,7 +1,7 @@
 "use client";
 
 import type { Column, Table } from "@tanstack/react-table";
-import { SearchIcon, X } from "lucide-react";
+import { LucideIcon, SearchIcon, TextIcon, X } from "lucide-react";
 import * as React from "react";
 
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
@@ -16,6 +16,7 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group";
 import { cn } from "@workspace/ui/lib/utils";
+import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 
 export function DataTableToolbar<TData>({
   table,
@@ -80,25 +81,18 @@ function DataTableToolbarFilter<TData>({
       switch (columnMeta.variant) {
         case "search":
           return (
-            <InputGroup className="max-w-72">
-              <InputGroupInput
-                placeholder={columnMeta.placeholder ?? columnMeta.label}
-                value={(column.getFilterValue() as string) ?? ""}
-                onChange={(event) => column.setFilterValue(event.target.value)}
-              />
-              <InputGroupAddon>
-                <SearchIcon />
-              </InputGroupAddon>
-            </InputGroup>
+            <DataTableTextFilter
+              icon={SearchIcon}
+              column={column}
+              placeholder={columnMeta.placeholder ?? columnMeta.label}
+            />
           );
 
         case "text":
           return (
-            <Input
+            <DataTableTextFilter
+              column={column}
               placeholder={columnMeta.placeholder ?? columnMeta.label}
-              value={(column.getFilterValue() as string) ?? ""}
-              onChange={(event) => column.setFilterValue(event.target.value)}
-              className="max-w-72"
             />
           );
 
@@ -146,7 +140,6 @@ function DataTableToolbarFilter<TData>({
               column={column}
               title={columnMeta.label ?? column.id}
               options={columnMeta.options}
-              queryOptions={columnMeta.queryOptions}
               multiple={columnMeta.variant === "multiSelect"}
             />
           );
@@ -158,4 +151,47 @@ function DataTableToolbarFilter<TData>({
 
     return onFilterRender();
   }
+}
+
+function DataTableTextFilter<TData>({
+  column,
+  placeholder,
+  icon: TextIconProp = TextIcon,
+}: {
+  column: Column<TData>;
+  placeholder?: string;
+  icon?: LucideIcon;
+}) {
+  const filterValue = (column.getFilterValue() as string) ?? "";
+  const [textValue, setTextValue] = React.useState(filterValue);
+  // actualizamos el estado cuando se aplique un cambio
+  // en el valor por fuera de este componente
+  React.useEffect(() => {
+    setTextValue(filterValue);
+  }, [filterValue]);
+
+  const debouncedSetFilterChange = useDebouncedCallback(
+    (value: string) => column.setFilterValue(value),
+    300,
+  );
+  const onTextChange = React.useCallback(
+    (value: string) => {
+      setTextValue(value);
+      debouncedSetFilterChange(value);
+    },
+    [setTextValue, debouncedSetFilterChange],
+  );
+
+  return (
+    <InputGroup className="max-w-72">
+      <InputGroupInput
+        placeholder={placeholder}
+        value={textValue}
+        onChange={(event) => onTextChange(event.target.value)}
+      />
+      <InputGroupAddon>
+        <TextIconProp />
+      </InputGroupAddon>
+    </InputGroup>
+  );
 }

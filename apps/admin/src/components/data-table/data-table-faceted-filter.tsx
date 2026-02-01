@@ -32,14 +32,14 @@ import {
 interface DataTableFieldsetFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
-  options: Option[] | OptionAsQueryOptions;
+  options?: Option[] | OptionAsQueryOptions;
   multiple?: boolean;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
-  options: optionsProp,
+  options: optionsProp = [],
   multiple,
 }: DataTableFieldsetFilterProps<TData, TValue>) {
   const [open, setOpen] = React.useState(false);
