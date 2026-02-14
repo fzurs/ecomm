@@ -46,7 +46,7 @@ import { columns } from "./columns";
 
 export default function Page() {
   const pagination = usePaginationValues();
-  const { ...columnFilters } = useColumnFilterValues(columns);
+  const { status, ...columnFilters } = useColumnFilterValues(columns);
   const sorting = useSortingValues();
   const { data } = useProducts({
     ...pagination,

@@ -138,7 +138,9 @@ export function getCategoryAsOption(value: string) {
 
 export function getCategoriesInfiniteQueryOptions({
   search,
+  open = true,
 }: {
+  open?: boolean;
   search?: string;
 }) {
   return infiniteQueryOptions({
@@ -161,9 +163,15 @@ export function getCategoriesInfiniteQueryOptions({
       ],
       pageParams: [0],
     },
+    enabled: open,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   });
 }
-export function useInfiniteCategories(props: { search: string }) {
+export function useInfiniteCategories(
+  props: Parameters<typeof getCategoriesInfiniteQueryOptions>[0],
+) {
   return useInfiniteQuery(getCategoriesInfiniteQueryOptions(props));
 }
 

@@ -28,6 +28,11 @@ import {
   useInfiniteQuery,
   useQueries,
 } from "@tanstack/react-query";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+
+type OptionValue = Option["value"];
+
+type OptionValueOrArray = OptionValue | OptionValue[];
 
 interface DataTableFieldsetFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
@@ -70,7 +75,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         const filterValues = Array.from(newSelectedValues);
         column.setFilterValue(filterValues.length ? filterValues : undefined);
       } else {
-        column.setFilterValue(isSelected ? undefined : [option.value]);
+        column.setFilterValue(isSelected ? undefined : option.value);
         setOpen(false);
       }
     },
@@ -118,18 +123,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         : (optionsProp as Option[]),
     [isQuery, itemsFetched],
   );
-  const onScroll = React.useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      const target = event.currentTarget;
-      if (
-        hasNextPage &&
-        target.scrollTop + target.clientHeight >= target.scrollHeight
-      ) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, fetchNextPage],
-  );
+  const onScroll = useInfiniteScroll({ hasNextPage, fetchNextPage });
   const currentItemsFetched = useQueries(
     isQuery
       ? {

@@ -65,6 +65,7 @@ export const columns = [
           open={open}
           onOpenChange={setOpen}
           direction={isMobile ? "bottom" : "right"}
+          modal={false}
         >
           <DrawerTrigger asChild>
             <Button size="sm" variant="link">

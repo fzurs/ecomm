@@ -12,7 +12,6 @@ import {
 } from "@workspace/ui/components/form";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { Input } from "@workspace/ui/components/input";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import {
   Popover,
@@ -31,8 +30,8 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import { schemas } from "@workspace/api-client";
 import { Button } from "@workspace/ui/components/button";
-import { apiClient } from "@/lib/api-client";
 import { useInfiniteCategories } from "@/lib/query-options";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 
 export function ProductForm({
   form,
@@ -78,24 +77,25 @@ export function ProductForm({
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <Popover open={open} onOpenChange={setOpen}>
-                  <FormControl>
-                    <PopoverTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <FormControl>
                       <Button
                         variant="outline"
-                        aria-expanded={open}
                         className="justify-between"
+                        aria-expanded={open}
                       >
-                        {selectedCategory?.name || "Assing a Category..."}
+                        {selectedCategory?.name ?? "Assing a category..."}
                         <ChevronDown className="opacity-50" />
                       </Button>
-                    </PopoverTrigger>
-                  </FormControl>
+                    </FormControl>
+                  </PopoverTrigger>
                   <PopoverContent className="p-0">
                     <CategoryList
-                      setOpen={setOpen}
+                      open={open}
                       selectedCategory={selectedCategory}
                       setSelectedCategory={setSelectedCategory}
-                      {...field}
+                      setOpen={setOpen}
+                      onChange={field.onChange}
                     />
                   </PopoverContent>
                 </Popover>
@@ -112,11 +112,13 @@ export function ProductForm({
 }
 
 export function CategoryList({
+  open,
   setOpen,
   selectedCategory,
   setSelectedCategory,
   onChange,
 }: {
+  open: boolean;
   setOpen: (open: boolean) => void;
   selectedCategory: z.infer<typeof schemas.Category> | null;
   setSelectedCategory: (
@@ -125,8 +127,12 @@ export function CategoryList({
   onChange?: (id: z.infer<typeof schemas.Category>["id"] | null) => void;
 }) {
   const [search, setSearch] = useState("");
-
-  const { data: categories } = useInfiniteCategories({ search });
+  const {
+    data: categories,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteCategories({ search, open });
+  const onScroll = useInfiniteScroll({ hasNextPage, fetchNextPage });
 
   return (
     <Command shouldFilter={false}>
@@ -135,7 +141,7 @@ export function CategoryList({
         value={search}
         onValueChange={setSearch}
       />
-      <CommandList>
+      <CommandList onScroll={onScroll}>
         <CommandEmpty>No category results.</CommandEmpty>
         <CommandGroup>
           {categories.map((category) => {
