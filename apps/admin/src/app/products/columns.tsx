@@ -1,8 +1,15 @@
-"use client";
-
+import { apiClient } from "@/lib/api-client";
+import {
+  getCategoriesInfiniteQueryOptions,
+  getCategoryQueryOptions,
+  getProductAsOption,
+  getProductsAsOptions,
+} from "@/lib/query-options";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
 import { schemas } from "@workspace/api-client";
 import { Button } from "@workspace/ui/components/button";
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
 import {
   Drawer,
   DrawerClose,
@@ -12,20 +19,22 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@workspace/ui/components/drawer";
-import z from "zod";
-
+import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
+import {
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+} from "nuqs";
+import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-import React, { useId, useState } from "react";
-import { ProductForm } from "../test/form";
-import { ColumnDef } from "@tanstack/react-table";
-import { parseAsInteger, parseAsString } from "nuqs";
+import z from "zod";
+import { ProductForm } from "./form";
 
 export const columns = [
   {
-    id: "name",
+    id: "search",
+    accessorKey: "name",
     header: "Name",
     cell: function TableCellViewer({ row }) {
       const item = row.original;
@@ -56,6 +65,7 @@ export const columns = [
           open={open}
           onOpenChange={setOpen}
           direction={isMobile ? "bottom" : "right"}
+          modal={false}
         >
           <DrawerTrigger asChild>
             <Button size="sm" variant="link">
@@ -84,25 +94,48 @@ export const columns = [
         </Drawer>
       );
     },
+    enableColumnFilter: true,
     meta: {
       variant: "search",
-      placeholder: "Search for a product...",
       filterParser: parseAsString,
+      placeholder: "Search for a product...",
     },
-    enableColumnFilter: true,
-    enableHiding: false,
   },
   {
-    id: "categories",
-    accessorKey: "category",
+    id: "category",
+    accessorKey: "Category",
     header: "Category",
-    meta: {
-      label: "Category",
-      placeholder: "Search for a Category...",
-      variant: "multiSelect",
-      filterParser: parseAsInteger,
-    },
+    cell: ({ row }) => <div>{row.original.category?.id}</div>,
     enableColumnFilter: true,
-    enableSorting: false,
+    meta: {
+      variant: "multiSelect",
+      filterParser: parseAsArrayOf(parseAsInteger),
+      options: {
+        getItemsInfiniteQueryOptions: getCategoriesInfiniteQueryOptions,
+        getItemQueryOptions: (value) => getCategoryQueryOptions(Number(value)),
+        transformItemToOption: (item: z.infer<typeof schemas.Category>) => {
+          return {
+            label: item.name,
+            value: item.id,
+          };
+        },
+      },
+    },
+  },
+  {
+    id: "status",
+    accessorKey: "status",
+    header: "Status",
+    enableColumnFilter: true,
+    meta: {
+      variant: "multiSelect",
+      filterParser: parseAsArrayOf(
+        parseAsStringEnum(schemas.StatusEnum.options),
+      ),
+      options: schemas.StatusEnum.options.map((option) => ({
+        label: option,
+        value: option,
+      })),
+    },
   },
 ] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];

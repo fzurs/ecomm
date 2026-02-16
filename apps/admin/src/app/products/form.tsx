@@ -32,6 +32,7 @@ import { schemas } from "@workspace/api-client";
 import { Button } from "@workspace/ui/components/button";
 import { useInfiniteCategories } from "@/lib/query-options";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import { formatEnumLabel } from "@/lib/utils";
 
 export function ProductForm({
   form,
@@ -105,6 +106,55 @@ export function ProductForm({
             );
           }}
         />
+        <FormField
+          name="status"
+          control={form.control}
+          render={function Render({ field }) {
+            const [open, setOpen] = React.useState(false);
+
+            return (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <FormControl>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="justify-between"
+                        aria-expanded={open}
+                      >
+                        {formatEnumLabel(field.value as string) ??
+                          "Change status of product..."}
+                        <ChevronDown className="opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0">
+                      <Command>
+                        <CommandList>
+                          <CommandGroup>
+                            {schemas.StatusEnum.options.map((status) => (
+                              <CommandCheckboxItem
+                                key={status}
+                                value={status}
+                                onSelect={() => {
+                                  field.onChange(status);
+                                  setOpen(false);
+                                }}
+                                checked={field.value === status}
+                              >
+                                {formatEnumLabel(status)}
+                              </CommandCheckboxItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FormControl>
+              </FormItem>
+            );
+          }}
+        />
         {children}
       </form>
     </Form>
@@ -147,7 +197,8 @@ export function CategoryList({
           {categories.map((category) => {
             const selected = category.id === selectedCategory?.id;
             return (
-              <CommandItem
+              <CommandCheckboxItem
+                checked={selected}
                 key={category.id}
                 onSelect={() => {
                   const newCategory = selected ? null : category;
@@ -160,17 +211,24 @@ export function CategoryList({
                 value={category.id.toString()}
               >
                 {category.name}
-                <Check
-                  className={cn(
-                    "ml-auto",
-                    selected ? "opacity-100" : "opacity-0",
-                  )}
-                />
-              </CommandItem>
+              </CommandCheckboxItem>
             );
           })}
         </CommandGroup>
       </CommandList>
     </Command>
+  );
+}
+
+function CommandCheckboxItem({
+  children,
+  checked,
+  ...props
+}: React.ComponentProps<typeof CommandItem> & { checked?: boolean }) {
+  return (
+    <CommandItem {...props}>
+      {children}
+      <Check className={cn("ml-auto", checked ? "opacity-100" : "opacity-0")} />
+    </CommandItem>
   );
 }

@@ -3,15 +3,13 @@ import { z } from "zod";
 
 import { dataTableConfig } from "@/config/data-table";
 
-import type { ExtendedColumnSort } from "@/types/data-table";
-
 const sortingItemSchema = z.object({
   id: z.string(),
   desc: z.boolean(),
 });
 
 export const getSortingStateParser = <TData>(
-  columnIds?: string[] | Set<string>
+  columnIds?: string[] | Set<string>,
 ) => {
   const validKeys = columnIds
     ? columnIds instanceof Set
@@ -31,7 +29,7 @@ export const getSortingStateParser = <TData>(
           return null;
         }
 
-        return result.data as ExtendedColumnSort<TData>[];
+        return result.data;
       } catch {
         return null;
       }
@@ -41,7 +39,7 @@ export const getSortingStateParser = <TData>(
       a.length === b.length &&
       a.every(
         (item, index) =>
-          item.id === b[index]?.id && item.desc === b[index]?.desc
+          item.id === b[index]?.id && item.desc === b[index]?.desc,
       ),
   });
 };
@@ -57,7 +55,7 @@ const filterItemSchema = z.object({
 export type FilterItemSchema = z.infer<typeof filterItemSchema>;
 
 export const getFiltersStateParser = <TData>(
-  columnIds?: string[] | Set<string>
+  columnIds?: string[] | Set<string>,
 ) => {
   const validKeys = columnIds
     ? columnIds instanceof Set
@@ -90,7 +88,7 @@ export const getFiltersStateParser = <TData>(
           filter.id === b[index]?.id &&
           filter.value === b[index]?.value &&
           filter.variant === b[index]?.variant &&
-          filter.operator === b[index]?.operator
+          filter.operator === b[index]?.operator,
       ),
   });
 };

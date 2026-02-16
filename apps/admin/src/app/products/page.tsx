@@ -1,22 +1,32 @@
 "use client";
 
 import { DataTable } from "@/components/data-table/data-table";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import {
+  PageAction,
+  PageContent,
+  PageHeader,
+  PageTitle,
+} from "@/components/page-header";
+import { useColumnFilterValues } from "@/hooks/use-column-filters";
+import { useDataTable } from "@/hooks/use-data-table";
+import { usePaginationValues } from "@/hooks/use-pagination";
+import { useSortingValues } from "@/hooks/use-sorting";
+import { apiClient } from "@/lib/api-client";
+import { useProducts } from "@/lib/query-options";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { schemas } from "@workspace/api-client";
+import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog";
-import { Button } from "@workspace/ui/components/button";
-import { PackagePlus } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { schemas } from "@workspace/api-client";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -27,26 +37,22 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form";
 import { Input } from "@workspace/ui/components/input";
-import { apiClient } from "@/lib/api-client";
+import { PackagePlus } from "lucide-react";
+
+import { useId, useState } from "react";
+import { useForm } from "react-hook-form";
 import z from "zod";
-import * as React from "react";
-import {
-  PageAction,
-  PageContent,
-  PageHeader,
-  PageTitle,
-} from "@/components/page-header";
-import { getProductsQueryOptions } from "@/lib/query-options";
-import {
-  useFilters,
-  useDataTable,
-  getFilterParsers,
-} from "@/hooks/use-data-table";
 import { columns } from "./columns";
 
 export default function Page() {
-  const filters = useFilters(columns);
-  const { data } = useQuery(getProductsQueryOptions(filters));
+  const pagination = usePaginationValues();
+  const { status, ...columnFilters } = useColumnFilterValues(columns);
+  const sorting = useSortingValues();
+  const { data } = useProducts({
+    ...pagination,
+    ...columnFilters,
+    ...sorting,
+  });
   const table = useDataTable({ data, columns });
 
   return (
@@ -65,14 +71,14 @@ export default function Page() {
 }
 
 function QuickCreateProductDialog() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const form = useForm({
     resolver: zodResolver(schemas.Product),
     defaultValues: { id: 0, category: null, name: "" },
   });
-  const formId = React.useId();
+  const formId = useId();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: z.infer<typeof schemas.Product>) =>
@@ -100,6 +106,9 @@ function QuickCreateProductDialog() {
       <DialogContent onAnimationEnd={onAnimationEnd}>
         <DialogHeader>
           <DialogTitle>Quick create new Product</DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a product so quickly
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} id={formId}>
