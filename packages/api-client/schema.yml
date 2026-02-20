@@ -464,6 +464,8 @@ components:
         name:
           type: string
           maxLength: 255
+        description:
+          type: string
         status:
           $ref: '#/components/schemas/StatusEnum'
     Product:
@@ -484,10 +486,13 @@ components:
         name:
           type: string
           maxLength: 255
+        description:
+          type: string
         status:
           $ref: '#/components/schemas/StatusEnum'
       required:
       - category
+      - description
       - id
       - name
     StatusEnum:

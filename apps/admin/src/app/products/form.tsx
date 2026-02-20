@@ -33,6 +33,7 @@ import { Button } from "@workspace/ui/components/button";
 import { useInfiniteCategories } from "@/lib/query-options";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { formatEnumLabel } from "@/lib/utils";
+import { Textarea } from "@workspace/ui/components/textarea";
 
 export function ProductForm({
   form,
@@ -59,6 +60,20 @@ export function ProductForm({
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormDescription />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormDescription />
               <FormMessage />

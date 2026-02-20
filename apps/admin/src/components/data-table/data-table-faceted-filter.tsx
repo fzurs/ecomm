@@ -190,6 +190,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 className="rounded-sm px-1 font-normal lg:hidden"
               >
                 {selectedValues.size}
+                <span className="hidden md:flex"> selected</span>
               </Badge>
               <div className="hidden items-center gap-1 lg:flex">
                 {selectedValues.size > 2 ? (

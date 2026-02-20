@@ -18,7 +18,7 @@ import { columns } from "./columns";
 
 export default function Page() {
   const pagination = usePaginationValues();
-  const { status, ...columnFilters } = useColumnFilterValues(columns);
+  const { ...columnFilters } = useColumnFilterValues(columns);
   const sorting = useSortingValues();
   const { data } = useProducts({
     ...pagination,

@@ -1,1 +1,2 @@
-pnpm exec openapi-generator-cli generate -i schema.yml -g typescript-axios -o test
+python ../../apps/api/manage.py spectacular --color --file schema.yml
+pnpm exec openapi-zod-client ./schema.yml -o ./src/zodios/index.ts --export-schemas

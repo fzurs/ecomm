@@ -30,6 +30,10 @@ export function useDataTable<TData>({
     manualPagination: true,
     manualFiltering: true,
     manualSorting: true,
+    defaultColumn: {
+      enableColumnFilter: false,
+      enableSorting: false,
+    },
     ...options,
   });
 }

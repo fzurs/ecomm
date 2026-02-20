@@ -2,8 +2,6 @@ import { apiClient } from "@/lib/api-client";
 import {
   getCategoriesInfiniteQueryOptions,
   getCategoryQueryOptions,
-  getProductAsOption,
-  getProductsAsOptions,
 } from "@/lib/query-options";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,8 +34,61 @@ export const columns = [
     id: "search",
     accessorKey: "name",
     header: "Name",
-    cell: function TableCellViewer({ row }) {
-      const item = row.original;
+    cell: ({ row }) => <TableCellViewer original={row.original} />,
+    enableColumnFilter: true,
+    meta: {
+      variant: "search",
+      filterParser: parseAsString,
+      placeholder: "Search for a product...",
+    },
+  },
+  {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({row}) => {
+      return <div className="text-muted-foreground text-sm">{row.original.description}</div>
+    },
+  },
+  {
+    id: "category",
+    accessorKey: "Category",
+    header: "Category",
+    cell: ({ row }) => <div>{row.original.category?.id}</div>,
+    enableColumnFilter: true,
+    meta: {
+      variant: "multiSelect",
+      filterParser: parseAsArrayOf(parseAsInteger),
+      options: {
+        getItemsInfiniteQueryOptions: getCategoriesInfiniteQueryOptions,
+        getItemQueryOptions: (value) => getCategoryQueryOptions(Number(value)),
+        transformItemToOption: (item: z.infer<typeof schemas.Category>) => {
+          return {
+            label: item.name,
+            value: item.id,
+          };
+        },
+      },
+    },
+  },
+  {
+    id: "status",
+    accessorKey: "status",
+    header: "Status",
+    enableColumnFilter: true,
+    meta: {
+      variant: "multiSelect",
+      filterParser: parseAsArrayOf(
+        parseAsStringEnum(schemas.StatusEnum.options),
+      ),
+      options: schemas.StatusEnum.options.map((option) => ({
+        label: option,
+        value: option,
+      })),
+    },
+  },
+] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];
+
+function TableCellViewer({ original: item }: { original: z.infer<typeof schemas.Product> }) {
       const isMobile = useIsMobile();
       const queryClient = useQueryClient();
 
@@ -93,49 +144,4 @@ export const columns = [
           </DrawerContent>
         </Drawer>
       );
-    },
-    enableColumnFilter: true,
-    meta: {
-      variant: "search",
-      filterParser: parseAsString,
-      placeholder: "Search for a product...",
-    },
-  },
-  {
-    id: "category",
-    accessorKey: "Category",
-    header: "Category",
-    cell: ({ row }) => <div>{row.original.category?.id}</div>,
-    enableColumnFilter: true,
-    meta: {
-      variant: "multiSelect",
-      filterParser: parseAsArrayOf(parseAsInteger),
-      options: {
-        getItemsInfiniteQueryOptions: getCategoriesInfiniteQueryOptions,
-        getItemQueryOptions: (value) => getCategoryQueryOptions(Number(value)),
-        transformItemToOption: (item: z.infer<typeof schemas.Category>) => {
-          return {
-            label: item.name,
-            value: item.id,
-          };
-        },
-      },
-    },
-  },
-  {
-    id: "status",
-    accessorKey: "status",
-    header: "Status",
-    enableColumnFilter: true,
-    meta: {
-      variant: "multiSelect",
-      filterParser: parseAsArrayOf(
-        parseAsStringEnum(schemas.StatusEnum.options),
-      ),
-      options: schemas.StatusEnum.options.map((option) => ({
-        label: option,
-        value: option,
-      })),
-    },
-  },
-] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];
+    }

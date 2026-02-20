@@ -29,6 +29,7 @@ const Product = z
     category: Category.nullable(),
     category_id: z.number().int().nullish(),
     name: z.string().max(255),
+    description: z.string(),
     status: StatusEnum.optional(),
   })
   .passthrough();
@@ -46,6 +47,7 @@ const PatchedProduct = z
     category: Category.nullable(),
     category_id: z.number().int().nullable(),
     name: z.string().max(255),
+    description: z.string(),
     status: StatusEnum,
   })
   .partial()
