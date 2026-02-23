@@ -6,7 +6,7 @@ import {
 } from "@workspace/ui/components/sidebar";
 import "@workspace/ui/globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@workspace/ui/components/theme-provider";
 
 export default function RootLayout({
   children,
@@ -16,12 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
           <NuqsAdapter>
             <ReactQueryProvider>
               <SidebarProvider
@@ -33,7 +28,7 @@ export default function RootLayout({
                 }
               >
                 <AppSidebar />
-                <SidebarInset>{children} </SidebarInset>
+                <SidebarInset>{children}</SidebarInset>
               </SidebarProvider>
             </ReactQueryProvider>
           </NuqsAdapter>
