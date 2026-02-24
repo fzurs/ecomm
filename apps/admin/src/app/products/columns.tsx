@@ -28,6 +28,8 @@ import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { ProductForm } from "./form";
+import * as u from "@/lib/utils";
+import { Badge } from "@workspace/ui/components/badge";
 
 export const columns = [
   {
@@ -45,8 +47,12 @@ export const columns = [
   {
     accessorKey: "description",
     header: "Description",
-    cell: ({row}) => {
-      return <div className="text-muted-foreground text-sm">{row.original.description}</div>
+    cell: ({ row }) => {
+      return (
+        <div className="text-muted-foreground text-sm">
+          {row.original.description}
+        </div>
+      );
     },
   },
   {
@@ -74,6 +80,11 @@ export const columns = [
     id: "status",
     accessorKey: "status",
     header: "Status",
+    cell: ({ row }) => (
+      <Badge variant={"outline"}>
+        {u.formatEnumLabel(row.original.status as string)}
+      </Badge>
+    ),
     enableColumnFilter: true,
     meta: {
       variant: "multiSelect",
@@ -88,60 +99,64 @@ export const columns = [
   },
 ] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];
 
-function TableCellViewer({ original: item }: { original: z.infer<typeof schemas.Product> }) {
-      const isMobile = useIsMobile();
-      const queryClient = useQueryClient();
+function TableCellViewer({
+  original: item,
+}: {
+  original: z.infer<typeof schemas.Product>;
+}) {
+  const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
-      const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-      const form = useForm({
-        resolver: zodResolver(schemas.Product),
-        values: item,
-      });
-      const formId = useId();
+  const form = useForm({
+    resolver: zodResolver(schemas.Product),
+    values: item,
+  });
+  const formId = useId();
 
-      const { mutate, isPending } = useMutation({
-        mutationFn: (data: z.infer<typeof schemas.Product>) =>
-          apiClient.products_update(data, { params: { id: item.id } }),
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["products"] });
-          setOpen(false);
-        },
-      });
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: z.infer<typeof schemas.Product>) =>
+      apiClient.products_update(data, { params: { id: item.id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      setOpen(false);
+    },
+  });
 
-      const onSubmit = (data: z.infer<typeof schemas.Product>) => mutate(data);
+  const onSubmit = (data: z.infer<typeof schemas.Product>) => mutate(data);
 
-      return (
-        <Drawer
-          open={open}
-          onOpenChange={setOpen}
-          direction={isMobile ? "bottom" : "right"}
-          modal={false}
-        >
-          <DrawerTrigger asChild>
-            <Button size="sm" variant="link">
-              {item.name}
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>{item.name}</DrawerTitle>
-            </DrawerHeader>
-            <ProductForm
-              form={form}
-              id={formId}
-              onSubmit={onSubmit}
-              className="px-4"
-            />
-            <DrawerFooter>
-              <Button type="submit" disabled={isPending} form={formId}>
-                Save changes
-              </Button>
-              <DrawerClose asChild>
-                <Button variant="secondary">Close</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      );
-    }
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      direction={isMobile ? "bottom" : "right"}
+      modal={false}
+    >
+      <DrawerTrigger asChild>
+        <Button size="sm" variant="link">
+          {item.name}
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>{item.name}</DrawerTitle>
+        </DrawerHeader>
+        <ProductForm
+          form={form}
+          id={formId}
+          onSubmit={onSubmit}
+          className="px-4"
+        />
+        <DrawerFooter>
+          <Button type="submit" disabled={isPending} form={formId}>
+            Save changes
+          </Button>
+          <DrawerClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}

@@ -73,7 +73,7 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea value={field.value} onChange={field.onChange} />
+                <Textarea value={field.value ?? ""} onChange={field.onChange} />
               </FormControl>
               <FormDescription />
               <FormMessage />
