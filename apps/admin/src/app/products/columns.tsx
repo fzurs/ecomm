@@ -33,11 +33,12 @@ import { Badge } from "@workspace/ui/components/badge";
 
 export const columns = [
   {
-    id: "search",
+    id: "name",
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <TableCellViewer original={row.original} />,
     enableColumnFilter: true,
+    enableSorting: true,
     meta: {
       variant: "search",
       filterParser: parseAsString,
@@ -95,6 +96,19 @@ export const columns = [
         label: option,
         value: option,
       })),
+    },
+  },
+  {
+    id: "price",
+    accessorKey: "price",
+    header: "Price",
+    cell: ({ row }) => <div className="text-blue-500">{row.original.price}</div>,
+    enableColumnFilter: true,
+    enableSorting: true,
+    meta: {
+      variant: "search",
+      filterParser: parseAsString,
+      placeholder: "Search for a product...",
     },
   },
 ] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];

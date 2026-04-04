@@ -170,6 +170,30 @@ export function ProductForm({
             );
           }}
         />
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numberValue = value ? Number(value) : undefined;
+                      field.onChange(numberValue);
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>Price of product in dollars</FormDescription>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
         {children}
       </form>
     </Form>

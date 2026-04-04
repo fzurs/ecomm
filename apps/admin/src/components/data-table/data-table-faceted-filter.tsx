@@ -106,6 +106,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           }),
           enabled: open,
           placeholderData: keepPreviousData,
+          refetchOnMount: false,
         }
       : {
           queryKey: ["none"],

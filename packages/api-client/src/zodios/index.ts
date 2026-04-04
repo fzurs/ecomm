@@ -2,7 +2,11 @@ import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
 const Category = z
-  .object({ id: z.number().int(), name: z.string().max(255) })
+  .object({
+    id: z.number().int(),
+    name: z.string().max(255),
+    description: z.string().nullish(),
+  })
   .passthrough();
 const PaginatedCategoryList = z
   .object({
@@ -13,7 +17,11 @@ const PaginatedCategoryList = z
   })
   .passthrough();
 const PatchedCategory = z
-  .object({ id: z.number().int(), name: z.string().max(255) })
+  .object({
+    id: z.number().int(),
+    name: z.string().max(255),
+    description: z.string().nullable(),
+  })
   .partial()
   .passthrough();
 const StatusEnum = z.enum([
@@ -31,6 +39,7 @@ const Product = z
     name: z.string().max(255),
     description: z.string().nullish(),
     status: StatusEnum.optional(),
+    price: z.number().int().gte(0).lte(9223372036854776000).nullish(),
   })
   .passthrough();
 const PaginatedProductList = z
@@ -49,6 +58,7 @@ const PatchedProduct = z
     name: z.string().max(255),
     description: z.string().nullable(),
     status: StatusEnum,
+    price: z.number().int().gte(0).lte(9223372036854776000).nullable(),
   })
   .partial()
   .passthrough();

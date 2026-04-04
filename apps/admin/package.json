@@ -41,6 +41,7 @@
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^9.38.0",
+    "prettier": "3.8.1",
     "typescript": "^5.9.3"
   }
 }
