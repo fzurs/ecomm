@@ -3,6 +3,7 @@ from django.db import models
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
 
 
 class Product(models.Model):
@@ -21,3 +22,4 @@ class Product(models.Model):
     )
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+    price = models.PositiveIntegerField(default=0, blank=True, null=True)
