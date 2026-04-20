@@ -5,7 +5,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "generate:schema": "pnpm --filter api run generate:schema"
   },
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {
