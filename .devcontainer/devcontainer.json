@@ -4,7 +4,7 @@
 	"name": "Python & PostgreSQL & Node.js",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "api",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {}
 	}

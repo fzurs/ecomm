@@ -1,6 +1,6 @@
 {
   "name": "api",
   "scripts": {
-    "generate:schema": "python manage.py spectacular --file /workspaces/schema.yml"
+    "generate:schema": "python manage.py spectacular --file ../../schema.yml"
   }
 }
