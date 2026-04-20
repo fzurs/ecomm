@@ -4,10 +4,10 @@ services:
   api:
     build:
       context: ..
-      dockerfile: apps/api/Dockerfile
+      dockerfile: .devcontainer/Dockerfile
 
     volumes:
-      - ../..:/workspaces:cached
+      - ..:/workspaces:cached
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -30,8 +30,6 @@ services:
 
     # Add "forwardPorts": [5432] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
-    ports:
-      - "5432:5432"
 
 volumes:
   postgres-data:
