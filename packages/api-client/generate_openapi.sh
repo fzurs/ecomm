@@ -1,1 +1,0 @@
-pnpm exec openapi-generator-cli generate -i schema.yml -g typescript-axios -o test

@@ -6,7 +6,9 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "generate:schema": "pnpm --filter api run generate:schema"
+    "generate:schema": "python apps/api/manage.py spectacular --file packages/api-client/schema.yml",
+    "generate:client": "pnpm --filter api-client run generate:client",
+    "generate:api": "pnpm generate:schema && pnpm generate:client"
   },
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {

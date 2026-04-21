@@ -6,4 +6,3 @@ dist
 .turbo
 db.sqlite3
 __pycache__/
-schema.yml

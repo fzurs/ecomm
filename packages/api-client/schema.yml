@@ -388,6 +388,9 @@ components:
         name:
           type: string
           maxLength: 255
+        description:
+          type: string
+          nullable: true
       required:
       - id
       - name
@@ -446,6 +449,9 @@ components:
         name:
           type: string
           maxLength: 255
+        description:
+          type: string
+          nullable: true
     PatchedProduct:
       type: object
       properties:
@@ -469,6 +475,11 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
     Product:
       type: object
       properties:
@@ -492,6 +503,11 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
       required:
       - category
       - id
