@@ -8,7 +8,7 @@ const sortingItemSchema = z.object({
   desc: z.boolean(),
 });
 
-export const getSortingStateParser = <TData>(
+export const getSortingStateParser = (
   columnIds?: string[] | Set<string>,
 ) => {
   const validKeys = columnIds
@@ -54,7 +54,7 @@ const filterItemSchema = z.object({
 
 export type FilterItemSchema = z.infer<typeof filterItemSchema>;
 
-export const getFiltersStateParser = <TData>(
+export const getFiltersStateParser = (
   columnIds?: string[] | Set<string>,
 ) => {
   const validKeys = columnIds

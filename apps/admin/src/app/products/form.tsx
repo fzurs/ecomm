@@ -181,6 +181,7 @@ export function ProductForm({
                   <Input
                     type="number"
                     {...field}
+                    value={field.value ?? undefined}
                     onChange={(e) => {
                       const value = e.target.value;
                       const numberValue = value ? Number(value) : undefined;

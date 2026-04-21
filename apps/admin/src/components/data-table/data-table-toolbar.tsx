@@ -67,7 +67,6 @@ export function DataTableToolbar<TData>({
 
 function DataTableToolbarFilter<TData>({
   column,
-  table,
 }: {
   column: Column<TData>;
   table: Table<TData>;

@@ -38,7 +38,7 @@ export function getCommonPinningStyles<TData>({
 export function getFilterOperators(filterVariant: FilterVariant) {
   const operatorMap: Record<
     FilterVariant,
-    { label: string; value: any }[]
+    { label: string; value: unknown }[]
   > = {
     text: dataTableConfig.textOperators,
     number: dataTableConfig.numericOperators,
@@ -61,9 +61,9 @@ export function getDefaultFilterOperator(filterVariant: FilterVariant) {
 }
 
 export function getValidFilters(
-  filters: any
-): any {
-  return filters.filter((filter: any) => {
+  filters: unknown[]
+) {
+  return filters.filter((filter: unknown) => {
     const operator = (filter as unknown as { operator?: string }).operator;
     if (operator === "isEmpty" || operator === "isNotEmpty") {
       return true;

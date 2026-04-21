@@ -7,7 +7,7 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import { schemas } from "@workspace/api-client/zodios";
+import { schemas } from "@workspace/api-client";
 import z from "zod";
 
 type NullableProps<T> = { [K in keyof T]: T[K] | null };

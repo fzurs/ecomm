@@ -30,10 +30,6 @@ import {
 } from "@tanstack/react-query";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 
-type OptionValue = Option["value"];
-
-type OptionValueOrArray = OptionValue | OptionValue[];
-
 interface DataTableFieldsetFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
@@ -53,12 +49,16 @@ export function DataTableFacetedFilter<TData, TValue>({
     | Option["value"]
     | Option["value"][]
     | undefined;
-  const selectedValues = new Set<Option["value"]>(
-    typeof columnFilterValue === "undefined"
-      ? []
-      : Array.isArray(columnFilterValue)
-        ? columnFilterValue
-        : [columnFilterValue.toString()],
+  const selectedValues = React.useMemo(
+    () =>
+      new Set<Option["value"]>(
+        typeof columnFilterValue === "undefined"
+          ? []
+          : Array.isArray(columnFilterValue)
+            ? columnFilterValue
+            : [columnFilterValue.toString()],
+      ),
+    [columnFilterValue],
   );
 
   const onItemSelect = React.useCallback(
@@ -117,13 +117,11 @@ export function DataTableFacetedFilter<TData, TValue>({
           placeholderData: keepPreviousData,
         },
   );
-  const options = React.useMemo(
-    () =>
-      isQuery && itemsFetched
-        ? itemsFetched.map(optionsProp.transformItemToOption)
-        : (optionsProp as Option[]),
-    [isQuery, itemsFetched],
-  );
+  const options = React.useMemo(() => {
+    if (isQuery && itemsFetched)
+      return itemsFetched.map(optionsProp.transformItemToOption);
+    return optionsProp as Option[];
+  }, [isQuery, itemsFetched, optionsProp]);
   const onScroll = useInfiniteScroll({ hasNextPage, fetchNextPage });
   const currentItemsFetched = useQueries(
     isQuery
@@ -143,7 +141,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             .map(({ data }) => data)
             .map(optionsProp.transformItemToOption)
         : [],
-    [isQuery, currentItemsFetched],
+    [isQuery, currentItemsFetched, optionsProp],
   );
 
   const currentOptions = React.useMemo<Option[]>(() => {
