@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "generate:client": "openapi-zod-client schema.yml -o ./src/index.ts --export-schemas"
+    "generate:client": "openapi-zod-client schema.yml -o src/index.ts --export-schemas"
   },
   "dependencies": {
     "@zodios/core": "^10.9.6",

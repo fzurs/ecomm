@@ -8,9 +8,8 @@
     "lint": "turbo lint",
     "generate:schema": "python apps/api/manage.py spectacular --file packages/api-client/schema.yml",
     "generate:client": "pnpm --filter api-client run generate:client",
-    "generate:api": "pnpm generate:schema && pnpm generate:client"
+    "generate:api-client": "pnpm generate:schema && pnpm generate:client"
   },
-  "packageManager": "pnpm@10.13.1",
   "devDependencies": {
     "turbo": "^2.5.8"
   }
