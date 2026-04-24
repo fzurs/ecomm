@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "generate:client": "openapi-zod-client schema.yml -o src/index.ts --export-schemas"
+    "generate:client": "openapi-zod-client schema.yml -o src/index.ts --export-schemas && pnpm prettier --write src/index.ts"
   },
   "dependencies": {
     "@zodios/core": "^10.9.6",
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",
+    "@workspace/prettier-config": "workspace:^",
     "openapi-zod-client": "^1.18.3"
   },
   "exports": {
