@@ -6,7 +6,9 @@ import baseConfig from "@workspace/prettier-config/base.js"
  */
 const config = {
   ...baseConfig,
+  printWidth: 60,
   trailingComma: "all",
+  singleQuote: true,
 }
 
 export default config
