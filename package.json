@@ -19,5 +19,6 @@
   },
   "dependencies": {
     "prettier-plugin-tailwindcss": "0.0.0-insiders.f7d2598"
-  }
+  },
+  "packageManager": "pnpm@10.33.0"
 }

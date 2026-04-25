@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Calendar,
   Inbox,
@@ -18,6 +20,7 @@ import {
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
 import { IconInnerShadowTop } from "@tabler/icons-react";
+import Link from "next/link";
 
 const items = [
   {
@@ -57,10 +60,10 @@ export function AppSidebar() {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="#">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -73,10 +76,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
