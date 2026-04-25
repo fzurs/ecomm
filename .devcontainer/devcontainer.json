@@ -1,12 +1,12 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/postgres
 {
-	"name": "Python & PostgreSQL & Node.js",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "api",
-	"workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
-	"features": {
-		"ghcr.io/devcontainers/features/node:1": {}
-	},
-	"forwardPorts": [8000, 3000, 3001]
+  "name": "Python & PostgreSQL & Node.js",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "api",
+  "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "forwardPorts": [8000, 3000, 3001]
 }
