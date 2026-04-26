@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -19,6 +19,7 @@
     "@types/js-cookie": "^3.0.6",
     "@workspace/api-client": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "@workspace/next-config": "workspace:*",
     "axios": "^1.15.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "^1.11.0",

@@ -1,1 +1,1 @@
-export { default } from "@workspace/prettier-config/tailwind.js"
+export { default } from "@workspace/prettier-config/tailwind"

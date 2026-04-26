@@ -6,7 +6,7 @@ export default function Page() {
     <PageHeader>
       <PageTitle>Home</PageTitle>
       <PageAction>
-        <Button size="sm">Quick create</Button>
+        <Button size="sm">Quick create !!!</Button>
       </PageAction>
     </PageHeader>
   );

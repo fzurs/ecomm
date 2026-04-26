@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    "./base.js": "./base.js",
-    "./tailwind.js": "./tailwind.js",
+    ".": "./base.js",
     "./tailwind": "./tailwind.js"
   },
   "publishConfig": {

@@ -1,4 +1,4 @@
-import baseConfig from "@workspace/prettier-config/base.js"
+import baseConfig from "@workspace/prettier-config"
 
 /**
  * @see https://prettier.io/docs/configuration
