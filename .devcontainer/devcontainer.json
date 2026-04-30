@@ -8,5 +8,16 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {}
   },
-  "forwardPorts": [8000, 3000, 3001]
+  "forwardPorts": [
+    8000,
+    3000,
+    3001
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
 }
