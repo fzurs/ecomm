@@ -26,7 +26,7 @@ import {
 } from "nuqs";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
-import z from "zod";
+import { z } from "zod";
 import { ProductForm } from "./form";
 import * as u from "@/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
@@ -103,13 +103,7 @@ export const columns = [
     accessorKey: "price",
     header: "Price",
     cell: ({ row }) => <div className="text-blue-500">{row.original.price}</div>,
-    enableColumnFilter: true,
     enableSorting: true,
-    meta: {
-      variant: "search",
-      filterParser: parseAsString,
-      placeholder: "Search for a product...",
-    },
   },
 ] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];
 

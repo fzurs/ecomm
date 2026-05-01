@@ -43,7 +43,7 @@ import {
 } from "@workspace/ui/components/form";
 import { Input } from "@workspace/ui/components/input";
 
-import { columns } from "./extra-columns";
+import { columns } from "./columns";
 
 export default function Page() {
   const pagination = usePaginationValues();
