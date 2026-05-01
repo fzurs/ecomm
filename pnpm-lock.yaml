@@ -42,9 +42,6 @@ importers:
       '@workspace/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
-      '@workspace/next-config':
-        specifier: workspace:*
-        version: link:../../packages/next-config
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -104,11 +101,10 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  apps/api: {}
+
   apps/web:
     dependencies:
-      '@workspace/next-config':
-        specifier: workspace:*
-        version: link:../../packages/next-config
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -204,8 +200,6 @@ importers:
       typescript-eslint:
         specifier: ^8.59.0
         version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.3)
-
-  packages/next-config: {}
 
   packages/prettier-config:
     dependencies:
