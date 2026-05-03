@@ -6,7 +6,7 @@
   "service": "api",
   "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/node:2": {}
   },
   "forwardPorts": [
     8000,
