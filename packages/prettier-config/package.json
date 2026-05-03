@@ -1,0 +1,18 @@
+{
+  "name": "@workspace/prettier-config",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./base.js",
+    "./tailwind": "./tailwind.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "prettier": "3.8.1"
+  },
+  "dependencies": {
+    "prettier-plugin-tailwindcss": "0.0.0-insiders.f7d2598"
+  }
+}
