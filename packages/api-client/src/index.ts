@@ -1,19 +1,15 @@
-import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core"
-import { z } from "zod"
+import {
+  makeApi,
+  Zodios,
+  type ZodiosOptions,
+} from '@zodios/core'
+import { z } from 'zod'
 
 const Category = z
   .object({
     id: z.number().int(),
     name: z.string().max(255),
     description: z.string().nullish(),
-  })
-  .passthrough()
-const PaginatedCategoryList = z
-  .object({
-    count: z.number().int(),
-    next: z.string().url().nullish(),
-    previous: z.string().url().nullish(),
-    results: z.array(Category),
   })
   .passthrough()
 const PatchedCategory = z
@@ -25,11 +21,11 @@ const PatchedCategory = z
   .partial()
   .passthrough()
 const StatusEnum = z.enum([
-  "draft",
-  "active",
-  "inactive",
-  "out_of_stock",
-  "discontinued",
+  'draft',
+  'active',
+  'inactive',
+  'out_of_stock',
+  'discontinued',
 ])
 const Product = z
   .object({
@@ -39,7 +35,12 @@ const Product = z
     name: z.string().max(255),
     description: z.string().nullish(),
     status: StatusEnum.optional(),
-    price: z.number().int().gte(0).lte(2147483647).nullish(),
+    price: z
+      .number()
+      .int()
+      .gte(0)
+      .lte(2147483647)
+      .nullish(),
   })
   .passthrough()
 const PaginatedProductList = z
@@ -58,14 +59,18 @@ const PatchedProduct = z
     name: z.string().max(255),
     description: z.string().nullable(),
     status: StatusEnum,
-    price: z.number().int().gte(0).lte(2147483647).nullable(),
+    price: z
+      .number()
+      .int()
+      .gte(0)
+      .lte(2147483647)
+      .nullable(),
   })
   .partial()
   .passthrough()
 
 export const schemas = {
   Category,
-  PaginatedCategoryList,
   PatchedCategory,
   StatusEnum,
   Product,
@@ -75,151 +80,141 @@ export const schemas = {
 
 const endpoints = makeApi([
   {
-    method: "get",
-    path: "/categories/",
-    alias: "categories_list",
-    requestFormat: "json",
+    method: 'get',
+    path: '/categories/',
+    alias: 'categories_list',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "limit",
-        type: "Query",
-        schema: z.number().int().optional(),
-      },
-      {
-        name: "offset",
-        type: "Query",
-        schema: z.number().int().optional(),
-      },
-      {
-        name: "search",
-        type: "Query",
+        name: 'search',
+        type: 'Query',
         schema: z.string().optional(),
       },
     ],
-    response: PaginatedCategoryList,
+    response: z.array(Category),
   },
   {
-    method: "post",
-    path: "/categories/",
-    alias: "categories_create",
-    requestFormat: "json",
+    method: 'post',
+    path: '/categories/',
+    alias: 'categories_create',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: Category,
       },
     ],
     response: Category,
   },
   {
-    method: "get",
-    path: "/categories/:id/",
-    alias: "categories_retrieve",
-    requestFormat: "json",
+    method: 'get',
+    path: '/categories/:id/',
+    alias: 'categories_retrieve',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: Category,
   },
   {
-    method: "put",
-    path: "/categories/:id/",
-    alias: "categories_update",
-    requestFormat: "json",
+    method: 'put',
+    path: '/categories/:id/',
+    alias: 'categories_update',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: Category,
       },
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: Category,
   },
   {
-    method: "patch",
-    path: "/categories/:id/",
-    alias: "categories_partial_update",
-    requestFormat: "json",
+    method: 'patch',
+    path: '/categories/:id/',
+    alias: 'categories_partial_update',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: PatchedCategory,
       },
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: Category,
   },
   {
-    method: "delete",
-    path: "/categories/:id/",
-    alias: "categories_destroy",
-    requestFormat: "json",
+    method: 'delete',
+    path: '/categories/:id/',
+    alias: 'categories_destroy',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: z.void(),
   },
   {
-    method: "get",
-    path: "/products/",
-    alias: "products_list",
-    requestFormat: "json",
+    method: 'get',
+    path: '/products/',
+    alias: 'products_list',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "category",
-        type: "Query",
+        name: 'category',
+        type: 'Query',
         schema: z.array(z.number().int()).optional(),
       },
       {
-        name: "limit",
-        type: "Query",
+        name: 'limit',
+        type: 'Query',
         schema: z.number().int().optional(),
       },
       {
-        name: "offset",
-        type: "Query",
+        name: 'offset',
+        type: 'Query',
         schema: z.number().int().optional(),
       },
       {
-        name: "ordering",
-        type: "Query",
+        name: 'ordering',
+        type: 'Query',
         schema: z.string().optional(),
       },
       {
-        name: "search",
-        type: "Query",
+        name: 'search',
+        type: 'Query',
         schema: z.string().optional(),
       },
       {
-        name: "status",
-        type: "Query",
+        name: 'status',
+        type: 'Query',
         schema: z
           .array(
             z.enum([
-              "active",
-              "discontinued",
-              "draft",
-              "inactive",
-              "out_of_stock",
+              'active',
+              'discontinued',
+              'draft',
+              'inactive',
+              'out_of_stock',
             ]),
           )
           .optional(),
@@ -228,80 +223,80 @@ const endpoints = makeApi([
     response: PaginatedProductList,
   },
   {
-    method: "post",
-    path: "/products/",
-    alias: "products_create",
-    requestFormat: "json",
+    method: 'post',
+    path: '/products/',
+    alias: 'products_create',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: Product,
       },
     ],
     response: Product,
   },
   {
-    method: "get",
-    path: "/products/:id/",
-    alias: "products_retrieve",
-    requestFormat: "json",
+    method: 'get',
+    path: '/products/:id/',
+    alias: 'products_retrieve',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: Product,
   },
   {
-    method: "put",
-    path: "/products/:id/",
-    alias: "products_update",
-    requestFormat: "json",
+    method: 'put',
+    path: '/products/:id/',
+    alias: 'products_update',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: Product,
       },
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: Product,
   },
   {
-    method: "patch",
-    path: "/products/:id/",
-    alias: "products_partial_update",
-    requestFormat: "json",
+    method: 'patch',
+    path: '/products/:id/',
+    alias: 'products_partial_update',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "body",
-        type: "Body",
+        name: 'body',
+        type: 'Body',
         schema: PatchedProduct,
       },
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
     response: Product,
   },
   {
-    method: "delete",
-    path: "/products/:id/",
-    alias: "products_destroy",
-    requestFormat: "json",
+    method: 'delete',
+    path: '/products/:id/',
+    alias: 'products_destroy',
+    requestFormat: 'json',
     parameters: [
       {
-        name: "id",
-        type: "Path",
+        name: 'id',
+        type: 'Path',
         schema: z.number().int(),
       },
     ],
@@ -311,6 +306,9 @@ const endpoints = makeApi([
 
 export const api = new Zodios(endpoints)
 
-export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
+export function createApiClient(
+  baseUrl: string,
+  options?: ZodiosOptions,
+) {
   return new Zodios(baseUrl, endpoints, options)
 }

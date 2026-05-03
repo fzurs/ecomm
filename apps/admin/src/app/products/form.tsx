@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import z from "zod";
+import z from "zod"
 import {
   Form,
   FormControl,
@@ -9,31 +9,38 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@workspace/ui/components/form";
-import { SubmitHandler, UseFormReturn } from "react-hook-form";
-import { Input } from "@workspace/ui/components/input";
-import React, { useState } from "react";
+} from "@workspace/ui/components/form"
+import { SubmitHandler, UseFormReturn } from "react-hook-form"
+import { Input } from "@workspace/ui/components/input"
+import * as React from "react"
+import { cn } from "@workspace/ui/lib/utils"
+import { schemas } from "@workspace/api-client"
+import { useCategories } from "@/lib/query-options"
+import { formatEnumLabel } from "@/lib/utils"
+import { Textarea } from "@workspace/ui/components/textarea"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@workspace/ui/components/popover";
-import { Check, ChevronDown } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@workspace/ui/components/command";
-import { cn } from "@workspace/ui/lib/utils";
-import { schemas } from "@workspace/api-client";
-import { Button } from "@workspace/ui/components/button";
-import { useInfiniteCategories } from "@/lib/query-options";
-import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
-import { formatEnumLabel } from "@/lib/utils";
-import { Textarea } from "@workspace/ui/components/textarea";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  useComboboxAnchor,
+} from "@workspace/ui/components/combobox"
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@workspace/ui/components/item"
 
 export function ProductForm({
   form,
@@ -42,8 +49,8 @@ export function ProductForm({
   className,
   ...props
 }: Omit<React.ComponentProps<"form">, "onSubmit"> & {
-  form: UseFormReturn<z.infer<typeof schemas.Product>>;
-  onSubmit: SubmitHandler<z.infer<typeof schemas.Product>>;
+  form: UseFormReturn<z.infer<typeof schemas.Product>>
+  onSubmit: SubmitHandler<z.infer<typeof schemas.Product>>
 }) {
   return (
     <Form {...form}>
@@ -84,91 +91,75 @@ export function ProductForm({
           control={form.control}
           name="category_id"
           render={function Render({ field }) {
-            const [open, setOpen] = useState(false);
-            const [selectedCategory, setSelectedCategory] = useState<z.infer<
-              typeof schemas.Category
-            > | null>(form.getValues().category);
+            const anchor = useComboboxAnchor()
+            const { data: categories } = useCategories()
+            type Category = z.infer<typeof schemas.Category>
+            const [value, setValue] = React.useState(form.getValues().category)
 
             return (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className="justify-between"
-                        aria-expanded={open}
-                      >
-                        {selectedCategory?.name ?? "Assing a category..."}
-                        <ChevronDown className="opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0">
-                    <CategoryList
-                      open={open}
-                      selectedCategory={selectedCategory}
-                      setSelectedCategory={setSelectedCategory}
-                      setOpen={setOpen}
-                      onChange={field.onChange}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Combobox
+                  items={categories}
+                  defaultValue={form.getValues().category}
+                  value={value}
+                  onValueChange={(value: Category | null) => {
+                    field.onChange(value?.id)
+                    setValue(value)
+                  }}
+                  itemToStringLabel={(value: Category) => value.name}
+                >
+                  <ComboboxInput placeholder="Assing a category..." showClear />
+                  <ComboboxContent ref={anchor}>
+                    <ComboboxEmpty className="py-6">
+                      No categories found.
+                    </ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: Category) => (
+                        <ComboboxItem key={item.id} value={item}>
+                          <Item size="sm" className="p-0">
+                            <ItemContent>
+                              <ItemTitle>{item.name}</ItemTitle>
+                              <ItemDescription>
+                                {item.description}
+                              </ItemDescription>
+                            </ItemContent>
+                          </Item>
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
                 <FormDescription />
                 <FormMessage />
               </FormItem>
-            );
+            )
           }}
         />
         <FormField
           name="status"
           control={form.control}
-          render={function Render({ field }) {
-            const [open, setOpen] = React.useState(false);
-
-            return (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl>
-                  <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="justify-between"
-                        aria-expanded={open}
-                      >
-                        {formatEnumLabel(field.value as string) ??
-                          "Change status of product..."}
-                        <ChevronDown className="opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandList>
-                          <CommandGroup>
-                            {schemas.StatusEnum.options.map((status) => (
-                              <CommandCheckboxItem
-                                key={status}
-                                value={status}
-                                onSelect={() => {
-                                  field.onChange(status);
-                                  setOpen(false);
-                                }}
-                                checked={field.value === status}
-                              >
-                                {formatEnumLabel(status)}
-                              </CommandCheckboxItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <SelectTrigger className="w-full max-w-48">
+                    <SelectValue placeholder="Status of product..." />
+                  </SelectTrigger>
                 </FormControl>
-              </FormItem>
-            );
-          }}
+                <SelectContent>
+                  <SelectGroup>
+                    {schemas.StatusEnum.options.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {formatEnumLabel(status)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormItem>
+          )}
         />
         <FormField
           control={form.control}
@@ -183,92 +174,20 @@ export function ProductForm({
                     {...field}
                     value={field.value ?? undefined}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      const numberValue = value ? Number(value) : undefined;
-                      field.onChange(numberValue);
+                      const value = e.target.value
+                      const numberValue = value ? Number(value) : undefined
+                      field.onChange(numberValue)
                     }}
                   />
                 </FormControl>
                 <FormDescription>Price of product in dollars</FormDescription>
                 <FormMessage />
               </FormItem>
-            );
+            )
           }}
         />
         {children}
       </form>
     </Form>
-  );
-}
-
-export function CategoryList({
-  open,
-  setOpen,
-  selectedCategory,
-  setSelectedCategory,
-  onChange,
-}: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  selectedCategory: z.infer<typeof schemas.Category> | null;
-  setSelectedCategory: (
-    category: z.infer<typeof schemas.Category> | null,
-  ) => void;
-  onChange?: (id: z.infer<typeof schemas.Category>["id"] | null) => void;
-}) {
-  const [search, setSearch] = useState("");
-  const {
-    data: categories,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteCategories({ search, open });
-  const onScroll = useInfiniteScroll({ hasNextPage, fetchNextPage });
-
-  return (
-    <Command shouldFilter={false}>
-      <CommandInput
-        placeholder="Search for a Category..."
-        value={search}
-        onValueChange={setSearch}
-      />
-      <CommandList onScroll={onScroll}>
-        <CommandEmpty>No category results.</CommandEmpty>
-        <CommandGroup>
-          {categories.map((category) => {
-            const selected = category.id === selectedCategory?.id;
-            return (
-              <CommandCheckboxItem
-                checked={selected}
-                key={category.id}
-                onSelect={() => {
-                  const newCategory = selected ? null : category;
-                  setSelectedCategory(newCategory);
-                  onChange?.(newCategory?.id ?? null);
-                  if (!newCategory) {
-                    setOpen(false);
-                  }
-                }}
-                value={category.id.toString()}
-              >
-                {category.name}
-              </CommandCheckboxItem>
-            );
-          })}
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  );
-}
-
-function CommandCheckboxItem({
-  children,
-  checked,
-  ...props
-}: React.ComponentProps<typeof CommandItem> & { checked?: boolean }) {
-  return (
-    <CommandItem {...props}>
-      {children}
-      <Check className={cn("ml-auto", checked ? "opacity-100" : "opacity-0")} />
-    </CommandItem>
-  );
+  )
 }

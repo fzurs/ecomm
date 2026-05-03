@@ -1,5 +1,5 @@
-import { PageAction, PageHeader, PageTitle } from "@/components/page-header";
-import { Button } from "@workspace/ui/components/button";
+import { PageAction, PageHeader, PageTitle } from "@/components/page-header"
+import { Button } from "@workspace/ui/components/button"
 
 export default function Page() {
   return (
@@ -9,5 +9,5 @@ export default function Page() {
         <Button size="sm">Quick create !!!</Button>
       </PageAction>
     </PageHeader>
-  );
+  )
 }

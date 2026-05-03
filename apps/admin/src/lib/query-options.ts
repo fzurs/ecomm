@@ -44,7 +44,7 @@ export function getProductsQueryOptions(
   });
 }
 export function useProducts(
-  params: Parameters<typeof getProductsQueryOptions>[0],
+  params: Parameters<typeof getProductsQueryOptions>[0] = {},
 ) {
   return useQuery(getProductsQueryOptions(params));
 }
@@ -61,7 +61,7 @@ export function getCategoriesQueryOptions(
   });
 }
 export function useCategories(
-  params: Parameters<typeof getCategoriesQueryOptions>[0],
+  params: Parameters<typeof getCategoriesQueryOptions>[0] = {},
 ) {
   return useQuery(getCategoriesQueryOptions(params));
 }
@@ -147,7 +147,7 @@ export function getCategoriesInfiniteQueryOptions({
     queryKey: [apiClient.categories_list.name, search],
     queryFn: ({ pageParam }) =>
       apiClient.categories_list({
-        queries: { search, offset: pageParam * 25, limit: 25 },
+        queries: { search },
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>

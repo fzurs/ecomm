@@ -65,16 +65,7 @@ export const columns = [
     meta: {
       variant: "multiSelect",
       filterParser: parseAsArrayOf(parseAsInteger),
-      options: {
-        getItemsInfiniteQueryOptions: getCategoriesInfiniteQueryOptions,
-        getItemQueryOptions: (value) => getCategoryQueryOptions(Number(value)),
-        transformItemToOption: (item: z.infer<typeof schemas.Category>) => {
-          return {
-            label: item.name,
-            value: item.id,
-          };
-        },
-      },
+      options: [],
     },
   },
   {
