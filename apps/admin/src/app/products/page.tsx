@@ -47,10 +47,15 @@ import { useProducts } from "@/lib/query-options"
 
 export default function Page() {
   const pagination = usePaginationValues()
-  const columnFilters = useColumnFilterValues(columns)
+  const { name: search, ...columnFilters } = useColumnFilterValues(columns)
   const sorting = useSortingValues()
 
-  const { data } = useProducts({ ...pagination, ...columnFilters, ...sorting })
+  const { data } = useProducts({
+    ...pagination,
+    ...columnFilters,
+    ...sorting,
+    search,
+  })
 
   const table = useDataTable({ data, columns })
 
