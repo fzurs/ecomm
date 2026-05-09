@@ -1,7 +1,7 @@
-import { flexRender, type Table as TanstackTable } from "@tanstack/react-table";
-import type * as React from "react";
+import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
+import type * as React from "react"
 
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import {
   Table,
   TableBody,
@@ -9,18 +9,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@workspace/ui/components/table";
-import { cn } from "@workspace/ui/lib/utils";
-import { getCommonPinningStyles } from "@/lib/data-table";
-import { DataTableToolbar } from "./data-table-toolbar";
-import { DataTableColumnHeader } from "./data-table-column-header";
+} from "@workspace/ui/components/table"
+import { cn } from "@workspace/ui/lib/utils"
+import { DataTableToolbar } from "./data-table-toolbar"
+import { DataTableColumnHeader } from "./data-table-column-header"
 
 export function DataTable<TData>({
   table,
   className,
+  children,
 }: {
-  className?: string;
-  table: TanstackTable<TData>;
+  className?: string
+  table: TanstackTable<TData>
+  children?: React.ReactNode
 }) {
   return (
     <div
@@ -29,7 +30,7 @@ export function DataTable<TData>({
         className
       )}
     >
-      <DataTableToolbar table={table} />
+      {children || <DataTableToolbar table={table} />}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>
@@ -37,13 +38,7 @@ export function DataTable<TData>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      style={{
-                        ...getCommonPinningStyles({ column: header.column }),
-                      }}
-                    >
+                    <TableHead key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder ? null : typeof header.column
                           .columnDef.header === "function" ? (
                         flexRender(
@@ -71,12 +66,7 @@ export function DataTable<TData>({
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        style={{
-                          ...getCommonPinningStyles({ column: cell.column }),
-                        }}
-                      >
+                      <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -103,5 +93,5 @@ export function DataTable<TData>({
         <DataTablePagination table={table} />
       </div>
     </div>
-  );
+  )
 }

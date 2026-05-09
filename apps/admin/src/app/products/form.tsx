@@ -15,8 +15,8 @@ import { Input } from "@workspace/ui/components/input"
 import * as React from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { schemas } from "@workspace/api-client"
-import { useCategories } from "@/lib/query-options"
-import { formatEnumLabel } from "@/lib/utils"
+import { getCategoriesQueryOptions } from "@/lib/query-options"
+import { snakeCaseToTitle } from "@/lib/utils"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Select,
@@ -41,6 +41,7 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@workspace/ui/components/item"
+import { useQuery } from "@tanstack/react-query"
 
 export function ProductForm({
   form,
@@ -91,37 +92,47 @@ export function ProductForm({
           control={form.control}
           name="category_id"
           render={function Render({ field }) {
-            const anchor = useComboboxAnchor()
-            const { data: categories } = useCategories()
-            type Category = z.infer<typeof schemas.Category>
-            const [value, setValue] = React.useState(form.getValues().category)
+            const [open, setOpen] = React.useState(false)
+            const [value, setValue] = React.useState<z.infer<
+              typeof schemas.Category
+            > | null>(form.getValues().category)
+
+            const { data: categories } = useQuery({
+              ...getCategoriesQueryOptions(),
+              enabled: open,
+            })
 
             return (
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <Combobox
+                  autoHighlight
                   items={categories}
-                  defaultValue={form.getValues().category}
+                  itemToStringValue={(item: z.infer<typeof schemas.Category>) =>
+                    item.id.toString()
+                  }
+                  // es necesario que el value sea el objeto para poder acceder al name
+                  itemToStringLabel={(category) => category.name}
+                  isItemEqualToValue={(c1, c2) => c1.id === c2.id}
                   value={value}
-                  onValueChange={(value: Category | null) => {
-                    field.onChange(value?.id)
+                  onValueChange={(value) => {
                     setValue(value)
+                    field.onChange(value?.id ?? null)
                   }}
-                  itemToStringLabel={(value: Category) => value.name}
+                  open={open}
+                  onOpenChange={setOpen}
                 >
-                  <ComboboxInput placeholder="Assing a category..." showClear />
-                  <ComboboxContent ref={anchor}>
-                    <ComboboxEmpty className="py-6">
-                      No categories found.
-                    </ComboboxEmpty>
+                  <ComboboxInput placeholder="Assing a item" showClear />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No categories found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item: Category) => (
-                        <ComboboxItem key={item.id} value={item}>
+                      {(category) => (
+                        <ComboboxItem key={category.id} value={category}>
                           <Item size="sm" className="p-0">
                             <ItemContent>
-                              <ItemTitle>{item.name}</ItemTitle>
+                              <ItemTitle>{category.name}</ItemTitle>
                               <ItemDescription>
-                                {item.description}
+                                {category.description}
                               </ItemDescription>
                             </ItemContent>
                           </Item>
@@ -152,7 +163,7 @@ export function ProductForm({
                   <SelectGroup>
                     {schemas.StatusEnum.options.map((status) => (
                       <SelectItem key={status} value={status}>
-                        {formatEnumLabel(status)}
+                        {snakeCaseToTitle(status)}
                       </SelectItem>
                     ))}
                   </SelectGroup>

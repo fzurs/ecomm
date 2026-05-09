@@ -1,13 +1,9 @@
-import { apiClient } from "@/lib/api-client";
-import {
-  getCategoriesInfiniteQueryOptions,
-  getCategoryQueryOptions,
-} from "@/lib/query-options";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ColumnDef } from "@tanstack/react-table";
-import { schemas } from "@workspace/api-client";
-import { Button } from "@workspace/ui/components/button";
+import { apiClient } from "@/lib/api-client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { ColumnDef } from "@tanstack/react-table"
+import { schemas } from "@workspace/api-client"
+import { Button } from "@workspace/ui/components/button"
 import {
   Drawer,
   DrawerClose,
@@ -16,33 +12,31 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@workspace/ui/components/drawer";
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
+} from "@workspace/ui/components/drawer"
+import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import {
   parseAsArrayOf,
   parseAsInteger,
   parseAsString,
   parseAsStringEnum,
-} from "nuqs";
-import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { ProductForm } from "./form";
-import * as u from "@/lib/utils";
-import { Badge } from "@workspace/ui/components/badge";
+} from "nuqs"
+import { useId, useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { ProductForm } from "./form"
+import { snakeCaseToTitle } from "@/lib/utils"
+import { Badge } from "@workspace/ui/components/badge"
 
 export const columns = [
   {
     id: "name",
-    accessorKey: "name",
     header: "Name",
+    accessorKey: "name", // este accessor key hace que mi filtro desaparesca cuando no esta (?)
     cell: ({ row }) => <TableCellViewer original={row.original} />,
     enableColumnFilter: true,
     enableSorting: true,
     meta: {
-      variant: "search",
-      filterParser: parseAsString,
-      placeholder: "Search for a product...",
+      filter: { variant: "text", parser: parseAsString.withDefault("") },
     },
   },
   {
@@ -50,80 +44,90 @@ export const columns = [
     header: "Description",
     cell: ({ row }) => {
       return (
-        <div className="text-muted-foreground text-sm">
+        <div className="text-sm text-muted-foreground">
           {row.original.description}
         </div>
-      );
+      )
     },
   },
   {
     id: "category",
     accessorKey: "Category",
     header: "Category",
-    cell: ({ row }) => <div>{row.original.category?.id}</div>,
+    cell: ({ row }) =>
+      row.original.category && (
+        <Badge variant="secondary">{row.original.category.name}</Badge>
+      ),
     enableColumnFilter: true,
     meta: {
-      variant: "multiSelect",
-      filterParser: parseAsArrayOf(parseAsInteger),
-      options: [],
+      filter: {
+        variant: "async-multi-select",
+        dataSource: "categories",
+        parser: parseAsArrayOf(parseAsInteger).withDefault([]),
+      },
     },
   },
   {
     id: "status",
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => (
-      <Badge variant={"outline"}>
-        {u.formatEnumLabel(row.original.status as string)}
-      </Badge>
-    ),
+    cell: ({ row }) =>
+      row.original.status && (
+        <Badge variant={"outline"}>
+          {snakeCaseToTitle(row.original.status)}
+        </Badge>
+      ),
     enableColumnFilter: true,
     meta: {
-      variant: "multiSelect",
-      filterParser: parseAsArrayOf(
-        parseAsStringEnum(schemas.StatusEnum.options),
-      ),
-      options: schemas.StatusEnum.options.map((option) => ({
-        label: option,
-        value: option,
-      })),
+      filter: {
+        variant: "multi-select",
+        options: schemas.StatusEnum.options.map((status) => ({
+          label: snakeCaseToTitle(status),
+          value: status,
+        })),
+        parser: parseAsArrayOf(
+          parseAsStringEnum(schemas.StatusEnum.options)
+        ).withDefault([]),
+      },
     },
   },
   {
     id: "price",
     accessorKey: "price",
     header: "Price",
-    cell: ({ row }) => <div className="text-blue-500">{row.original.price}</div>,
+    cell: ({ row }) => (
+      <div className="text-blue-500">{row.original.price}</div>
+    ),
     enableSorting: true,
   },
-] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[];
+] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[]
 
 function TableCellViewer({
   original: item,
 }: {
-  original: z.infer<typeof schemas.Product>;
+  original: z.infer<typeof schemas.Product>
 }) {
-  const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
+  const isMobile = useIsMobile()
+  const queryClient = useQueryClient()
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(schemas.Product),
     values: item,
-  });
-  const formId = useId();
+  })
+  const formId = useId()
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: z.infer<typeof schemas.Product>) =>
       apiClient.products_update(data, { params: { id: item.id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+      setOpen(false)
     },
-  });
+  })
 
-  const onSubmit = (data: z.infer<typeof schemas.Product>) => mutate(data);
+  const onSubmit = (data: z.infer<typeof schemas.Product>) => mutate(data)
 
   return (
     <Drawer
@@ -157,5 +161,5 @@ function TableCellViewer({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
+  )
 }

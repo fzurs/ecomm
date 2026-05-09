@@ -6,7 +6,7 @@ from .filters import ProductFilter
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by("name")
     serializer_class = ProductSerializer
     filter_backends = [
         filters.SearchFilter,
@@ -19,7 +19,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.order_by("name")
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]

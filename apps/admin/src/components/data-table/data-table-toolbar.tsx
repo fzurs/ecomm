@@ -1,40 +1,35 @@
-"use client";
+"use client"
 
-import type { Column, Table } from "@tanstack/react-table";
-import { LucideIcon, SearchIcon, TextIcon, X } from "lucide-react";
-import * as React from "react";
+import type { Column, Table } from "@tanstack/react-table"
+import * as React from "react"
 
-import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
-import { DataTableDateFilter } from "@/components/data-table/data-table-date-filter";
-import { DataTableSliderFilter } from "@/components/data-table/data-table-slider-filter";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
+import { Button } from "@workspace/ui/components/button"
+
+import { cn } from "@workspace/ui/lib/utils"
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@workspace/ui/components/input-group";
-import { cn } from "@workspace/ui/lib/utils";
-import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
+  ComboboxFilter,
+  AsyncComboboxFitler,
+  TextFilter,
+} from "./data-table-filter-variants"
+import { X } from "lucide-react"
 
 export function DataTableToolbar<TData>({
   table,
   className,
   ...props
 }: React.ComponentProps<"div"> & {
-  table: Table<TData>;
+  table: Table<TData>
 }) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters.length > 0
 
-  const columns = React.useMemo(
-    () => table.getAllColumns().filter((column) => column.getCanFilter()),
-    [table],
-  );
+  const columns = table
+    .getAllColumns()
+    .filter((column) => column.getCanFilter())
 
   const onReset = React.useCallback(() => {
-    table.resetColumnFilters();
-  }, [table]);
+    table.resetColumnFilters()
+  }, [table])
 
   return (
     <div
@@ -62,135 +57,39 @@ export function DataTableToolbar<TData>({
         <DataTableViewOptions table={table} />
       </div>
     </div>
-  );
+  )
 }
 
 function DataTableToolbarFilter<TData>({
   column,
 }: {
-  column: Column<TData>;
-  table: Table<TData>;
+  column: Column<TData>
+  table: Table<TData>
 }) {
-  {
-    const columnMeta = column.columnDef.meta;
+  const filterOpts = column.columnDef.meta?.filter
 
-    const onFilterRender = React.useCallback(() => {
-      if (!columnMeta?.variant) return null;
-
-      switch (columnMeta.variant) {
-        case "search":
-          return (
-            <DataTableTextFilter
-              icon={SearchIcon}
-              column={column}
-              placeholder={columnMeta.placeholder ?? columnMeta.label}
-            />
-          );
-
-        case "text":
-          return (
-            <DataTableTextFilter
-              column={column}
-              placeholder={columnMeta.placeholder ?? columnMeta.label}
-            />
-          );
-
-        case "number":
-          return (
-            <div className="relative">
-              <Input
-                type="number"
-                inputMode="numeric"
-                placeholder={columnMeta.placeholder ?? columnMeta.label}
-                value={(column.getFilterValue() as string) ?? ""}
-                onChange={(event) => column.setFilterValue(event.target.value)}
-                className={cn("h-8 w-[120px]", columnMeta.unit && "pr-8")}
-              />
-              {columnMeta.unit && (
-                <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm">
-                  {columnMeta.unit}
-                </span>
-              )}
-            </div>
-          );
-
-        case "range":
-          return (
-            <DataTableSliderFilter
-              column={column}
-              title={columnMeta.label ?? column.id}
-            />
-          );
-
-        case "date":
-        case "dateRange":
-          return (
-            <DataTableDateFilter
-              column={column}
-              title={columnMeta.label ?? column.id}
-              multiple={columnMeta.variant === "dateRange"}
-            />
-          );
-
-        case "select":
-        case "multiSelect":
-          return (
-            <DataTableFacetedFilter
-              column={column}
-              title={columnMeta.label ?? column.id}
-              options={columnMeta.options}
-              multiple={columnMeta.variant === "multiSelect"}
-            />
-          );
-
-        default:
-          return null;
-      }
-    }, [column, columnMeta]);
-
-    return onFilterRender();
+  switch (filterOpts?.variant) {
+    case "text":
+      return <TextFilter column={column} />
+    case "select":
+    case "multi-select":
+      return (
+        <ComboboxFilter
+          column={column}
+          multiple={filterOpts.variant === "multi-select"}
+          options={filterOpts.options}
+        />
+      )
+    case "async-select":
+    case "async-multi-select":
+      return (
+        <AsyncComboboxFitler
+          column={column}
+          multiple={filterOpts.variant === "async-multi-select"}
+          source={filterOpts.dataSource}
+        />
+      )
+    default:
+      return null
   }
-}
-
-function DataTableTextFilter<TData>({
-  column,
-  placeholder,
-  icon: TextIconProp = TextIcon,
-}: {
-  column: Column<TData>;
-  placeholder?: string;
-  icon?: LucideIcon;
-}) {
-  const filterValue = (column.getFilterValue() as string) ?? "";
-  const [textValue, setTextValue] = React.useState(filterValue);
-  // actualizamos el estado cuando se aplique un cambio
-  // en el valor por fuera de este componente
-  React.useEffect(() => {
-    setTextValue(filterValue);
-  }, [filterValue]);
-
-  const debouncedSetFilterChange = useDebouncedCallback(
-    (value: string) => column.setFilterValue(value),
-    300,
-  );
-  const onTextChange = React.useCallback(
-    (value: string) => {
-      setTextValue(value);
-      debouncedSetFilterChange(value);
-    },
-    [setTextValue, debouncedSetFilterChange],
-  );
-
-  return (
-    <InputGroup className="max-w-72">
-      <InputGroupInput
-        placeholder={placeholder}
-        value={textValue}
-        onChange={(event) => onTextChange(event.target.value)}
-      />
-      <InputGroupAddon>
-        <TextIconProp />
-      </InputGroupAddon>
-    </InputGroup>
-  );
 }

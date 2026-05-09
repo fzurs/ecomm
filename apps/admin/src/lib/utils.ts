@@ -1,23 +1,39 @@
-import { PaginationState, ColumnDef } from "@tanstack/react-table";
+export function formatDate(
+  date: Date | string | number | undefined,
+  opts: Intl.DateTimeFormatOptions = {}
+) {
+  if (!date) return ""
 
-export function getPageCount(count: number, pageSize: number) {
-  return Math.ceil(count / pageSize);
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      month: opts.month ?? "long",
+      day: opts.day ?? "numeric",
+      year: opts.year ?? "numeric",
+      ...opts,
+    }).format(new Date(date))
+  } catch {
+    return ""
+  }
 }
 
-export function toLimitOffset({ pageIndex, pageSize }: PaginationState) {
-  return {
-    limit: pageSize,
-    offset: pageIndex * pageSize,
-  };
-}
-
-export function formatEnumLabel(value: string): string {
+// soy un vago que no me gusta declarar labels para el status enum
+export function snakeCaseToTitle(value: string) {
   return value
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(" ")
 }
 
-export function defineColumns<T>() {
-  return <const C extends readonly ColumnDef<T>[]>(columns: C) => columns;
+type NullToUndefined<T> = {
+  [K in keyof T]: null extends T[K] ? Exclude<T[K], null> | undefined : T[K]
+}
+
+export function nullsToUndefined<T extends Record<string, any>>(
+  params: T
+): NullToUndefined<T> {
+  const result = {} as NullToUndefined<T>
+  for (const key of Object.keys(params) as (keyof T)[]) {
+    result[key] = (params[key] === null ? undefined : params[key]) as any
+  }
+  return result
 }

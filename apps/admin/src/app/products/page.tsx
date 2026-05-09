@@ -1,27 +1,26 @@
-"use client";
+"use client"
 
-import { DataTable } from "@/components/data-table/data-table";
+import { DataTable } from "@/components/data-table/data-table"
 import {
   PageAction,
   PageContent,
   PageHeader,
   PageTitle,
-} from "@/components/page-header";
-import { useColumnFilterValues } from "@/hooks/use-column-filters";
-import { useDataTable } from "@/hooks/use-data-table";
-import { usePaginationValues } from "@/hooks/use-pagination";
-import { useSortingValues } from "@/hooks/use-sorting";
-import { useProducts } from "@/lib/query-options";
-import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
-import { PackagePlus } from "lucide-react";
+} from "@/components/page-header"
+import { useColumnFilterValues } from "@/hooks/use-column-filters"
+import { useDataTable } from "@/hooks/use-data-table"
+import { usePaginationValues } from "@/hooks/use-pagination"
+import { useSortingValues } from "@/hooks/use-sorting"
+import { useId, useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { z } from "zod"
+import { PackagePlus } from "lucide-react"
 
-import { apiClient } from "@/lib/api-client";
-import { schemas } from "@workspace/api-client";
-import { Button } from "@workspace/ui/components/button";
+import { apiClient } from "@/lib/api-client"
+import { schemas } from "@workspace/api-client"
+import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
   DialogClose,
@@ -31,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@workspace/ui/components/dialog";
+} from "@workspace/ui/components/dialog"
 import {
   Form,
   FormControl,
@@ -40,21 +39,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@workspace/ui/components/form";
-import { Input } from "@workspace/ui/components/input";
+} from "@workspace/ui/components/form"
+import { Input } from "@workspace/ui/components/input"
 
-import { columns } from "./columns";
+import { columns } from "./columns"
+import { useProducts } from "@/lib/query-options"
 
 export default function Page() {
-  const pagination = usePaginationValues();
-  const { ...columnFilters } = useColumnFilterValues(columns);
-  const sorting = useSortingValues();
-  const { data } = useProducts({
-    ...pagination,
-    ...columnFilters,
-    ...sorting,
-  });
-  const table = useDataTable({ data, columns });
+  const pagination = usePaginationValues()
+  const columnFilters = useColumnFilterValues(columns)
+  const sorting = useSortingValues()
+
+  const { data } = useProducts({ ...pagination, ...columnFilters, ...sorting })
+
+  const table = useDataTable({ data, columns })
 
   return (
     <>
@@ -68,34 +66,34 @@ export default function Page() {
         <DataTable table={table} />
       </PageContent>
     </>
-  );
+  )
 }
 
 export function QuickCreateProductDialog() {
-  const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false)
+  const queryClient = useQueryClient()
 
   const form = useForm({
     resolver: zodResolver(schemas.Product),
     defaultValues: { id: 0, name: "", category: null },
-  });
-  const formId = useId();
+  })
+  const formId = useId()
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: z.infer<typeof schemas.Product>) =>
       apiClient.products_create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      form.reset();
-      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+      form.reset()
+      setOpen(false)
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof schemas.Product>) => {
-    mutate(values);
-  };
+    mutate(values)
+  }
 
-  const onAnimationEnd = () => undefined;
+  const onAnimationEnd = () => undefined
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -140,5 +138,5 @@ export function QuickCreateProductDialog() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
