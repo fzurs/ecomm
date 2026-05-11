@@ -26,6 +26,10 @@ import { z } from "zod"
 import { ProductForm } from "./form"
 import { snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
+import {
+  getCategoriesQueryOptions,
+  getCategoryQueryOptions,
+} from "@/lib/query-options"
 
 export const columns = [
   {
@@ -33,7 +37,7 @@ export const columns = [
     header: "Name",
     accessorKey: "name", // este accessor key hace que mi filtro desaparesca cuando no esta (?)
     cell: ({ row }) => <TableCellViewer original={row.original} />,
-    enableColumnFilter: true,
+    // enableColumnFilter: true,
     enableSorting: true,
     meta: {
       filter: { variant: "text", parser: parseAsString.withDefault("") },
@@ -62,7 +66,12 @@ export const columns = [
     meta: {
       filter: {
         variant: "async-multi-select",
-        dataSource: "categories",
+        queryOptions: getCategoriesQueryOptions(),
+        getItemQueryOptions: (filterValue) =>
+          getCategoryQueryOptions({ id: filterValue }),
+        itemToStringLabel: (item) => item.name,
+        itemToStringValue: (item) => String(item.id),
+        isItemEqualToValue: (a, b) => a.id === b.id,
         parser: parseAsArrayOf(parseAsInteger).withDefault([]),
       },
     },
@@ -77,17 +86,17 @@ export const columns = [
           {snakeCaseToTitle(row.original.status)}
         </Badge>
       ),
-    enableColumnFilter: true,
+    // enableColumnFilter: true,
     meta: {
       filter: {
-        variant: "multi-select",
-        options: schemas.StatusEnum.options.map((status) => ({
-          label: snakeCaseToTitle(status),
-          value: status,
-        })),
-        parser: parseAsArrayOf(
-          parseAsStringEnum(schemas.StatusEnum.options)
-        ).withDefault([]),
+        variant: "combobox",
+        items: [
+          { id: 1, name: "Cat1" },
+          { id: 2, name: "Cat2" },
+        ],
+        itemToStringLabel: (item: { name: string }) => item.name,
+        itemToStringValue: (item: { id: number }) => item.id.toString(),
+        parser: parseAsInteger,
       },
     },
   },

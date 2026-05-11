@@ -1,18 +1,27 @@
-import { nullsToUndefined } from "@/lib/utils"
+import { nullsToUndefined, NullToUndefined } from "@/lib/utils"
 import {
   ColumnDef,
   ColumnFiltersState,
   OnChangeFn,
 } from "@tanstack/react-table"
-import { SingleParser, useQueryStates } from "nuqs"
+import {
+  useQueryStates,
+  UseQueryStatesKeysMap,
+  SingleParser,
+  Values,
+} from "nuqs"
 import React from "react"
 
-type ExtractParsers<T, C extends readonly ColumnDef<T>[]> = {
-  [K in C[number] as K extends {
-    id: string
-    meta: { filter: { parser: SingleParser<any> } }
-  }
-    ? K["id"]
+type HasFilterParser<K> = K extends {
+  id: string
+  meta: { filter: { parser: SingleParser<any> } }
+}
+  ? true
+  : false
+
+type ExtractColumnFilterParsers<T, C extends readonly ColumnDef<T>[]> = {
+  [K in C[number] as HasFilterParser<K> extends true
+    ? K["id"] & string
     : never]: K["meta"] extends {
     filter: { parser: infer P extends SingleParser<any> }
   }
@@ -20,48 +29,60 @@ type ExtractParsers<T, C extends readonly ColumnDef<T>[]> = {
     : never
 }
 
-export function extractParsers<
+function extractColumnFilterParsers<
   TData,
   const C extends readonly ColumnDef<TData>[],
->(
-  columns:
-    | C
-    // Se le agrega este tipado para evitar el error accessorFn
-    | ColumnDef<TData>[]
-): ExtractParsers<TData, C> {
-  let filterParsers = {}
-  columns.forEach((column) => {
-    if (column.id && column.meta?.filter) {
-      ;(filterParsers as any)[column.id] = column.meta.filter.parser
-    }
-  })
-  return filterParsers as ExtractParsers<TData, C>
+>(columns: C): ExtractColumnFilterParsers<TData, C>
+function extractColumnFilterParsers<TData>(
+  columns: ColumnDef<TData>[]
+): Record<string, SingleParser<any>>
+function extractColumnFilterParsers<TData>(
+  columns: readonly ColumnDef<TData>[] | ColumnDef<TData>[]
+) {
+  return Object.fromEntries(
+    (columns as ColumnDef<TData>[])
+      .filter(
+        (
+          col
+        ): col is ColumnDef<TData> & {
+          id: string
+          meta: { filter: { parser: SingleParser<any> } }
+        } => !!col.id && !!col.meta?.filter?.parser
+      )
+      .map((c) => [c.id, c.meta.filter.parser])
+  )
 }
 
 export function useColumnFilterValues<
-  TData,
-  const C extends readonly ColumnDef<TData>[],
->(columns: C | ColumnDef<TData>[]) {
-  return nullsToUndefined(useQueryStates(extractParsers<TData, C>(columns))[0])
+  T extends readonly ColumnDef<any>[] | ColumnDef<any>[],
+>(
+  columns: T
+): T extends readonly ColumnDef<infer TData>[]
+  ? NullToUndefined<Values<ExtractColumnFilterParsers<TData, T>>>
+  : NullToUndefined<Values<any>> {
+  return nullsToUndefined(
+    useQueryStates(extractColumnFilterParsers(columns as any))[0]
+  ) as any
 }
 
 export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
-  const filterParsers = extractParsers(columns as any)
-  const [filterState, setFilterState] = useQueryStates(filterParsers)
+  const filterKeyMap = extractColumnFilterParsers(columns)
+  const [filterState, setFilterState] = useQueryStates(filterKeyMap)
 
-  // definicion de los filtros
-  const columnFilters = Object.entries(filterState)
-    .filter(([, value]) => {
-      if (value === null || value === undefined) return false
-      if (Array.isArray(value)) return value.length > 0
-      if (typeof value === "string") return value.length > 0
-      return true
-    })
-    .map(([id, value]) => ({ id, value }))
-
-  React.useEffect(() => {
-    console.log(filterState, columnFilters)
-  }, [filterState, columnFilters])
+  const columnFilters = React.useMemo<ColumnFiltersState>(
+    () =>
+      Object.entries(filterState)
+        .filter(
+          ([key, value]) =>
+            value !== null &&
+            value !== (filterKeyMap[key] as { defaultValue?: any }).defaultValue
+        )
+        .map(([key, value]) => ({
+          id: key,
+          value,
+        })),
+    [filterState]
+  )
 
   const onColumnFiltersChange = React.useCallback<
     OnChangeFn<ColumnFiltersState>
@@ -71,25 +92,22 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
         typeof updaterOrValue === "function"
           ? updaterOrValue(columnFilters)
           : updaterOrValue
-      // Creamos el objeto
-      const nextState = Object.fromEntries(
-        Object.keys(next).map((key) => [key, null])
+
+      const nextState: UseQueryStatesKeysMap = Object.fromEntries(
+        Object.entries(filterKeyMap).map(([key, parser]) => {
+          const value = next.find((f) => f.id === key)?.value
+          if (!value)
+            return [
+              key,
+              (parser as { defaultValue?: any })?.defaultValue ?? null,
+            ]
+          return [key, parser.parse(String(value))]
+        })
       )
 
-      // y le pasamos el value parseado
-      next.forEach(({ id, value }) => {
-        nextState[id] = filterParsers[id]?.parse(String(value))
-      })
-      // solucion al valor fantasma del filtro
-      for (const prevColumnFilter of columnFilters) {
-        if (!next.some((f) => f.id === prevColumnFilter.id)) {
-          nextState[prevColumnFilter.id] = null
-        }
-      }
-      // actualizamos el estado
       setFilterState(nextState)
     },
-    [columnFilters, filterParsers, setFilterState]
+    [columnFilters, setFilterState]
   )
 
   return { columnFilters, onColumnFiltersChange }

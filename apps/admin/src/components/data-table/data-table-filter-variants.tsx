@@ -1,7 +1,6 @@
 "use client"
-import { dataTableConfig } from "@/config/data-table"
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback"
-import { useQuery } from "@tanstack/react-query"
+import { useQueries, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { Column } from "@tanstack/react-table"
 import {
   Combobox,
@@ -24,75 +23,68 @@ import {
 import { TextIcon } from "lucide-react"
 import * as React from "react"
 
-type Option = Record<"label" | "value", string>
-
 export function ComboboxFilter<TData>({
   column,
   multiple,
-  options,
+  itemToStringLabel = (item: any) => item.label,
+  itemToStringValue = (item: any) => item.value,
+  value: valueProp,
+  onValueChange: setValueProp,
   ...props
-}: Omit<React.ComponentProps<typeof Combobox>, "items"> & {
+}: React.ComponentProps<typeof Combobox> & {
   column: Column<TData>
-  options: Option[]
 }) {
   const anchor = useComboboxAnchor()
-  // controlled state
-  const [value, setValue] = React.useState<Option[] | Option | null>(
-    multiple ? [] : null
-  )
 
-  const filterValue = column.getFilterValue()
-  React.useEffect(() => {
-    if (
-      !filterValue ||
-      (Array.isArray(filterValue) && filterValue.length === 0)
-    )
-      setValue(multiple ? [] : null)
-  }, [multiple, setValue, filterValue])
+  const [_value, _setValue] = React.useState<any>(multiple ? [] : null)
+  const value = valueProp ?? _value
+  const onValueChange = React.useCallback(
+    (value: any, eventDetails: any) => {
+      if (setValueProp) {
+        setValueProp(value, eventDetails)
+      } else {
+        _setValue(value)
+      }
+
+      column.setFilterValue(
+        multiple
+          ? value.map(itemToStringValue)
+          : (itemToStringValue(value) ?? null)
+      )
+    },
+    [setValueProp, column.setFilterValue, multiple, itemToStringValue]
+  )
 
   return (
     <Combobox
       autoHighlight
       multiple={multiple}
-      items={options}
+      itemToStringLabel={itemToStringLabel}
+      itemToStringValue={itemToStringValue}
       value={value}
-      onValueChange={(value) => {
-        setValue(value as any)
-        // convertimos el item: Option en un string | string[]
-        column.setFilterValue(
-          Array.isArray(value)
-            ? value.length > 0
-              ? (value as Option[]).map((option) => option.value)
-              : null
-            : value !== null
-              ? (value as Option).value
-              : null
-        )
-      }}
+      onValueChange={onValueChange}
       {...props}
     >
       {multiple ? (
         <ComboboxChips ref={anchor}>
           <ComboboxValue>
-            {(values: Option[]) => (
-              <React.Fragment>
-                {values.map((option) => (
-                  <ComboboxChip key={option.value}>{option.label}</ComboboxChip>
-                ))}
-                <ComboboxChipsInput placeholder={column.id} />
-              </React.Fragment>
-            )}
+            {value.map((item: any) => (
+              <ComboboxChip key={itemToStringValue(item)}>
+                {itemToStringLabel(item)}
+              </ComboboxChip>
+            ))}
+            <ComboboxChipsInput placeholder={column.id} />
           </ComboboxValue>
         </ComboboxChips>
       ) : (
         <ComboboxInput placeholder={column.id} showClear />
       )}
       <ComboboxContent anchor={anchor}>
-        <ComboboxEmpty>No options found.</ComboboxEmpty>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
-          {(option: Option) => (
-            <ComboboxItem key={option.value} value={option}>
-              {option.label}
+          {(item) => (
+            <ComboboxItem key={itemToStringValue(item)} value={item}>
+              {itemToStringLabel(item)}
             </ComboboxItem>
           )}
         </ComboboxList>
@@ -102,24 +94,65 @@ export function ComboboxFilter<TData>({
 }
 
 export function AsyncComboboxFitler<TData>({
-  source,
+  queryOptions,
+  getItemQueryOptions,
+  column,
+  multiple,
   ...props
-}: Omit<React.ComponentProps<typeof ComboboxFilter<TData>>, "options"> & {
-  source: keyof typeof dataTableConfig.dataSources
+}: Omit<React.ComponentProps<typeof ComboboxFilter<TData>>, "items"> & {
+  queryOptions: UseQueryOptions<any, any, any, any>
+  getItemQueryOptions: (value: any) => UseQueryOptions<any, any, any, any>
 }) {
   const [open, setOpen] = React.useState(false)
+  const [value, setValue] = React.useState<any>(multiple ? [] : null)
 
-  const { data: options } = useQuery({
-    ...dataTableConfig.dataSources[source],
+  const filterValue = column.getFilterValue()
+
+  const { data: items, isFetched } = useQuery({
+    ...queryOptions,
     enabled: open,
     staleTime: 60 * 5 * 1000,
   })
 
+  const currentItemsQuery = useQueries({
+    queries: (Array.isArray(filterValue) ? filterValue : [filterValue]).map(
+      (v) => ({
+        ...getItemQueryOptions(v),
+        enabled: !isFetched && !!filterValue,
+        staleTime: 60 * 5 * 1000,
+      })
+    ),
+  })
+  const currentItemsKey = currentItemsQuery.map((q) => q.data).join(",")
+
+  const currentItems = React.useMemo(
+    () => currentItemsQuery.map(({ data }) => data).filter((data) => !!data),
+    // https://claude.ai/chat/01f12efc-c753-4f78-93ee-1c73d39240f1
+    // Comparar por los IDs/valores reales, no por la referencia del array
+    [currentItemsKey]
+  )
+
+  React.useEffect(() => {
+    if (currentItems.length > 0) {
+      setValue(multiple ? currentItems : currentItems[0])
+    }
+  }, [currentItemsKey])
+
+  React.useEffect(() => {
+    if (!filterValue) {
+      setValue(multiple ? [] : null)
+    }
+  }, [filterValue])
+
   return (
     <ComboboxFilter
-      options={options ?? []}
+      multiple={multiple}
+      column={column}
+      items={items ?? []}
       open={open}
       onOpenChange={setOpen}
+      value={value}
+      onValueChange={setValue}
       {...props}
     />
   )
@@ -148,12 +181,42 @@ export function TextFilter<TData>({ column }: { column: Column<TData> }) {
     <InputGroup className="max-w-fit">
       <InputGroupInput
         placeholder={column.id}
-        value={textValue}
-        onChange={(event) => onTextChange(event.target.value)}
+        value={(column.getFilterValue() as string) ?? ""}
+        onChange={(event) => column.setFilterValue(event.target.value)}
       />
       <InputGroupAddon>
         <TextIcon />
       </InputGroupAddon>
     </InputGroup>
+  )
+}
+
+export function NewComboboxFilter({
+  itemToStringLabel,
+  itemToStringValue,
+  items,
+}: {
+  itemToStringLabel: (item: any) => string
+  itemToStringValue: (item: any) => string
+  items: any[]
+}) {
+  return (
+    <Combobox
+      items={items}
+      defaultValue={null}
+      itemToStringLabel={itemToStringLabel}
+      itemToStringValue={itemToStringValue}
+    >
+      <ComboboxInput placeholder="new filter" />
+      <ComboboxContent>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={itemToStringValue(item)} value={item}>
+              {itemToStringLabel(item)}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   )
 }

@@ -2,21 +2,21 @@ import {
   getCoreRowModel,
   TableOptions,
   useReactTable,
-} from "@tanstack/react-table";
-import { useColumnFilters } from "./use-column-filters";
-import { usePagination } from "./use-pagination";
-import { useSorting } from "./use-sorting";
+} from "@tanstack/react-table"
+import { useColumnFilters } from "./use-column-filters"
+import { usePagination } from "./use-pagination"
+import { useSorting } from "./use-sorting"
 
 export function useDataTable<TData>({
   data: { results: data, count } = { results: [], count: 0 },
   columns,
   ...options
 }: Omit<TableOptions<TData>, "getCoreRowModel" | "data"> & {
-  data?: { results: TData[]; count: number };
+  data?: { results: TData[]; count: number }
 }) {
-  const { pagination, onPaginationChange } = usePagination();
-  const { columnFilters, onColumnFiltersChange } = useColumnFilters(columns);
-  const { sorting, onSortingChange } = useSorting();
+  const { pagination, onPaginationChange } = usePagination()
+  const { columnFilters, onColumnFiltersChange } = useColumnFilters(columns)
+  const { sorting, onSortingChange } = useSorting()
 
   return useReactTable({
     data,
@@ -35,5 +35,5 @@ export function useDataTable<TData>({
       enableSorting: false,
     },
     ...options,
-  });
+  })
 }

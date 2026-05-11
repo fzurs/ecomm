@@ -52,7 +52,7 @@ export default function Page() {
 
   const { data } = useProducts({
     ...pagination,
-    ...columnFilters,
+    // ...columnFilters,
     ...sorting,
     search,
   })

@@ -28,3 +28,12 @@ export function getCategoriesQueryOptions(filters?: CategoryFilters) {
     placeholderData: keepPreviousData,
   })
 }
+
+export function getCategoryQueryOptions(
+  params: Parameters<typeof apiClient.categories_retrieve>[0]["params"]
+) {
+  return queryOptions({
+    queryKey: ["category", params],
+    queryFn: () => apiClient.categories_retrieve({ params }),
+  })
+}

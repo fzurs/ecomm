@@ -11,6 +11,7 @@ import {
   ComboboxFilter,
   AsyncComboboxFitler,
   TextFilter,
+  NewComboboxFilter,
 } from "./data-table-filter-variants"
 import { X } from "lucide-react"
 
@@ -21,14 +22,14 @@ export function DataTableToolbar<TData>({
 }: React.ComponentProps<"div"> & {
   table: Table<TData>
 }) {
-  const isFiltered = table.getState().columnFilters.length > 0
-
   const columns = table
     .getAllColumns()
     .filter((column) => column.getCanFilter())
 
   const onReset = React.useCallback(() => {
-    table.resetColumnFilters()
+    // evita que desaparezca el objeto, por ejemplo en vez
+    // de esto {} hace esto {name: null, category: []}
+    table.resetColumnFilters(true)
   }, [table])
 
   return (
@@ -46,12 +47,10 @@ export function DataTableToolbar<TData>({
             table={table}
           />
         ))}
-        {isFiltered && (
-          <Button variant="ghost" onClick={onReset}>
-            <X />
-            Reset
-          </Button>
-        )}
+        <Button variant="ghost" onClick={onReset}>
+          <X />
+          Reset {JSON.stringify(table.getState().columnFilters)}
+        </Button>
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
@@ -77,7 +76,7 @@ function DataTableToolbarFilter<TData>({
         <ComboboxFilter
           column={column}
           multiple={filterOpts.variant === "multi-select"}
-          options={filterOpts.options}
+          items={filterOpts.options}
         />
       )
     case "async-select":
@@ -86,9 +85,11 @@ function DataTableToolbarFilter<TData>({
         <AsyncComboboxFitler
           column={column}
           multiple={filterOpts.variant === "async-multi-select"}
-          source={filterOpts.dataSource}
+          {...filterOpts}
         />
       )
+    case "combobox":
+      return <NewComboboxFilter {...filterOpts} />
     default:
       return null
   }
