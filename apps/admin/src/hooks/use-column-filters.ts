@@ -11,6 +11,7 @@ import {
   Values,
 } from "nuqs"
 import React from "react"
+import { useDebouncedCallback } from "./use-debounced-callback"
 
 type HasFilterParser<K> = K extends {
   id: string
@@ -68,8 +69,12 @@ export function useColumnFilterValues<
 export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
   const filterKeyMap = extractColumnFilterParsers(columns)
   const [filterState, setFilterState] = useQueryStates(filterKeyMap)
+  const debouncedSetFilterState = useDebouncedCallback(
+    (values: typeof filterState) => setFilterState(values),
+    300
+  )
 
-  const columnFilters = React.useMemo<ColumnFiltersState>(
+  const initialColumnFilters = React.useMemo<ColumnFiltersState>(
     () =>
       Object.entries(filterState)
         .filter(
@@ -84,30 +89,37 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
     [filterState]
   )
 
+  const [columnFilters, setColumnFilters] =
+    React.useState<ColumnFiltersState>(initialColumnFilters)
+
   const onColumnFiltersChange = React.useCallback<
     OnChangeFn<ColumnFiltersState>
   >(
     (updaterOrValue) => {
-      const next =
-        typeof updaterOrValue === "function"
-          ? updaterOrValue(columnFilters)
-          : updaterOrValue
+      setColumnFilters((prev) => {
+        const next =
+          typeof updaterOrValue === "function"
+            ? updaterOrValue(prev)
+            : updaterOrValue
 
-      const nextState: UseQueryStatesKeysMap = Object.fromEntries(
-        Object.entries(filterKeyMap).map(([key, parser]) => {
-          const value = next.find((f) => f.id === key)?.value
-          if (!value)
-            return [
-              key,
-              (parser as { defaultValue?: any })?.defaultValue ?? null,
-            ]
-          return [key, parser.parse(String(value))]
-        })
-      )
+        const nextState: UseQueryStatesKeysMap = Object.fromEntries(
+          Object.entries(filterKeyMap).map(([key, parser]) => {
+            const value = next.find((f) => f.id === key)?.value
+            if (!value)
+              return [
+                key,
+                (parser as { defaultValue?: any })?.defaultValue ?? null,
+              ]
+            return [key, parser.parse(String(value))]
+          })
+        )
 
-      setFilterState(nextState)
+        debouncedSetFilterState(nextState)
+
+        return next
+      })
     },
-    [columnFilters, setFilterState]
+    [columnFilters, debouncedSetFilterState]
   )
 
   return { columnFilters, onColumnFiltersChange }

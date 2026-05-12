@@ -37,7 +37,7 @@ export const columns = [
     header: "Name",
     accessorKey: "name", // este accessor key hace que mi filtro desaparesca cuando no esta (?)
     cell: ({ row }) => <TableCellViewer original={row.original} />,
-    // enableColumnFilter: true,
+    enableColumnFilter: true,
     enableSorting: true,
     meta: {
       filter: { variant: "text", parser: parseAsString.withDefault("") },
@@ -67,8 +67,7 @@ export const columns = [
       filter: {
         variant: "async-multi-select",
         queryOptions: getCategoriesQueryOptions(),
-        getItemQueryOptions: (filterValue) =>
-          getCategoryQueryOptions({ id: filterValue }),
+        getItemQueryOptions: (id) => getCategoryQueryOptions({ id }),
         itemToStringLabel: (item) => item.name,
         itemToStringValue: (item) => String(item.id),
         isItemEqualToValue: (a, b) => a.id === b.id,

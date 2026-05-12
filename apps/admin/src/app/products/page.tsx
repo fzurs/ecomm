@@ -54,7 +54,6 @@ export default function Page() {
     ...pagination,
     // ...columnFilters,
     ...sorting,
-    search,
   })
 
   const table = useDataTable({ data, columns })

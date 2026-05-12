@@ -21,6 +21,7 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { TextIcon } from "lucide-react"
+import { SingleParser } from "nuqs"
 import * as React from "react"
 
 export function ComboboxFilter<TData>({
@@ -48,8 +49,12 @@ export function ComboboxFilter<TData>({
 
       column.setFilterValue(
         multiple
-          ? value.map(itemToStringValue)
-          : (itemToStringValue(value) ?? null)
+          ? value.length
+            ? value.map(itemToStringValue)
+            : undefined
+          : value
+            ? itemToStringValue(value)
+            : undefined
       )
     },
     [setValueProp, column.setFilterValue, multiple, itemToStringValue]
@@ -98,15 +103,17 @@ export function AsyncComboboxFitler<TData>({
   getItemQueryOptions,
   column,
   multiple,
+  itemToStringValue = (item: any) => item.value,
+  parser,
   ...props
 }: Omit<React.ComponentProps<typeof ComboboxFilter<TData>>, "items"> & {
   queryOptions: UseQueryOptions<any, any, any, any>
   getItemQueryOptions: (value: any) => UseQueryOptions<any, any, any, any>
+  parser: SingleParser<any>
 }) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState<any>(multiple ? [] : null)
 
-  const filterValue = column.getFilterValue()
+  const filterValue = column.getFilterValue() as any
 
   const { data: items, isFetched } = useQuery({
     ...queryOptions,
@@ -132,17 +139,30 @@ export function AsyncComboboxFitler<TData>({
     [currentItemsKey]
   )
 
-  React.useEffect(() => {
-    if (currentItems.length > 0) {
-      setValue(multiple ? currentItems : currentItems[0])
+  const itemsMap = React.useMemo<any>(() => {
+    if (!items) return {}
+    const map = new Map<string, any>()
+    for (const item of items) {
+      map.set(itemToStringValue(item), item)
     }
-  }, [currentItemsKey])
+    return map
+  }, [items])
 
-  React.useEffect(() => {
-    if (!filterValue) {
-      setValue(multiple ? [] : null)
+  const value = React.useMemo(() => {
+    if (!filterValue) return multiple ? [] : null
+
+    if (isFetched) {
+      if (multiple) {
+        return (filterValue as string[])
+          .map((v) => itemsMap.get(v))
+          .filter(Boolean)
+      } else {
+        return itemsMap.get(filterValue as string) ?? null
+      }
+    } else {
+      return multiple ? currentItems : currentItems[0]
     }
-  }, [filterValue])
+  }, [filterValue, itemsMap, isFetched, multiple, currentItemsKey])
 
   return (
     <ComboboxFilter
@@ -152,7 +172,7 @@ export function AsyncComboboxFitler<TData>({
       open={open}
       onOpenChange={setOpen}
       value={value}
-      onValueChange={setValue}
+      itemToStringValue={itemToStringValue}
       {...props}
     />
   )

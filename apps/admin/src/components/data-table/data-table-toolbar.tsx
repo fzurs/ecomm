@@ -26,6 +26,8 @@ export function DataTableToolbar<TData>({
     .getAllColumns()
     .filter((column) => column.getCanFilter())
 
+  const isFiltered = table.getState().columnFilters.length > 0
+
   const onReset = React.useCallback(() => {
     // evita que desaparezca el objeto, por ejemplo en vez
     // de esto {} hace esto {name: null, category: []}
@@ -47,10 +49,12 @@ export function DataTableToolbar<TData>({
             table={table}
           />
         ))}
-        <Button variant="ghost" onClick={onReset}>
-          <X />
-          Reset {JSON.stringify(table.getState().columnFilters)}
-        </Button>
+        {isFiltered && (
+          <Button variant="ghost" onClick={onReset}>
+            <X />
+            Reset
+          </Button>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
