@@ -1,13 +1,11 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 import { apiClient } from "./api-client"
 
-type ApiFilters<T extends (...args: any[]) => any> = NonNullable<
-  Parameters<T>[0]
->["queries"]
-type ProductFilters = ApiFilters<typeof apiClient.products_list>
-type CategoryFilters = ApiFilters<typeof apiClient.categories_list>
-
-export function useProducts(filters?: ProductFilters) {
+export function useProducts(
+  filters?: NonNullable<
+    Parameters<typeof apiClient.products_list>[0]
+  >["queries"]
+) {
   return useQuery({
     queryKey: ["products", filters],
     queryFn: () =>
@@ -18,7 +16,11 @@ export function useProducts(filters?: ProductFilters) {
   })
 }
 
-export function getCategoriesQueryOptions(filters?: CategoryFilters) {
+export function getCategoriesQueryOptions(
+  filters?: NonNullable<
+    Parameters<typeof apiClient.categories_list>[0]
+  >["queries"]
+) {
   return queryOptions({
     queryKey: ["products", filters],
     queryFn: () =>
@@ -30,7 +32,9 @@ export function getCategoriesQueryOptions(filters?: CategoryFilters) {
 }
 
 export function getCategoryQueryOptions(
-  params: Parameters<typeof apiClient.categories_retrieve>[0]["params"]
+  params: NonNullable<
+    Parameters<typeof apiClient.categories_retrieve>[0]
+  >["params"]
 ) {
   return queryOptions({
     queryKey: ["category", params],

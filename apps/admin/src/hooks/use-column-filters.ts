@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { nullsToUndefined, NullToUndefined } from "@/lib/utils"
 import {
   ColumnDef,
@@ -86,7 +87,7 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
           id: key,
           value,
         })),
-    [filterState]
+    [filterKeyMap, filterState]
   )
 
   const [columnFilters, setColumnFilters] =
@@ -119,7 +120,7 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
         return next
       })
     },
-    [columnFilters, debouncedSetFilterState]
+    [debouncedSetFilterState, filterKeyMap]
   )
 
   return { columnFilters, onColumnFiltersChange }

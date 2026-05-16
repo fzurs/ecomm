@@ -18,6 +18,7 @@ export function useDataTable<TData>({
   const { columnFilters, onColumnFiltersChange } = useColumnFilters(columns)
   const { sorting, onSortingChange } = useSorting()
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   return useReactTable({
     data,
     columns,

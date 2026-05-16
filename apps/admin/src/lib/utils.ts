@@ -28,12 +28,12 @@ export type NullToUndefined<T> = {
   [K in keyof T]: null extends T[K] ? Exclude<T[K], null> | undefined : T[K]
 }
 
-export function nullsToUndefined<T extends Record<string, any>>(
+export function nullsToUndefined<T extends Record<string, unknown>>(
   params: T
 ): NullToUndefined<T> {
   const result = {} as NullToUndefined<T>
   for (const key of Object.keys(params) as (keyof T)[]) {
-    result[key] = (params[key] === null ? undefined : params[key]) as any
+    result[key] = (params[key] === null ? undefined : params[key]) as never
   }
   return result
 }

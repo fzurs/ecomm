@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import { useQueries, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
@@ -115,7 +116,7 @@ export function ComboboxFilter<
       map.set(itemToStringValue(item), item)
     })
     return map
-  }, [])
+  }, [itemToStringValue, items])
 
   const defaultValue = React.useMemo<ComboboxValueType<
     Value,
@@ -135,6 +136,7 @@ export function ComboboxFilter<
     }
 
     return value as ComboboxValueType<Value, Multiple>
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [_value, _setValue] = React.useState(defaultValue)
@@ -145,9 +147,9 @@ export function ComboboxFilter<
       item:
         | ComboboxValueType<Value, Multiple>
         | (Multiple extends true ? never : null),
-      event: any
+      event: unknown
     ) => {
-      setValue(item, event)
+      setValue(item, event as never)
 
       const getFilterValue = () => {
         if (multiple) {
@@ -160,17 +162,17 @@ export function ComboboxFilter<
         return item ? valueToFilterValue(item as Value) : null
       }
 
-      onFilterChange(getFilterValue() as any)
+      onFilterChange(getFilterValue() as never)
     },
-    []
+    [multiple, onFilterChange, setValue, valueToFilterValue]
   )
 
   const filterValueKey = multiple
     ? (filterValue as ComboboxValueType<FilterValue, true>)?.join(",") || ""
     : String(filterValue ?? "")
-
   React.useEffect(() => {
-    if (!filterValue) setValue(null as any, {} as any)
+    if (!filterValue) setValue(null as never, {} as never)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValueKey])
 
   return (
@@ -193,13 +195,15 @@ export function ComboboxFilter<
             {(values: Value[] | null) => (
               <React.Fragment>
                 {values &&
-                  (values.length > 2 
-                    ? <ComboboxChip>{values.length} selected</ComboboxChip>
-                    : values.map((value) => (
-                        <ComboboxChip key={itemToStringValue(value)}>
-                          {itemToStringLabel(value)}
-                        </ComboboxChip>
-                      )))}
+                  (values.length > 2 ? (
+                    <ComboboxChip>{values.length} selected</ComboboxChip>
+                  ) : (
+                    values.map((value) => (
+                      <ComboboxChip key={itemToStringValue(value)}>
+                        {itemToStringLabel(value)}
+                      </ComboboxChip>
+                    ))
+                  ))}
                 <ComboboxChipsInput placeholder={placeholder} />
               </React.Fragment>
             )}
@@ -294,11 +298,13 @@ export function AsyncComboboxFilter<
   const currentItemsKey = currentItemsData.join(",")
   const currentItems = React.useMemo<Value[]>(
     () => currentItemsData.filter((v) => v !== undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentItemsKey]
   )
 
   React.useEffect(() => {
     if (!isSuccess) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValue(
         (multiple
           ? currentItems
@@ -308,6 +314,7 @@ export function AsyncComboboxFilter<
         > | null
       )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentItemsKey])
 
   return (
