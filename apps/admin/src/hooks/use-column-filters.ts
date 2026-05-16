@@ -110,7 +110,7 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
                 key,
                 (parser as { defaultValue?: any })?.defaultValue ?? null,
               ]
-            return [key, parser.parse(String(value))]
+            return [key, value]
           })
         )
 

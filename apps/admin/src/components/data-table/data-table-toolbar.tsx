@@ -8,12 +8,17 @@ import { Button } from "@workspace/ui/components/button"
 
 import { cn } from "@workspace/ui/lib/utils"
 import {
+  AsyncComboboxFilter,
   ComboboxFilter,
-  AsyncComboboxFitler,
   TextFilter,
-  NewComboboxFilter,
 } from "./data-table-filter-variants"
 import { X } from "lucide-react"
+import {
+  getCategoriesQueryOptions,
+  getCategoryQueryOptions,
+} from "@/lib/query-options"
+import z from "zod"
+import { schemas } from "@workspace/api-client"
 
 export function DataTableToolbar<TData>({
   table,
@@ -29,9 +34,7 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0
 
   const onReset = React.useCallback(() => {
-    // evita que desaparezca el objeto, por ejemplo en vez
-    // de esto {} hace esto {name: null, category: []}
-    table.resetColumnFilters(true)
+    table.resetColumnFilters()
   }, [table])
 
   return (
@@ -73,28 +76,39 @@ function DataTableToolbarFilter<TData>({
 
   switch (filterOpts?.variant) {
     case "text":
-      return <TextFilter column={column} />
-    case "select":
-    case "multi-select":
+      return (
+        <TextFilter
+          value={(column.getFilterValue() as string) ?? ""}
+          onChange={(e) => column.setFilterValue(e.target.value)}
+          placeholder={column.id}
+        />
+      )
+    case "categories":
+      return (
+        <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, number>
+          multiple
+          placeholder={column.id}
+          itemsQueryOptions={getCategoriesQueryOptions()}
+          getItemQueryOptions={(id) => getCategoryQueryOptions({ id })}
+          filterValue={column.getFilterValue() as never}
+          onFilterChange={column.setFilterValue}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => item.id.toString()}
+          isItemEqualToValue={(a, b) => a.id === b.id}
+          valueToFilterValue={(value) => value.id}
+        />
+      )
+    case "statuses":
       return (
         <ComboboxFilter
-          column={column}
-          multiple={filterOpts.variant === "multi-select"}
-          items={filterOpts.options}
+          placeholder={column.id}
+          multiple
+          items={schemas.StatusEnum.options}
+          filterValue={(column.getFilterValue() as never) || null}
+          onFilterChange={column.setFilterValue}
         />
       )
-    case "async-select":
-    case "async-multi-select":
-      return (
-        <AsyncComboboxFitler
-          column={column}
-          multiple={filterOpts.variant === "async-multi-select"}
-          {...filterOpts}
-        />
-      )
-    case "combobox":
-      return <NewComboboxFilter {...filterOpts} />
-    default:
-      return null
   }
+
+  return null
 }

@@ -26,10 +26,6 @@ import { z } from "zod"
 import { ProductForm } from "./form"
 import { snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
-import {
-  getCategoriesQueryOptions,
-  getCategoryQueryOptions,
-} from "@/lib/query-options"
 
 export const columns = [
   {
@@ -40,7 +36,7 @@ export const columns = [
     enableColumnFilter: true,
     enableSorting: true,
     meta: {
-      filter: { variant: "text", parser: parseAsString.withDefault("") },
+      filter: { variant: "text", parser: parseAsString },
     },
   },
   {
@@ -64,15 +60,7 @@ export const columns = [
       ),
     enableColumnFilter: true,
     meta: {
-      filter: {
-        variant: "async-multi-select",
-        queryOptions: getCategoriesQueryOptions(),
-        getItemQueryOptions: (id) => getCategoryQueryOptions({ id }),
-        itemToStringLabel: (item) => item.name,
-        itemToStringValue: (item) => String(item.id),
-        isItemEqualToValue: (a, b) => a.id === b.id,
-        parser: parseAsArrayOf(parseAsInteger).withDefault([]),
-      },
+      filter: { variant: "categories", parser: parseAsArrayOf(parseAsInteger) },
     },
   },
   {
@@ -85,17 +73,11 @@ export const columns = [
           {snakeCaseToTitle(row.original.status)}
         </Badge>
       ),
-    // enableColumnFilter: true,
+    enableColumnFilter: true,
     meta: {
       filter: {
-        variant: "combobox",
-        items: [
-          { id: 1, name: "Cat1" },
-          { id: 2, name: "Cat2" },
-        ],
-        itemToStringLabel: (item: { name: string }) => item.name,
-        itemToStringValue: (item: { id: number }) => item.id.toString(),
-        parser: parseAsInteger,
+        variant: "statuses",
+        parser: parseAsArrayOf(parseAsStringEnum(schemas.StatusEnum.options)),
       },
     },
   },

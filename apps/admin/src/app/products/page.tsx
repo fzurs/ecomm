@@ -11,7 +11,7 @@ import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDataTable } from "@/hooks/use-data-table"
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { useSortingValues } from "@/hooks/use-sorting"
-import { useId, useState } from "react"
+import React, { useId, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -44,6 +44,7 @@ import { Input } from "@workspace/ui/components/input"
 
 import { columns } from "./columns"
 import { useProducts } from "@/lib/query-options"
+import { parseAsInteger, useQueryState } from "nuqs"
 
 export default function Page() {
   const pagination = usePaginationValues()
@@ -52,8 +53,9 @@ export default function Page() {
 
   const { data } = useProducts({
     ...pagination,
-    // ...columnFilters,
+    ...columnFilters,
     ...sorting,
+    search,
   })
 
   const table = useDataTable({ data, columns })
@@ -73,7 +75,7 @@ export default function Page() {
   )
 }
 
-export function QuickCreateProductDialog() {
+function QuickCreateProductDialog() {
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
 

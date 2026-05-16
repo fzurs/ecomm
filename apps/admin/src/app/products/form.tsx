@@ -93,9 +93,7 @@ export function ProductForm({
           name="category_id"
           render={function Render({ field }) {
             const [open, setOpen] = React.useState(false)
-            const [value, setValue] = React.useState<z.infer<
-              typeof schemas.Category
-            > | null>(form.getValues().category)
+            const [value, setValue] = React.useState(form.getValues().category)
 
             const { data: categories } = useQuery({
               ...getCategoriesQueryOptions(),
@@ -108,16 +106,13 @@ export function ProductForm({
                 <Combobox
                   autoHighlight
                   items={categories}
-                  itemToStringValue={(item: z.infer<typeof schemas.Category>) =>
-                    item.id.toString()
-                  }
-                  // es necesario que el value sea el objeto para poder acceder al name
-                  itemToStringLabel={(category) => category.name}
-                  isItemEqualToValue={(c1, c2) => c1.id === c2.id}
+                  itemToStringValue={(item) => item.id.toString()}
+                  itemToStringLabel={(item) => item.name}
+                  isItemEqualToValue={(a, b) => a.id === b.id}
                   value={value}
-                  onValueChange={(value) => {
-                    setValue(value)
-                    field.onChange(value?.id ?? null)
+                  onValueChange={(v) => {
+                    setValue(v)
+                    field.onChange(v?.id || null)
                   }}
                   open={open}
                   onOpenChange={setOpen}
@@ -126,7 +121,7 @@ export function ProductForm({
                   <ComboboxContent>
                     <ComboboxEmpty>No categories found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(category) => (
+                      {(category: z.infer<typeof schemas.Category>) => (
                         <ComboboxItem key={category.id} value={category}>
                           <Item size="sm" className="p-0">
                             <ItemContent>
