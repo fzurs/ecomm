@@ -19,6 +19,7 @@ import {
 } from "@/lib/query-options"
 import z from "zod"
 import { schemas } from "@workspace/api-client"
+import { snakeCaseToTitle } from "@/lib/utils"
 
 export function DataTableToolbar<TData>({
   table,
@@ -104,6 +105,7 @@ function DataTableToolbarFilter<TData>({
           placeholder={column.id}
           multiple
           items={schemas.StatusEnum.options}
+          itemToStringLabel={snakeCaseToTitle}
           filterValue={(column.getFilterValue() as never) || null}
           onFilterChange={column.setFilterValue}
         />

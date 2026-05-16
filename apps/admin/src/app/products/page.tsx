@@ -57,7 +57,11 @@ export default function Page() {
     search,
   })
 
-  const table = useDataTable({ data, columns })
+  const table = useDataTable({
+    data,
+    columns,
+    initialState: { columnVisibility: { description: false } },
+  })
 
   return (
     <>
