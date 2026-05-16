@@ -44,7 +44,6 @@ import { Input } from "@workspace/ui/components/input"
 
 import { columns } from "./columns"
 import { useProducts } from "@/lib/query-options"
-import { parseAsInteger, useQueryState } from "nuqs"
 
 export default function Page() {
   const pagination = usePaginationValues()
