@@ -5,6 +5,61 @@ import {
 } from '@zodios/core'
 import { z } from 'zod'
 
+const Login = z
+  .object({
+    username: z.string().optional(),
+    email: z.string().email().optional(),
+    password: z.string(),
+  })
+  .passthrough()
+const Token = z
+  .object({ key: z.string().max(40) })
+  .passthrough()
+const RestAuthDetail = z
+  .object({ detail: z.string() })
+  .passthrough()
+const PasswordChange = z
+  .object({
+    new_password1: z.string().max(128),
+    new_password2: z.string().max(128),
+  })
+  .passthrough()
+const PasswordReset = z
+  .object({ email: z.string().email() })
+  .passthrough()
+const PasswordResetConfirm = z
+  .object({
+    new_password1: z.string().max(128),
+    new_password2: z.string().max(128),
+    uid: z.string(),
+    token: z.string(),
+  })
+  .passthrough()
+const UserDetails = z
+  .object({
+    pk: z.number().int(),
+    username: z
+      .string()
+      .max(150)
+      .regex(/^[\w.@+-]+$/),
+    email: z.string().email(),
+    first_name: z.string().max(150).optional(),
+    last_name: z.string().max(150).optional(),
+  })
+  .passthrough()
+const PatchedUserDetails = z
+  .object({
+    pk: z.number().int(),
+    username: z
+      .string()
+      .max(150)
+      .regex(/^[\w.@+-]+$/),
+    email: z.string().email(),
+    first_name: z.string().max(150),
+    last_name: z.string().max(150),
+  })
+  .partial()
+  .passthrough()
 const Category = z
   .object({
     id: z.number().int(),
@@ -70,6 +125,14 @@ const PatchedProduct = z
   .passthrough()
 
 export const schemas = {
+  Login,
+  Token,
+  RestAuthDetail,
+  PasswordChange,
+  PasswordReset,
+  PasswordResetConfirm,
+  UserDetails,
+  PatchedUserDetails,
   Category,
   PatchedCategory,
   StatusEnum,
@@ -79,6 +142,165 @@ export const schemas = {
 }
 
 const endpoints = makeApi([
+  {
+    method: 'post',
+    path: '/auth/login/',
+    alias: 'auth_login_create',
+    description: `Check the credentials and return the REST Token
+if the credentials are valid and authenticated.
+Calls Django Auth login method to register User ID
+in Django session framework
+
+Accept the following POST parameters: username, password
+Return the REST Framework Token Object&#x27;s key.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: Login,
+      },
+    ],
+    response: z
+      .object({ key: z.string().max(40) })
+      .passthrough(),
+  },
+  {
+    method: 'post',
+    path: '/auth/logout/',
+    alias: 'auth_logout_create',
+    description: `Calls Django logout method and delete the Token object
+assigned to the current User object.
+
+Accepts/Returns nothing.`,
+    requestFormat: 'json',
+    response: z
+      .object({ detail: z.string() })
+      .passthrough(),
+  },
+  {
+    method: 'post',
+    path: '/auth/password/change/',
+    alias: 'auth_password_change_create',
+    description: `Calls Django Auth SetPasswordForm save method.
+
+Accepts the following POST parameters: new_password1, new_password2
+Returns the success/fail message.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: PasswordChange,
+      },
+    ],
+    response: z
+      .object({ detail: z.string() })
+      .passthrough(),
+  },
+  {
+    method: 'post',
+    path: '/auth/password/reset/',
+    alias: 'auth_password_reset_create',
+    description: `Calls Django Auth PasswordResetForm save method.
+
+Accepts the following POST parameters: email
+Returns the success/fail message.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: z
+          .object({ email: z.string().email() })
+          .passthrough(),
+      },
+    ],
+    response: z
+      .object({ detail: z.string() })
+      .passthrough(),
+  },
+  {
+    method: 'post',
+    path: '/auth/password/reset/confirm/',
+    alias: 'auth_password_reset_confirm_create',
+    description: `Password reset e-mail link is confirmed, therefore
+this resets the user&#x27;s password.
+
+Accepts the following POST parameters: token, uid,
+    new_password1, new_password2
+Returns the success/fail message.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: PasswordResetConfirm,
+      },
+    ],
+    response: z
+      .object({ detail: z.string() })
+      .passthrough(),
+  },
+  {
+    method: 'get',
+    path: '/auth/user/',
+    alias: 'auth_user_retrieve',
+    description: `Reads and updates UserModel fields
+Accepts GET, PUT, PATCH methods.
+
+Default accepted fields: username, first_name, last_name
+Default display fields: pk, username, email, first_name, last_name
+Read-only fields: pk, email
+
+Returns UserModel fields.`,
+    requestFormat: 'json',
+    response: UserDetails,
+  },
+  {
+    method: 'put',
+    path: '/auth/user/',
+    alias: 'auth_user_update',
+    description: `Reads and updates UserModel fields
+Accepts GET, PUT, PATCH methods.
+
+Default accepted fields: username, first_name, last_name
+Default display fields: pk, username, email, first_name, last_name
+Read-only fields: pk, email
+
+Returns UserModel fields.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: UserDetails,
+      },
+    ],
+    response: UserDetails,
+  },
+  {
+    method: 'patch',
+    path: '/auth/user/',
+    alias: 'auth_user_partial_update',
+    description: `Reads and updates UserModel fields
+Accepts GET, PUT, PATCH methods.
+
+Default accepted fields: username, first_name, last_name
+Default display fields: pk, username, email, first_name, last_name
+Read-only fields: pk, email
+
+Returns UserModel fields.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: PatchedUserDetails,
+      },
+    ],
+    response: UserDetails,
+  },
   {
     method: 'get',
     path: '/categories/',

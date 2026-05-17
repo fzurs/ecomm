@@ -15,7 +15,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     ]
     filterset_class = ProductFilter
     search_fields = ["name"]
-    ordering_fields = ["name"]
+    ordering_fields = ["name", "price"]
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

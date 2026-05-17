@@ -5,6 +5,9 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Product(models.Model):
     STATUS_CHOICES = [
@@ -23,3 +26,6 @@ class Product(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     price = models.PositiveIntegerField(default=0, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
