@@ -1,8 +1,13 @@
-import axios from "axios"
+import axios, { AxiosRequestConfig } from "axios"
 import { createApiClient } from "@workspace/api-client"
 import Cookies from "js-cookie"
 
+const axiosConfig: AxiosRequestConfig = {
+  paramsSerializer: { indexes: null },
+}
+
 export const api = axios.create({
+  ...axiosConfig,
   baseURL: "http://localhost:8000",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
@@ -23,6 +28,6 @@ api.interceptors.request.use(async (config) => {
 })
 
 export const apiClient = createApiClient("http://localhost:8000", {
-  axiosConfig: { paramsSerializer: { indexes: null } },
+  axiosConfig: axiosConfig,
   axiosInstance: api,
 })

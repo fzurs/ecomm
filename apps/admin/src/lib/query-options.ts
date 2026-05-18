@@ -41,3 +41,11 @@ export function getCategoryQueryOptions(
     queryFn: () => apiClient.categories_retrieve({ params }),
   })
 }
+
+export function useSession() {
+  return useQuery({
+    queryKey: ["session"],
+    queryFn: () => apiClient.auth_user_retrieve(),
+    retry: false,
+  })
+}

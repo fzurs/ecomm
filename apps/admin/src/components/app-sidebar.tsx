@@ -1,16 +1,11 @@
 "use client"
 
-import {
-  Calendar,
-  Inbox,
-  PackageIcon,
-  Search,
-  Settings,
-} from "lucide-react";
+import { Calendar, Inbox, PackageIcon, Search, Settings } from "lucide-react"
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -18,9 +13,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@workspace/ui/components/sidebar";
-import { IconInnerShadowTop } from "@tabler/icons-react";
-import Link from "next/link";
+} from "@workspace/ui/components/sidebar"
+import { IconInnerShadowTop } from "@tabler/icons-react"
+import Link from "next/link"
+import { NavUser } from "./nav-user"
+import { useSession } from "@/lib/query-options"
 
 const items = [
   {
@@ -28,29 +25,11 @@ const items = [
     url: "/products",
     icon: PackageIcon,
   },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+]
 
 export function AppSidebar() {
+  const { data: session } = useSession()
+
   return (
     <Sidebar>
       <SidebarHeader className="h-(--header-height) border-b">
@@ -87,6 +66,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
     </Sidebar>
-  );
+  )
 }
