@@ -563,6 +563,11 @@ Returns UserModel fields.`,
         schema: z.array(z.string()).optional(),
       },
       {
+        name: 'featured',
+        type: 'Query',
+        schema: z.boolean().optional(),
+      },
+      {
         name: 'limit',
         type: 'Query',
         schema: z.number().int().optional(),

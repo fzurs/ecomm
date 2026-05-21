@@ -106,7 +106,7 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
         const nextState: UseQueryStatesKeysMap = Object.fromEntries(
           Object.entries(filterKeyMap).map(([key, parser]) => {
             const value = next.find((f) => f.id === key)?.value
-            if (!value)
+            if (value === null || value === undefined)
               return [
                 key,
                 (parser as { defaultValue?: any })?.defaultValue ?? null,

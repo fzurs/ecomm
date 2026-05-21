@@ -546,6 +546,10 @@ paths:
             type: string
         explode: true
         style: form
+      - in: query
+        name: featured
+        schema:
+          type: boolean
       - name: limit
         required: false
         in: query

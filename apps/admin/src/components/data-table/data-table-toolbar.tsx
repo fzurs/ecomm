@@ -21,8 +21,9 @@ import {
 } from "@/lib/query-options"
 import z from "zod"
 import { schemas } from "@workspace/api-client"
-import { snakeCaseToTitle } from "@/lib/utils"
+import { snakeCaseToTitle, snakeToTitle } from "@/lib/utils"
 import { getStatusIcon } from "@/app/(admin)/products/columns"
+import { IconStar } from "@tabler/icons-react"
 
 export function DataTableToolbar<TData>({
   table,
@@ -84,17 +85,17 @@ function DataTableToolbarFilter<TData>({
         <TextFilter
           value={(column.getFilterValue() as string) ?? ""}
           onChange={(e) => column.setFilterValue(e.target.value)}
-          placeholder={column.id}
+          placeholder={snakeCaseToTitle(column.id) + "..."}
         />
       )
     case "categories":
       return (
         <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, string>
           multiple
-          placeholder={column.id}
+          placeholder="Categories..."
           itemsQueryOptions={getCategoriesQueryOptions()}
           getItemQueryOptions={(slug) => getCategoryQueryOptions({ slug })}
-          filterValue={column.getFilterValue() as never}
+          filterValue={(column.getFilterValue() as never) ?? null}
           onFilterChange={column.setFilterValue}
           isItemEqualToValue={(a, b) => a.id === b.id}
           valueToFilterValue={(value) => value.slug as string}
@@ -103,7 +104,7 @@ function DataTableToolbarFilter<TData>({
     case "statuses":
       return (
         <ComboboxFilter
-          placeholder={column.id}
+          placeholder="Any Status..."
           multiple
           items={schemas.StatusEnum.options}
           itemToStringLabel={snakeCaseToTitle}
@@ -116,13 +117,31 @@ function DataTableToolbarFilter<TData>({
       return (
         <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, string>
           multiple
-          placeholder={column.id}
+          placeholder="Multiple Brands..."
           itemsQueryOptions={getBrandsQueryOptions()}
           getItemQueryOptions={(slug) => getBrandQueryOptions({ slug })}
-          filterValue={column.getFilterValue() as never}
+          filterValue={(column.getFilterValue() as never) ?? null}
           onFilterChange={column.setFilterValue}
           isItemEqualToValue={(a, b) => a.id === b.id}
           valueToFilterValue={(value) => value.slug as string}
+        />
+      )
+    case "featured":
+      return (
+        <ComboboxFilter
+          placeholder="Featured"
+          items={["featured", "not_featured"] as const}
+          itemToStringLabel={snakeToTitle}
+          filterValue={(column.getFilterValue() as never) ?? null}
+          onFilterChange={column.setFilterValue}
+          valueToFilterValue={(value) => (value === "featured" ? true : false)}
+          itemToIcon={(s) =>
+            s === "featured" ? (
+              <IconStar className="fill-yellow-500 text-yellow-500" />
+            ) : (
+              <IconStar />
+            )
+          }
         />
       )
   }

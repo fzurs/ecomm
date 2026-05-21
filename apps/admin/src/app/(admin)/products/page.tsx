@@ -139,7 +139,11 @@ function QuickCreateProductDialog() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input required {...field} placeholder="e.g. AMD Ryzen 9 7950X" />
+                    <Input
+                      required
+                      {...field}
+                      placeholder="e.g. AMD Ryzen 9 7950X"
+                    />
                   </FormControl>
                   <FormDescription />
                   <FormMessage />

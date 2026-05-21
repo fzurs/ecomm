@@ -14,7 +14,12 @@ import {
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { parseAsArrayOf, parseAsString, parseAsStringEnum } from "nuqs"
+import {
+  parseAsArrayOf,
+  parseAsBoolean,
+  parseAsString,
+  parseAsStringEnum,
+} from "nuqs"
 import { useId, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -131,6 +136,12 @@ export const columns = [
       ) : (
         <IconStar className="size-4" />
       ),
+    meta: {
+      filter: {
+        variant: "featured",
+        parser: parseAsBoolean,
+      },
+    },
   },
   {
     id: "price",
@@ -217,7 +228,11 @@ function TableCellViewer({
           />
         </div>
         <DrawerFooter>
-          <Button type="submit" disabled={isPending} form={formId}>
+          <Button
+            type="submit"
+            disabled={isPending || !form.formState.isDirty}
+            form={formId}
+          >
             Save changes
           </Button>
           <DrawerClose asChild>

@@ -19,7 +19,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
-import { TextIcon } from "lucide-react"
 import * as React from "react"
 
 export function TextFilter({
@@ -28,9 +27,6 @@ export function TextFilter({
   return (
     <InputGroup className="w-auto">
       <InputGroupInput {...props} />
-      <InputGroupAddon>
-        <TextIcon />
-      </InputGroupAddon>
     </InputGroup>
   )
 }
@@ -132,7 +128,7 @@ export function ComboboxFilter<
     Value,
     Multiple
   > | null>(() => {
-    if (!filterValue || valueProp) return null
+    if (filterValue === null || valueProp) return null
 
     let value = null
     if (multiple) {
@@ -169,7 +165,7 @@ export function ComboboxFilter<
           return values.length > 0 ? values : null
         }
 
-        return item ? valueToFilterValue(item as Value) : null
+        return item !== null ? valueToFilterValue(item as Value) : null
       }
 
       onFilterChange(getFilterValue() as never)
@@ -181,7 +177,7 @@ export function ComboboxFilter<
     ? (filterValue as ComboboxValueType<FilterValue, true>)?.join(",") || ""
     : String(filterValue ?? "")
   React.useEffect(() => {
-    if (!filterValue) setValue(null as never, {} as never)
+    if (filterValue === null) setValue(null as never, {} as never)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValueKey])
 
@@ -225,7 +221,7 @@ export function ComboboxFilter<
         </ComboboxChips>
       ) : (
         <ComboboxInput placeholder={placeholder} showClear>
-          {itemToIcon && (
+          {value !== null && itemToIcon && (
             <InputGroupAddon>
               {itemToIcon(value as ComboboxValueType<Value, false>)}
             </InputGroupAddon>
@@ -303,11 +299,12 @@ export function AsyncComboboxFilter<
     enabled: open,
   })
 
-  const filterValues = filterValue
-    ? multiple
-      ? (filterValue as FilterValue[])
-      : [filterValue as FilterValue]
-    : []
+  const filterValues =
+    filterValue !== null
+      ? multiple
+        ? (filterValue as FilterValue[])
+        : [filterValue as FilterValue]
+      : []
   const currentItemsQuery = useQueries({
     queries: filterValues.map((f) => ({
       ...getItemQueryOptions(f as NonNullable<FilterValue>),

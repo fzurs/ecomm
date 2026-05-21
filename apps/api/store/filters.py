@@ -10,7 +10,7 @@ class ProductFilter(django_filters.FilterSet):
 
     class Meta:
         model = Product
-        fields = ["category", "status"]
+        fields = ["category", "status", "brand", "featured"]
 
 
 class ProductOrdering(OrderingFilter):
