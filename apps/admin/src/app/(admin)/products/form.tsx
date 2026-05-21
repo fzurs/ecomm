@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@workspace/ui/components/form"
-import { SubmitHandler, UseFormReturn } from "react-hook-form"
+import { Controller, SubmitHandler, UseFormReturn } from "react-hook-form"
 import { Input } from "@workspace/ui/components/input"
 import * as React from "react"
 import { cn } from "@workspace/ui/lib/utils"
@@ -44,6 +44,14 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/item"
 import { useQuery } from "@tanstack/react-query"
+import { Checkbox } from "@workspace/ui/components/checkbox"
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+  FieldTitle,
+} from "@workspace/ui/components/field"
 
 export function ProductForm({
   form,
@@ -238,6 +246,28 @@ export function ProductForm({
                 By default, the product status is &quot;draft&quot;
               </FormDescription>
             </FormItem>
+          )}
+        />
+        <Controller
+          name="featured"
+          control={form.control}
+          render={({ field: { value, onChange, ...props } }) => (
+            <FieldLabel>
+              <Field orientation="horizontal">
+                <Checkbox
+                  {...props}
+                  checked={value}
+                  onCheckedChange={onChange}
+                />
+                <FieldContent>
+                  <FieldTitle>Featured product</FieldTitle>
+                  <FieldDescription>
+                    Featured products are displayed on the home page and in
+                    priority search results.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+            </FieldLabel>
           )}
         />
         <div className="flex items-start gap-4">
