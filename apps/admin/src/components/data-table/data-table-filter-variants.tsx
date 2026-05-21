@@ -26,7 +26,7 @@ export function TextFilter({
   ...props
 }: React.ComponentProps<typeof InputGroupInput>) {
   return (
-    <InputGroup className="max-w-fit">
+    <InputGroup className="w-auto">
       <InputGroupInput {...props} />
       <InputGroupAddon>
         <TextIcon />
@@ -35,19 +35,27 @@ export function TextFilter({
   )
 }
 
-function defaultItemToLabel(item: unknown): string {
-  if (item !== null && typeof item === "object" && "label" in item) {
-    return String((item as { label: unknown }).label)
-  }
-  return defaultItemToValue(item)
-}
-
-function defaultItemToValue(item: unknown): string {
-  if (item !== null && typeof item === "object" && "value" in item) {
-    return String((item as { value: unknown }).value)
+function itemToString(item: unknown, keys: string[]): string {
+  if (item !== null && typeof item === "object") {
+    const obj = item as Record<string, unknown>
+    for (const field of keys) {
+      if (field in obj) {
+        const value = obj[field]
+        if (typeof value === "string") {
+          return value
+        }
+        if (typeof value === "number") {
+          return value.toString()
+        }
+      }
+    }
   }
   return typeof item === "string" ? item : JSON.stringify(item)
 }
+const defaultItemToLabel = (item: unknown) =>
+  itemToString(item, ["label", "name"])
+const defaultItemToValue = (item: unknown) =>
+  itemToString(item, ["value", "id"])
 
 type ComboboxValueType<
   Value,
@@ -65,6 +73,7 @@ type BaseProps<Value, Multiple extends boolean | undefined, FilterValue> = Omit<
   filterValueToString?: (filterValue: FilterValue) => string
   items?: Value[]
   placeholder?: string
+  itemToIcon?: (item: Value) => React.ReactNode
 }
 
 // Cuando FilterValue = Value (o no se especifica), valueToFilterValue es opcional
@@ -104,6 +113,7 @@ export function ComboboxFilter<
   filterValueToString = String,
   valueToFilterValue = (v) => v as never,
   placeholder,
+  itemToIcon,
   ...props
 }: BaseProps<Value, Multiple, FilterValue> & {
   valueToFilterValue?: (value: Value) => FilterValue
@@ -172,7 +182,7 @@ export function ComboboxFilter<
     : String(filterValue ?? "")
   React.useEffect(() => {
     if (!filterValue) setValue(null as never, {} as never)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValueKey])
 
   return (
@@ -199,7 +209,11 @@ export function ComboboxFilter<
                     <ComboboxChip>{values.length} selected</ComboboxChip>
                   ) : (
                     values.map((value) => (
-                      <ComboboxChip key={itemToStringValue(value)}>
+                      <ComboboxChip
+                        key={itemToStringValue(value)}
+                        className="[&_svg]:size-3"
+                      >
+                        {itemToIcon && itemToIcon(value)}{" "}
                         {itemToStringLabel(value)}
                       </ComboboxChip>
                     ))
@@ -210,14 +224,20 @@ export function ComboboxFilter<
           </ComboboxValue>
         </ComboboxChips>
       ) : (
-        <ComboboxInput placeholder={placeholder} showClear />
+        <ComboboxInput placeholder={placeholder} showClear>
+          {itemToIcon && (
+            <InputGroupAddon>
+              {itemToIcon(value as ComboboxValueType<Value, false>)}
+            </InputGroupAddon>
+          )}
+        </ComboboxInput>
       )}
       <ComboboxContent anchor={anchor}>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item: (typeof items)[number]) => (
             <ComboboxItem key={itemToStringValue(item)} value={item}>
-              {itemToStringLabel(item)}
+              {itemToIcon && itemToIcon(item)} {itemToStringLabel(item)}
             </ComboboxItem>
           )}
         </ComboboxList>

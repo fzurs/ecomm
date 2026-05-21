@@ -49,3 +49,19 @@ export function useSession() {
     retry: false,
   })
 }
+
+export function getBrandsQueryOptions() {
+  return queryOptions({
+    queryKey: ["brands"],
+    queryFn: () => apiClient.brands_list(),
+  })
+}
+
+export function getBrandQueryOptions(
+  params: NonNullable<Parameters<typeof apiClient.brands_retrieve>[0]>["params"]
+) {
+  return queryOptions({
+    queryKey: ["brand", params],
+    queryFn: () => apiClient.brands_retrieve({ params }),
+  })
+}

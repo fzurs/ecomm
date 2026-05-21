@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Product, Category
+from .models import Product, Category, Brand
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = serializers.ALL_FIELDS
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -9,6 +15,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    brand = BrandSerializer(read_only=True, allow_null=True)
+    brand_id = serializers.PrimaryKeyRelatedField(
+        queryset=Brand.objects.all(),
+        write_only=True,
+        source="brand",
+        required=False,
+        allow_null=True,
+    )
+
     category = CategorySerializer(read_only=True, allow_null=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
@@ -21,3 +36,4 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = serializers.ALL_FIELDS
+        read_only_fields = ["created_at"]

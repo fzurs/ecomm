@@ -61,6 +61,10 @@ export default function Page() {
     data,
     columns,
     initialState: { columnVisibility: { description: false } },
+    defaultColumn: {
+      enableColumnFilter: true,
+      enableSorting: true,
+    },
   })
 
   return (
@@ -84,7 +88,13 @@ function QuickCreateProductDialog() {
 
   const form = useForm({
     resolver: zodResolver(schemas.Product),
-    defaultValues: { id: 0, name: "", category: null },
+    defaultValues: {
+      id: 0,
+      name: "",
+      category: null,
+      brand: null,
+      created_at: new Date().toISOString(),
+    },
   })
   const formId = useId()
 
@@ -109,14 +119,15 @@ function QuickCreateProductDialog() {
       <DialogTrigger asChild>
         <Button size="sm">
           <PackagePlus />
-          Quick Create Product
+          Quick Create
         </Button>
       </DialogTrigger>
       <DialogContent onAnimationEnd={onAnimationEnd}>
         <DialogHeader>
-          <DialogTitle>Quick create new Product</DialogTitle>
+          <DialogTitle>Create Product</DialogTitle>
           <DialogDescription className="sr-only">
-            Create a product so quickly
+            Fill in the basic details to quickly add a new product to your
+            catalog.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -128,7 +139,7 @@ function QuickCreateProductDialog() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input required {...field} />
+                    <Input required {...field} placeholder="e.g. AMD Ryzen 9 7950X" />
                   </FormControl>
                   <FormDescription />
                   <FormMessage />

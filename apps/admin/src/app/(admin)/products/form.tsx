@@ -15,7 +15,10 @@ import { Input } from "@workspace/ui/components/input"
 import * as React from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { schemas } from "@workspace/api-client"
-import { getCategoriesQueryOptions } from "@/lib/query-options"
+import {
+  getBrandsQueryOptions,
+  getCategoriesQueryOptions,
+} from "@/lib/query-options"
 import { snakeCaseToTitle } from "@/lib/utils"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
@@ -59,6 +62,20 @@ export function ProductForm({
         onSubmit={form.handleSubmit(onSubmit)}
         {...props}
       >
+        <FormField
+          control={form.control}
+          name="sku"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>SKU</FormLabel>
+              <FormControl>
+                <Input {...field} value={field.value ?? ""} />
+              </FormControl>
+              <FormDescription />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="name"
@@ -135,7 +152,61 @@ export function ProductForm({
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
-                <FormDescription />
+                <FormDescription>
+                  The category allows you to group products
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )
+          }}
+        />
+        <FormField
+          control={form.control}
+          name="brand_id"
+          render={function Render({ field }) {
+            const [open, setOpen] = React.useState(false)
+            const [value, setValue] = React.useState(form.getValues().brand)
+
+            const { data: brands } = useQuery({
+              ...getBrandsQueryOptions(),
+              enabled: open,
+            })
+
+            return (
+              <FormItem>
+                <FormLabel>Brand</FormLabel>
+                <Combobox
+                  autoHighlight
+                  items={brands}
+                  itemToStringValue={(item) => item.id.toString()}
+                  itemToStringLabel={(item) => item.name}
+                  isItemEqualToValue={(a, b) => a.id === b.id}
+                  value={value}
+                  onValueChange={(v) => {
+                    setValue(v)
+                    field.onChange(v?.id || null)
+                  }}
+                  open={open}
+                  onOpenChange={setOpen}
+                >
+                  <ComboboxInput
+                    placeholder="Do you change the brand of product..."
+                    showClear
+                  />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No brands found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: NonNullable<typeof value>) => (
+                        <ComboboxItem key={item.id} value={item}>
+                          {item.name}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+                <FormDescription>
+                  The product&apos;s brand can be inferred from its name
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )
@@ -149,7 +220,7 @@ export function ProductForm({
               <FormLabel>Status</FormLabel>
               <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl>
-                  <SelectTrigger className="w-full max-w-48">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Status of product..." />
                   </SelectTrigger>
                 </FormControl>
@@ -163,34 +234,58 @@ export function ProductForm({
                   </SelectGroup>
                 </SelectContent>
               </Select>
+              <FormDescription>
+                By default, the product status is &quot;draft&quot;
+              </FormDescription>
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value ?? undefined}
-                    onChange={(e) => {
-                      const value = e.target.value
-                      const numberValue = value ? Number(value) : undefined
-                      field.onChange(numberValue)
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>Price of product in dollars</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )
-          }}
-        />
+        <div className="flex items-start gap-4">
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    The actual price of the product
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )
+            }}
+          />
+          <FormField
+            control={form.control}
+            name="discount_price"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Discount Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )
+            }}
+          />
+        </div>
         {children}
       </form>
     </Form>

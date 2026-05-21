@@ -30,7 +30,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
       - {}
       responses:
         '200':
@@ -51,7 +50,6 @@ paths:
       - auth
       security:
       - cookieAuth: []
-      - basicAuth: []
       - {}
       responses:
         '200':
@@ -84,7 +82,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
       responses:
         '200':
           content:
@@ -116,7 +113,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
       - {}
       responses:
         '200':
@@ -151,7 +147,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
       - {}
       responses:
         '200':
@@ -176,7 +171,6 @@ paths:
       - auth
       security:
       - cookieAuth: []
-      - basicAuth: []
       responses:
         '200':
           content:
@@ -211,7 +205,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
       responses:
         '200':
           content:
@@ -245,7 +238,6 @@ paths:
               $ref: '#/components/schemas/PatchedUserDetails'
       security:
       - cookieAuth: []
-      - basicAuth: []
       responses:
         '200':
           content:
@@ -253,6 +245,143 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserDetails'
           description: ''
+  /brands/:
+    get:
+      operationId: brands_list
+      tags:
+      - brands
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+          description: ''
+    post:
+      operationId: brands_create
+      tags:
+      - brands
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Brand'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+  /brands/{slug}/:
+    get:
+      operationId: brands_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - brands
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    put:
+      operationId: brands_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - brands
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Brand'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    patch:
+      operationId: brands_partial_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - brands
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBrand'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBrand'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBrand'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    delete:
+      operationId: brands_destroy
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - brands
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /categories/:
     get:
       operationId: categories_list
@@ -267,8 +396,6 @@ paths:
       - categories
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -296,8 +423,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -305,22 +430,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
           description: ''
-  /categories/{id}/:
+  /categories/{slug}/:
     get:
       operationId: categories_retrieve
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this category.
+          type: string
         required: true
       tags:
       - categories
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -332,10 +454,9 @@ paths:
       operationId: categories_update
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this category.
+          type: string
         required: true
       tags:
       - categories
@@ -353,8 +474,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -366,10 +485,9 @@ paths:
       operationId: categories_partial_update
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this category.
+          type: string
         required: true
       tags:
       - categories
@@ -386,8 +504,6 @@ paths:
               $ref: '#/components/schemas/PatchedCategory'
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -399,17 +515,14 @@ paths:
       operationId: categories_destroy
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this category.
+          type: string
         required: true
       tags:
       - categories
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '204':
           description: No response body
@@ -418,11 +531,19 @@ paths:
       operationId: products_list
       parameters:
       - in: query
+        name: brand
+        schema:
+          type: array
+          items:
+            type: string
+        explode: true
+        style: form
+      - in: query
         name: category
         schema:
           type: array
           items:
-            type: integer
+            type: string
         explode: true
         style: form
       - name: limit
@@ -473,8 +594,6 @@ paths:
       - products
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -500,8 +619,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -509,22 +626,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: ''
-  /products/{id}/:
+  /products/{slug}/:
     get:
       operationId: products_retrieve
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this product.
+          type: string
         required: true
       tags:
       - products
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -536,10 +650,9 @@ paths:
       operationId: products_update
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this product.
+          type: string
         required: true
       tags:
       - products
@@ -557,8 +670,6 @@ paths:
         required: true
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -570,10 +681,9 @@ paths:
       operationId: products_partial_update
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this product.
+          type: string
         required: true
       tags:
       - products
@@ -590,8 +700,6 @@ paths:
               $ref: '#/components/schemas/PatchedProduct'
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -603,28 +711,45 @@ paths:
       operationId: products_destroy
       parameters:
       - in: path
-        name: id
+        name: slug
         schema:
-          type: integer
-        description: A unique integer value identifying this product.
+          type: string
         required: true
       tags:
       - products
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '204':
           description: No response body
 components:
   schemas:
+    Brand:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 255
+      required:
+      - id
+      - name
     Category:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
         name:
           type: string
           maxLength: 255
@@ -709,12 +834,29 @@ components:
       - new_password2
       - token
       - uid
+    PatchedBrand:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 255
     PatchedCategory:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
         name:
           type: string
           maxLength: 255
@@ -727,6 +869,15 @@ components:
         id:
           type: integer
           readOnly: true
+        brand:
+          allOf:
+          - $ref: '#/components/schemas/Brand'
+          readOnly: true
+          nullable: true
+        brand_id:
+          type: integer
+          writeOnly: true
+          nullable: true
         category:
           allOf:
           - $ref: '#/components/schemas/Category'
@@ -736,6 +887,14 @@ components:
           type: integer
           writeOnly: true
           nullable: true
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        sku:
+          type: string
+          nullable: true
+          maxLength: 255
         name:
           type: string
           maxLength: 255
@@ -744,11 +903,22 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
+        featured:
+          type: boolean
         price:
           type: integer
           maximum: 2147483647
           minimum: 0
           nullable: true
+        discount_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedUserDetails:
       type: object
       description: User model w/o password
@@ -780,6 +950,15 @@ components:
         id:
           type: integer
           readOnly: true
+        brand:
+          allOf:
+          - $ref: '#/components/schemas/Brand'
+          readOnly: true
+          nullable: true
+        brand_id:
+          type: integer
+          writeOnly: true
+          nullable: true
         category:
           allOf:
           - $ref: '#/components/schemas/Category'
@@ -789,6 +968,14 @@ components:
           type: integer
           writeOnly: true
           nullable: true
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        sku:
+          type: string
+          nullable: true
+          maxLength: 255
         name:
           type: string
           maxLength: 255
@@ -797,13 +984,26 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
+        featured:
+          type: boolean
         price:
           type: integer
           maximum: 2147483647
           minimum: 0
           nullable: true
+        discount_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
       required:
+      - brand
       - category
+      - created_at
       - id
       - name
     RestAuthDetail:
@@ -867,9 +1067,6 @@ components:
       - pk
       - username
   securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
     cookieAuth:
       type: apiKey
       in: cookie

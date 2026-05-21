@@ -14,12 +14,15 @@ import {
 } from "./data-table-filter-variants"
 import { X } from "lucide-react"
 import {
+  getBrandQueryOptions,
+  getBrandsQueryOptions,
   getCategoriesQueryOptions,
   getCategoryQueryOptions,
 } from "@/lib/query-options"
 import z from "zod"
 import { schemas } from "@workspace/api-client"
 import { snakeCaseToTitle } from "@/lib/utils"
+import { getStatusIcon } from "@/app/(admin)/products/columns"
 
 export function DataTableToolbar<TData>({
   table,
@@ -42,7 +45,7 @@ export function DataTableToolbar<TData>({
     <div
       role="toolbar"
       aria-orientation="horizontal"
-      className={cn("flex items-center justify-between", className)}
+      className={cn("flex items-end justify-between gap-2", className)}
       {...props}
     >
       <div className="flex flex-1 flex-wrap items-center gap-2">
@@ -86,17 +89,15 @@ function DataTableToolbarFilter<TData>({
       )
     case "categories":
       return (
-        <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, number>
+        <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, string>
           multiple
           placeholder={column.id}
           itemsQueryOptions={getCategoriesQueryOptions()}
-          getItemQueryOptions={(id) => getCategoryQueryOptions({ id })}
+          getItemQueryOptions={(slug) => getCategoryQueryOptions({ slug })}
           filterValue={column.getFilterValue() as never}
           onFilterChange={column.setFilterValue}
-          itemToStringLabel={(item) => item.name}
-          itemToStringValue={(item) => item.id.toString()}
           isItemEqualToValue={(a, b) => a.id === b.id}
-          valueToFilterValue={(value) => value.id}
+          valueToFilterValue={(value) => value.slug as string}
         />
       )
     case "statuses":
@@ -108,6 +109,20 @@ function DataTableToolbarFilter<TData>({
           itemToStringLabel={snakeCaseToTitle}
           filterValue={(column.getFilterValue() as never) || null}
           onFilterChange={column.setFilterValue}
+          itemToIcon={getStatusIcon}
+        />
+      )
+    case "brands":
+      return (
+        <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, string>
+          multiple
+          placeholder={column.id}
+          itemsQueryOptions={getBrandsQueryOptions()}
+          getItemQueryOptions={(slug) => getBrandQueryOptions({ slug })}
+          filterValue={column.getFilterValue() as never}
+          onFilterChange={column.setFilterValue}
+          isItemEqualToValue={(a, b) => a.id === b.id}
+          valueToFilterValue={(value) => value.slug as string}
         />
       )
   }

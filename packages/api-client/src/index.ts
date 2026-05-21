@@ -60,9 +60,36 @@ const PatchedUserDetails = z
   })
   .partial()
   .passthrough()
+const Brand = z
+  .object({
+    id: z.number().int(),
+    slug: z
+      .string()
+      .max(255)
+      .regex(/^[-a-zA-Z0-9_]+$/)
+      .optional(),
+    name: z.string().max(255),
+  })
+  .passthrough()
+const PatchedBrand = z
+  .object({
+    id: z.number().int(),
+    slug: z
+      .string()
+      .max(255)
+      .regex(/^[-a-zA-Z0-9_]+$/),
+    name: z.string().max(255),
+  })
+  .partial()
+  .passthrough()
 const Category = z
   .object({
     id: z.number().int(),
+    slug: z
+      .string()
+      .max(255)
+      .regex(/^[-a-zA-Z0-9_]+$/)
+      .optional(),
     name: z.string().max(255),
     description: z.string().nullish(),
   })
@@ -70,6 +97,10 @@ const Category = z
 const PatchedCategory = z
   .object({
     id: z.number().int(),
+    slug: z
+      .string()
+      .max(255)
+      .regex(/^[-a-zA-Z0-9_]+$/),
     name: z.string().max(255),
     description: z.string().nullable(),
   })
@@ -85,17 +116,33 @@ const StatusEnum = z.enum([
 const Product = z
   .object({
     id: z.number().int(),
+    brand: Brand.nullable(),
+    brand_id: z.number().int().nullish(),
     category: Category.nullable(),
     category_id: z.number().int().nullish(),
+    slug: z
+      .string()
+      .max(255)
+      .regex(/^[-a-zA-Z0-9_]+$/)
+      .optional(),
+    sku: z.string().max(255).nullish(),
     name: z.string().max(255),
     description: z.string().nullish(),
     status: StatusEnum.optional(),
+    featured: z.boolean().optional(),
     price: z
       .number()
       .int()
       .gte(0)
       .lte(2147483647)
       .nullish(),
+    discount_price: z
+      .number()
+      .int()
+      .gte(0)
+      .lte(2147483647)
+      .nullish(),
+    created_at: z.string().datetime({ offset: true }),
   })
   .passthrough()
 const PaginatedProductList = z
@@ -109,17 +156,32 @@ const PaginatedProductList = z
 const PatchedProduct = z
   .object({
     id: z.number().int(),
+    brand: Brand.nullable(),
+    brand_id: z.number().int().nullable(),
     category: Category.nullable(),
     category_id: z.number().int().nullable(),
+    slug: z
+      .string()
+      .max(255)
+      .regex(/^[-a-zA-Z0-9_]+$/),
+    sku: z.string().max(255).nullable(),
     name: z.string().max(255),
     description: z.string().nullable(),
     status: StatusEnum,
+    featured: z.boolean(),
     price: z
       .number()
       .int()
       .gte(0)
       .lte(2147483647)
       .nullable(),
+    discount_price: z
+      .number()
+      .int()
+      .gte(0)
+      .lte(2147483647)
+      .nullable(),
+    created_at: z.string().datetime({ offset: true }),
   })
   .partial()
   .passthrough()
@@ -133,6 +195,8 @@ export const schemas = {
   PasswordResetConfirm,
   UserDetails,
   PatchedUserDetails,
+  Brand,
+  PatchedBrand,
   Category,
   PatchedCategory,
   StatusEnum,
@@ -303,6 +367,93 @@ Returns UserModel fields.`,
   },
   {
     method: 'get',
+    path: '/brands/',
+    alias: 'brands_list',
+    requestFormat: 'json',
+    response: z.array(Brand),
+  },
+  {
+    method: 'post',
+    path: '/brands/',
+    alias: 'brands_create',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: Brand,
+      },
+    ],
+    response: Brand,
+  },
+  {
+    method: 'get',
+    path: '/brands/:slug/',
+    alias: 'brands_retrieve',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'slug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: Brand,
+  },
+  {
+    method: 'put',
+    path: '/brands/:slug/',
+    alias: 'brands_update',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: Brand,
+      },
+      {
+        name: 'slug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: Brand,
+  },
+  {
+    method: 'patch',
+    path: '/brands/:slug/',
+    alias: 'brands_partial_update',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: PatchedBrand,
+      },
+      {
+        name: 'slug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: Brand,
+  },
+  {
+    method: 'delete',
+    path: '/brands/:slug/',
+    alias: 'brands_destroy',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'slug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
     path: '/categories/',
     alias: 'categories_list',
     requestFormat: 'json',
@@ -331,21 +482,21 @@ Returns UserModel fields.`,
   },
   {
     method: 'get',
-    path: '/categories/:id/',
+    path: '/categories/:slug/',
     alias: 'categories_retrieve',
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: Category,
   },
   {
     method: 'put',
-    path: '/categories/:id/',
+    path: '/categories/:slug/',
     alias: 'categories_update',
     requestFormat: 'json',
     parameters: [
@@ -355,16 +506,16 @@ Returns UserModel fields.`,
         schema: Category,
       },
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: Category,
   },
   {
     method: 'patch',
-    path: '/categories/:id/',
+    path: '/categories/:slug/',
     alias: 'categories_partial_update',
     requestFormat: 'json',
     parameters: [
@@ -374,23 +525,23 @@ Returns UserModel fields.`,
         schema: PatchedCategory,
       },
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: Category,
   },
   {
     method: 'delete',
-    path: '/categories/:id/',
+    path: '/categories/:slug/',
     alias: 'categories_destroy',
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: z.void(),
@@ -402,9 +553,14 @@ Returns UserModel fields.`,
     requestFormat: 'json',
     parameters: [
       {
+        name: 'brand',
+        type: 'Query',
+        schema: z.array(z.string()).optional(),
+      },
+      {
         name: 'category',
         type: 'Query',
-        schema: z.array(z.number().int()).optional(),
+        schema: z.array(z.string()).optional(),
       },
       {
         name: 'limit',
@@ -460,21 +616,21 @@ Returns UserModel fields.`,
   },
   {
     method: 'get',
-    path: '/products/:id/',
+    path: '/products/:slug/',
     alias: 'products_retrieve',
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: Product,
   },
   {
     method: 'put',
-    path: '/products/:id/',
+    path: '/products/:slug/',
     alias: 'products_update',
     requestFormat: 'json',
     parameters: [
@@ -484,16 +640,16 @@ Returns UserModel fields.`,
         schema: Product,
       },
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: Product,
   },
   {
     method: 'patch',
-    path: '/products/:id/',
+    path: '/products/:slug/',
     alias: 'products_partial_update',
     requestFormat: 'json',
     parameters: [
@@ -503,23 +659,23 @@ Returns UserModel fields.`,
         schema: PatchedProduct,
       },
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: Product,
   },
   {
     method: 'delete',
-    path: '/products/:id/',
+    path: '/products/:slug/',
     alias: 'products_destroy',
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
+        name: 'slug',
         type: 'Path',
-        schema: z.number().int(),
+        schema: z.string(),
       },
     ],
     response: z.void(),
