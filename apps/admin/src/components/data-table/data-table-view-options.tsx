@@ -1,21 +1,22 @@
-"use client";
+"use client"
 
-import type { Table } from "@tanstack/react-table";
-import * as React from "react";
-import { Button } from "@workspace/ui/components/button";
+import type { Table } from "@tanstack/react-table"
+import * as React from "react"
+import { Button } from "@workspace/ui/components/button"
 
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
-import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
+} from "@workspace/ui/components/dropdown-menu"
+import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react"
+import { snakeToTitle } from "@/lib/utils"
 
 export function DataTableViewOptions<TData>({
   table,
 }: {
-  table: Table<TData>;
+  table: Table<TData>
 }) {
   return (
     <DropdownMenu>
@@ -42,11 +43,11 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {snakeToTitle(column.id)}
               </DropdownMenuCheckboxItem>
-            );
+            )
           })}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
