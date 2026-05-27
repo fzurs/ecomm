@@ -51,9 +51,9 @@ export default function Page() {
 
   const pagination = usePaginationValues()
   const sorting = useSortingValues()
-  const columnFilters = useColumnFilterValues(columns)
+  const { name: search, ...columnFilters } = useColumnFilterValues(columns)
 
-  const filters = { ...pagination, ...sorting, ...columnFilters }
+  const filters = { ...pagination, ...sorting, ...columnFilters, search }
   const isCached =
     queryClient.getQueryData(queryKeys.getProducts(filters)) !== undefined
   const debouncedFilters = useDebounce(filters, isCached ? 0 : 300)

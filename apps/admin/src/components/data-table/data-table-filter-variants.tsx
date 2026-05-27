@@ -1,7 +1,7 @@
 "use client"
 import { toNullIfEmpty } from "@/lib/utils"
 import { type Option } from "@/types/data-table"
-import { IconFilter2, IconSearch } from "@tabler/icons-react"
+import { IconSearch } from "@tabler/icons-react"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
   Combobox,
@@ -13,6 +13,7 @@ import {
   ComboboxList,
   ComboboxItem,
   ComboboxValue,
+  useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
 import {
   InputGroup,
@@ -39,33 +40,44 @@ export function ComboboxFilter<
   Multiple extends boolean | undefined = false,
 >({
   multiple,
-  items,
+  items = [],
   placeholder,
   ...props
 }: Omit<React.ComponentProps<typeof Combobox<Value, Multiple>>, "items"> & {
   items?: Option[]
   placeholder?: string
 }) {
+  const anchor = useComboboxAnchor()
+
   return (
     <Combobox multiple={multiple} items={items} {...props}>
       {multiple ? (
-        <ComboboxChips>
+        <ComboboxChips ref={anchor}>
           <ComboboxValue>
-            {(values) => (
-              <React.Fragment>
-                {items
-                  ?.filter((item) => values?.includes(item.value))
-                  .map((item) => (
-                    <ComboboxChip
-                      key={String(item.value)}
-                      className="[&>svg]:size-3.5"
-                    >
-                      {item.icon} {item.label}
+            {(values) => {
+              const selectedItems = items.filter((item) =>
+                values.includes(item.value)
+              )
+              return (
+                <React.Fragment>
+                  {selectedItems.length > 2 ? (
+                    <ComboboxChip showRemove={false}>
+                      {selectedItems.length} selected
                     </ComboboxChip>
-                  ))}
-                <ComboboxChipsInput placeholder={placeholder} />
-              </React.Fragment>
-            )}
+                  ) : (
+                    selectedItems.map((item) => (
+                      <ComboboxChip
+                        key={String(item.value)}
+                        className="[&>svg]:size-3.5"
+                      >
+                        {item.icon} {item.label}
+                      </ComboboxChip>
+                    ))
+                  )}
+                  <ComboboxChipsInput placeholder={placeholder} />
+                </React.Fragment>
+              )
+            }}
           </ComboboxValue>
         </ComboboxChips>
       ) : (
@@ -78,7 +90,7 @@ export function ComboboxFilter<
           )}
         </ComboboxValue>
       )}
-      <ComboboxContent>
+      <ComboboxContent anchor={anchor}>
         <ComboboxList>
           {(item: Option) => (
             <ComboboxItem key={String(item.value)} value={item.value}>
