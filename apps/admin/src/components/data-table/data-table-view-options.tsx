@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react"
-import { snakeToTitle } from "@/lib/utils"
+import { snakeCaseToTitle } from "@/lib/utils"
 
 export function DataTableViewOptions<TData>({
   table,
@@ -43,7 +43,7 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {snakeToTitle(column.id)}
+                {snakeCaseToTitle(column.id)}
               </DropdownMenuCheckboxItem>
             )
           })}

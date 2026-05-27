@@ -1,18 +1,42 @@
+import { UseQueryOptions } from "@tanstack/react-query"
 import type { RowData } from "@tanstack/react-table"
 import { SingleParser } from "nuqs"
 
+export type Option = {
+  label: string
+  value: unknown
+  icon?: React.ReactNode
+}
+
+export type FilterOpts =
+  | { variant: "text"; parser: SingleParser<string> }
+  | {
+      variant: "select"
+      parser: SingleParser<any>
+      options: Option[]
+    }
+  | {
+      variant: "multi-select"
+      parser: SingleParser<any[]>
+      options: Option[]
+    }
+  | {
+      variant: "async-select"
+      parser: SingleParser<any>
+      options: UseQueryOptions<any, any, Option[], any>
+    }
+  | {
+      variant: "async-multi-select"
+      parser: SingleParser<any[]>
+      options: UseQueryOptions<any, any, Option[], any>
+    }
+
 declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData extends RowData = RowData> {
     isPending?: boolean
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
-    filter?: {
-      variant: "text" | "categories" | "statuses" | "brands" | "featured"
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parser: SingleParser<any>
-    }
+    filter?: FilterOpts & { placeholder?: string }
   }
 }

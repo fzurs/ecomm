@@ -13,17 +13,7 @@ import {
   TextFilter,
 } from "./data-table-filter-variants"
 import { X } from "lucide-react"
-import {
-  getBrandQueryOptions,
-  getBrandsQueryOptions,
-  getCategoriesQueryOptions,
-  getCategoryQueryOptions,
-} from "@/lib/query-options"
-import z from "zod"
-import { schemas } from "@workspace/api-client"
-import { snakeCaseToTitle, snakeToTitle } from "@/lib/utils"
-import { getStatusIcon } from "@/app/(admin)/products/columns"
-import { IconStar } from "@tabler/icons-react"
+import { snakeCaseToTitle } from "@/lib/utils"
 
 export function DataTableToolbar<TData>({
   table,
@@ -38,9 +28,7 @@ export function DataTableToolbar<TData>({
 
   const isFiltered = table.getState().columnFilters.length > 0
 
-  const onReset = React.useCallback(() => {
-    table.resetColumnFilters()
-  }, [table])
+  const onReset = React.useCallback(() => table.resetColumnFilters(), [table])
 
   return (
     <div
@@ -79,72 +67,46 @@ function DataTableToolbarFilter<TData>({
 }) {
   const filterOpts = column.columnDef.meta?.filter
 
+  const placeholder = filterOpts?.placeholder || snakeCaseToTitle(column.id)
+
   switch (filterOpts?.variant) {
     case "text":
       return (
         <TextFilter
           value={(column.getFilterValue() as string) ?? ""}
           onChange={(e) => column.setFilterValue(e.target.value)}
-          placeholder={snakeCaseToTitle(column.id) + "..."}
+          placeholder={placeholder}
         />
       )
-    case "categories":
-      return (
-        <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, string>
-          multiple
-          placeholder="Categories..."
-          itemsQueryOptions={getCategoriesQueryOptions()}
-          getItemQueryOptions={(slug) => getCategoryQueryOptions({ slug })}
-          filterValue={(column.getFilterValue() as never) ?? null}
-          onFilterChange={column.setFilterValue}
-          isItemEqualToValue={(a, b) => a.id === b.id}
-          valueToFilterValue={(value) => value.slug as string}
-        />
-      )
-    case "statuses":
+    case "select":
+    case "multi-select":
       return (
         <ComboboxFilter
-          placeholder="Any Status..."
-          multiple
-          items={schemas.StatusEnum.options}
-          itemToStringLabel={snakeCaseToTitle}
-          filterValue={(column.getFilterValue() as never) || null}
-          onFilterChange={column.setFilterValue}
-          itemToIcon={getStatusIcon}
-        />
-      )
-    case "brands":
-      return (
-        <AsyncComboboxFilter<z.infer<typeof schemas.Category>, true, string>
-          multiple
-          placeholder="Multiple Brands..."
-          itemsQueryOptions={getBrandsQueryOptions()}
-          getItemQueryOptions={(slug) => getBrandQueryOptions({ slug })}
-          filterValue={(column.getFilterValue() as never) ?? null}
-          onFilterChange={column.setFilterValue}
-          isItemEqualToValue={(a, b) => a.id === b.id}
-          valueToFilterValue={(value) => value.slug as string}
-        />
-      )
-    case "featured":
-      return (
-        <ComboboxFilter
-          placeholder="Featured"
-          items={["featured", "not_featured"] as const}
-          itemToStringLabel={snakeToTitle}
-          filterValue={(column.getFilterValue() as never) ?? null}
-          onFilterChange={column.setFilterValue}
-          valueToFilterValue={(value) => (value === "featured" ? true : false)}
-          itemToIcon={(s) =>
-            s === "featured" ? (
-              <IconStar className="fill-yellow-500 text-yellow-500" />
-            ) : (
-              <IconStar />
-            )
+          multiple={filterOpts.variant === "multi-select"}
+          value={
+            column.getFilterValue() ??
+            (filterOpts.variant === "multi-select" ? [] : null)
           }
+          onValueChange={(value) => column.setFilterValue(value)}
+          placeholder={placeholder}
+          items={filterOpts.options ?? []}
         />
       )
+    case "async-select":
+    case "async-multi-select":
+      return (
+        <AsyncComboboxFilter
+          multiple={filterOpts.variant === "async-multi-select"}
+          value={
+            column.getFilterValue() ??
+            (filterOpts.variant === "async-multi-select" ? [] : null)
+          }
+          onValueChange={(value) => column.setFilterValue(value)}
+          placeholder={placeholder}
+          itemsQueryOptions={filterOpts.options}
+        />
+      )
+    default:
+      return null
   }
-
-  return null
 }

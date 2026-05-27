@@ -1,30 +1,30 @@
-import { ColumnSort, OnChangeFn, SortingState } from "@tanstack/react-table";
-import { createParser, useQueryState } from "nuqs";
-import { useCallback } from "react";
+import { ColumnSort, OnChangeFn, SortingState } from "@tanstack/react-table"
+import { createParser, useQueryState } from "nuqs"
+import { useCallback } from "react"
 
-const COLUMN_SORT_KEY = "sort";
+const COLUMN_SORT_KEY = "sort"
 
 const parseAsColumnSort = createParser<ColumnSort>({
   parse: (value) => {
-    const [id, direction] = value.split(".");
+    const [id, direction] = value.split(".")
     if (!id || (direction !== "asc" && direction !== "desc")) {
-      return null;
+      return null
     }
-    return { id, desc: direction === "desc" };
+    return { id, desc: direction === "desc" }
   },
   serialize: ({ id, desc }) => {
-    return `${id}.${desc ? "desc" : "asc"}`;
+    return `${id}.${desc ? "desc" : "asc"}`
   },
-});
+})
 
 function useColumnSortSearchParams() {
-  return useQueryState<ColumnSort>(COLUMN_SORT_KEY, parseAsColumnSort);
+  return useQueryState<ColumnSort>(COLUMN_SORT_KEY, parseAsColumnSort)
 }
 
 export function useSorting() {
-  const [columnSort, setColumnSort] = useColumnSortSearchParams();
+  const [columnSort, setColumnSort] = useColumnSortSearchParams()
 
-  const sorting: SortingState = columnSort ? [columnSort] : [];
+  const sorting: SortingState = columnSort ? [columnSort] : []
 
   const onSortingChange = useCallback<OnChangeFn<SortingState>>(
     (updaterOrValue) => {
@@ -32,19 +32,19 @@ export function useSorting() {
         const newSorting =
           typeof updaterOrValue === "function"
             ? updaterOrValue(previousColumnSort ? [previousColumnSort] : [])
-            : updaterOrValue;
+            : updaterOrValue
 
-        return newSorting[0] ?? null;
-      });
+        return newSorting[0] ?? null
+      })
     },
     [setColumnSort]
-  );
+  )
 
-  return { sorting, onSortingChange };
+  return { sorting, onSortingChange }
 }
 
-export function useSortingValues() {
-  const sorting = useColumnSortSearchParams()[0];
-  if (!sorting) return {};
-  return { ordering: `${sorting.desc ? "-" : ""}${sorting.id}` };
+export function useSortingValues(): { ordering?: string } {
+  const sorting = useColumnSortSearchParams()[0]
+  if (!sorting) return {}
+  return { ordering: `${sorting.desc ? "-" : ""}${sorting.id}` }
 }

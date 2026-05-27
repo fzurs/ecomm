@@ -6,11 +6,11 @@ from rest_framework.filters import OrderingFilter
 class ProductFilter(django_filters.FilterSet):
     brand = django_filters.ModelMultipleChoiceFilter(field_name="brand__slug", to_field_name="slug", queryset=Brand.objects.all())
     category = django_filters.ModelMultipleChoiceFilter(field_name="category__slug", to_field_name="slug", queryset=Category.objects.all())
-    status = django_filters.MultipleChoiceFilter(field_name="status", choices=Product.STATUS_CHOICES)
+    status = django_filters.MultipleChoiceFilter(choices=Product.STATUS_CHOICES)
 
     class Meta:
         model = Product
-        fields = ["category", "status", "brand", "featured"]
+        fields = ["featured"]
 
 
 class ProductOrdering(OrderingFilter):

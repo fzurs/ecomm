@@ -10,7 +10,7 @@ import { useSorting } from "./use-sorting"
 export function useDataTable<TData>({
   data: { results: data, count } = { results: [], count: 0 },
   columns,
-  ...options
+  ...props
 }: Omit<TableOptions<TData>, "getCoreRowModel" | "data"> & {
   data?: { results: TData[]; count: number }
 }) {
@@ -18,7 +18,6 @@ export function useDataTable<TData>({
   const { columnFilters, onColumnFiltersChange } = useColumnFilters(columns)
   const { sorting, onSortingChange } = useSorting()
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   return useReactTable({
     data,
     columns,
@@ -35,6 +34,6 @@ export function useDataTable<TData>({
       enableColumnFilter: false,
       enableSorting: false,
     },
-    ...options,
+    ...props,
   })
 }

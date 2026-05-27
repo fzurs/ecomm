@@ -1,17 +1,22 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 import { apiClient } from "./api-client"
+import { Option } from "@/types/data-table"
+
+export const queryKeys = {
+  allProducts: () => ["products"],
+  getProducts: (
+    queries: NonNullable<
+      Parameters<typeof apiClient.products_list>[0]
+    >["queries"]
+  ) => [...queryKeys.allProducts(), queries],
+}
 
 export function useProducts(
-  filters?: NonNullable<
-    Parameters<typeof apiClient.products_list>[0]
-  >["queries"]
+  queries?: Parameters<typeof queryKeys.getProducts>[0]
 ) {
   return useQuery({
-    queryKey: ["products", filters],
-    queryFn: () =>
-      apiClient.products_list({
-        queries: filters,
-      }),
+    queryKey: queryKeys.getProducts(queries),
+    queryFn: () => apiClient.products_list({ queries }),
     placeholderData: keepPreviousData,
   })
 }
@@ -65,3 +70,15 @@ export function getBrandQueryOptions(
     queryFn: () => apiClient.brands_retrieve({ params }),
   })
 }
+
+export const selectAsOption = (
+  data: {
+    slug?: string | null
+    id: number
+    name: string
+  }[]
+): Option[] =>
+  data.map((item) => ({
+    label: item.name,
+    value: item.slug || item.id,
+  }))

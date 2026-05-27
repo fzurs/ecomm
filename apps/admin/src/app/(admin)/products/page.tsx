@@ -7,7 +7,6 @@ import {
   PageHeader,
   PageTitle,
 } from "@/components/page-header"
-import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDataTable } from "@/hooks/use-data-table"
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { useSortingValues } from "@/hooks/use-sorting"
@@ -43,19 +42,23 @@ import {
 import { Input } from "@workspace/ui/components/input"
 
 import { columns } from "./columns"
-import { useProducts } from "@/lib/query-options"
+import { queryKeys, useProducts } from "@/lib/query-options"
+import { useColumnFilterValues } from "@/hooks/use-column-filters"
+import { useDebounce } from "@/hooks/use-debounce"
 
 export default function Page() {
-  const pagination = usePaginationValues()
-  const { name: search, ...columnFilters } = useColumnFilterValues(columns)
-  const sorting = useSortingValues()
+  const queryClient = useQueryClient()
 
-  const { data } = useProducts({
-    ...pagination,
-    ...columnFilters,
-    ...sorting,
-    search,
-  })
+  const pagination = usePaginationValues()
+  const sorting = useSortingValues()
+  const columnFilters = useColumnFilterValues(columns)
+
+  const filters = { ...pagination, ...sorting, ...columnFilters }
+  const isCached =
+    queryClient.getQueryData(queryKeys.getProducts(filters)) !== undefined
+  const debouncedFilters = useDebounce(filters, isCached ? 0 : 300)
+
+  const { data } = useProducts(debouncedFilters)
 
   const table = useDataTable({
     data,

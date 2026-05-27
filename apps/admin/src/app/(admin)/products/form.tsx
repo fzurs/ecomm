@@ -19,7 +19,6 @@ import {
   getBrandsQueryOptions,
   getCategoriesQueryOptions,
 } from "@/lib/query-options"
-import { snakeCaseToTitle } from "@/lib/utils"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Select,
@@ -52,6 +51,7 @@ import {
   FieldLabel,
   FieldTitle,
 } from "@workspace/ui/components/field"
+import { statusOptions } from "./columns"
 
 export function ProductForm({
   form,
@@ -117,12 +117,15 @@ export function ProductForm({
           name="category_id"
           render={function Render({ field }) {
             const [open, setOpen] = React.useState(false)
-            const [value, setValue] = React.useState(form.getValues().category)
 
-            const { data: categories } = useQuery({
+            const { data: categories, isSuccess } = useQuery({
               ...getCategoriesQueryOptions(),
               enabled: open,
             })
+
+            const label =
+              categories?.find((category) => category.id === field.value)
+                ?.name ?? ""
 
             return (
               <FormItem>
@@ -130,28 +133,26 @@ export function ProductForm({
                 <Combobox
                   autoHighlight
                   items={categories}
-                  itemToStringValue={(item) => item.id.toString()}
-                  itemToStringLabel={(item) => item.name}
-                  isItemEqualToValue={(a, b) => a.id === b.id}
-                  value={value}
-                  onValueChange={(v) => {
-                    setValue(v)
-                    field.onChange(v?.id || null)
-                  }}
+                  value={field.value}
+                  onValueChange={field.onChange}
                   open={open}
                   onOpenChange={setOpen}
                 >
-                  <ComboboxInput placeholder="Assing a item" showClear />
+                  <ComboboxInput
+                    placeholder="Assing a item"
+                    value={isSuccess ? label : form.getValues().category?.name}
+                    showClear
+                  />
                   <ComboboxContent>
                     <ComboboxEmpty>No categories found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(category: z.infer<typeof schemas.Category>) => (
-                        <ComboboxItem key={category.id} value={category}>
+                      {(item) => (
+                        <ComboboxItem key={item.id} value={item.id}>
                           <Item size="sm" className="p-0">
                             <ItemContent>
-                              <ItemTitle>{category.name}</ItemTitle>
+                              <ItemTitle>{item.name}</ItemTitle>
                               <ItemDescription>
-                                {category.description}
+                                {item.description}
                               </ItemDescription>
                             </ItemContent>
                           </Item>
@@ -173,12 +174,14 @@ export function ProductForm({
           name="brand_id"
           render={function Render({ field }) {
             const [open, setOpen] = React.useState(false)
-            const [value, setValue] = React.useState(form.getValues().brand)
 
-            const { data: brands } = useQuery({
+            const { data: brands, isSuccess } = useQuery({
               ...getBrandsQueryOptions(),
               enabled: open,
             })
+
+            const label =
+              brands?.find((brand) => brand.id === field.value)?.name ?? ""
 
             return (
               <FormItem>
@@ -186,26 +189,19 @@ export function ProductForm({
                 <Combobox
                   autoHighlight
                   items={brands}
-                  itemToStringValue={(item) => item.id.toString()}
-                  itemToStringLabel={(item) => item.name}
-                  isItemEqualToValue={(a, b) => a.id === b.id}
-                  value={value}
-                  onValueChange={(v) => {
-                    setValue(v)
-                    field.onChange(v?.id || null)
-                  }}
+                  value={field.value}
+                  onValueChange={field.onChange}
                   open={open}
                   onOpenChange={setOpen}
                 >
                   <ComboboxInput
-                    placeholder="Do you change the brand of product..."
-                    showClear
+                    placeholder="Assing a brand..."
+                    value={isSuccess ? label : form.getValues().brand?.name}
                   />
                   <ComboboxContent>
-                    <ComboboxEmpty>No brands found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item: NonNullable<typeof value>) => (
-                        <ComboboxItem key={item.id} value={item}>
+                      {(item) => (
+                        <ComboboxItem key={item.id} value={item.id}>
                           {item.name}
                         </ComboboxItem>
                       )}
@@ -234,9 +230,9 @@ export function ProductForm({
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    {schemas.StatusEnum.options.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {snakeCaseToTitle(status)}
+                    {statusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.icon} {option.label}
                       </SelectItem>
                     ))}
                   </SelectGroup>

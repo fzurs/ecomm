@@ -1,18 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useQueries, useQuery, UseQueryOptions } from "@tanstack/react-query"
+import { toNullIfEmpty } from "@/lib/utils"
+import { type Option } from "@/types/data-table"
+import { IconFilter2, IconSearch } from "@tabler/icons-react"
+import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
   Combobox,
   ComboboxChips,
   ComboboxChip,
   ComboboxChipsInput,
   ComboboxContent,
-  ComboboxEmpty,
   ComboboxInput,
   ComboboxList,
   ComboboxItem,
   ComboboxValue,
-  useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
 import {
   InputGroup,
@@ -27,192 +27,41 @@ export function TextFilter({
   return (
     <InputGroup className="w-auto">
       <InputGroupInput {...props} />
+      <InputGroupAddon>
+        <IconSearch />
+      </InputGroupAddon>
     </InputGroup>
   )
 }
 
-function itemToString(item: unknown, keys: string[]): string {
-  if (item !== null && typeof item === "object") {
-    const obj = item as Record<string, unknown>
-    for (const field of keys) {
-      if (field in obj) {
-        const value = obj[field]
-        if (typeof value === "string") {
-          return value
-        }
-        if (typeof value === "number") {
-          return value.toString()
-        }
-      }
-    }
-  }
-  return typeof item === "string" ? item : JSON.stringify(item)
-}
-const defaultItemToLabel = (item: unknown) =>
-  itemToString(item, ["label", "name"])
-const defaultItemToValue = (item: unknown) =>
-  itemToString(item, ["value", "id"])
-
-type ComboboxValueType<
-  Value,
-  Multiple extends boolean | undefined,
-> = Multiple extends true ? Value[] : Value
-
-type BaseProps<Value, Multiple extends boolean | undefined, FilterValue> = Omit<
-  React.ComponentProps<typeof Combobox<Value, Multiple>>,
-  "items"
-> & {
-  filterValue: ComboboxValueType<FilterValue, Multiple> | null
-  onFilterChange: (
-    value: ComboboxValueType<FilterValue, Multiple> | null
-  ) => void
-  filterValueToString?: (filterValue: FilterValue) => string
-  items?: Value[]
-  placeholder?: string
-  itemToIcon?: (item: Value) => React.ReactNode
-}
-
-// Cuando FilterValue = Value (o no se especifica), valueToFilterValue es opcional
 export function ComboboxFilter<
   Value,
   Multiple extends boolean | undefined = false,
->(
-  props: BaseProps<Value, Multiple, Value> & {
-    valueToFilterValue?: never
-  }
-): React.ReactElement
-
-// Cuando FilterValue es distinto de Value, valueToFilterValue es requerida
-export function ComboboxFilter<
-  Value,
-  Multiple extends boolean | undefined = false,
-  FilterValue = Value,
->(
-  props: BaseProps<Value, Multiple, FilterValue> & {
-    valueToFilterValue: (value: Value) => FilterValue
-  }
-): React.ReactElement
-
-export function ComboboxFilter<
-  Value,
-  Multiple extends boolean | undefined = false,
-  FilterValue = Value,
 >({
-  multiple = false as Multiple,
-  filterValue,
-  onFilterChange,
-  items = [],
-  itemToStringLabel = defaultItemToLabel,
-  itemToStringValue = defaultItemToValue,
-  value: valueProp,
-  onValueChange: setValueProp,
-  filterValueToString = String,
-  valueToFilterValue = (v) => v as never,
+  multiple,
+  items,
   placeholder,
-  itemToIcon,
   ...props
-}: BaseProps<Value, Multiple, FilterValue> & {
-  valueToFilterValue?: (value: Value) => FilterValue
+}: Omit<React.ComponentProps<typeof Combobox<Value, Multiple>>, "items"> & {
+  items?: Option[]
+  placeholder?: string
 }) {
-  const anchor = useComboboxAnchor()
-
-  const itemsMap = React.useMemo(() => {
-    const map = new Map<string, Value>()
-    items.forEach((item) => {
-      map.set(itemToStringValue(item), item)
-    })
-    return map
-  }, [itemToStringValue, items])
-
-  const defaultValue = React.useMemo<ComboboxValueType<
-    Value,
-    Multiple
-  > | null>(() => {
-    if (filterValue === null || valueProp) return null
-
-    let value = null
-    if (multiple) {
-      value =
-        (filterValue as FilterValue[])
-          .map((f) => itemsMap.get(filterValueToString(f)))
-          .filter((v): v is Value => v !== undefined) || []
-    } else {
-      value =
-        itemsMap.get(filterValueToString(filterValue as FilterValue)) || null
-    }
-
-    return value as ComboboxValueType<Value, Multiple>
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const [_value, _setValue] = React.useState(defaultValue)
-  const value = valueProp ?? _value
-  const setValue = setValueProp ?? _setValue
-  const onValueChange = React.useCallback(
-    (
-      item:
-        | ComboboxValueType<Value, Multiple>
-        | (Multiple extends true ? never : null),
-      event: unknown
-    ) => {
-      setValue(item, event as never)
-
-      const getFilterValue = () => {
-        if (multiple) {
-          const values = (item as ComboboxValueType<Value, true>).map(
-            valueToFilterValue
-          )
-          return values.length > 0 ? values : null
-        }
-
-        return item !== null ? valueToFilterValue(item as Value) : null
-      }
-
-      onFilterChange(getFilterValue() as never)
-    },
-    [multiple, onFilterChange, setValue, valueToFilterValue]
-  )
-
-  const filterValueKey = multiple
-    ? (filterValue as ComboboxValueType<FilterValue, true>)?.join(",") || ""
-    : String(filterValue ?? "")
-  React.useEffect(() => {
-    if (filterValue === null) setValue(null as never, {} as never)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterValueKey])
-
   return (
-    <Combobox
-      multiple={multiple}
-      autoHighlight
-      items={items}
-      value={value}
-      onValueChange={onValueChange}
-      itemToStringLabel={itemToStringLabel}
-      itemToStringValue={itemToStringValue}
-      isItemEqualToValue={(itemValue, value) =>
-        itemToStringValue(itemValue) === itemToStringValue(value)
-      }
-      {...props}
-    >
+    <Combobox multiple={multiple} items={items} {...props}>
       {multiple ? (
-        <ComboboxChips ref={anchor}>
+        <ComboboxChips>
           <ComboboxValue>
-            {(values: Value[] | null) => (
+            {(values) => (
               <React.Fragment>
-                {values &&
-                  (values.length > 2 ? (
-                    <ComboboxChip>{values.length} selected</ComboboxChip>
-                  ) : (
-                    values.map((value) => (
-                      <ComboboxChip
-                        key={itemToStringValue(value)}
-                        className="[&_svg]:size-3"
-                      >
-                        {itemToIcon && itemToIcon(value)}{" "}
-                        {itemToStringLabel(value)}
-                      </ComboboxChip>
-                    ))
+                {items
+                  ?.filter((item) => values?.includes(item.value))
+                  .map((item) => (
+                    <ComboboxChip
+                      key={String(item.value)}
+                      className="[&>svg]:size-3.5"
+                    >
+                      {item.icon} {item.label}
+                    </ComboboxChip>
                   ))}
                 <ComboboxChipsInput placeholder={placeholder} />
               </React.Fragment>
@@ -220,20 +69,20 @@ export function ComboboxFilter<
           </ComboboxValue>
         </ComboboxChips>
       ) : (
-        <ComboboxInput placeholder={placeholder} showClear>
-          {value !== null && itemToIcon && (
-            <InputGroupAddon>
-              {itemToIcon(value as ComboboxValueType<Value, false>)}
-            </InputGroupAddon>
+        <ComboboxValue>
+          {(value) => (
+            <ComboboxInput
+              value={items?.find((item) => item.value === value)?.label ?? ""}
+              placeholder={placeholder}
+            />
           )}
-        </ComboboxInput>
+        </ComboboxValue>
       )}
-      <ComboboxContent anchor={anchor}>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
+      <ComboboxContent>
         <ComboboxList>
-          {(item: (typeof items)[number]) => (
-            <ComboboxItem key={itemToStringValue(item)} value={item}>
-              {itemToIcon && itemToIcon(item)} {itemToStringLabel(item)}
+          {(item: Option) => (
+            <ComboboxItem key={String(item.value)} value={item.value}>
+              {item.icon} {item.label}
             </ComboboxItem>
           )}
         </ComboboxList>
@@ -242,108 +91,29 @@ export function ComboboxFilter<
   )
 }
 
-type AsyncBaseProps<
-  Value,
-  Multiple extends boolean | undefined,
-  FilterValue,
-> = Omit<BaseProps<Value, Multiple, FilterValue>, "items"> & {
-  itemsQueryOptions: UseQueryOptions<any, any, Value[], any>
-  getItemQueryOptions: (
-    f: NoInfer<NonNullable<FilterValue>>
-  ) => UseQueryOptions<any, any, Value, any>
-}
-
-// Cuando FilterValue = Value (o no se especifica), valueToFilterValue es opcional
 export function AsyncComboboxFilter<
   Value,
   Multiple extends boolean | undefined = false,
->(
-  props: AsyncBaseProps<Value, Multiple, Value> & {
-    valueToFilterValue?: never
-  }
-): React.ReactElement
-
-// Cuando FilterValue es distinto de Value, valueToFilterValue es requerida
-export function AsyncComboboxFilter<
-  Value,
-  Multiple extends boolean | undefined = false,
-  FilterValue = Value,
->(
-  props: AsyncBaseProps<Value, Multiple, FilterValue> & {
-    valueToFilterValue: (value: Value) => FilterValue
-  }
-): React.ReactElement
-
-export function AsyncComboboxFilter<
-  Value,
-  Multiple extends boolean | undefined = false,
-  FilterValue = Value,
 >({
-  filterValue,
-  multiple = false as Multiple,
   itemsQueryOptions,
-  getItemQueryOptions,
-  valueToFilterValue,
+  value,
   ...props
-}: AsyncBaseProps<Value, Multiple, FilterValue> & {
-  valueToFilterValue?: (value: Value) => FilterValue
-}) {
+}: Omit<
+  React.ComponentProps<typeof ComboboxFilter<Value, Multiple>>,
+  "items"
+> & { itemsQueryOptions: UseQueryOptions<any, any, Option[], any> }) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState<ComboboxValueType<
-    Value,
-    Multiple
-  > | null>(null)
 
-  const { data: items, isSuccess } = useQuery({
-    ...itemsQueryOptions,
-    enabled: open,
-  })
+  const enabled = open || toNullIfEmpty(value) !== null
 
-  const filterValues =
-    filterValue !== null
-      ? multiple
-        ? (filterValue as FilterValue[])
-        : [filterValue as FilterValue]
-      : []
-  const currentItemsQuery = useQueries({
-    queries: filterValues.map((f) => ({
-      ...getItemQueryOptions(f as NonNullable<FilterValue>),
-      enabled: !isSuccess,
-    })),
-  })
-  const currentItemsData = currentItemsQuery.map((q) => q.data)
-  const currentItemsKey = currentItemsData.join(",")
-  const currentItems = React.useMemo<Value[]>(
-    () => currentItemsData.filter((v) => v !== undefined),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentItemsKey]
-  )
-
-  React.useEffect(() => {
-    if (!isSuccess) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setValue(
-        (multiple
-          ? currentItems
-          : currentItems[0] || null) as ComboboxValueType<
-          Value,
-          Multiple
-        > | null
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentItemsKey])
+  const { data: items } = useQuery({ ...itemsQueryOptions, enabled })
 
   return (
-    <ComboboxFilter<Value, Multiple, FilterValue>
-      multiple={multiple}
+    <ComboboxFilter
       items={items}
-      filterValue={filterValue}
+      value={value}
       open={open}
       onOpenChange={setOpen}
-      value={value}
-      onValueChange={setValue}
-      valueToFilterValue={valueToFilterValue as never}
       {...props}
     />
   )
