@@ -203,7 +203,7 @@ function TableCellViewer({
   const isMobile = useIsMobile()
   const [open, setOpen] = React.useState(false)
 
-  const { form, formId, isPending } = useProductForm({ item, setOpen })
+  const form = useProductForm({ item, setOpen })
 
   return (
     <Drawer
@@ -228,19 +228,15 @@ function TableCellViewer({
           <DrawerTitle>{item.name}</DrawerTitle>
           <DrawerDescription />
         </DrawerHeader>
-        <ProductForm
-          form={form}
-          id={formId}
-          className="no-scrollbar overflow-y-auto"
-        />
+        <ProductForm form={form} className="no-scrollbar overflow-y-auto" />
         <DrawerFooter>
           <form.Subscribe
-            selector={(state) => [state.isPristine]}
-            children={([isPristine]) => (
+            selector={(state) => [state.isSubmitting, state.isPristine]}
+            children={([isSubmitting, isPristine]) => (
               <Button
-                form={formId}
+                form={form.formId}
                 type="submit"
-                disabled={isPending || isPristine}
+                disabled={isSubmitting || isPristine}
               >
                 Save changes
               </Button>

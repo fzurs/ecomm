@@ -165,7 +165,7 @@ export function useProductForm({
 }) {
   const queryClient = useQueryClient()
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (data: z.infer<typeof schemas.Product>) =>
       item
         ? apiClient.products_update(data, {
@@ -179,6 +179,7 @@ export function useProductForm({
   })
 
   const form = useForm({
+    formId: (item ? `update-${item.id}` : "create") + "-product-form",
     defaultValues: item ?? {
       id: 0,
       name: "",
@@ -187,31 +188,30 @@ export function useProductForm({
       created_at: new Date().toISOString(),
     },
     validators: { onSubmit: schemas.Product },
-    onSubmit: ({ value }) => mutate(value),
+    onSubmit: ({ value }) => mutateAsync(value),
   })
 
-  const formId = item ? `update-${item.id}-` : "create" + "-product-form"
-
-  return { form, formId, isPending }
+  return form
 }
 
 export function ProductNameField({
   form,
   ...props
 }: Omit<React.ComponentProps<typeof Input>, "form"> & {
-  form: ReturnType<typeof useProductForm>["form"]
+  form: ReturnType<typeof useProductForm>
 }) {
   return (
     <form.Field
       name="name"
       children={(field) => {
+        const fieldId = `${form.formId}-${field.name}`
         const isInvalid =
           field.state.meta.isTouched && !field.state.meta.isValid
         return (
           <Field data-invalid={isInvalid}>
-            <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+            <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
             <Input
-              id={field.name}
+              id={fieldId}
               name={field.name}
               value={field.state.value as string}
               onBlur={field.handleBlur}
@@ -233,10 +233,11 @@ export function ProductForm({
   className,
   ...props
 }: React.ComponentProps<"form"> & {
-  form: ReturnType<typeof useProductForm>["form"]
+  form: ReturnType<typeof useProductForm>
 }) {
   return (
     <form
+      id={form.formId}
       onSubmit={(e) => {
         e.preventDefault()
         form.handleSubmit()
@@ -248,13 +249,14 @@ export function ProductForm({
         <form.Field
           name="sku"
           children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>SKU</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>SKU</FieldLabel>
                 <Input
-                  id={field.name}
+                  id={fieldId}
                   name={field.name}
                   value={(field.state.value as string) ?? ""}
                   onBlur={field.handleBlur}
@@ -270,17 +272,20 @@ export function ProductForm({
             )
           }}
         />
+
         <ProductNameField form={form} />
+
         <form.Field
           name="description"
           children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>Description</FieldLabel>
                 <Textarea
-                  id={field.name}
+                  id={fieldId}
                   name={field.name}
                   value={(field.state.value as string) ?? ""}
                   onBlur={field.handleBlur}
@@ -296,13 +301,14 @@ export function ProductForm({
         <form.Field
           name="category_id"
           children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Category</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>Category</FieldLabel>
                 <CategoryCombobox
-                  id={field.name}
+                  id={fieldId}
                   name={field.name}
                   initialItem={form.state.values.category}
                   value={(field.state.value as number) ?? null}
@@ -322,13 +328,14 @@ export function ProductForm({
         <form.Field
           name="brand_id"
           children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Brand</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>Brand</FieldLabel>
                 <BrandCombobox
-                  id={field.name}
+                  id={fieldId}
                   name={field.name}
                   initialItem={form.state.values.brand}
                   value={(field.state.value as never) || null}
@@ -345,17 +352,18 @@ export function ProductForm({
         <form.Field
           name="status"
           children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>Status</FieldLabel>
                 <Select
                   value={field.state.value as string}
                   onValueChange={field.handleChange}
                 >
                   <SelectTrigger
-                    id={field.name}
+                    id={fieldId}
                     aria-invalid={isInvalid}
                     className="w-full"
                   >
@@ -384,11 +392,12 @@ export function ProductForm({
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
+            const fieldId = `${form.formId}-${field.name}`
             return (
-              <FieldLabel htmlFor={field.name} data-invalid={isInvalid}>
+              <FieldLabel htmlFor={fieldId} data-invalid={isInvalid}>
                 <Field orientation="horizontal">
                   <Checkbox
-                    id={field.name}
+                    id={fieldId}
                     aria-invalid={isInvalid}
                     checked={field.state.value as never}
                     onBlur={field.handleBlur}
@@ -411,12 +420,13 @@ export function ProductForm({
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
+            const fieldId = `${form.formId}-${field.name}`
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Price</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>Price</FieldLabel>
                 <Input
                   type="number"
-                  id={field.name}
+                  id={fieldId}
                   name={field.name}
                   value={(field.state.value as string) ?? ""}
                   onBlur={field.handleBlur}
@@ -439,12 +449,13 @@ export function ProductForm({
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid
+            const fieldId = `${form.formId}-${field.name}`
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Discount Price</FieldLabel>
+                <FieldLabel htmlFor={fieldId}>Discount Price</FieldLabel>
                 <Input
                   type="number"
-                  id={field.name}
+                  id={fieldId}
                   name={field.name}
                   value={(field.state.value as string) ?? ""}
                   onBlur={field.handleBlur}

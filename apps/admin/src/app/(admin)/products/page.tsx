@@ -78,7 +78,7 @@ export default function Page() {
 function QuickCreateProductDialog() {
   const [open, setOpen] = useState(false)
 
-  const { form, formId, isPending } = useProductForm({ setOpen })
+  const form = useProductForm({ setOpen })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -97,7 +97,6 @@ function QuickCreateProductDialog() {
           </DialogDescription>
         </DialogHeader>
         <form
-          id={formId}
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
@@ -109,13 +108,18 @@ function QuickCreateProductDialog() {
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>
-          <Button
-            type="submit"
-            disabled={isPending || !form.state.isDirty}
-            form={formId}
-          >
-            Create
-          </Button>
+          <form.Subscribe
+            selector={(state) => [state.isSubmitting, state.isPristine]}
+            children={([isSubmitting, isPristine]) => (
+              <Button
+                type="submit"
+                disabled={isSubmitting || isPristine}
+                form={form.formId}
+              >
+                Create
+              </Button>
+            )}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>
