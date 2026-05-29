@@ -234,13 +234,18 @@ function TableCellViewer({
           className="no-scrollbar overflow-y-auto"
         />
         <DrawerFooter>
-          <Button
-            form={formId}
-            type="submit"
-            disabled={isPending || !form.state.isDirty}
-          >
-            Save changes
-          </Button>
+          <form.Subscribe
+            selector={(state) => [state.isPristine]}
+            children={([isPristine]) => (
+              <Button
+                form={formId}
+                type="submit"
+                disabled={isPending || isPristine}
+              >
+                Save changes
+              </Button>
+            )}
+          />
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>
           </DrawerClose>

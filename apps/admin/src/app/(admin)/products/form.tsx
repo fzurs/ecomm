@@ -190,7 +190,7 @@ export function useProductForm({
     onSubmit: ({ value }) => mutate(value),
   })
 
-  const formId = item ? "update" : "create" + "-product-form"
+  const formId = item ? `update-${item.id}-` : "create" + "-product-form"
 
   return { form, formId, isPending }
 }
