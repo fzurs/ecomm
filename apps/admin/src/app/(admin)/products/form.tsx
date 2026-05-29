@@ -1,25 +1,29 @@
-"use client"
-
-import z from "zod"
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@workspace/ui/components/form"
-import { Controller, SubmitHandler, UseFormReturn } from "react-hook-form"
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
-import * as React from "react"
-import { cn } from "@workspace/ui/lib/utils"
-import { schemas } from "@workspace/api-client"
-import {
-  getBrandsQueryOptions,
-  getCategoriesQueryOptions,
-} from "@/lib/query-options"
 import { Textarea } from "@workspace/ui/components/textarea"
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+} from "@workspace/ui/components/combobox"
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@workspace/ui/components/item"
 import {
   Select,
   SelectContent,
@@ -28,292 +32,438 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@workspace/ui/components/combobox"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "@workspace/ui/components/item"
-import { useQuery } from "@tanstack/react-query"
 import { Checkbox } from "@workspace/ui/components/checkbox"
+import { cn } from "@workspace/ui/lib/utils"
+import { schemas } from "@workspace/api-client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import * as React from "react"
 import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldLabel,
-  FieldTitle,
-} from "@workspace/ui/components/field"
+  getBrandsQueryOptions,
+  getCategoriesQueryOptions,
+  queryKeys,
+} from "@/lib/query-options"
+import z from "zod"
+import { apiClient } from "@/lib/api-client"
+import { useForm } from "@tanstack/react-form"
 import { statusOptions } from "./columns"
+
+export function CategoryCombobox({
+  initialItem,
+  ...props
+}: React.ComponentProps<
+  typeof Combobox<z.infer<typeof schemas.Category>["id"], false>
+> & {
+  initialItem?: z.infer<typeof schemas.Category> | null
+}) {
+  const [open, setOpen] = React.useState(false)
+
+  const { data: items, isSuccess } = useQuery({
+    ...getCategoriesQueryOptions(),
+    enabled: open,
+  })
+
+  return (
+    <Combobox
+      autoHighlight
+      items={items}
+      open={open}
+      onOpenChange={setOpen}
+      {...props}
+    >
+      <ComboboxValue>
+        {(value) => {
+          const item = isSuccess
+            ? items.find((item) => item.id === value)
+            : initialItem && value === initialItem.id
+              ? initialItem
+              : undefined
+          return (
+            <ComboboxInput
+              placeholder="Assing a category"
+              value={item?.name ?? ""}
+              showClear
+            />
+          )
+        }}
+      </ComboboxValue>
+      <ComboboxContent>
+        <ComboboxEmpty>No categories found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item.id} value={item.id}>
+              <Item size="sm" className="p-0">
+                <ItemContent>
+                  <ItemTitle>{item.name}</ItemTitle>
+                  <ItemDescription>{item.description}</ItemDescription>
+                </ItemContent>
+              </Item>
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+
+export function BrandCombobox({
+  initialItem,
+  ...props
+}: React.ComponentProps<
+  typeof Combobox<z.infer<typeof schemas.Brand>["id"] | null, false>
+> & { initialItem?: z.infer<typeof schemas.Brand> | null }) {
+  const [open, setOpen] = React.useState(false)
+
+  const { data: items, isSuccess } = useQuery({
+    ...getBrandsQueryOptions(),
+    enabled: open,
+  })
+
+  return (
+    <Combobox
+      autoHighlight
+      items={items}
+      open={open}
+      onOpenChange={setOpen}
+      {...props}
+    >
+      <ComboboxValue>
+        {(value) => {
+          const item = isSuccess
+            ? items.find((item) => item.id === value)
+            : initialItem && value === initialItem.id
+              ? initialItem
+              : undefined
+          return (
+            <ComboboxInput
+              placeholder="Assing a brand"
+              value={item?.name ?? ""}
+              showClear
+            />
+          )
+        }}
+      </ComboboxValue>
+      <ComboboxContent>
+        <ComboboxEmpty>No brands found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item.id} value={item.id}>
+              {item.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+
+export function useProductForm({
+  item,
+  setOpen,
+}: {
+  item?: z.infer<typeof schemas.Product>
+  setOpen: (open: boolean) => void
+}) {
+  const queryClient = useQueryClient()
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: z.infer<typeof schemas.Product>) =>
+      item
+        ? apiClient.products_update(data, {
+            params: { slug: item.slug as string },
+          })
+        : apiClient.products_create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      setOpen(false)
+    },
+  })
+
+  const form = useForm({
+    defaultValues: item ?? {
+      id: 0,
+      name: "",
+      category: null,
+      brand: null,
+      created_at: new Date().toISOString(),
+    },
+    validators: { onSubmit: schemas.Product },
+    onSubmit: ({ value }) => mutate(value),
+  })
+
+  const formId = item ? "update" : "create" + "-product-form"
+
+  return { form, formId, isPending }
+}
+
+export function ProductNameField({
+  form,
+  ...props
+}: Omit<React.ComponentProps<typeof Input>, "form"> & {
+  form: ReturnType<typeof useProductForm>["form"]
+}) {
+  return (
+    <form.Field
+      name="name"
+      children={(field) => {
+        const isInvalid =
+          field.state.meta.isTouched && !field.state.meta.isValid
+        return (
+          <Field data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+            <Input
+              id={field.name}
+              name={field.name}
+              value={field.state.value as string}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+              aria-invalid={isInvalid}
+              required
+              {...props}
+            />
+            {isInvalid && <FieldError errors={field.state.meta.errors} />}
+          </Field>
+        )
+      }}
+    />
+  )
+}
 
 export function ProductForm({
   form,
-  children,
-  onSubmit,
   className,
   ...props
-}: Omit<React.ComponentProps<"form">, "onSubmit"> & {
-  form: UseFormReturn<z.infer<typeof schemas.Product>>
-  onSubmit: SubmitHandler<z.infer<typeof schemas.Product>>
+}: React.ComponentProps<"form"> & {
+  form: ReturnType<typeof useProductForm>["form"]
 }) {
   return (
-    <Form {...form}>
-      <form
-        className={cn("space-y-4", className)}
-        onSubmit={form.handleSubmit(onSubmit)}
-        {...props}
-      >
-        <FormField
-          control={form.control}
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        form.handleSubmit()
+      }}
+      className={cn("px-4", className)}
+      {...props}
+    >
+      <FieldGroup>
+        <form.Field
           name="sku"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SKU</FormLabel>
-              <FormControl>
-                <Input {...field} value={field.value ?? ""} />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea value={field.value ?? ""} onChange={field.onChange} />
-              </FormControl>
-              <FormDescription />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category_id"
-          render={function Render({ field }) {
-            const [open, setOpen] = React.useState(false)
-
-            const { data: categories, isSuccess } = useQuery({
-              ...getCategoriesQueryOptions(),
-              enabled: open,
-            })
-
-            const label =
-              categories?.find((category) => category.id === field.value)
-                ?.name ?? ""
-
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
             return (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Combobox
-                  autoHighlight
-                  items={categories}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  open={open}
-                  onOpenChange={setOpen}
-                >
-                  <ComboboxInput
-                    placeholder="Assing a item"
-                    value={isSuccess ? label : form.getValues().category?.name}
-                    showClear
-                  />
-                  <ComboboxContent>
-                    <ComboboxEmpty>No categories found.</ComboboxEmpty>
-                    <ComboboxList>
-                      {(item) => (
-                        <ComboboxItem key={item.id} value={item.id}>
-                          <Item size="sm" className="p-0">
-                            <ItemContent>
-                              <ItemTitle>{item.name}</ItemTitle>
-                              <ItemDescription>
-                                {item.description}
-                              </ItemDescription>
-                            </ItemContent>
-                          </Item>
-                        </ComboboxItem>
-                      )}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-                <FormDescription>
-                  The category allows you to group products
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )
-          }}
-        />
-        <FormField
-          control={form.control}
-          name="brand_id"
-          render={function Render({ field }) {
-            const [open, setOpen] = React.useState(false)
-
-            const { data: brands, isSuccess } = useQuery({
-              ...getBrandsQueryOptions(),
-              enabled: open,
-            })
-
-            const label =
-              brands?.find((brand) => brand.id === field.value)?.name ?? ""
-
-            return (
-              <FormItem>
-                <FormLabel>Brand</FormLabel>
-                <Combobox
-                  autoHighlight
-                  items={brands}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  open={open}
-                  onOpenChange={setOpen}
-                >
-                  <ComboboxInput
-                    placeholder="Assing a brand..."
-                    value={isSuccess ? label : form.getValues().brand?.name}
-                  />
-                  <ComboboxContent>
-                    <ComboboxList>
-                      {(item) => (
-                        <ComboboxItem key={item.id} value={item.id}>
-                          {item.name}
-                        </ComboboxItem>
-                      )}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-                <FormDescription>
-                  The product&apos;s brand can be inferred from its name
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )
-          }}
-        />
-        <FormField
-          name="status"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Status of product..." />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectGroup>
-                    {statusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.icon} {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                By default, the product status is &quot;draft&quot;
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        <Controller
-          name="featured"
-          control={form.control}
-          render={({ field: { value, onChange, ...props } }) => (
-            <FieldLabel>
-              <Field orientation="horizontal">
-                <Checkbox
-                  {...props}
-                  checked={value}
-                  onCheckedChange={onChange}
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>SKU</FieldLabel>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  value={(field.state.value as string) ?? ""}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  aria-invalid={isInvalid}
                 />
-                <FieldContent>
-                  <FieldTitle>Featured product</FieldTitle>
-                  <FieldDescription>
-                    Featured products are displayed on the home page and in
-                    priority search results.
-                  </FieldDescription>
-                </FieldContent>
+                <FieldDescription>
+                  Unique identifier code used to track and manage this product
+                  in your inventory.
+                </FieldDescription>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
-            </FieldLabel>
-          )}
+            )
+          }}
         />
-        <div className="flex items-start gap-4">
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    The actual price of the product
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )
-            }}
-          />
-          <FormField
-            control={form.control}
-            name="discount_price"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>Discount Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormDescription></FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )
-            }}
-          />
-        </div>
-        {children}
-      </form>
-    </Form>
+        <ProductNameField form={form} />
+        <form.Field
+          name="description"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                <Textarea
+                  id={field.name}
+                  name={field.name}
+                  value={(field.state.value as string) ?? ""}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  aria-invalid={isInvalid}
+                  placeholder="Describe your product in detail: features, materials, dimensions, and any other relevant information..."
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+        <form.Field
+          name="category_id"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Category</FieldLabel>
+                <CategoryCombobox
+                  id={field.name}
+                  name={field.name}
+                  initialItem={form.state.values.category}
+                  value={(field.state.value as number) ?? null}
+                  onValueChange={(value) => {
+                    field.handleChange(value)
+                    console.log(value)
+                  }}
+                />
+                <FieldDescription>
+                  The category allows you to group products.
+                </FieldDescription>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+        <form.Field
+          name="brand_id"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Brand</FieldLabel>
+                <BrandCombobox
+                  id={field.name}
+                  name={field.name}
+                  initialItem={form.state.values.brand}
+                  value={(field.state.value as never) || null}
+                  onValueChange={field.handleChange}
+                />
+                <FieldDescription>
+                  The product&apos;s brand can be inferred from its name.
+                </FieldDescription>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+        <form.Field
+          name="status"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                <Select
+                  value={field.state.value as string}
+                  onValueChange={field.handleChange}
+                >
+                  <SelectTrigger
+                    id={field.name}
+                    aria-invalid={isInvalid}
+                    className="w-full"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {statusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.icon} {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FieldDescription>
+                  By default, the product status is &quot;draft&quot;.
+                </FieldDescription>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+        <form.Field
+          name="featured"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <FieldLabel htmlFor={field.name} data-invalid={isInvalid}>
+                <Field orientation="horizontal">
+                  <Checkbox
+                    id={field.name}
+                    aria-invalid={isInvalid}
+                    checked={field.state.value as never}
+                    onBlur={field.handleBlur}
+                    onCheckedChange={field.handleChange}
+                  />
+                  <FieldContent>
+                    <FieldTitle>Featured product</FieldTitle>
+                    <FieldDescription>
+                      Featured products are displayed on the home page and in
+                      priority search results.
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
+            )
+          }}
+        />
+        <form.Field
+          name="price"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Price</FieldLabel>
+                <Input
+                  type="number"
+                  id={field.name}
+                  name={field.name}
+                  value={(field.state.value as string) ?? ""}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    field.handleChange(value ? Number(e.target.value) : null)
+                  }}
+                  aria-invalid={isInvalid}
+                />
+                <FieldDescription>
+                  The actual price of product.
+                </FieldDescription>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+        <form.Field
+          name="discount_price"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Discount Price</FieldLabel>
+                <Input
+                  type="number"
+                  id={field.name}
+                  name={field.name}
+                  value={(field.state.value as string) ?? ""}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    field.handleChange(value ? Number(e.target.value) : null)
+                  }}
+                  aria-invalid={isInvalid}
+                />
+                <FieldDescription>
+                  Discounted price after applying any promotions or coupon
+                  codes.
+                </FieldDescription>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+      </FieldGroup>
+    </form>
   )
 }

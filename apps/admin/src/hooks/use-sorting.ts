@@ -1,5 +1,6 @@
 import { ColumnSort, OnChangeFn, SortingState } from "@tanstack/react-table"
 import { createParser, useQueryState } from "nuqs"
+import * as React from "react"
 import { useCallback } from "react"
 
 const COLUMN_SORT_KEY = "sort"
@@ -43,8 +44,12 @@ export function useSorting() {
   return { sorting, onSortingChange }
 }
 
-export function useSortingValues(): { ordering?: string } {
-  const sorting = useColumnSortSearchParams()[0]
-  if (!sorting) return {}
-  return { ordering: `${sorting.desc ? "-" : ""}${sorting.id}` }
+export function useSortingValues() {
+  const [sorting] = useColumnSortSearchParams()
+  return React.useMemo(
+    () => ({
+      ordering: sorting ? `${sorting.desc ? "-" : ""}${sorting.id}` : undefined,
+    }),
+    [sorting]
+  )
 }

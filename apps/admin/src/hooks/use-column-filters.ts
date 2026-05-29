@@ -4,7 +4,7 @@ import {
   ColumnFiltersState,
   OnChangeFn,
 } from "@tanstack/react-table"
-import { SingleParser, useQueryStates } from "nuqs"
+import { SingleParser, useQueryStates, Values } from "nuqs"
 import * as React from "react"
 
 type HasFilterParser<K> = K extends {
@@ -35,12 +35,13 @@ function extractFilterParsers<C extends ColumnDef<any>[]>(
 }
 
 export function useColumnFilterValues<C extends ColumnDef<any>[]>(columns: C) {
-  const [values] = useQueryStates(extractFilterParsers(columns))
-  return nullsToUndefined(values)
+  const keyMap = React.useMemo(() => extractFilterParsers(columns), [columns])
+  const [values] = useQueryStates(keyMap)
+  return React.useMemo(() => nullsToUndefined(values), [values])
 }
 
 export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
-  const keyMap = extractFilterParsers(columns)
+  const keyMap = React.useMemo(() => extractFilterParsers(columns), [columns])
   const [values, setValues] = useQueryStates(keyMap)
 
   const columnFilters = React.useMemo<ColumnFiltersState>(

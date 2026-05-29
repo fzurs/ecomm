@@ -81,9 +81,7 @@ export function DataTable<TData>({
                     colSpan={table.getAllColumns().length}
                     className="h-24 text-center"
                   >
-                    {table.options.meta?.isPending
-                      ? "Fetching..."
-                      : "No results."}
+                    No results.
                   </TableCell>
                 </TableRow>
               )}

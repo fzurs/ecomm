@@ -9,13 +9,18 @@ import {
 } from "@workspace/ui/components/card"
 import { Field, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
-import { Controller, useForm } from "react-hook-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api-client"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { schemas } from "@workspace/api-client"
 import z from "zod"
 import { useRouter } from "next/navigation"
+import { useForm } from "@tanstack/react-form"
+
+const defaultValues: z.infer<typeof schemas.Login> = {
+  username: "",
+  email: "",
+  password: "",
+}
 
 export function LoginForm({
   className,
@@ -23,11 +28,6 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter()
   const queryClient = useQueryClient()
-
-  const form = useForm({
-    resolver: zodResolver(schemas.Login),
-    defaultValues: { username: "", password: "" },
-  })
 
   const { mutate } = useMutation({
     mutationFn: (data: z.infer<typeof schemas.Login>) =>
@@ -38,6 +38,14 @@ export function LoginForm({
     },
   })
 
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onSubmit: schemas.Login,
+    },
+    onSubmit: ({ value }) => mutate(value),
+  })
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -45,39 +53,58 @@ export function LoginForm({
           <CardTitle>Login</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit((data) => mutate(data))}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
             <FieldGroup>
-              <Controller
+              <form.Field
                 name="username"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="username">Username</FieldLabel>
-                    <Input
-                      id="username"
-                      type="text"
-                      placeholder="francozursch123"
-                      required
-                      {...field}
-                    />
-                  </Field>
-                )}
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Username</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value as string}
+                        type="text"
+                        placeholder="francozursch123"
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        required
+                      />
+                    </Field>
+                  )
+                }}
               />
-              <Controller
+              <form.Field
                 name="password"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="******"
-                      required
-                      {...field}
-                    />
-                  </Field>
-                )}
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value as string}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        type="password"
+                        placeholder="******"
+                        required
+                        aria-invalid={isInvalid}
+                      />
+                    </Field>
+                  )
+                }}
               />
               <Field>
                 <Button type="submit">Login</Button>

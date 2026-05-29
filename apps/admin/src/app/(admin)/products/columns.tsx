@@ -1,10 +1,4 @@
-import { apiClient } from "@/lib/api-client"
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { queryOptions } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -12,16 +6,15 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useId, useState } from "react"
-import { useForm } from "react-hook-form"
+import * as React from "react"
 import { z } from "zod"
-import { ProductForm } from "./form"
 import { snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -32,13 +25,13 @@ import {
   IconStar,
   IconTrashX,
 } from "@tabler/icons-react"
-import React from "react"
 import { parseAsArrayOf, parseAsString, parseAsStringEnum } from "nuqs"
 import {
   getBrandsQueryOptions,
   getCategoriesQueryOptions,
   selectAsOption,
 } from "@/lib/query-options"
+import { ProductForm, useProductForm } from "./form"
 
 export const getFeaturedIcon = (
   featured: z.infer<typeof schemas.Product>["featured"]
@@ -208,28 +201,9 @@ function TableCellViewer({
   original: z.infer<typeof schemas.Product>
 }) {
   const isMobile = useIsMobile()
-  const queryClient = useQueryClient()
+  const [open, setOpen] = React.useState(false)
 
-  const [open, setOpen] = useState(false)
-
-  const form = useForm({
-    resolver: zodResolver(schemas.Product),
-    values: item,
-  })
-  const formId = useId()
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: z.infer<typeof schemas.Product>) =>
-      apiClient.products_update(data, {
-        params: { slug: item.slug as string },
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] })
-      setOpen(false)
-    },
-  })
-
-  const onSubmit = (data: z.infer<typeof schemas.Product>) => mutate(data)
+  const { form, formId, isPending } = useProductForm({ item, setOpen })
 
   return (
     <Drawer
@@ -243,23 +217,27 @@ function TableCellViewer({
           {item.name}
         </Button>
       </DrawerTrigger>
-      <DrawerContent onAnimationEnd={() => form.reset()}>
+      <DrawerContent
+        onAnimationEnd={(e) => {
+          if (!open && e.animationName === "slideToRight") {
+            form.reset()
+          }
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle>{item.name}</DrawerTitle>
+          <DrawerDescription />
         </DrawerHeader>
-        <div className="no-scrollbar overflow-y-auto">
-          <ProductForm
-            form={form}
-            id={formId}
-            onSubmit={onSubmit}
-            className="px-4"
-          />
-        </div>
+        <ProductForm
+          form={form}
+          id={formId}
+          className="no-scrollbar overflow-y-auto"
+        />
         <DrawerFooter>
           <Button
-            type="submit"
-            disabled={isPending || !form.formState.isDirty}
             form={formId}
+            type="submit"
+            disabled={isPending || !form.state.isDirty}
           >
             Save changes
           </Button>

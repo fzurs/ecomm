@@ -10,15 +10,10 @@ import {
 import { useDataTable } from "@/hooks/use-data-table"
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { useSortingValues } from "@/hooks/use-sorting"
-import React, { useId, useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { z } from "zod"
+import React, { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { PackagePlus } from "lucide-react"
 
-import { apiClient } from "@/lib/api-client"
-import { schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -30,30 +25,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@workspace/ui/components/form"
-import { Input } from "@workspace/ui/components/input"
 
 import { columns } from "./columns"
 import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
+import { ProductNameField, useProductForm } from "./form"
 
 export default function Page() {
   const queryClient = useQueryClient()
 
   const pagination = usePaginationValues()
   const sorting = useSortingValues()
-  const { name: search, ...columnFilters } = useColumnFilterValues(columns)
+  const columnFilters = useColumnFilterValues(columns)
 
-  const filters = { ...pagination, ...sorting, ...columnFilters, search }
+  const filters = React.useMemo(() => {
+    const { name: search, ...rest } = columnFilters
+    return { ...pagination, ...sorting, ...rest, search }
+  }, [pagination, sorting, columnFilters])
+
   const isCached =
     queryClient.getQueryData(queryKeys.getProducts(filters)) !== undefined
   const debouncedFilters = useDebounce(filters, isCached ? 0 : 300)
@@ -87,35 +77,8 @@ export default function Page() {
 
 function QuickCreateProductDialog() {
   const [open, setOpen] = useState(false)
-  const queryClient = useQueryClient()
 
-  const form = useForm({
-    resolver: zodResolver(schemas.Product),
-    defaultValues: {
-      id: 0,
-      name: "",
-      category: null,
-      brand: null,
-      created_at: new Date().toISOString(),
-    },
-  })
-  const formId = useId()
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: z.infer<typeof schemas.Product>) =>
-      apiClient.products_create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] })
-      form.reset()
-      setOpen(false)
-    },
-  })
-
-  const onSubmit = (values: z.infer<typeof schemas.Product>) => {
-    mutate(values)
-  }
-
-  const onAnimationEnd = () => undefined
+  const { form, formId, isPending } = useProductForm({ setOpen })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -125,7 +88,7 @@ function QuickCreateProductDialog() {
           Quick Create
         </Button>
       </DialogTrigger>
-      <DialogContent onAnimationEnd={onAnimationEnd}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Product</DialogTitle>
           <DialogDescription className="sr-only">
@@ -133,33 +96,24 @@ function QuickCreateProductDialog() {
             catalog.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} id={formId}>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      required
-                      {...field}
-                      placeholder="e.g. AMD Ryzen 9 7950X"
-                    />
-                  </FormControl>
-                  <FormDescription />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
+        <form
+          id={formId}
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <ProductNameField form={form} placeholder="e.g. AMD Ryzen 9 7950X" />
+        </form>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>
-          <Button type="submit" disabled={isPending} form={formId}>
+          <Button
+            type="submit"
+            disabled={isPending || !form.state.isDirty}
+            form={formId}
+          >
             Create
           </Button>
         </DialogFooter>
