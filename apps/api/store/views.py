@@ -1,4 +1,6 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Category, Brand
 from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
@@ -13,6 +15,22 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description", "category__name", "brand__name"]
     ordering_fields = ["name", "category", "brand", "status", "featured", "price", "discount_price", "created_at"]
     lookup_field = "slug"
+
+    @action(detail=True, methods=['post'], url_path='generate-sku')
+    def generate_sku(self, request, **kwargs):
+        instance = self.get_object()
+        is_success = instance.generate_sku()
+        if not is_success: return Response({'message': 'The SKU could not be generated'}, status.HTTP_400_BAD_REQUEST) 
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data) 
+
+    @action(detail=True, methods=["post"], url_path='detect-and-assign-brand')
+    def detect_and_assign_brand(self, request, **kwargs):
+        instance = self.get_object()
+        is_success = instance.detect_and_assign_brand()
+        if not is_success: return Response({'message': 'No brand was detected in the product name'}, status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

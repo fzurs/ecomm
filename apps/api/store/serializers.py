@@ -37,3 +37,10 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = serializers.ALL_FIELDS
         read_only_fields = ["created_at"]
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        if instance.sku == None: instance.generate_sku()
+        if instance.brand == None: instance.detect_and_assign_brand()
+        return instance
+            

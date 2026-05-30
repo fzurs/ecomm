@@ -99,6 +99,7 @@ function QuickCreateProductDialog() {
           </DialogDescription>
         </DialogHeader>
         <form
+          id={form.formId}
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
@@ -112,7 +113,9 @@ function QuickCreateProductDialog() {
                 field.state.meta.isTouched && !field.state.meta.isValid
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
+                  <FieldLabel htmlFor={fieldId}>
+                    Name {JSON.stringify(form.state.errors)}
+                  </FieldLabel>
                   <Input
                     id={fieldId}
                     name={field.name}
@@ -122,6 +125,7 @@ function QuickCreateProductDialog() {
                     aria-invalid={isInvalid}
                     required
                     placeholder="e.g. AMD Ryzen 9 7950X"
+                    autoFocus
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>

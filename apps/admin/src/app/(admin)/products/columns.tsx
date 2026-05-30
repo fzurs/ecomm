@@ -25,7 +25,12 @@ import {
   IconStar,
   IconTrashX,
 } from "@tabler/icons-react"
-import { parseAsArrayOf, parseAsString, parseAsStringEnum } from "nuqs"
+import {
+  parseAsArrayOf,
+  parseAsBoolean,
+  parseAsString,
+  parseAsStringEnum,
+} from "nuqs"
 import {
   getBrandsQueryOptions,
   getCategoriesQueryOptions,
@@ -163,6 +168,16 @@ export const columns = [
         {getFeaturedIcon(row.original.featured)}
       </div>
     ),
+    meta: {
+      filter: {
+        variant: "select",
+        options: [
+          { label: "Featured", value: true, icon: getFeaturedIcon(true) },
+          { label: "Not Featured", value: false, icon: getFeaturedIcon(false) },
+        ],
+        parser: parseAsBoolean,
+      },
+    },
   },
   {
     id: "price",

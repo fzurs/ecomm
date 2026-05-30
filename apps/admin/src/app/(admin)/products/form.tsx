@@ -46,8 +46,57 @@ import z from "zod"
 import { apiClient } from "@/lib/api-client"
 import { useForm } from "@tanstack/react-form"
 import { statusOptions } from "./columns"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@workspace/ui/components/input-group"
+import {
+  IconLoader,
+  IconScan,
+  IconSparkles,
+  IconTextScan2,
+} from "@tabler/icons-react"
 
-export function CategoryCombobox({
+function useQueryOnOpen<
+  TQueryFnData = unknown,
+  TError = Error,
+  TData = TQueryFnData,
+  TQueryKey extends readonly unknown[] = readonly unknown[],
+>(
+  props: Parameters<typeof useQuery<TQueryFnData, TError, TData, TQueryKey>>[0]
+) {
+  const [open, setOpen] = React.useState(false)
+
+  const query = useQuery({ ...props, enabled: open })
+
+  return [query, { open, setOpen }] as const
+}
+
+function ComboboxInputValue({
+  items,
+  initialItem,
+  ...props
+}: React.ComponentProps<typeof ComboboxInput> & {
+  items?: Parameters<typeof Combobox>[0]["items"]
+  initialItem?: { id: string | number } | null
+}) {
+  return (
+    <ComboboxValue>
+      {(value) => {
+        const item = items
+          ? items.find((item) => item.id === value)
+          : initialItem && value === initialItem.id
+            ? initialItem
+            : undefined
+        return <ComboboxInput value={item?.name ?? ""} showClear {...props} />
+      }}
+    </ComboboxValue>
+  )
+}
+
+function CategoryCombobox({
   initialItem,
   ...props
 }: React.ComponentProps<
@@ -55,12 +104,9 @@ export function CategoryCombobox({
 > & {
   initialItem?: z.infer<typeof schemas.Category> | null
 }) {
-  const [open, setOpen] = React.useState(false)
-
-  const { data: items, isSuccess } = useQuery({
-    ...getCategoriesQueryOptions(),
-    enabled: open,
-  })
+  const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
+    getCategoriesQueryOptions()
+  )
 
   return (
     <Combobox
@@ -70,22 +116,11 @@ export function CategoryCombobox({
       onOpenChange={setOpen}
       {...props}
     >
-      <ComboboxValue>
-        {(value) => {
-          const item = isSuccess
-            ? items.find((item) => item.id === value)
-            : initialItem && value === initialItem.id
-              ? initialItem
-              : undefined
-          return (
-            <ComboboxInput
-              placeholder="Assing a category"
-              value={item?.name ?? ""}
-              showClear
-            />
-          )
-        }}
-      </ComboboxValue>
+      <ComboboxInputValue
+        items={items}
+        initialItem={initialItem}
+        placeholder="Assing a category"
+      />
       <ComboboxContent>
         <ComboboxEmpty>No categories found.</ComboboxEmpty>
         <ComboboxList>
@@ -105,18 +140,49 @@ export function CategoryCombobox({
   )
 }
 
-export function BrandCombobox({
-  initialItem,
-  ...props
-}: React.ComponentProps<
-  typeof Combobox<z.infer<typeof schemas.Brand>["id"] | null, false>
-> & { initialItem?: z.infer<typeof schemas.Brand> | null }) {
-  const [open, setOpen] = React.useState(false)
+function DetectAndAssignBrandInputGroupButton({
+  product,
+  form,
+}: Omit<React.ComponentProps<typeof InputGroupButton>, "form"> & {
+  product: z.infer<typeof schemas.Product>
+  form: ReturnType<typeof useProductForm>
+}) {
+  const queryClient = useQueryClient()
 
-  const { data: items, isSuccess } = useQuery({
-    ...getBrandsQueryOptions(),
-    enabled: open,
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      apiClient.products_detect_and_assign_brand_create(product, {
+        params: { slug: product.slug as string },
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      form.reset(data)
+    },
   })
+
+  return (
+    <InputGroupButton onClick={() => mutate()}>
+      {isPending ? <IconLoader /> : <IconTextScan2 />}
+    </InputGroupButton>
+  )
+}
+
+function BrandCombobox({
+  product,
+  form,
+  ...props
+}: Omit<
+  React.ComponentProps<
+    typeof Combobox<z.infer<typeof schemas.Brand>["id"] | null, false>
+  >,
+  "form"
+> & {
+  product: z.infer<typeof schemas.Product>
+  form: ReturnType<typeof useProductForm>
+}) {
+  const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
+    getBrandsQueryOptions()
+  )
 
   return (
     <Combobox
@@ -126,22 +192,16 @@ export function BrandCombobox({
       onOpenChange={setOpen}
       {...props}
     >
-      <ComboboxValue>
-        {(value) => {
-          const item = isSuccess
-            ? items.find((item) => item.id === value)
-            : initialItem && value === initialItem.id
-              ? initialItem
-              : undefined
-          return (
-            <ComboboxInput
-              placeholder="Assing a brand"
-              value={item?.name ?? ""}
-              showClear
-            />
-          )
-        }}
-      </ComboboxValue>
+      <ComboboxInputValue
+        items={items}
+        initialItem={product.brand}
+        placeholder="Assing a brand"
+        showTrigger={false}
+      >
+        <InputGroupAddon align="inline-end">
+          <DetectAndAssignBrandInputGroupButton product={product} form={form} />
+        </InputGroupAddon>
+      </ComboboxInputValue>
       <ComboboxContent>
         <ComboboxEmpty>No brands found.</ComboboxEmpty>
         <ComboboxList>
@@ -153,6 +213,39 @@ export function BrandCombobox({
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
+  )
+}
+
+function SKUInput({
+  item,
+  form,
+  ...props
+}: Omit<React.ComponentProps<typeof InputGroupInput>, "form"> & {
+  item: z.infer<typeof schemas.Product>
+  form: ReturnType<typeof useProductForm>
+}) {
+  const queryClient = useQueryClient()
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      apiClient.products_generate_sku_create(item, {
+        params: { slug: item.slug as string },
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      form.reset(data)
+    },
+  })
+
+  return (
+    <InputGroup>
+      <InputGroupInput {...props} />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton onClick={() => mutate()}>
+          {isPending ? <IconLoader /> : <IconSparkles />}
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
   )
 }
 
@@ -221,13 +314,15 @@ export function ProductForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={fieldId}>SKU</FieldLabel>
-                <Input
+                <SKUInput
                   id={fieldId}
                   name={field.name}
                   value={(field.state.value as string) ?? ""}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
+                  item={form.state.values}
+                  form={form}
                 />
                 <FieldDescription>
                   Unique identifier code used to track and manage this product
@@ -323,9 +418,10 @@ export function ProductForm({
                 <BrandCombobox
                   id={fieldId}
                   name={field.name}
-                  initialItem={form.state.values.brand}
                   value={(field.state.value as never) || null}
                   onValueChange={field.handleChange}
+                  product={form.state.values}
+                  form={form}
                 />
                 <FieldDescription>
                   The product&apos;s brand can be inferred from its name.

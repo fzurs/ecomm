@@ -685,6 +685,44 @@ Returns UserModel fields.`,
     ],
     response: z.void(),
   },
+  {
+    method: 'post',
+    path: '/products/:slug/detect-and-assign-brand/',
+    alias: 'products_detect_and_assign_brand_create',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: Product,
+      },
+      {
+        name: 'slug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: Product,
+  },
+  {
+    method: 'post',
+    path: '/products/:slug/generate-sku/',
+    alias: 'products_generate_sku_create',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: Product,
+      },
+      {
+        name: 'slug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: Product,
+  },
 ])
 
 export const api = new Zodios(endpoints)

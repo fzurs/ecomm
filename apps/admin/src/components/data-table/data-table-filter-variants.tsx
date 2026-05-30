@@ -86,6 +86,7 @@ export function ComboboxFilter<
             <ComboboxInput
               value={items?.find((item) => item.value === value)?.label ?? ""}
               placeholder={placeholder}
+              showClear
             />
           )}
         </ComboboxValue>

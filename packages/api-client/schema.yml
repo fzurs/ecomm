@@ -726,6 +726,70 @@ paths:
       responses:
         '204':
           description: No response body
+  /products/{slug}/detect-and-assign-brand/:
+    post:
+      operationId: products_detect_and_assign_brand_create
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /products/{slug}/generate-sku/:
+    post:
+      operationId: products_generate_sku_create
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
 components:
   schemas:
     Brand:
@@ -880,7 +944,6 @@ components:
           nullable: true
         brand_id:
           type: integer
-          writeOnly: true
           nullable: true
         category:
           allOf:
@@ -889,7 +952,6 @@ components:
           nullable: true
         category_id:
           type: integer
-          writeOnly: true
           nullable: true
         slug:
           type: string
@@ -961,7 +1023,6 @@ components:
           nullable: true
         brand_id:
           type: integer
-          writeOnly: true
           nullable: true
         category:
           allOf:
@@ -970,7 +1031,6 @@ components:
           nullable: true
         category_id:
           type: integer
-          writeOnly: true
           nullable: true
         slug:
           type: string
