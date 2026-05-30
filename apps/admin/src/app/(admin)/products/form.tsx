@@ -194,40 +194,6 @@ export function useProductForm({
   return form
 }
 
-export function ProductNameField({
-  form,
-  ...props
-}: Omit<React.ComponentProps<typeof Input>, "form"> & {
-  form: ReturnType<typeof useProductForm>
-}) {
-  return (
-    <form.Field
-      name="name"
-      children={(field) => {
-        const fieldId = `${form.formId}-${field.name}`
-        const isInvalid =
-          field.state.meta.isTouched && !field.state.meta.isValid
-        return (
-          <Field data-invalid={isInvalid}>
-            <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
-            <Input
-              id={fieldId}
-              name={field.name}
-              value={field.state.value as string}
-              onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(e.target.value)}
-              aria-invalid={isInvalid}
-              required
-              {...props}
-            />
-            {isInvalid && <FieldError errors={field.state.meta.errors} />}
-          </Field>
-        )
-      }}
-    />
-  )
-}
-
 export function ProductForm({
   form,
   className,
@@ -272,9 +238,29 @@ export function ProductForm({
             )
           }}
         />
-
-        <ProductNameField form={form} />
-
+        <form.Field
+          name="name"
+          children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
+                <Input
+                  id={fieldId}
+                  name={field.name}
+                  value={field.state.value as string}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  aria-invalid={isInvalid}
+                  required
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
         <form.Field
           name="description"
           children={(field) => {

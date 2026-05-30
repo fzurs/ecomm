@@ -30,7 +30,9 @@ import { columns } from "./columns"
 import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
-import { ProductNameField, useProductForm } from "./form"
+import { useProductForm } from "./form"
+import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
 
 export default function Page() {
   const queryClient = useQueryClient()
@@ -102,7 +104,30 @@ function QuickCreateProductDialog() {
             form.handleSubmit()
           }}
         >
-          <ProductNameField form={form} placeholder="e.g. AMD Ryzen 9 7950X" />
+          <form.Field
+            name="name"
+            children={(field) => {
+              const fieldId = `${form.formId}-${field.name}`
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
+                  <Input
+                    id={fieldId}
+                    name={field.name}
+                    value={field.state.value as string}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    required
+                    placeholder="e.g. AMD Ryzen 9 7950X"
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              )
+            }}
+          />
         </form>
         <DialogFooter>
           <DialogClose asChild>
