@@ -7,7 +7,7 @@ export const queryKeys = {
   getProducts: (
     queries: NonNullable<
       Parameters<typeof apiClient.products_list>[0]
-    >["queries"]
+    >["queries"] = {}
   ) => [...queryKeys.allProducts(), queries],
 }
 

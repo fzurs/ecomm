@@ -306,7 +306,33 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
       apiClient.products_destroy(undefined, {
         params: { slug: item.slug as string },
       }),
-    onSuccess: () => {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.allProducts() })
+
+      const previousData = queryClient.getQueryData(queryKeys.getProducts())
+
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.allProducts() },
+        (
+          old: Awaited<ReturnType<typeof apiClient.products_list>> | undefined
+        ) => {
+          if (!old) return old
+          return {
+            ...old,
+            results: old.results.filter((product) => product.id !== item.id),
+          }
+        }
+      )
+
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) => {
+      queryClient.setQueryData(
+        queryKeys.getProducts(),
+        onMutateResult?.previousData
+      )
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
     },
   })
