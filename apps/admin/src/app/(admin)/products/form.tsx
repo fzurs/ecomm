@@ -35,7 +35,7 @@ import {
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { cn } from "@workspace/ui/lib/utils"
 import { schemas } from "@workspace/api-client"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import {
   getBrandsQueryOptions,
@@ -52,27 +52,8 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
-import {
-  IconLoader,
-  IconScan,
-  IconSparkles,
-  IconTextScan2,
-} from "@tabler/icons-react"
-
-function useQueryOnOpen<
-  TQueryFnData = unknown,
-  TError = Error,
-  TData = TQueryFnData,
-  TQueryKey extends readonly unknown[] = readonly unknown[],
->(
-  props: Parameters<typeof useQuery<TQueryFnData, TError, TData, TQueryKey>>[0]
-) {
-  const [open, setOpen] = React.useState(false)
-
-  const query = useQuery({ ...props, enabled: open })
-
-  return [query, { open, setOpen }] as const
-}
+import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
+import { useQueryOnOpen } from "@/hooks/use-query-on-open"
 
 function ComboboxInputValue({
   items,
@@ -162,7 +143,7 @@ function DetectAndAssignBrandInputGroupButton({
 
   return (
     <InputGroupButton onClick={() => mutate()}>
-      {isPending ? <IconLoader /> : <IconTextScan2 />}
+      {isPending ? <IconLoader className="animate-spin" /> : <IconTextScan2 />}
     </InputGroupButton>
   )
 }
@@ -242,7 +223,11 @@ function SKUInput({
       <InputGroupInput {...props} />
       <InputGroupAddon align="inline-end">
         <InputGroupButton onClick={() => mutate()}>
-          {isPending ? <IconLoader /> : <IconSparkles />}
+          {isPending ? (
+            <IconLoader className="animate-spin" />
+          ) : (
+            <IconSparkles />
+          )}
         </InputGroupButton>
       </InputGroupAddon>
     </InputGroup>

@@ -113,9 +113,7 @@ function QuickCreateProductDialog() {
                 field.state.meta.isTouched && !field.state.meta.isValid
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>
-                    Name {JSON.stringify(form.state.errors)}
-                  </FieldLabel>
+                  <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
                   <Input
                     id={fieldId}
                     name={field.name}

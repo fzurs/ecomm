@@ -117,9 +117,15 @@ export function AsyncComboboxFilter<
 > & { itemsQueryOptions: UseQueryOptions<any, any, Option[], any> }) {
   const [open, setOpen] = React.useState(false)
 
-  const enabled = open || toNullIfEmpty(value) !== null
+  const valueIsNull = React.useMemo(
+    () => toNullIfEmpty(value) !== null,
+    [value]
+  )
 
-  const { data: items } = useQuery({ ...itemsQueryOptions, enabled })
+  const { data: items } = useQuery({
+    ...itemsQueryOptions,
+    enabled: open || valueIsNull,
+  })
 
   return (
     <ComboboxFilter
