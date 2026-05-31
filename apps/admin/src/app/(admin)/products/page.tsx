@@ -90,7 +90,13 @@ function QuickCreateProductDialog() {
           Quick Create
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        onAnimationEnd={(e) => {
+          if (!open && e.animationName === "exit") {
+            form.reset()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Create Product</DialogTitle>
           <DialogDescription className="sr-only">

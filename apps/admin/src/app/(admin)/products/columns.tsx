@@ -1,4 +1,8 @@
-import { queryOptions } from "@tanstack/react-query"
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -20,9 +24,13 @@ import { Badge } from "@workspace/ui/components/badge"
 import {
   IconCircleDashedCheck,
   IconCircleDashedX,
+  IconDots,
+  IconEdit,
+  IconEye,
   IconLoader,
   IconPackageOff,
   IconStar,
+  IconTrash,
   IconTrashX,
 } from "@tabler/icons-react"
 import {
@@ -34,9 +42,22 @@ import {
 import {
   getBrandsQueryOptions,
   getCategoriesQueryOptions,
+  queryKeys,
   selectAsOption,
 } from "@/lib/query-options"
 import { ProductForm, useProductForm } from "./form"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { apiClient } from "@/lib/api-client"
+import { Spinner } from "@workspace/ui/components/spinner"
+import { AnyFormApi } from "@tanstack/react-form"
 
 export const getFeaturedIcon = (
   featured: z.infer<typeof schemas.Product>["featured"]
@@ -83,6 +104,7 @@ export const columns = [
     header: "Name",
     accessorKey: "name",
     cell: ({ row }) => <TableCellViewer original={row.original} />,
+    enableHiding: false,
     meta: {
       filter: { variant: "text", parser: parseAsString },
     },
@@ -208,6 +230,10 @@ export const columns = [
       </div>
     ),
   },
+  {
+    id: "actions",
+    cell: ({ row }) => <TableCellActions item={row.original} />,
+  },
 ] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[]
 
 function TableCellViewer({
@@ -263,5 +289,40 @@ function TableCellViewer({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  )
+}
+
+function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
+  const queryClient = useQueryClient()
+
+  const destroyMutation = useMutation({
+    mutationFn: () =>
+      apiClient.products_destroy(undefined, {
+        params: { slug: item.slug as string },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+    },
+  })
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <IconDots />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => destroyMutation.mutate()}
+          >
+            {destroyMutation.isPending ? <Spinner /> : <IconTrash />}
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
