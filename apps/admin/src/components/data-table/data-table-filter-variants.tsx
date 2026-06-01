@@ -82,13 +82,18 @@ export function ComboboxFilter<
         </ComboboxChips>
       ) : (
         <ComboboxValue>
-          {(value) => (
-            <ComboboxInput
-              value={items?.find((item) => item.value === value)?.label ?? ""}
-              placeholder={placeholder}
-              showClear
-            />
-          )}
+          {(value) => {
+            const item = items?.find((item) => item.value === value)
+            return (
+              <ComboboxInput
+                value={item?.label ?? ""}
+                placeholder={placeholder}
+                showClear
+              >
+                {item?.icon && <InputGroupAddon>{item.icon}</InputGroupAddon>}
+              </ComboboxInput>
+            )
+          }}
         </ComboboxValue>
       )}
       <ComboboxContent anchor={anchor}>
