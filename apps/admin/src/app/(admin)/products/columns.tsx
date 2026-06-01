@@ -137,7 +137,7 @@ export const columns = [
       ),
     meta: {
       filter: {
-        variant: "async-multi-select",
+        variant: "async-multi",
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
           ...getCategoriesQueryOptions(),
@@ -153,7 +153,7 @@ export const columns = [
     cell: ({ row }) => row.original.brand?.name,
     meta: {
       filter: {
-        variant: "async-multi-select",
+        variant: "async-multi",
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
           ...getBrandsQueryOptions(),

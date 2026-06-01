@@ -1,7 +1,6 @@
 "use client"
 import { toNullIfEmpty } from "@/lib/utils"
 import { type Option } from "@/types/data-table"
-import { IconSearch } from "@tabler/icons-react"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
   Combobox,
@@ -15,25 +14,12 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
+import { InputGroupAddon } from "@workspace/ui/components/input-group"
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@workspace/ui/components/input-group"
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@workspace/ui/components/toggle-group"
 import * as React from "react"
-
-export function TextFilter({
-  ...props
-}: React.ComponentProps<typeof InputGroupInput>) {
-  return (
-    <InputGroup className="w-auto">
-      <InputGroupInput {...props} />
-      <InputGroupAddon>
-        <IconSearch />
-      </InputGroupAddon>
-    </InputGroup>
-  )
-}
 
 export function ComboboxFilter<
   Value,
@@ -89,6 +75,7 @@ export function ComboboxFilter<
                 value={item?.label ?? ""}
                 placeholder={placeholder}
                 showClear
+                showTrigger={false}
               >
                 {item?.icon && <InputGroupAddon>{item.icon}</InputGroupAddon>}
               </ComboboxInput>
@@ -113,13 +100,13 @@ export function AsyncComboboxFilter<
   Value,
   Multiple extends boolean | undefined = false,
 >({
-  itemsQueryOptions,
+  items: itemsQueryOptions,
   value,
   ...props
 }: Omit<
   React.ComponentProps<typeof ComboboxFilter<Value, Multiple>>,
   "items"
-> & { itemsQueryOptions: UseQueryOptions<any, any, Option[], any> }) {
+> & { items: UseQueryOptions<any, any, Option[], any> }) {
   const [open, setOpen] = React.useState(false)
 
   const valueIsNull = React.useMemo(

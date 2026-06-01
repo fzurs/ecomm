@@ -1,5 +1,5 @@
 import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
-import type * as React from "react"
+import * as React from "react"
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import {
@@ -13,6 +13,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTableColumnHeader } from "./data-table-column-header"
+import { Button } from "@workspace/ui/components/button"
 
 export function DataTable<TData>({
   table,
@@ -23,6 +24,9 @@ export function DataTable<TData>({
   table: TanstackTable<TData>
   children?: React.ReactNode
 }) {
+  const isFiltered = table.getState().columnFilters.length > 0
+  const clearFilters = () => table.resetColumnFilters()
+
   return (
     <div
       className={cn(
@@ -79,9 +83,16 @@ export function DataTable<TData>({
                 <TableRow>
                   <TableCell
                     colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
+                    className="h-40"
                   >
-                    No results.
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      No results.
+                      {isFiltered && (
+                        <Button variant="link" size="sm" onClick={clearFilters}>
+                          Clear filters
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

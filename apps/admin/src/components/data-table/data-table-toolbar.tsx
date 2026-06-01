@@ -4,16 +4,18 @@ import type { Column, Table } from "@tanstack/react-table"
 import * as React from "react"
 
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { Button } from "@workspace/ui/components/button"
 
 import { cn } from "@workspace/ui/lib/utils"
 import {
   AsyncComboboxFilter,
   ComboboxFilter,
-  TextFilter,
 } from "./data-table-filter-variants"
-import { X } from "lucide-react"
 import { snakeCaseToTitle } from "@/lib/utils"
+import { Input } from "@workspace/ui/components/input"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@workspace/ui/components/toggle-group"
 
 export function DataTableToolbar<TData>({
   table,
@@ -25,10 +27,6 @@ export function DataTableToolbar<TData>({
   const columns = table
     .getAllColumns()
     .filter((column) => column.getCanFilter())
-
-  const isFiltered = table.getState().columnFilters.length > 0
-
-  const onReset = React.useCallback(() => table.resetColumnFilters(), [table])
 
   return (
     <div
@@ -45,12 +43,6 @@ export function DataTableToolbar<TData>({
             table={table}
           />
         ))}
-        {isFiltered && (
-          <Button variant="ghost" onClick={onReset}>
-            <X />
-            Reset
-          </Button>
-        )}
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
@@ -65,46 +57,83 @@ function DataTableToolbarFilter<TData>({
   column: Column<TData>
   table: Table<TData>
 }) {
-  const filterOpts = column.columnDef.meta?.filter
+  const filterMeta = column.columnDef.meta?.filter
 
-  const placeholder = filterOpts?.placeholder || snakeCaseToTitle(column.id)
+  const placeholder = filterMeta?.placeholder || snakeCaseToTitle(column.id)
+  const value = column.getFilterValue() as any
+  const setValue = column.setFilterValue
 
-  switch (filterOpts?.variant) {
+  switch (filterMeta?.variant) {
     case "text":
       return (
-        <TextFilter
-          value={(column.getFilterValue() as string) ?? ""}
-          onChange={(e) => column.setFilterValue(e.target.value)}
+        <Input
+          className="w-auto"
+          value={value ?? ""}
+          onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
         />
       )
     case "select":
+      return (
+        <ComboboxFilter
+          value={value ?? null}
+          onValueChange={setValue}
+          placeholder={placeholder}
+          items={filterMeta.options}
+        />
+      )
     case "multi-select":
       return (
         <ComboboxFilter
-          multiple={filterOpts.variant === "multi-select"}
-          value={
-            column.getFilterValue() ??
-            (filterOpts.variant === "multi-select" ? [] : null)
-          }
-          onValueChange={(value) => column.setFilterValue(value)}
+          multiple
+          value={value ?? []}
+          onValueChange={setValue}
           placeholder={placeholder}
-          items={filterOpts.options ?? []}
+          items={filterMeta.options}
         />
       )
     case "async-select":
-    case "async-multi-select":
       return (
         <AsyncComboboxFilter
-          multiple={filterOpts.variant === "async-multi-select"}
-          value={
-            column.getFilterValue() ??
-            (filterOpts.variant === "async-multi-select" ? [] : null)
-          }
-          onValueChange={(value) => column.setFilterValue(value)}
+          value={value ?? null}
+          onValueChange={setValue}
           placeholder={placeholder}
-          itemsQueryOptions={filterOpts.options}
+          items={filterMeta.options}
         />
+      )
+    case "async-multi":
+      return (
+        <AsyncComboboxFilter
+          multiple
+          value={value ?? []}
+          onValueChange={setValue}
+          placeholder={placeholder}
+          items={filterMeta.options}
+        />
+      )
+    case "boolean":
+      return (
+        <ToggleGroup
+          variant="outline"
+          type="single"
+          value={String(value)}
+          onValueChange={(val) =>
+            setValue(val === "true" ? true : val === "false" ? false : null)
+          }
+        >
+          {filterMeta.options.slice(0, 2).map((option) => {
+            const optionValue = String(option.value)
+            return (
+              <ToggleGroupItem
+                key={optionValue}
+                value={optionValue}
+                aria-label={`Toggle ${optionValue}`}
+              >
+                {option.icon} {option.label}
+              </ToggleGroupItem>
+            )
+          })}
+        </ToggleGroup>
       )
     default:
       return null
