@@ -1,57 +1,52 @@
-import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  queryOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query"
 import { apiClient } from "./api-client"
 import { Option } from "@/types/data-table"
+import { schemas } from "@workspace/api-client"
+import z from "zod"
 
-export const queryKeys = {
-  allProducts: () => ["products"],
-  getProducts: (
-    queries: NonNullable<
-      Parameters<typeof apiClient.products_list>[0]
-    >["queries"] = {}
-  ) => [...queryKeys.allProducts(), queries],
+type ExtractQueries<T extends (...args: any[]) => any> =
+  NonNullable<Parameters<T>[0]> extends { queries?: infer Q } ? Q : never
+
+type ListQuery<T extends { list: (...args: any[]) => any }> = Parameters<
+  T["list"]
+>[0]
+
+function createResourceKeys<T extends (...args: any[]) => any>(
+  resource: string
+) {
+  return {
+    all: () => [resource] as const,
+    list: (filters?: ExtractQueries<T>) => [resource, "list", filters] as const,
+  }
 }
 
-export function useProducts(
-  queries?: Parameters<typeof queryKeys.getProducts>[0]
-) {
+export const queryKeys = {
+  products: createResourceKeys<typeof apiClient.products_list>("products"),
+  categories: createResourceKeys<typeof apiClient.categories_list>("products"),
+  brands: createResourceKeys<typeof apiClient.brands_list>("brands"),
+  session: { all: () => ["session"] as const },
+}
+
+export function useProducts(queries?: ListQuery<typeof queryKeys.products>) {
   return useQuery({
-    queryKey: queryKeys.getProducts(queries),
+    queryKey: queryKeys.products.list(queries),
     queryFn: () => apiClient.products_list({ queries }),
     placeholderData: keepPreviousData,
   })
 }
 
 export function getCategoriesQueryOptions(
-  filters?: NonNullable<
-    Parameters<typeof apiClient.categories_list>[0]
-  >["queries"]
+  queries?: ListQuery<typeof queryKeys.categories>
 ) {
   return queryOptions({
-    queryKey: ["products", filters],
-    queryFn: () =>
-      apiClient.categories_list({
-        queries: filters,
-      }),
+    queryKey: queryKeys.categories.list(queries),
+    queryFn: () => apiClient.categories_list({ queries }),
     placeholderData: keepPreviousData,
-  })
-}
-
-export function getCategoryQueryOptions(
-  params: NonNullable<
-    Parameters<typeof apiClient.categories_retrieve>[0]
-  >["params"]
-) {
-  return queryOptions({
-    queryKey: ["category", params],
-    queryFn: () => apiClient.categories_retrieve({ params }),
-  })
-}
-
-export function useSession() {
-  return useQuery({
-    queryKey: ["session"],
-    queryFn: () => apiClient.auth_user_retrieve(),
-    retry: false,
   })
 }
 
@@ -62,12 +57,17 @@ export function getBrandsQueryOptions() {
   })
 }
 
-export function getBrandQueryOptions(
-  params: NonNullable<Parameters<typeof apiClient.brands_retrieve>[0]>["params"]
+export function useSession(
+  options?: Omit<
+    UseQueryOptions<z.infer<typeof schemas.UserDetails>>,
+    "queryKey" | "queryFn"
+  >
 ) {
-  return queryOptions({
-    queryKey: ["brand", params],
-    queryFn: () => apiClient.brands_retrieve({ params }),
+  return useQuery({
+    queryKey: queryKeys.session.all(),
+    queryFn: () => apiClient.auth_user_retrieve(),
+    retry: false,
+    ...options,
   })
 }
 

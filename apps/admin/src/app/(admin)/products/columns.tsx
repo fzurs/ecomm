@@ -307,12 +307,12 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
         params: { slug: item.slug as string },
       }),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.allProducts() })
+      await queryClient.cancelQueries({ queryKey: queryKeys.products.all() })
 
-      const previousData = queryClient.getQueryData(queryKeys.getProducts())
+      const previousData = queryClient.getQueryData(queryKeys.products.list())
 
       queryClient.setQueriesData(
-        { queryKey: queryKeys.allProducts() },
+        { queryKey: queryKeys.products.all() },
         (
           old: Awaited<ReturnType<typeof apiClient.products_list>> | undefined
         ) => {
@@ -328,12 +328,12 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
     },
     onError: (err, _, onMutateResult) => {
       queryClient.setQueryData(
-        queryKeys.getProducts(),
+        queryKeys.products.list(),
         onMutateResult?.previousData
       )
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
     },
   })
 

@@ -47,7 +47,7 @@ export default function Page() {
   }, [pagination, sorting, columnFilters])
 
   const isCached =
-    queryClient.getQueryData(queryKeys.getProducts(filters)) !== undefined
+    queryClient.getQueryData(queryKeys.products.list(filters)) !== undefined
   const debouncedFilters = useDebounce(filters, isCached ? 0 : 300)
 
   const { data } = useProducts(debouncedFilters)

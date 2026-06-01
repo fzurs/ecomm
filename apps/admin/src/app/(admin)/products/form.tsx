@@ -136,7 +136,7 @@ function DetectAndAssignBrandInputGroupButton({
         params: { slug: product.slug as string },
       }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
       form.reset(data)
     },
   })
@@ -213,7 +213,7 @@ function SKUInput({
         params: { slug: item.slug as string },
       }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
       form.reset(data)
     },
   })
@@ -251,7 +251,7 @@ export function useProductForm({
           })
         : apiClient.products_create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.allProducts() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
       setOpen(false)
     },
   })
