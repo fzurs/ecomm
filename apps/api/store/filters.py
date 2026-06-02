@@ -7,6 +7,8 @@ class ProductFilter(django_filters.FilterSet):
     brand = django_filters.ModelMultipleChoiceFilter(field_name="brand__slug", to_field_name="slug", queryset=Brand.objects.all())
     category = django_filters.ModelMultipleChoiceFilter(field_name="category__slug", to_field_name="slug", queryset=Category.objects.all())
     status = django_filters.MultipleChoiceFilter(choices=Product.STATUS_CHOICES)
+    price = django_filters.RangeFilter()
+
 
     class Meta:
         model = Product

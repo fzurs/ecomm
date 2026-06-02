@@ -10,11 +10,13 @@ export type Option<T = unknown> = {
 
 export type FilterOpts =
   | { variant: "text"; parser: SingleParser<string> }
+  | { variant: "number"; parser: SingleParser<number> }
   | {
       variant: "boolean"
       parser: SingleParser<boolean>
       options: Option<boolean>[]
     }
+  | { variant: "range"; parser: SingleParser<number[]> }
   | {
       variant: "select"
       parser: SingleParser<any>

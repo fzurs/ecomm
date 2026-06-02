@@ -34,6 +34,8 @@ import {
 import {
   parseAsArrayOf,
   parseAsBoolean,
+  parseAsInteger,
+  parseAsJson,
   parseAsString,
   parseAsStringEnum,
 } from "nuqs"
@@ -226,6 +228,12 @@ export const columns = [
           {isEmpty ? "-" : price}
         </div>
       )
+    },
+    meta: {
+      filter: {
+        variant: "range",
+        parser: parseAsArrayOf(parseAsInteger),
+      },
     },
   },
   {

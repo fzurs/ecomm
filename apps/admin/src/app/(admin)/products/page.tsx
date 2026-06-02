@@ -41,9 +41,16 @@ export default function Page() {
   const sorting = useSortingValues()
   const columnFilters = useColumnFilterValues(columns)
 
-  const filters = React.useMemo(() => {
-    const { name: search, ...rest } = columnFilters
-    return { ...pagination, ...sorting, ...rest, search }
+  const filters = React.useMemo<Parameters<typeof useProducts>[0]>(() => {
+    const { name: search, price, ...rest } = columnFilters
+    return {
+      ...pagination,
+      ...sorting,
+      ...rest,
+      search,
+      price_min: price?.[0],
+      price_max: price?.[1],
+    }
   }, [pagination, sorting, columnFilters])
 
   const isCached =
