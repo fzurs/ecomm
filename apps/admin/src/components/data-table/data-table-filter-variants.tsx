@@ -15,10 +15,6 @@ import {
   useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
 import { InputGroupAddon } from "@workspace/ui/components/input-group"
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@workspace/ui/components/toggle-group"
 import * as React from "react"
 
 export function ComboboxFilter<

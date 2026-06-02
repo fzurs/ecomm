@@ -64,6 +64,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
+import { cn } from "@workspace/ui/lib/utils"
 
 export const getFeaturedIcon = (
   featured: z.infer<typeof schemas.Product>["featured"]
@@ -211,20 +212,41 @@ export const columns = [
     id: "price",
     accessorKey: "price",
     header: "Price",
-    cell: ({ row }) => (
-      <div className="text-end text-green-500">{row.original.price}</div>
-    ),
+    cell: ({ row }) => {
+      const price = row.original.price
+      const isEmpty = price === null || price === undefined
+
+      return (
+        <div
+          className={cn(
+            "text-end",
+            isEmpty ? "text-muted-foreground" : "text-green-500"
+          )}
+        >
+          {isEmpty ? "-" : price}
+        </div>
+      )
+    },
   },
   {
     id: "discount_price",
     accessorKey: "discount_price",
     header: "Discount Price",
-    cell: ({ row }) =>
-      row.original.discount_price ? (
-        <div className="text-amber-500">{row.original.discount_price}</div>
-      ) : (
-        <div className="text-sm text-muted-foreground">None</div>
-      ),
+    cell: ({ row }) => {
+      const discount_price = row.original.discount_price
+      const isEmpty =
+        discount_price === null ||
+        discount_price === undefined ||
+        discount_price === 0
+
+      return (
+        <div
+          className={cn(isEmpty ? "text-muted-foreground" : "text-amber-500")}
+        >
+          {isEmpty ? "-" : discount_price}
+        </div>
+      )
+    },
   },
   {
     id: "created_at",
