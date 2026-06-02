@@ -17,14 +17,6 @@ import {
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@workspace/ui/components/popover"
-import { Button } from "@workspace/ui/components/button"
-import { Slider } from "@workspace/ui/components/slider"
-import { Label } from "@workspace/ui/components/label"
-import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
@@ -32,14 +24,7 @@ import {
   InputGroupText,
 } from "@workspace/ui/components/input-group"
 import { Separator } from "@workspace/ui/components/separator"
-import { IconNumber } from "@tabler/icons-react"
 import { X, XIcon } from "lucide-react"
-import {
-  parseAsArrayOf,
-  parseAsInteger,
-  useQueryState,
-  useQueryStates,
-} from "nuqs"
 
 export function DataTableToolbar<TData>({
   table,
@@ -134,7 +119,13 @@ function DataTableToolbarFilter<TData>({
         </ToggleGroup>
       )
     case "range":
-      return <RangeFilter range={value ?? []} setRange={setValue} />
+      return (
+        <RangeFilter
+          range={value ?? []}
+          setRange={setValue}
+          placeholder={placeholder}
+        />
+      )
     case "select":
       return (
         <ComboboxFilter
@@ -182,9 +173,11 @@ function DataTableToolbarFilter<TData>({
 function RangeFilter({
   range,
   setRange,
+  placeholder = "Range",
 }: {
   range: number[]
   setRange: (val: number[] | null) => void
+  placeholder?: string
 }) {
   const minValue = range[0] ?? 0
   const maxValue = range[1]
@@ -192,7 +185,7 @@ function RangeFilter({
   return (
     <InputGroup className="w-auto">
       <InputGroupAddon className="pe-3">
-        <InputGroupText>Price</InputGroupText>
+        <InputGroupText>{placeholder}</InputGroupText>
       </InputGroupAddon>
       <Separator orientation="vertical" />
       <InputGroupInput

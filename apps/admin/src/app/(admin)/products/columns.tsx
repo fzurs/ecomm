@@ -216,7 +216,7 @@ export const columns = [
     header: "Price",
     cell: ({ row }) => {
       const price = row.original.price
-      const isEmpty = price === null || price === undefined
+      const isEmpty = typeof price !== "number"
 
       return (
         <div
@@ -242,10 +242,7 @@ export const columns = [
     header: "Discount Price",
     cell: ({ row }) => {
       const discount_price = row.original.discount_price
-      const isEmpty =
-        discount_price === null ||
-        discount_price === undefined ||
-        discount_price === 0
+      const isEmpty = typeof discount_price !== "number" || discount_price === 0
 
       return (
         <div
@@ -254,6 +251,12 @@ export const columns = [
           {isEmpty ? "-" : discount_price}
         </div>
       )
+    },
+    meta: {
+      filter: {
+        variant: "range",
+        parser: parseAsArrayOf(parseAsInteger),
+      },
     },
   },
   {

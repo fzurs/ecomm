@@ -547,6 +547,20 @@ paths:
         explode: true
         style: form
       - in: query
+        name: discount_price_max
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+      - in: query
+        name: discount_price_min
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+      - in: query
         name: featured
         schema:
           type: boolean

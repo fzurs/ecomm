@@ -563,6 +563,26 @@ Returns UserModel fields.`,
         schema: z.array(z.string()).optional(),
       },
       {
+        name: 'discount_price_max',
+        type: 'Query',
+        schema: z
+          .number()
+          .int()
+          .gte(0)
+          .lte(2147483647)
+          .nullish(),
+      },
+      {
+        name: 'discount_price_min',
+        type: 'Query',
+        schema: z
+          .number()
+          .int()
+          .gte(0)
+          .lte(2147483647)
+          .nullish(),
+      },
+      {
         name: 'featured',
         type: 'Query',
         schema: z.boolean().optional(),

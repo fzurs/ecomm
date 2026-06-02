@@ -42,7 +42,7 @@ export default function Page() {
   const columnFilters = useColumnFilterValues(columns)
 
   const filters = React.useMemo<Parameters<typeof useProducts>[0]>(() => {
-    const { name: search, price, ...rest } = columnFilters
+    const { name: search, price, discount_price, ...rest } = columnFilters
     return {
       ...pagination,
       ...sorting,
@@ -50,6 +50,8 @@ export default function Page() {
       search,
       price_min: price?.[0],
       price_max: price?.[1],
+      discount_price_min: discount_price?.[0],
+      discount_price_max: discount_price?.[1],
     }
   }, [pagination, sorting, columnFilters])
 
