@@ -47,7 +47,7 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
   const columnFilters = React.useMemo<ColumnFiltersState>(
     () =>
       Object.entries(values)
-        .filter(([, value]) => toNullIfEmpty(value) !== null)
+        // .filter(([, value]) => toNullIfEmpty(value) !== null)
         .map(([id, value]) => ({
           id,
           value,

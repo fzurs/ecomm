@@ -1,3 +1,5 @@
+import { parseAsIsoDate } from "nuqs"
+
 export function snakeCaseToTitle(value: string) {
   return value
     .split("_")
@@ -25,3 +27,8 @@ export function toNullIfEmpty(value: unknown): unknown | null {
   if (typeof value === "string" && value.trim() === "") return null
   return value
 }
+
+export const toLocalDate = (date: Date) =>
+  new Date(date.getTime() + date.getTimezoneOffset() * 60_000);
+
+export const toIsoString = (date?: Date) => date ? parseAsIsoDate.serialize(date) : undefined

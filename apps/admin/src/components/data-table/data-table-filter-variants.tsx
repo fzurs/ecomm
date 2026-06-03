@@ -31,8 +31,9 @@ import {
 } from "@workspace/ui/components/popover"
 import { Button } from "@workspace/ui/components/button"
 import { Calendar } from "@workspace/ui/components/calendar"
-import { addDays, format } from "date-fns"
+import { format } from "date-fns"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
+import { DateRange } from "react-day-picker"
 
 export function RangeFilter({
   range,
@@ -95,6 +96,8 @@ export function DateRangeFilter({
   placeholder?: string
 }) {
   const date = { from: range[0], to: range[1] }
+  const setDate = (selected: DateRange | undefined) =>
+    setRange([selected?.from, selected?.to].filter(Boolean) as Date[])
 
   return (
     <Popover>
@@ -119,7 +122,7 @@ export function DateRangeFilter({
               <span>{placeholder}</span>
             )}
           </Button>
-          {!!range.length && (
+          {date.from && (
             <Button
               variant="outline"
               size="icon"
@@ -135,11 +138,7 @@ export function DateRangeFilter({
           mode="range"
           defaultMonth={date?.from}
           selected={date}
-          onSelect={(selected) =>
-            setRange(
-              selected ? [selected.from as Date, selected.to as Date] : null
-            )
-          }
+          onSelect={setDate}
           numberOfMonths={2}
         />
       </PopoverContent>

@@ -35,7 +35,7 @@ import {
   parseAsArrayOf,
   parseAsBoolean,
   parseAsInteger,
-  parseAsJson,
+  parseAsIsoDate,
   parseAsString,
   parseAsStringEnum,
 } from "nuqs"
@@ -67,7 +67,7 @@ import {
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
 import { cn } from "@workspace/ui/lib/utils"
-import { parseAsDate } from "@/lib/parsers"
+import { format } from "date-fns"
 
 export const getFeaturedIcon = (
   featured: z.infer<typeof schemas.Product>["featured"]
@@ -266,11 +266,11 @@ export const columns = [
     header: "Created At",
     cell: ({ row }) => (
       <div className="text-muted-foreground">
-        {new Date(row.original.created_at).toLocaleDateString()}
+        {format(row.original.created_at, "LLL dd, y")}
       </div>
     ),
     meta: {
-      filter: { variant: "date-range", parser: parseAsArrayOf(parseAsDate) },
+      filter: { variant: "date-range", parser: parseAsArrayOf(parseAsIsoDate) },
     },
   },
   {
