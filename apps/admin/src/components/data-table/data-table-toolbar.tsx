@@ -9,6 +9,8 @@ import { cn } from "@workspace/ui/lib/utils"
 import {
   AsyncComboboxFilter,
   ComboboxFilter,
+  DateRangeFilter,
+  RangeFilter,
 } from "./data-table-filter-variants"
 import { snakeCaseToTitle } from "@/lib/utils"
 import { Input } from "@workspace/ui/components/input"
@@ -16,15 +18,6 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-} from "@workspace/ui/components/input-group"
-import { Separator } from "@workspace/ui/components/separator"
-import { X, XIcon } from "lucide-react"
 
 export function DataTableToolbar<TData>({
   table,
@@ -164,59 +157,15 @@ function DataTableToolbarFilter<TData>({
           items={filterMeta.options}
         />
       )
-
+    case "date-range":
+      return (
+        <DateRangeFilter
+          range={value ?? []}
+          setRange={setValue}
+          placeholder={placeholder}
+        />
+      )
     default:
       return null
   }
-}
-
-function RangeFilter({
-  range,
-  setRange,
-  placeholder = "Range",
-}: {
-  range: number[]
-  setRange: (val: number[] | null) => void
-  placeholder?: string
-}) {
-  const minValue = range[0] ?? 0
-  const maxValue = range[1]
-
-  return (
-    <InputGroup className="w-auto">
-      <InputGroupAddon className="pe-3">
-        <InputGroupText>{placeholder}</InputGroupText>
-      </InputGroupAddon>
-      <Separator orientation="vertical" />
-      <InputGroupInput
-        placeholder="Min"
-        className="max-w-14"
-        value={minValue ? minValue : ""}
-        onChange={(e) => {
-          const value = Number(e.target.value)
-          setRange(maxValue ? [value, maxValue] : [value])
-        }}
-      />
-      <Separator orientation="vertical" />
-      <InputGroupInput
-        placeholder="Max"
-        className="max-w-14"
-        value={maxValue ?? ""}
-        onChange={(e) => {
-          const value = Number(e.target.value)
-          setRange(value ? [minValue, value] : [minValue])
-        }}
-      />
-      {!!range.length && (
-        <>
-          <Separator orientation="vertical" />
-          <InputGroupAddon align="inline-end" className="ps-1">
-            <InputGroupButton size="icon-xs" onClick={() => setRange(null)}>
-              <XIcon />
-            </InputGroupButton>
-          </InputGroupAddon>
-        </>
-      )}
-    </InputGroup>
-  )
 }

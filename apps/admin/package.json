@@ -21,6 +21,7 @@
     "@workspace/api-client": "workspace:*",
     "@workspace/ui": "workspace:*",
     "axios": "^1.15.2",
+    "date-fns": "^4.1.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^1.11.0",
     "next": "^16.2.4",

@@ -14,8 +14,138 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
-import { InputGroupAddon } from "@workspace/ui/components/input-group"
 import * as React from "react"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@workspace/ui/components/input-group"
+import { Separator } from "@workspace/ui/components/separator"
+import { CalendarIcon, X, XIcon } from "lucide-react"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import { Button } from "@workspace/ui/components/button"
+import { Calendar } from "@workspace/ui/components/calendar"
+import { addDays, format } from "date-fns"
+import { ButtonGroup } from "@workspace/ui/components/button-group"
+
+export function RangeFilter({
+  range,
+  setRange,
+  placeholder = "Range",
+}: {
+  range: number[]
+  setRange: (val: number[] | null) => void
+  placeholder?: string
+}) {
+  const minValue = range[0] ?? 0
+  const maxValue = range[1]
+
+  return (
+    <InputGroup className="w-auto">
+      <InputGroupAddon className="pe-3">
+        <InputGroupText>{placeholder}</InputGroupText>
+      </InputGroupAddon>
+      <Separator orientation="vertical" />
+      <InputGroupInput
+        placeholder="Min"
+        className="max-w-14"
+        value={minValue ? minValue : ""}
+        onChange={(e) => {
+          const value = Number(e.target.value)
+          setRange(maxValue ? [value, maxValue] : [value])
+        }}
+      />
+      <Separator orientation="vertical" />
+      <InputGroupInput
+        placeholder="Max"
+        className="max-w-14"
+        value={maxValue ?? ""}
+        onChange={(e) => {
+          const value = Number(e.target.value)
+          setRange(value ? [minValue, value] : [minValue])
+        }}
+      />
+      {!!range.length && (
+        <>
+          <Separator orientation="vertical" />
+          <InputGroupAddon align="inline-end" className="ps-1">
+            <InputGroupButton size="icon-xs" onClick={() => setRange(null)}>
+              <XIcon />
+            </InputGroupButton>
+          </InputGroupAddon>
+        </>
+      )}
+    </InputGroup>
+  )
+}
+
+export function DateRangeFilter({
+  range,
+  setRange,
+  placeholder = "Date Range",
+}: {
+  range: Date[]
+  setRange: (val: Date[] | null) => void
+  placeholder?: string
+}) {
+  const date = { from: range[0], to: range[1] }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <ButtonGroup>
+          <Button
+            variant="outline"
+            id="date-picker-range"
+            className="justify-start px-2.5 font-normal"
+          >
+            <CalendarIcon />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "LLL dd, y")} -{" "}
+                  {format(date.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(date.from, "LLL dd, y")
+              )
+            ) : (
+              <span>{placeholder}</span>
+            )}
+          </Button>
+          {!!range.length && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setRange(null)}
+            >
+              <XIcon />
+            </Button>
+          )}
+        </ButtonGroup>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="range"
+          defaultMonth={date?.from}
+          selected={date}
+          onSelect={(selected) =>
+            setRange(
+              selected ? [selected.from as Date, selected.to as Date] : null
+            )
+          }
+          numberOfMonths={2}
+        />
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 export function ComboboxFilter<
   Value,

@@ -17,6 +17,7 @@ export type FilterOpts =
       options: Option<boolean>[]
     }
   | { variant: "range"; parser: SingleParser<number[]> }
+  | { variant: "date-range"; parser: SingleParser<Date[]> }
   | {
       variant: "select"
       parser: SingleParser<any>

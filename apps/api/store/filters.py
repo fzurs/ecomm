@@ -9,6 +9,7 @@ class ProductFilter(django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(choices=Product.STATUS_CHOICES)
     price = django_filters.RangeFilter()
     discount_price = django_filters.RangeFilter()
+    created_at = django_filters.DateFromToRangeFilter()
 
 
     class Meta:

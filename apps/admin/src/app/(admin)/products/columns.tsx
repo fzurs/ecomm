@@ -67,6 +67,7 @@ import {
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
 import { cn } from "@workspace/ui/lib/utils"
+import { parseAsDate } from "@/lib/parsers"
 
 export const getFeaturedIcon = (
   featured: z.infer<typeof schemas.Product>["featured"]
@@ -268,6 +269,9 @@ export const columns = [
         {new Date(row.original.created_at).toLocaleDateString()}
       </div>
     ),
+    meta: {
+      filter: { variant: "date-range", parser: parseAsArrayOf(parseAsDate) },
+    },
   },
   {
     id: "actions",
@@ -331,7 +335,7 @@ function TableCellViewer({
   )
 }
 
-function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
+function useProductDestroy(item: z.infer<typeof schemas.Product>) {
   const queryClient = useQueryClient()
 
   const destroyMutation = useMutation({
@@ -370,6 +374,12 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
     },
   })
 
+  return destroyMutation
+}
+
+function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
+  const destroyMutation = useProductDestroy(item)
+
   return (
     <div className="flex justify-end">
       <AlertDialog>
@@ -379,6 +389,7 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
               <IconDots />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
               <AlertDialogTrigger asChild>
@@ -390,6 +401,8 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Confirmation of product destruction */}
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
