@@ -1,7 +1,8 @@
+import { format, parseISO } from "date-fns"
 import { createParser } from "nuqs"
 
 export const parseAsDate = createParser({
-  parse: (value: string) => new Date(value.slice(0, 10)),
-  serialize: (date: Date) => date.toISOString().slice(0, 10),
+  parse: parseISO,
+  serialize: (date: Date) => format(date, "yyyy-MM-dd"),
   eq: (a: Date, b: Date) => a.getTime() === b.getTime(), // necesario para clearOnDefault
 })

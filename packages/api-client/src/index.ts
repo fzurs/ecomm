@@ -563,6 +563,16 @@ Returns UserModel fields.`,
         schema: z.array(z.string()).optional(),
       },
       {
+        name: 'created_at_after',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'created_at_before',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
         name: 'discount_price_max',
         type: 'Query',
         schema: z

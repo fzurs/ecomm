@@ -33,6 +33,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useProductForm } from "./form"
 import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import { format } from "date-fns"
 
 export default function Page() {
   const queryClient = useQueryClient()
@@ -42,16 +43,31 @@ export default function Page() {
   const columnFilters = useColumnFilterValues(columns)
 
   const filters = React.useMemo<Parameters<typeof useProducts>[0]>(() => {
-    const { name: search, price, discount_price, ...rest } = columnFilters
+    const {
+      name: search,
+      price = [],
+      discount_price = [],
+      created_at = [],
+      ...rest
+    } = columnFilters
+    const [price_min, price_max] = price
+    const [discount_price_min, discount_price_max] = discount_price
+    const [created_at_after, created_at_before] = created_at
     return {
       ...pagination,
       ...sorting,
       ...rest,
       search,
-      price_min: price?.[0],
-      price_max: price?.[1],
-      discount_price_min: discount_price?.[0],
-      discount_price_max: discount_price?.[1],
+      price_min,
+      price_max,
+      discount_price_min,
+      discount_price_max,
+      created_at_after: created_at_after
+        ? format(created_at_after, "yyyy-MM-dd")
+        : undefined,
+      created_at_before: created_at_before
+        ? format(created_at_before, "yyyy-MM-dd")
+        : undefined,
     }
   }, [pagination, sorting, columnFilters])
 

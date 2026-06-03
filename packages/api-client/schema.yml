@@ -547,6 +547,16 @@ paths:
         explode: true
         style: form
       - in: query
+        name: created_at_after
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_before
+        schema:
+          type: string
+          format: date
+      - in: query
         name: discount_price_max
         schema:
           type: integer
