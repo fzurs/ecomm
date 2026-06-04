@@ -7,19 +7,6 @@ import {
 import { SingleParser, useQueryStates } from "nuqs"
 import * as React from "react"
 
-// Notas:
-// el column filter es un array vacio
-// nuqs devuelve null, o unknown que puede ser cualquier cosa, 
-// objecto, array, number, date, string, boolean, etc
-// los valores por defecto o los null de nuqs tienen que 
-// matchear con el undefined de columnFilters
-// cuando a nuqs se le manda un null se assigna al defaultvalue 
-// si es que tiene uno
-// un undefined se tendria que transformar en null
-// el array me gusta que desaparezca de la url aun cuando 
-// no tiene un defautlvalue como ([])
-// me gustaria tambien poder desacoplar la logica de esto
-
 type HasFilterParser<K> = K extends {
   id: string
   meta: { filter: { parser: SingleParser<any> } }
@@ -60,7 +47,7 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
   const columnFilters = React.useMemo<ColumnFiltersState>(
     () =>
       Object.entries(values)
-        // .filter(([, value]) => toNullIfEmpty(value) !== null)
+        .filter(([, value]) => toNullIfEmpty(value) !== null)
         .map(([id, value]) => ({
           id,
           value,
