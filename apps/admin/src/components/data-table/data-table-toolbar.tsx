@@ -133,7 +133,7 @@ function DataTableToolbarFilter<TData>({
         <ComboboxFilter
           multiple
           value={value ?? []}
-          onValueChange={setValue}
+          onValueChange={(val) => setValue(val.length > 0 ? val : null)}
           placeholder={placeholder}
           items={filterMeta.options}
         />
@@ -152,7 +152,7 @@ function DataTableToolbarFilter<TData>({
         <AsyncComboboxFilter
           multiple
           value={value ?? []}
-          onValueChange={setValue}
+          onValueChange={(val) => setValue(val.length > 0 ? val : null)}
           placeholder={placeholder}
           items={filterMeta.options}
         />

@@ -5,23 +5,14 @@ export function snakeCaseToTitle(value: string) {
     .join(" ")
 }
 
-type NullToUndefined<T> = {
+export type NullToUndefined<T> = {
   [K in keyof T]: null extends T[K] ? Exclude<T[K], null> | undefined : T[K]
 } & {}
 
 export function nullsToUndefined<T extends Record<string, unknown>>(
-  params: T
+  obj: T
 ): NullToUndefined<T> {
-  const result = {} as NullToUndefined<T>
-  for (const key of Object.keys(params) as (keyof T)[]) {
-    result[key] = (params[key] === null ? undefined : params[key]) as never
-  }
-  return result
-}
-
-export function toNullIfEmpty(value: unknown): unknown | null {
-  if (value === null || value === undefined) return null
-  if (Array.isArray(value) && value.length === 0) return null
-  if (typeof value === "string" && value.trim() === "") return null
-  return value
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key, value ?? undefined])
+  ) as NullToUndefined<T>
 }

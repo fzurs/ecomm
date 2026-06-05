@@ -25,7 +25,10 @@ function useColumnSortSearchParams() {
 export function useSorting() {
   const [columnSort, setColumnSort] = useColumnSortSearchParams()
 
-  const sorting: SortingState = columnSort ? [columnSort] : []
+  const sorting = React.useMemo<SortingState>(
+    () => (columnSort ? [columnSort] : []),
+    [columnSort]
+  )
 
   const onSortingChange = useCallback<OnChangeFn<SortingState>>(
     (updaterOrValue) => {
@@ -46,10 +49,13 @@ export function useSorting() {
 
 export function useSortingValues() {
   const [sorting] = useColumnSortSearchParams()
-  return React.useMemo(
+
+  const ordering = React.useMemo(
     () => ({
       ordering: sorting ? `${sorting.desc ? "-" : ""}${sorting.id}` : undefined,
     }),
     [sorting]
   )
+
+  return ordering
 }

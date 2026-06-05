@@ -1,10 +1,10 @@
-import { nullsToUndefined, toNullIfEmpty } from "@/lib/utils"
+import { nullsToUndefined } from "@/lib/utils"
 import {
   ColumnDef,
   ColumnFiltersState,
   OnChangeFn,
 } from "@tanstack/react-table"
-import { SingleParser, useQueryStates } from "nuqs"
+import { SingleParser, useQueryStates, Values } from "nuqs"
 import * as React from "react"
 
 type HasFilterParser<K> = K extends {
@@ -14,19 +14,21 @@ type HasFilterParser<K> = K extends {
   ? true
   : false
 
-type ExtractFilterParsers<C extends ColumnDef<any>[]> = {
-  [K in C[number] as HasFilterParser<K> extends true
-    ? K["id"] & string
-    : never]: K["meta"] extends {
-    filter: { parser: infer P extends SingleParser<any> }
-  }
-    ? P
-    : never
-} & {}
+type FilterParsers<C extends ColumnDef<any>[]> = ColumnDef<any>[] extends C
+  ? { [id: string]: SingleParser<any> }
+  : {
+      [K in C[number] as HasFilterParser<K> extends true
+        ? K["id"] & string
+        : never]: K["meta"] extends {
+        filter: { parser: infer P extends SingleParser<any> }
+      }
+        ? P
+        : never
+    }
 
-function extractFilterParsers<C extends ColumnDef<any>[]>(
+function buildFilterParsers<C extends ColumnDef<any>[]>(
   columns: C
-): ExtractFilterParsers<C> {
+): FilterParsers<C> {
   return Object.fromEntries(
     columns
       .filter((column) => !!column.id && !!column.meta?.filter?.parser)
@@ -35,19 +37,30 @@ function extractFilterParsers<C extends ColumnDef<any>[]>(
 }
 
 export function useColumnFilterValues<C extends ColumnDef<any>[]>(columns: C) {
-  const keyMap = React.useMemo(() => extractFilterParsers(columns), [columns])
-  const [values] = useQueryStates(keyMap)
-  return React.useMemo(() => nullsToUndefined(values), [values])
+  const filterParsers = React.useMemo(
+    () => buildFilterParsers(columns),
+    [columns]
+  )
+
+  const [values] = useQueryStates(filterParsers)
+
+  const normalizedValues = React.useMemo(
+    () => nullsToUndefined(values),
+    [values]
+  )
+
+  return normalizedValues
 }
 
-export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
-  const keyMap = React.useMemo(() => extractFilterParsers(columns), [columns])
-  const [values, setValues] = useQueryStates(keyMap)
+export function useColumnFilters(columns: ColumnDef<any>[]) {
+  const parsers = React.useMemo(() => buildFilterParsers(columns), [columns])
+
+  const [values, setValues] = useQueryStates(parsers)
 
   const columnFilters = React.useMemo<ColumnFiltersState>(
     () =>
       Object.entries(values)
-        .filter(([, value]) => toNullIfEmpty(value) !== null)
+        .filter(([, value]) => value !== null)
         .map(([id, value]) => ({
           id,
           value,
@@ -63,14 +76,14 @@ export function useColumnFilters<TData>(columns: ColumnDef<TData>[]) {
 
       setValues(
         Object.fromEntries(
-          Object.keys(keyMap).map((key) => [
-            key,
-            toNullIfEmpty(next.find((f) => f.id === key)?.value),
+          Object.keys(parsers).map((id) => [
+            id,
+            next.find((f) => f.id === id)?.value ?? null,
           ])
         )
       )
     },
-    [columnFilters, setValues, keyMap]
+    [columnFilters, setValues, parsers]
   )
 
   return { columnFilters, onColumnFiltersChange }

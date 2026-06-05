@@ -1,5 +1,4 @@
 "use client"
-import { toNullIfEmpty } from "@/lib/utils"
 import { type Option } from "@/types/data-table"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
@@ -35,17 +34,50 @@ import { format } from "date-fns"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { DateRange } from "react-day-picker"
 
+const onNumberChange = (setValue: (val: number) => void) => {
+  return (e: any) => setValue(Number(e.target.value))
+}
+
 export function RangeFilter({
-  range,
+  range = [],
   setRange,
   placeholder = "Range",
 }: {
-  range: number[]
+  range?: number[]
   setRange: (val: number[] | null) => void
   placeholder?: string
 }) {
-  const minValue = range[0] ?? 0
-  const maxValue = range[1]
+  const [minValue = 0, maxValue] = range
+
+  const setMinValue = React.useCallback(
+    (value: number) => {
+      setRange(
+        value
+          ? maxValue
+            ? [value, maxValue]
+            : [value]
+          : maxValue
+            ? [0, maxValue]
+            : null
+      )
+    },
+    [maxValue, setRange]
+  )
+
+  const setMaxValue = React.useCallback(
+    (value: number) => {
+      setRange(
+        value
+          ? minValue
+            ? [minValue, value]
+            : [0, value]
+          : minValue
+            ? [minValue]
+            : null
+      )
+    },
+    [minValue, setRange]
+  )
 
   return (
     <InputGroup className="w-auto">
@@ -57,22 +89,16 @@ export function RangeFilter({
         placeholder="Min"
         className="max-w-14"
         value={minValue ? minValue : ""}
-        onChange={(e) => {
-          const value = Number(e.target.value)
-          setRange(maxValue ? [value, maxValue] : [value])
-        }}
+        onChange={onNumberChange(setMinValue)}
       />
       <Separator orientation="vertical" />
       <InputGroupInput
         placeholder="Max"
         className="max-w-14"
         value={maxValue ?? ""}
-        onChange={(e) => {
-          const value = Number(e.target.value)
-          setRange(value ? [minValue, value] : [minValue])
-        }}
+        onChange={onNumberChange(setMaxValue)}
       />
-      {!!range.length && (
+      {(minValue || maxValue) && (
         <>
           <Separator orientation="vertical" />
           <InputGroupAddon align="inline-end" className="ps-1">
@@ -234,14 +260,9 @@ export function AsyncComboboxFilter<
 > & { items: UseQueryOptions<any, any, Option[], any> }) {
   const [open, setOpen] = React.useState(false)
 
-  const valueIsNull = React.useMemo(
-    () => toNullIfEmpty(value) !== null,
-    [value]
-  )
-
   const { data: items } = useQuery({
     ...itemsQueryOptions,
-    enabled: open || valueIsNull,
+    enabled: open || !!value,
   })
 
   return (
