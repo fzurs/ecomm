@@ -122,6 +122,7 @@ function DataTableToolbarFilter<TData>({
     case "select":
       return (
         <ComboboxFilter
+          autoHighlight
           value={value ?? null}
           onValueChange={setValue}
           placeholder={placeholder}
@@ -132,6 +133,7 @@ function DataTableToolbarFilter<TData>({
       return (
         <ComboboxFilter
           multiple
+          autoHighlight
           value={value ?? []}
           onValueChange={(val) => setValue(val.length > 0 ? val : null)}
           placeholder={placeholder}
@@ -141,6 +143,7 @@ function DataTableToolbarFilter<TData>({
     case "async-select":
       return (
         <AsyncComboboxFilter
+          autoHighlight
           value={value ?? null}
           onValueChange={setValue}
           placeholder={placeholder}
@@ -151,6 +154,7 @@ function DataTableToolbarFilter<TData>({
       return (
         <AsyncComboboxFilter
           multiple
+          autoHighlight
           value={value ?? []}
           onValueChange={(val) => setValue(val.length > 0 ? val : null)}
           placeholder={placeholder}
