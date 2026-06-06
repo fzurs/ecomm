@@ -15,16 +15,7 @@ import z from "zod"
 import { useRouter } from "next/navigation"
 import { useAppForm } from "@/hooks/form"
 
-const defaultValues: z.infer<typeof schemas.Login> = {
-  username: "",
-  email: "",
-  password: "",
-}
-
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function useLoginForm() {
   const router = useRouter()
   const queryClient = useQueryClient()
 
@@ -38,12 +29,25 @@ export function LoginForm({
   })
 
   const form = useAppForm({
-    defaultValues,
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    } as z.infer<typeof schemas.Login>,
     validators: {
       onSubmit: schemas.Login,
     },
     onSubmit: ({ value }) => mutate(value),
   })
+
+  return form
+}
+
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  const form = useLoginForm()
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
