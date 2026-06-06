@@ -7,19 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
+import { Field, FieldGroup } from "@workspace/ui/components/field"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api-client"
 import { schemas } from "@workspace/api-client"
 import z from "zod"
 import { useRouter } from "next/navigation"
-import { useForm } from "@tanstack/react-form"
+import { useAppForm } from "@/hooks/form"
 
 const defaultValues: z.infer<typeof schemas.Login> = {
   username: "",
@@ -43,7 +37,7 @@ export function LoginForm({
     },
   })
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues,
     validators: {
       onSubmit: schemas.Login,
@@ -65,83 +59,43 @@ export function LoginForm({
             }}
           >
             <FieldGroup>
-              <form.Field
+              <form.AppField
                 name="username"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Username</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value as string}
-                        type="text"
-                        placeholder="francozursch123"
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        required
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
+                children={(field) => (
+                  <field.Field>
+                    <field.Label>Username</field.Label>
+                    <field.Input placeholder="francozursch123" required />
+                    <field.Message />
+                  </field.Field>
+                )}
               />
-              <form.Field
+              <form.AppField
                 name="email"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value as string}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        type="email"
-                        placeholder="you@example.com"
-                        required
-                        aria-invalid={isInvalid}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
+                children={(field) => (
+                  <field.Field>
+                    <field.Label>Email</field.Label>
+                    <field.Input
+                      type="email"
+                      placeholder="you@example.com"
+                      required
+                    />
+                    <field.Message />
+                  </field.Field>
+                )}
               />
-              <form.Field
+              <form.AppField
                 name="password"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value as string}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        type="password"
-                        placeholder="******"
-                        required
-                        aria-invalid={isInvalid}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
+                children={(field) => (
+                  <field.Field>
+                    <field.Label>Password</field.Label>
+                    <field.Input
+                      type="password"
+                      placeholder="******"
+                      required
+                    />
+                    <field.Message />
+                  </field.Field>
+                )}
               />
               <Field>
                 <Button type="submit">Login</Button>
