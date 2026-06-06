@@ -24,6 +24,7 @@ export default function AdminLayout({
 
   return (
     <SidebarProvider
+      defaultOpen={false}
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",

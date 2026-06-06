@@ -202,7 +202,7 @@ export const columns = [
     ),
     meta: {
       filter: {
-        variant: "select",
+        variant: "boolean",
         options: [
           { label: "Featured", value: true, icon: getFeaturedIcon(true) },
           { label: "Not Featured", value: false, icon: getFeaturedIcon(false) },
