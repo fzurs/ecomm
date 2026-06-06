@@ -60,17 +60,16 @@ function ComboboxInputValue({
   initialItem,
   ...props
 }: React.ComponentProps<typeof ComboboxInput> & {
-  items?: Parameters<typeof Combobox>[0]["items"]
-  initialItem?: { id: string | number } | null
+  items?: { id: number; name: string }[]
+  initialItem?: { id: number; name: string } | null
 }) {
   return (
     <ComboboxValue>
       {(value) => {
-        const item = items
-          ? items.find((item) => item.id === value)
-          : initialItem && value === initialItem.id
-            ? initialItem
-            : undefined
+        const item =
+          items?.find((item) => item.id === value) ||
+          (initialItem && value === initialItem.id && initialItem) ||
+          undefined
         return <ComboboxInput value={item?.name ?? ""} showClear {...props} />
       }}
     </ComboboxValue>
