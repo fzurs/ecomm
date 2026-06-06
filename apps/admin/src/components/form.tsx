@@ -3,13 +3,6 @@ import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import React from "react"
 
-function useField() {
-  const field = useFieldContext()
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-
-  return { isInvalid, field }
-}
-
 export function FormLabel({
   ...props
 }: React.ComponentProps<typeof FieldLabel>) {
@@ -18,8 +11,9 @@ export function FormLabel({
   return <FieldLabel htmlFor={field.name} {...props} />
 }
 
-export function FormInput({ ...props }: React.ComponentProps<typeof Input>) {
-  const { field, isInvalid } = useField()
+export function FormTextInput(props: React.ComponentProps<typeof Input>) {
+  const field = useFieldContext()
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
   return (
     <Input
@@ -34,16 +28,14 @@ export function FormInput({ ...props }: React.ComponentProps<typeof Input>) {
   )
 }
 
-export function FormField({ ...props }: React.ComponentProps<typeof Field>) {
-  const { isInvalid } = useField()
-
+export function FormField(props: React.ComponentProps<typeof Field>) {
+  const field = useFieldContext()
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
   return <Field data-invalid={isInvalid} {...props} />
 }
 
-export function FormMessage({
-  ...props
-}: React.ComponentProps<typeof FieldError>) {
-  const { isInvalid, field } = useField()
-
+export function FormMessage(props: React.ComponentProps<typeof FieldError>) {
+  const field = useFieldContext()
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
   return isInvalid && <FieldError errors={field.state.meta.errors} {...props} />
 }

@@ -14,6 +14,7 @@ import { schemas } from "@workspace/api-client"
 import z from "zod"
 import { useRouter } from "next/navigation"
 import { useAppForm } from "@/hooks/form"
+import { FormField, FormLabel, FormMessage, FormTextInput } from "./form"
 
 function useLoginForm() {
   const router = useRouter()
@@ -63,42 +64,42 @@ export function LoginForm({
             }}
           >
             <FieldGroup>
-              <form.AppField
+              <form.Field
                 name="username"
                 children={(field) => (
-                  <field.Field>
-                    <field.Label>Username</field.Label>
-                    <field.Input placeholder="francozursch123" required />
-                    <field.Message />
-                  </field.Field>
+                  <FormField>
+                    <FormLabel>Username</FormLabel>
+                    <FormTextInput placeholder="francozursch123" required />
+                    <FormMessage />
+                  </FormField>
                 )}
               />
               <form.AppField
                 name="email"
                 children={(field) => (
-                  <field.Field>
-                    <field.Label>Email</field.Label>
-                    <field.Input
+                  <FormField>
+                    <FormLabel>Email</FormLabel>
+                    <FormTextInput
                       type="email"
                       placeholder="you@example.com"
                       required
                     />
-                    <field.Message />
-                  </field.Field>
+                    <FormMessage />
+                  </FormField>
                 )}
               />
               <form.AppField
                 name="password"
                 children={(field) => (
-                  <field.Field>
-                    <field.Label>Password</field.Label>
-                    <field.Input
+                  <FormField>
+                    <FormLabel>Password</FormLabel>
+                    <FormTextInput
                       type="password"
                       placeholder="******"
                       required
                     />
-                    <field.Message />
-                  </field.Field>
+                    <FormMessage />
+                  </FormField>
                 )}
               />
               <Field>
