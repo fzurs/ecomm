@@ -16,7 +16,6 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  ComboboxValue,
 } from "@workspace/ui/components/combobox"
 import {
   Item,
@@ -201,14 +200,9 @@ export function ProductForm({
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={fieldId}>Category</FieldLabel>
                 <CategoryCombobox
-                  id={fieldId}
-                  name={field.name}
                   initialItem={form.state.values.category}
-                  value={(field.state.value as number) ?? null}
-                  onValueChange={(value) => {
-                    field.handleChange(value)
-                    console.log(value)
-                  }}
+                  value={field.state.value as number}
+                  onValueChange={field.handleChange}
                 />
                 <FieldDescription>
                   The category allows you to group products.
@@ -228,9 +222,8 @@ export function ProductForm({
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={fieldId}>Brand</FieldLabel>
                 <BrandCombobox
-                  id={fieldId}
-                  name={field.name}
-                  value={(field.state.value as never) || null}
+                  initialItem={form.state.values.brand}
+                  value={field.state.value as number}
                   onValueChange={field.handleChange}
                   product={form.state.values}
                   form={form}
@@ -373,38 +366,23 @@ export function ProductForm({
   )
 }
 
-function ComboboxInputValue({
-  items,
-  initialItem,
-  ...props
-}: React.ComponentProps<typeof ComboboxInput> & {
-  items?: { id: number; name: string }[]
-  initialItem?: { id: number; name: string } | null
-}) {
-  return (
-    <ComboboxValue>
-      {(value) => {
-        const item =
-          items?.find((item) => item.id === value) ||
-          (initialItem && value === initialItem.id && initialItem) ||
-          undefined
-        return <ComboboxInput value={item?.name ?? ""} showClear {...props} />
-      }}
-    </ComboboxValue>
-  )
-}
-
 function CategoryCombobox({
-  initialItem,
-  ...props
-}: React.ComponentProps<
-  typeof Combobox<z.infer<typeof schemas.Category>["id"], false>
-> & {
-  initialItem?: z.infer<typeof schemas.Category> | null
+  initialItem: initialCategory,
+  value: categoryId,
+  onValueChange: setCategoryId,
+}: {
+  initialItem: z.infer<typeof schemas.Category> | null
+  value: number | null
+  onValueChange: (id: number | null) => void
 }) {
   const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
     getCategoriesQueryOptions()
   )
+
+  const selectedItem =
+    items?.find((item) => item.id === categoryId) ||
+    (initialCategory?.id === categoryId && initialCategory) ||
+    null
 
   return (
     <Combobox
@@ -412,18 +390,18 @@ function CategoryCombobox({
       items={items}
       open={open}
       onOpenChange={setOpen}
-      {...props}
+      value={selectedItem}
+      onValueChange={(value) => setCategoryId(value?.id ?? null)}
+      itemToStringLabel={(item) => item.name}
+      itemToStringValue={(item) => item.id.toString()}
+      isItemEqualToValue={(itemValue, item) => itemValue.id === item.id}
     >
-      <ComboboxInputValue
-        items={items}
-        initialItem={initialItem}
-        placeholder="Assing a category"
-      />
+      <ComboboxInput placeholder="Assing a category" />
       <ComboboxContent>
         <ComboboxEmpty>No categories found.</ComboboxEmpty>
         <ComboboxList>
-          {(item) => (
-            <ComboboxItem key={item.id} value={item.id}>
+          {(item: z.infer<typeof schemas.Category>) => (
+            <ComboboxItem key={item.id} value={item}>
               <Item size="sm" className="p-0">
                 <ItemContent>
                   <ItemTitle>{item.name}</ItemTitle>
@@ -439,15 +417,15 @@ function CategoryCombobox({
 }
 
 function BrandCombobox({
+  initialItem: initialBrand,
+  value: brandId,
+  onValueChange: setBrandId,
   product,
   form,
-  ...props
-}: Omit<
-  React.ComponentProps<
-    typeof Combobox<z.infer<typeof schemas.Brand>["id"] | null, false>
-  >,
-  "form"
-> & {
+}: {
+  initialItem: z.infer<typeof schemas.Brand> | null
+  value: number
+  onValueChange: (value: number | null) => void
   product: z.infer<typeof schemas.Product>
   form: ReturnType<typeof useProductForm>
 }) {
@@ -455,32 +433,36 @@ function BrandCombobox({
     getBrandsQueryOptions()
   )
 
+  const selectedItem =
+    items?.find((item) => item.id === brandId) ||
+    (initialBrand?.id === brandId && initialBrand) ||
+    null
+
   return (
     <Combobox
       autoHighlight
       items={items}
       open={open}
       onOpenChange={setOpen}
-      {...props}
+      value={selectedItem}
+      onValueChange={(value) => setBrandId(value?.id ?? null)}
+      itemToStringLabel={(item) => item.name}
+      itemToStringValue={(item) => item.id.toString()}
+      isItemEqualToValue={(itemValue, value) => itemValue.id === value.id}
     >
-      <ComboboxInputValue
-        items={items}
-        initialItem={product.brand}
-        placeholder="Assing a brand"
-        showTrigger={false}
-      >
+      <ComboboxInput placeholder="Assing a brand">
         <InputGroupAddon align="inline-end">
           <DetectAndAssignBrandButton
             product={product}
             onSuccess={form.reset}
           />
         </InputGroupAddon>
-      </ComboboxInputValue>
+      </ComboboxInput>
       <ComboboxContent>
         <ComboboxEmpty>No brands found.</ComboboxEmpty>
         <ComboboxList>
-          {(item) => (
-            <ComboboxItem key={item.id} value={item.id}>
+          {(item: z.infer<typeof schemas.Brand>) => (
+            <ComboboxItem key={item.id} value={item}>
               {item.name}
             </ComboboxItem>
           )}

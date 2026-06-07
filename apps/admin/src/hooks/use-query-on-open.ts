@@ -6,12 +6,13 @@ export function useQueryOnOpen<
   TError = Error,
   TData = TQueryFnData,
   TQueryKey extends readonly unknown[] = readonly unknown[],
->(
-  props: Parameters<typeof useQuery<TQueryFnData, TError, TData, TQueryKey>>[0]
-) {
+>({
+  enabled,
+  ...props
+}: Parameters<typeof useQuery<TQueryFnData, TError, TData, TQueryKey>>[0]) {
   const [open, setOpen] = React.useState(false)
 
-  const query = useQuery({ ...props, enabled: open })
+  const query = useQuery({ ...props, enabled: enabled || open })
 
   return [query, { open, setOpen }] as const
 }
