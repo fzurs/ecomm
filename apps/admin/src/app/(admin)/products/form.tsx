@@ -53,8 +53,7 @@ import {
 } from "@workspace/ui/components/input-group"
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { useQueryOnOpen } from "@/hooks/use-query-on-open"
-import { useAppForm } from "@/hooks/form"
-import { useFormContext } from "@/hooks/form-context"
+import { useForm } from "@tanstack/react-form"
 
 export function useProductForm({
   item,
@@ -78,7 +77,7 @@ export function useProductForm({
     },
   })
 
-  const form = useAppForm({
+  const form = useForm({
     formId: (item ? `update-${item.id}` : "create") + "-product-form",
     defaultValues: item ?? {
       id: 0,
@@ -131,7 +130,10 @@ export function ProductForm({
                     aria-invalid={isInvalid}
                   />
                   <InputGroupAddon align="inline-end">
-                    <GenerateSKUButton />
+                    <GenerateSKUButton
+                      product={form.state.values}
+                      onSuccess={form.reset}
+                    />
                   </InputGroupAddon>
                 </InputGroup>
                 <FieldDescription>
@@ -468,7 +470,10 @@ function BrandCombobox({
         showTrigger={false}
       >
         <InputGroupAddon align="inline-end">
-          <DetectAndAssignBrandButton />
+          <DetectAndAssignBrandButton
+            product={product}
+            onSuccess={form.reset}
+          />
         </InputGroupAddon>
       </ComboboxInputValue>
       <ComboboxContent>
@@ -486,11 +491,13 @@ function BrandCombobox({
 }
 
 function GenerateSKUButton({
+  product: item,
+  onSuccess,
   ...props
-}: React.ComponentProps<typeof InputGroupButton>) {
-  const form = useFormContext()
-  const item = form.state.values as never as z.infer<typeof schemas.Product>
-
+}: React.ComponentProps<typeof InputGroupButton> & {
+  product: z.infer<typeof schemas.Product>
+  onSuccess: (data: z.infer<typeof schemas.Product>) => void
+}) {
   const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
@@ -500,7 +507,7 @@ function GenerateSKUButton({
       }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      form.reset(data as never)
+      onSuccess(data)
     },
   })
 
@@ -512,11 +519,13 @@ function GenerateSKUButton({
 }
 
 function DetectAndAssignBrandButton({
+  product: item,
+  onSuccess,
   ...props
-}: React.ComponentProps<typeof InputGroupButton>) {
-  const form = useFormContext()
-  const item = form.state.values as never as z.infer<typeof schemas.Product>
-
+}: React.ComponentProps<typeof InputGroupButton> & {
+  product: z.infer<typeof schemas.Product>
+  onSuccess: (data: z.infer<typeof schemas.Product>) => void
+}) {
   const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
@@ -526,7 +535,7 @@ function DetectAndAssignBrandButton({
       }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      form.reset(data as never)
+      onSuccess(data)
     },
   })
 
