@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,6 +15,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description", "category__name", "brand__name"]
     ordering_fields = ["name", "category", "brand", "status", "featured", "price", "discount_price", "created_at"]
     lookup_field = "slug"
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return super().get_permissions()
 
     @action(detail=True, methods=['post'], url_path='generate-sku')
     def generate_sku(self, request, **kwargs):
