@@ -1,9 +1,9 @@
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
+import { SidebarProvider } from "@workspace/ui/components/sidebar"
+import { NuqsAdapter } from "nuqs/adapters/next"
+import { Suspense } from "react"
 
 export const metadata = {
   title: "Sitio web eccomerce",
@@ -18,17 +18,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider>
-          <div className="[--header-height:calc(--spacing(12))]">
-            <SidebarProvider className="flex flex-col">
-              <SiteHeader />
-              <div className="flex flex-1">
-                <AppSidebar />
-                <SidebarInset>{children}</SidebarInset>
-              </div>
-            </SidebarProvider>
-          </div>
-        </ThemeProvider>
+        <NuqsAdapter>
+          <ThemeProvider>
+            <div className="[--header-height:calc(--spacing(12))]">
+              <SidebarProvider className="flex flex-col">
+                <Suspense>{children}</Suspense>
+              </SidebarProvider>
+            </div>
+          </ThemeProvider>
+        </NuqsAdapter>
       </body>
     </html>
   )
