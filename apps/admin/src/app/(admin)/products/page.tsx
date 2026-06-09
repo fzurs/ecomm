@@ -73,14 +73,19 @@ export default function Page() {
 
   const isCached =
     queryClient.getQueryData(queryKeys.products.list(filters)) !== undefined
-  const debouncedFilters = useDebounce(filters, isCached ? 0 : 300)
 
-  const { data } = useProducts(debouncedFilters)
+  const debouncedFilters = useDebounce(filters, 300)
+
+  const activeFilters = isCached ? filters : debouncedFilters
+
+  const { data } = useProducts(activeFilters)
 
   const table = useDataTable({
     data,
     columns,
-    initialState: { columnVisibility: { description: false } },
+    initialState: {
+      columnVisibility: { description: false },
+    },
     defaultColumn: {
       enableColumnFilter: true,
       enableSorting: true,

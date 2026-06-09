@@ -312,7 +312,7 @@ function TableCellViewer({
           <DrawerTitle>{item.name}</DrawerTitle>
           <DrawerDescription />
         </DrawerHeader>
-        <ProductForm form={form} className="no-scrollbar overflow-y-auto" />
+        <ProductForm form={form} className="overflow-y-auto" />
         <DrawerFooter>
           <form.Subscribe
             selector={(state) => [state.isSubmitting, state.isPristine]}

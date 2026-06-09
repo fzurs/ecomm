@@ -8,7 +8,7 @@ from .filters import ProductFilter, ProductOrdering
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.order_by("name")
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend, ProductOrdering]
     filterset_class = ProductFilter
