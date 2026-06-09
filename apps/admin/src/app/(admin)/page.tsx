@@ -1,10 +1,18 @@
-import { PageHeader, PageTitle } from "@/components/page-header"
+import {
+  PageAction,
+  PageHeader,
+  PageHeaderHeading,
+} from "@/components/page-header"
+import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
 export default function Page() {
   return (
     <>
       <PageHeader>
-        <PageTitle>Home</PageTitle>
+        <PageHeaderHeading>Home</PageHeaderHeading>
+        <PageAction>
+          <ModeToggle />
+        </PageAction>
       </PageHeader>
     </>
   )

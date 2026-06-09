@@ -1,6 +1,6 @@
-import { Separator } from "@workspace/ui/components/separator";
-import { SidebarTrigger } from "@workspace/ui/components/sidebar";
-import { cn } from "@workspace/ui/lib/utils";
+import { Separator } from "@workspace/ui/components/separator"
+import { SidebarTrigger } from "@workspace/ui/components/sidebar"
+import { cn } from "@workspace/ui/lib/utils"
 
 export function PageHeader({
   className,
@@ -8,7 +8,7 @@ export function PageHeader({
   ...props
 }: React.ComponentProps<"div">) {
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="sticky top-0 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div
         className={cn(
           "flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6",
@@ -24,11 +24,14 @@ export function PageHeader({
         {children}
       </div>
     </header>
-  );
+  )
 }
 
-export function PageTitle({ className, ...props }: React.ComponentProps<"h1">) {
-  return <h1 className={cn("text-base font-medium", className)} {...props} />;
+export function PageHeaderHeading({
+  className,
+  ...props
+}: React.ComponentProps<"h1">) {
+  return <h1 className={cn("text-base font-medium", className)} {...props} />
 }
 
 export function PageAction({
@@ -40,7 +43,7 @@ export function PageAction({
       className={cn("ml-auto flex items-center gap-2", className)}
       {...props}
     />
-  );
+  )
 }
 
 export function PageContent({
@@ -56,5 +59,5 @@ export function PageContent({
         />
       </div>
     </div>
-  );
+  )
 }

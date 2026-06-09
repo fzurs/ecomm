@@ -3,9 +3,8 @@
 import { DataTable } from "@/components/data-table/data-table"
 import {
   PageAction,
-  PageContent,
   PageHeader,
-  PageTitle,
+  PageHeaderHeading,
 } from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
 import { usePaginationValues } from "@/hooks/use-pagination"
@@ -34,6 +33,7 @@ import { useProductForm } from "./form"
 import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { format } from "date-fns"
+import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
 export default function Page() {
   const queryClient = useQueryClient()
@@ -90,14 +90,15 @@ export default function Page() {
   return (
     <>
       <PageHeader>
-        <PageTitle>Products</PageTitle>
+        <PageHeaderHeading>Products</PageHeaderHeading>
         <PageAction>
+          <ModeToggle />
           <QuickCreateProductDialog />
         </PageAction>
       </PageHeader>
-      <PageContent>
+      <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table} />
-      </PageContent>
+      </div>
     </>
   )
 }

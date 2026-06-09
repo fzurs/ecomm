@@ -75,7 +75,7 @@ export const getFeaturedIcon = (
   featured ? (
     <IconStar className="fill-yellow-500 text-yellow-500" />
   ) : (
-    <IconStar className="size-4" />
+    <IconStar className="size-4 text-muted-foreground" />
   )
 
 export const getStatusIcon = (status: z.infer<typeof schemas.StatusEnum>) => {

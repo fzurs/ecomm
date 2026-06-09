@@ -16,6 +16,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
 import {
   Item,
@@ -302,65 +303,67 @@ export function ProductForm({
             )
           }}
         />
-        <form.Field
-          name="price"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid
-            const fieldId = `${form.formId}-${field.name}`
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={fieldId}>Price</FieldLabel>
-                <Input
-                  type="number"
-                  id={fieldId}
-                  name={field.name}
-                  value={(field.state.value as string) ?? ""}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    field.handleChange(value ? Number(e.target.value) : null)
-                  }}
-                  aria-invalid={isInvalid}
-                />
-                <FieldDescription>
-                  The actual price of product.
-                </FieldDescription>
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            )
-          }}
-        />
-        <form.Field
-          name="discount_price"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid
-            const fieldId = `${form.formId}-${field.name}`
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={fieldId}>Discount Price</FieldLabel>
-                <Input
-                  type="number"
-                  id={fieldId}
-                  name={field.name}
-                  value={(field.state.value as string) ?? ""}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    field.handleChange(value ? Number(e.target.value) : null)
-                  }}
-                  aria-invalid={isInvalid}
-                />
-                <FieldDescription>
-                  Discounted price after applying any promotions or coupon
-                  codes.
-                </FieldDescription>
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            )
-          }}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <form.Field
+            name="price"
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid
+              const fieldId = `${form.formId}-${field.name}`
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={fieldId}>Price</FieldLabel>
+                  <Input
+                    type="number"
+                    id={fieldId}
+                    name={field.name}
+                    value={(field.state.value as string) ?? ""}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      field.handleChange(value ? Number(e.target.value) : null)
+                    }}
+                    aria-invalid={isInvalid}
+                  />
+                  <FieldDescription>
+                    The actual price of product.
+                  </FieldDescription>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              )
+            }}
+          />
+          <form.Field
+            name="discount_price"
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid
+              const fieldId = `${form.formId}-${field.name}`
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={fieldId}>Discount Price</FieldLabel>
+                  <Input
+                    type="number"
+                    id={fieldId}
+                    name={field.name}
+                    value={(field.state.value as string) ?? ""}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      field.handleChange(value ? Number(e.target.value) : null)
+                    }}
+                    aria-invalid={isInvalid}
+                  />
+                  <FieldDescription>
+                    Discounted price after applying any promotions or coupon
+                    codes.
+                  </FieldDescription>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              )
+            }}
+          />
+        </div>
       </FieldGroup>
     </form>
   )
@@ -429,6 +432,8 @@ function BrandCombobox({
   product: z.infer<typeof schemas.Product>
   form: ReturnType<typeof useProductForm>
 }) {
+  const anchor = useComboboxAnchor()
+
   const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
     getBrandsQueryOptions()
   )
@@ -450,7 +455,7 @@ function BrandCombobox({
       itemToStringValue={(item) => item.id.toString()}
       isItemEqualToValue={(itemValue, value) => itemValue.id === value.id}
     >
-      <ComboboxInput placeholder="Assing a brand">
+      <ComboboxInput anchor={anchor} placeholder="Assing a brand">
         <InputGroupAddon align="inline-end">
           <DetectAndAssignBrandButton
             product={product}
@@ -458,7 +463,7 @@ function BrandCombobox({
           />
         </InputGroupAddon>
       </ComboboxInput>
-      <ComboboxContent>
+      <ComboboxContent anchor={anchor}>
         <ComboboxEmpty>No brands found.</ComboboxEmpty>
         <ComboboxList>
           {(item: z.infer<typeof schemas.Brand>) => (

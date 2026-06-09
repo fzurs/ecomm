@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Inbox, PackageIcon, Search, Settings } from "lucide-react"
+import { PackageIcon } from "lucide-react"
 
 import {
   Sidebar,
