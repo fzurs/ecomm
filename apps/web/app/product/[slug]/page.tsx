@@ -9,9 +9,7 @@ async function getProduct(slug: string) {
   return apiClient.products_retrieve({ params: { slug } })
 }
 
-export default async function ProductPage(props: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function ProductPage(props: PageProps<"/product/[slug]">) {
   const params = await props.params
   const product = await getProduct(params.slug)
 
