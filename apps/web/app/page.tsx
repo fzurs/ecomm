@@ -21,10 +21,12 @@ export default async function Page(props: PageProps<"/">) {
       <div className="flex flex-1">
         <AppSidebar />
         <SidebarInset>
-          <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-            <Suspense fallback={<div>Loading...</div>}>
-              <ProductList {...params} />
-            </Suspense>
+          <div className="@container/main flex-1">
+            <div className="grid grid-cols-1 gap-4 p-4 @xl/main:grid-cols-2 @4xl/main:grid-cols-3">
+              <Suspense fallback={<div>Loading...</div>}>
+                <ProductList {...params} />
+              </Suspense>
+            </div>
           </div>
         </SidebarInset>
       </div>
