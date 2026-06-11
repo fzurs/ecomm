@@ -1,24 +1,34 @@
+import { isOutOfStock } from "@/lib/utils"
 import { schemas } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
   CardAction,
+  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
 import React from "react"
 import z from "zod"
+import { OutOfStockAlert } from "./out-of-stock-alert"
+import { cn } from "@workspace/ui/lib/utils"
 
 export function ProductCard({
   product,
+  className,
   ...props
 }: React.ComponentProps<typeof Card> & {
   product: z.infer<typeof schemas.Product>
 }) {
   return (
-    <Card {...props}>
+    <Card
+      className={cn(isOutOfStock(product.status) && "pt-0", className)}
+      {...props}
+    >
+      {isOutOfStock(product.status) && (
+        <OutOfStockAlert className="rounded-b-none border-0" />
+      )}
       <CardHeader>
         <CardTitle>{product.name}</CardTitle>
         <CardDescription>{product.description}</CardDescription>
@@ -28,14 +38,14 @@ export function ProductCard({
           </span>
         </CardAction>
       </CardHeader>
-      <CardFooter className="mt-auto">
+      <CardContent>
         {product.price &&
           (product.discount_price ? (
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground line-through">
                 $ {product.price}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <span className="text-xl">
                   $ {product.price - product.discount_price}
                 </span>
@@ -48,7 +58,7 @@ export function ProductCard({
           ) : (
             <span className="text-xl">$ {product.price}</span>
           ))}
-      </CardFooter>
+      </CardContent>
     </Card>
   )
 }
