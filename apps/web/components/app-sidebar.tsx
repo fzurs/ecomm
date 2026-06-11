@@ -8,6 +8,7 @@ import {
   Frame,
   LifeBuoy,
   Map,
+  Package,
   PieChart,
   Send,
   Settings2,
@@ -41,7 +42,7 @@ const data = {
     {
       title: "Products",
       url: "/",
-      icon: SquareTerminal,
+      icon: Package,
       isActive: true,
       items: [
         {
@@ -110,16 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Store</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/products">Products</Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+        <NavMain items={data.navMain} />
       </SidebarContent>
     </Sidebar>
   )

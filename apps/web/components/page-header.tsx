@@ -19,8 +19,10 @@ import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
 export function PageHeader({
   breadcrumbs,
+  children,
 }: {
-  breadcrumbs: { items?: { href: string; title: string }[]; page: string }
+  breadcrumbs?: { items?: { href: string; title: string }[]; page: string }
+  children?: React.ReactNode
 }) {
   const { toggleSidebar } = useSidebar()
 
@@ -36,23 +38,26 @@ export function PageHeader({
           <SidebarIcon />
         </Button>
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb className="hidden sm:block">
-          <BreadcrumbList>
-            {breadcrumbs.items?.map(({ title, href }, index) => (
-              <React.Fragment key={index}>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href={href}>{title}</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-              </React.Fragment>
-            ))}
-            <BreadcrumbItem>
-              <BreadcrumbPage>{breadcrumbs.page}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        {breadcrumbs && (
+          <Breadcrumb className="hidden sm:block">
+            <BreadcrumbList>
+              {breadcrumbs.items?.map(({ title, href }, index) => (
+                <React.Fragment key={index}>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href={href}>{title}</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                </React.Fragment>
+              ))}
+              <BreadcrumbItem>
+                <BreadcrumbPage>{breadcrumbs.page}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        )}
+        {children}
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
           <Suspense>
