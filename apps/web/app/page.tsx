@@ -5,16 +5,18 @@ import { apiClient } from "@/lib/api-client"
 import { schemas } from "@workspace/api-client"
 import { SidebarInset } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
-import { parseAsString, createSearchParamsCache } from "nuqs/server"
+import {
+  parseAsString,
+  createSearchParamsCache,
+  SearchParams,
+} from "nuqs/server"
 import { Suspense } from "react"
 
 const searchParamsCache = createSearchParamsCache({
   search: parseAsString.withDefault(""),
 })
 
-export default async function Page(props: PageProps<"/">) {
-  const params = await searchParamsCache.parse(props.searchParams)
-
+export default function Page(props: PageProps<"/">) {
   return (
     <>
       <PageHeader breadcrumbs={{ page: "Products" }} />
@@ -24,7 +26,7 @@ export default async function Page(props: PageProps<"/">) {
           <div className="@container/main flex-1">
             <div className="grid grid-cols-1 gap-4 p-4 @xl/main:grid-cols-2 @4xl/main:grid-cols-3">
               <Suspense fallback={<div>Loading...</div>}>
-                <ProductList search={params.search} />
+                <ProductList searchParams={props.searchParams} />
               </Suspense>
             </div>
           </div>
@@ -34,11 +36,14 @@ export default async function Page(props: PageProps<"/">) {
   )
 }
 
-async function ProductList({ search }: { search?: string }) {
+async function ProductList(props: { searchParams: Promise<SearchParams> }) {
   "use cache"
+
+  const searchParams = await searchParamsCache.parse(props.searchParams)
+
   const products = await apiClient.products_list({
     queries: {
-      search,
+      search: searchParams?.search ?? "",
       status: [
         schemas.StatusEnum.Enum.active,
         schemas.StatusEnum.Enum.out_of_stock,
