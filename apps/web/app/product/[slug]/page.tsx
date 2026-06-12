@@ -20,7 +20,6 @@ import { Suspense } from "react"
 
 async function getProduct(slug: string) {
   "use cache"
-  await new Promise((resolve) => setTimeout(resolve, 5000))
   return apiClient.products_retrieve({ params: { slug } })
 }
 

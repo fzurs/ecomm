@@ -46,9 +46,19 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = None
     lookup_field = "slug"
 
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return super().get_permissions()
+
 
 class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     pagination_class = None
     lookup_field = "slug"
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return super().get_permissions()

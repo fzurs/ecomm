@@ -45,7 +45,7 @@ export function ProductCard({
               <span className="text-xs text-muted-foreground line-through">
                 $ {product.price}
               </span>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 <span className="text-xl">
                   $ {product.price - product.discount_price}
                 </span>
