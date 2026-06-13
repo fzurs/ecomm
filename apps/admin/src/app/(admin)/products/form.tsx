@@ -432,8 +432,6 @@ function BrandCombobox({
   product: z.infer<typeof schemas.Product>
   form: ReturnType<typeof useProductForm>
 }) {
-  const anchor = useComboboxAnchor()
-
   const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
     getBrandsQueryOptions()
   )
@@ -455,7 +453,7 @@ function BrandCombobox({
       itemToStringValue={(item) => item.id.toString()}
       isItemEqualToValue={(itemValue, value) => itemValue.id === value.id}
     >
-      <ComboboxInput anchor={anchor} placeholder="Assing a brand">
+      <ComboboxInput placeholder="Assing a brand">
         <InputGroupAddon align="inline-end">
           <DetectAndAssignBrandButton
             product={product}
@@ -463,7 +461,7 @@ function BrandCombobox({
           />
         </InputGroupAddon>
       </ComboboxInput>
-      <ComboboxContent anchor={anchor}>
+      <ComboboxContent>
         <ComboboxEmpty>No brands found.</ComboboxEmpty>
         <ComboboxList>
           {(item: z.infer<typeof schemas.Brand>) => (
