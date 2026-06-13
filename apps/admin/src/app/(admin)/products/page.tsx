@@ -35,6 +35,8 @@ import { Input } from "@workspace/ui/components/input"
 import { format } from "date-fns"
 import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
+const DEBOUNCE_DELAY = 300
+
 export default function Page() {
   const queryClient = useQueryClient()
 
@@ -74,7 +76,7 @@ export default function Page() {
   const isCached =
     queryClient.getQueryData(queryKeys.products.list(filters)) !== undefined
 
-  const debouncedFilters = useDebounce(filters, 300)
+  const debouncedFilters = useDebounce(filters, DEBOUNCE_DELAY)
 
   const activeFilters = isCached ? filters : debouncedFilters
 
