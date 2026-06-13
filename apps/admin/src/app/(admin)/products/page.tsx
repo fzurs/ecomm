@@ -32,7 +32,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useProductForm } from "./form"
 import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
-import { format } from "date-fns"
+import { formatISO } from "date-fns"
 import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
 const DEBOUNCE_DELAY = 300
@@ -45,8 +45,30 @@ export default function Page() {
   const columnFilters = useColumnFilterValues(columns)
 
   const filters = React.useMemo<Parameters<typeof useProducts>[0]>(() => {
-    const { name: search, price, discount_price, created_at, ...moreFilters } = columnFilters
-    return { ...pagination, ...sorting, ...moreFilters, search, price_min: price?.[0], price_max: price?.[1], discount_price_min: discount_price?.[0], discount_price_max: discount_price?.[1], created_at_after: created_at?.[0] ? format(created_at[0], "yyyy-MM-dd") : undefined, created_at_before: created_at?.[0] ? format(created_at[0], "yyyy-MM-dd") : undefined, }
+    const {
+      name: search,
+      price = [],
+      discount_price = [],
+      created_at = [],
+      ...moreFilters
+    } = columnFilters
+    const [price_min, price_max] = price
+    const [discount_price_min, discount_price_max] = discount_price
+    const [created_at_after, created_at_before] = created_at.map((date) =>
+      formatISO(date, { representation: "date" })
+    )
+    return {
+      ...pagination,
+      ...sorting,
+      ...moreFilters,
+      search,
+      price_min,
+      price_max,
+      discount_price_min,
+      discount_price_max,
+      created_at_after,
+      created_at_before,
+    }
   }, [pagination, sorting, columnFilters])
 
   const isCached =

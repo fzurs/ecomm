@@ -4,7 +4,7 @@ import {
   ColumnFiltersState,
   OnChangeFn,
 } from "@tanstack/react-table"
-import { SingleParser, useQueryStates, Values } from "nuqs"
+import { SingleParser, useQueryStates } from "nuqs"
 import * as React from "react"
 
 type HasFilterParser<K> = K extends {

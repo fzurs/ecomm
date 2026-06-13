@@ -36,6 +36,7 @@ import {
   parseAsBoolean,
   parseAsInteger,
   parseAsIsoDate,
+  parseAsJson,
   parseAsString,
   parseAsStringEnum,
 } from "nuqs"
