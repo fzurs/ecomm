@@ -45,32 +45,8 @@ export default function Page() {
   const columnFilters = useColumnFilterValues(columns)
 
   const filters = React.useMemo<Parameters<typeof useProducts>[0]>(() => {
-    const {
-      name: search,
-      price = [],
-      discount_price = [],
-      created_at = [],
-      ...rest
-    } = columnFilters
-    const [price_min, price_max] = price
-    const [discount_price_min, discount_price_max] = discount_price
-    const [created_at_after, created_at_before] = created_at
-    return {
-      ...pagination,
-      ...sorting,
-      ...rest,
-      search,
-      price_min,
-      price_max,
-      discount_price_min,
-      discount_price_max,
-      created_at_after: created_at_after
-        ? format(created_at_after, "yyyy-MM-dd")
-        : undefined,
-      created_at_before: created_at_before
-        ? format(created_at_before, "yyyy-MM-dd")
-        : undefined,
-    }
+    const { name: search, price, discount_price, created_at, ...moreFilters } = columnFilters
+    return { ...pagination, ...sorting, ...moreFilters, search, price_min: price?.[0], price_max: price?.[1], discount_price_min: discount_price?.[0], discount_price_max: discount_price?.[1], created_at_after: created_at?.[0] ? format(created_at[0], "yyyy-MM-dd") : undefined, created_at_before: created_at?.[0] ? format(created_at[0], "yyyy-MM-dd") : undefined, }
   }, [pagination, sorting, columnFilters])
 
   const isCached =
