@@ -1,6 +1,5 @@
 "use client"
 import { cn } from "@workspace/ui/lib/utils"
-import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardContent,
@@ -19,9 +18,14 @@ import { apiClient } from "@/lib/api-client"
 import { schemas } from "@workspace/api-client"
 import z from "zod"
 import { useRouter } from "next/navigation"
-import { FormField, FormLabel, FormMessage, FormTextInput } from "./form"
-import { useForm } from "@tanstack/react-form"
 import { Input } from "@workspace/ui/components/input"
+import { useAppForm } from "@/hooks/form"
+
+const defaultLogin: z.infer<typeof schemas.Login> = {
+  username: "",
+  email: "",
+  password: "",
+}
 
 function useLoginForm() {
   const router = useRouter()
@@ -36,15 +40,9 @@ function useLoginForm() {
     },
   })
 
-  const form = useForm({
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-    } as z.infer<typeof schemas.Login>,
-    validators: {
-      onSubmit: schemas.Login,
-    },
+  const form = useAppForm({
+    defaultValues: defaultLogin,
+    validators: { onSubmit: schemas.Login },
     onSubmit: ({ value }) => mutate(value),
   })
 
@@ -148,7 +146,9 @@ export function LoginForm({
                 }}
               />
               <Field>
-                <Button type="submit">Login</Button>
+                <form.AppForm>
+                  <form.SubscribeButton>Login</form.SubscribeButton>
+                </form.AppForm>
               </Field>
             </FieldGroup>
           </form>
