@@ -21,15 +21,13 @@ import {
 import Link from "next/link"
 import { useSidebarItems } from "./sidebar-items-provider"
 import { usePathname } from "next/navigation"
-import { Suspense } from "react"
+import React, { Suspense } from "react"
 
 export function NavProducts() {
-  const pathname = usePathname()
-
   return (
     <SidebarGroup>
       <SidebarMenu>
-        <Collapsible asChild defaultOpen={pathname.includes("/product/")}>
+        <Collapsible asChild>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/">

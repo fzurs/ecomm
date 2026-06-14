@@ -104,6 +104,7 @@ function DataTableToolbarFilter<TData>({
                 key={optionValue}
                 value={optionValue}
                 aria-label={`Toggle ${optionValue}`}
+                className="w-auto"
               >
                 {option.icon} {option.label}
               </ToggleGroupItem>
@@ -114,6 +115,14 @@ function DataTableToolbarFilter<TData>({
     case "range":
       return (
         <RangeFilter
+          range={value ?? []}
+          setRange={setValue}
+          placeholder={placeholder}
+        />
+      )
+    case "date-range":
+      return (
+        <DateRangeFilter
           range={value ?? []}
           setRange={setValue}
           placeholder={placeholder}
@@ -161,14 +170,7 @@ function DataTableToolbarFilter<TData>({
           items={filterMeta.options}
         />
       )
-    case "date-range":
-      return (
-        <DateRangeFilter
-          range={value ?? []}
-          setRange={setValue}
-          placeholder={placeholder}
-        />
-      )
+
     default:
       return null
   }

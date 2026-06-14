@@ -4,17 +4,24 @@ import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import { Field, FieldGroup } from "@workspace/ui/components/field"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api-client"
 import { schemas } from "@workspace/api-client"
 import z from "zod"
 import { useRouter } from "next/navigation"
-import { useAppForm } from "@/hooks/form"
 import { FormField, FormLabel, FormMessage, FormTextInput } from "./form"
+import { useForm } from "@tanstack/react-form"
+import { Input } from "@workspace/ui/components/input"
 
 function useLoginForm() {
   const router = useRouter()
@@ -29,7 +36,7 @@ function useLoginForm() {
     },
   })
 
-  const form = useAppForm({
+  const form = useForm({
     defaultValues: {
       username: "",
       email: "",
@@ -54,7 +61,10 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login</CardTitle>
+          <CardTitle>Login to your account</CardTitle>
+          <CardDescription>
+            Enter your email below to login to your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -66,41 +76,76 @@ export function LoginForm({
             <FieldGroup>
               <form.Field
                 name="username"
-                children={(field) => (
-                  <FormField>
-                    <FormLabel>Username</FormLabel>
-                    <FormTextInput placeholder="francozursch123" required />
-                    <FormMessage />
-                  </FormField>
-                )}
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Username</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value as string}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="@admin"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
               />
-              <form.AppField
+              <form.Field
                 name="email"
-                children={(field) => (
-                  <FormField>
-                    <FormLabel>Email</FormLabel>
-                    <FormTextInput
-                      type="email"
-                      placeholder="you@example.com"
-                      required
-                    />
-                    <FormMessage />
-                  </FormField>
-                )}
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value as string}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        type="email"
+                        placeholder="m@example.com"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
               />
-              <form.AppField
+              <form.Field
                 name="password"
-                children={(field) => (
-                  <FormField>
-                    <FormLabel>Password</FormLabel>
-                    <FormTextInput
-                      type="password"
-                      placeholder="******"
-                      required
-                    />
-                    <FormMessage />
-                  </FormField>
-                )}
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value as string}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        type="password"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
               />
               <Field>
                 <Button type="submit">Login</Button>
