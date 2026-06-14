@@ -335,50 +335,8 @@ function TableCellViewer({
   )
 }
 
-function useProductDestroy(item: z.infer<typeof schemas.Product>) {
-  const queryClient = useQueryClient()
-
-  const destroyMutation = useMutation({
-    mutationFn: () =>
-      apiClient.products_destroy(undefined, {
-        params: { slug: item.slug as string },
-      }),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.products.all() })
-
-      const previousData = queryClient.getQueryData(queryKeys.products.list())
-
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.products.all() },
-        (
-          old: Awaited<ReturnType<typeof apiClient.products_list>> | undefined
-        ) => {
-          if (!old) return old
-          return {
-            ...old,
-            results: old.results.filter((product) => product.id !== item.id),
-          }
-        }
-      )
-
-      return { previousData }
-    },
-    onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(
-        queryKeys.products.list(),
-        onMutateResult?.previousData
-      )
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-    },
-  })
-
-  return destroyMutation
-}
-
 function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
-  const destroyMutation = useProductDestroy(item)
+  const destroyMutation = useOptimisticDestroyProduct(item)
 
   return (
     <div className="flex justify-end">
@@ -427,4 +385,46 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
       </AlertDialog>
     </div>
   )
+}
+
+function useOptimisticDestroyProduct(item: z.infer<typeof schemas.Product>) {
+  const queryClient = useQueryClient()
+
+  const destroyMutation = useMutation({
+    mutationFn: () =>
+      apiClient.products_destroy(undefined, {
+        params: { slug: item.slug as string },
+      }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.products.all() })
+
+      const previousData = queryClient.getQueryData(queryKeys.products.list())
+
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.products.all() },
+        (
+          old: Awaited<ReturnType<typeof apiClient.products_list>> | undefined
+        ) => {
+          if (!old) return old
+          return {
+            ...old,
+            results: old.results.filter((product) => product.id !== item.id),
+          }
+        }
+      )
+
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) => {
+      queryClient.setQueryData(
+        queryKeys.products.list(),
+        onMutateResult?.previousData
+      )
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
+    },
+  })
+
+  return destroyMutation
 }
