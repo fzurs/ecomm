@@ -336,7 +336,7 @@ function TableCellViewer({
 }
 
 function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
-  const destroyMutation = useOptimisticDestroyProduct(item)
+  const destroyMutation = useOptimisticProductDestroy(item)
 
   return (
     <div className="flex justify-end">
@@ -387,7 +387,7 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
   )
 }
 
-function useOptimisticDestroyProduct(item: z.infer<typeof schemas.Product>) {
+function useOptimisticProductDestroy(item: z.infer<typeof schemas.Product>) {
   const queryClient = useQueryClient()
 
   const destroyMutation = useMutation({
