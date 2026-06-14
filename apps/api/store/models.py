@@ -40,7 +40,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255, blank=True, unique=True)
     sku = models.CharField('SKU', max_length=255, blank=True, null=True)
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
 
     category = models.ForeignKey(Category, models.SET_NULL, null=True, blank=True)
