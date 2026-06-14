@@ -36,7 +36,6 @@ import {
   parseAsBoolean,
   parseAsInteger,
   parseAsIsoDate,
-  parseAsJson,
   parseAsString,
   parseAsStringEnum,
 } from "nuqs"
@@ -313,20 +312,20 @@ function TableCellViewer({
           <DrawerTitle>{item.name}</DrawerTitle>
           <DrawerDescription />
         </DrawerHeader>
-        <ProductForm form={form} className="overflow-y-auto" />
+        <form
+          id={form.formId}
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+          className="overflow-auto px-4"
+        >
+          <ProductForm form={form} />
+        </form>
         <DrawerFooter>
-          <form.Subscribe
-            selector={(state) => [state.isSubmitting, state.isPristine]}
-            children={([isSubmitting, isPristine]) => (
-              <Button
-                form={form.formId}
-                type="submit"
-                disabled={isSubmitting || isPristine}
-              >
-                Save changes
-              </Button>
-            )}
-          />
+          <form.AppForm>
+            <form.SubscribeButton>Save changes</form.SubscribeButton>
+          </form.AppForm>
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>
           </DrawerClose>

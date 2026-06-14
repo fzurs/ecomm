@@ -29,11 +29,11 @@ import { columns } from "./columns"
 import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
-import { useProductForm } from "./form"
 import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { formatISO } from "date-fns"
 import { ModeToggle } from "@workspace/ui/components/mode-toggle"
+import { useProductForm } from "./form"
 
 const DEBOUNCE_DELAY = 300
 
@@ -172,18 +172,9 @@ function QuickCreateProductDialog() {
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>
-          <form.Subscribe
-            selector={(state) => [state.isSubmitting, state.isPristine]}
-            children={([isSubmitting, isPristine]) => (
-              <Button
-                type="submit"
-                disabled={isSubmitting || isPristine}
-                form={form.formId}
-              >
-                Create
-              </Button>
-            )}
-          />
+          <form.AppForm>
+            <form.SubscribeButton>Create</form.SubscribeButton>
+          </form.AppForm>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -10,13 +10,11 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
-  Combobox,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
 import {
   Item,
@@ -52,15 +50,29 @@ import {
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
-import { useQueryOnOpen } from "@/hooks/use-query-on-open"
-import { useForm } from "@tanstack/react-form"
+import { formOptions } from "@tanstack/react-form"
+import { useAppForm, withForm } from "@/hooks/form"
+import { ComboboxQueryOnOpenById } from "@/components/combobox"
+
+const defaultProduct: z.infer<typeof schemas.Product> = {
+  id: 0,
+  name: "",
+  category: null,
+  brand: null,
+  created_at: new Date().toISOString(),
+}
+
+const productFormOpts = formOptions({
+  defaultValues: defaultProduct,
+  validators: { onSubmit: schemas.Product },
+})
 
 export function useProductForm({
   item,
   setOpen,
 }: {
   item?: z.infer<typeof schemas.Product>
-  setOpen: (open: boolean) => void
+  setOpen: (open: false) => void
 }) {
   const queryClient = useQueryClient()
 
@@ -77,39 +89,24 @@ export function useProductForm({
     },
   })
 
-  const form = useForm({
-    formId: (item ? `update-${item.id}` : "create") + "-product-form",
-    defaultValues: item ?? {
-      id: 0,
-      name: "",
-      category: null,
-      brand: null,
-      created_at: new Date().toISOString(),
-    },
-    validators: { onSubmit: schemas.Product },
+  const form = useAppForm({
+    ...productFormOpts,
+    formId: item
+      ? `update-product-form-${item.slug ?? item.id}`
+      : "create-product-form",
+    defaultValues: item ?? defaultProduct,
     onSubmit: ({ value }) => mutateAsync(value),
   })
 
   return form
 }
 
-export function ProductForm({
-  form,
-  className,
-  ...props
-}: React.ComponentProps<"form"> & {
-  form: ReturnType<typeof useProductForm>
-}) {
-  return (
-    <form
-      id={form.formId}
-      onSubmit={(e) => {
-        e.preventDefault()
-        form.handleSubmit()
-      }}
-      className={cn("px-4", className)}
-      {...props}
-    >
+export const ProductForm = withForm({
+  ...productFormOpts,
+  render: function Render({ form }) {
+    const product = form.state.values
+
+    return (
       <FieldGroup>
         <form.Field
           name="sku"
@@ -131,7 +128,7 @@ export function ProductForm({
                   />
                   <InputGroupAddon align="inline-end">
                     <GenerateSKUButton
-                      product={form.state.values}
+                      product={product}
                       onSuccess={form.reset}
                     />
                   </InputGroupAddon>
@@ -200,11 +197,31 @@ export function ProductForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={fieldId}>Category</FieldLabel>
-                <CategoryCombobox
-                  initialItem={form.state.values.category}
+                <ComboboxQueryOnOpenById
                   value={field.state.value as number}
                   onValueChange={field.handleChange}
-                />
+                  initialItem={product.category}
+                  itemsQueryOptions={getCategoriesQueryOptions()}
+                >
+                  <ComboboxInput placeholder="Assing a category" />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No categories found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: z.infer<typeof schemas.Category>) => (
+                        <ComboboxItem key={item.id} value={item}>
+                          <Item size="sm" className="p-0">
+                            <ItemContent>
+                              <ItemTitle>{item.name}</ItemTitle>
+                              <ItemDescription>
+                                {item.description}
+                              </ItemDescription>
+                            </ItemContent>
+                          </Item>
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </ComboboxQueryOnOpenById>
                 <FieldDescription>
                   The category allows you to group products.
                 </FieldDescription>
@@ -222,13 +239,31 @@ export function ProductForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={fieldId}>Brand</FieldLabel>
-                <BrandCombobox
-                  initialItem={form.state.values.brand}
+                <ComboboxQueryOnOpenById
                   value={field.state.value as number}
                   onValueChange={field.handleChange}
-                  product={form.state.values}
-                  form={form}
-                />
+                  itemsQueryOptions={getBrandsQueryOptions()}
+                  initialItem={product.brand}
+                >
+                  <ComboboxInput placeholder="Assing a brand">
+                    <InputGroupAddon align="inline-end">
+                      <DetectAndAssignBrandButton
+                        product={product}
+                        onSuccess={form.reset}
+                      />
+                    </InputGroupAddon>
+                  </ComboboxInput>
+                  <ComboboxContent>
+                    <ComboboxEmpty>No brands found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: z.infer<typeof schemas.Brand>) => (
+                        <ComboboxItem key={item.id} value={item}>
+                          {item.name}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </ComboboxQueryOnOpenById>
                 <FieldDescription>
                   The product&apos;s brand can be inferred from its name.
                 </FieldDescription>
@@ -365,134 +400,28 @@ export function ProductForm({
           />
         </div>
       </FieldGroup>
-    </form>
-  )
-}
-
-function CategoryCombobox({
-  initialItem: initialCategory,
-  value: categoryId,
-  onValueChange: setCategoryId,
-}: {
-  initialItem: z.infer<typeof schemas.Category> | null
-  value: number | null
-  onValueChange: (id: number | null) => void
-}) {
-  const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
-    getCategoriesQueryOptions()
-  )
-
-  const selectedItem =
-    items?.find((item) => item.id === categoryId) ||
-    (initialCategory?.id === categoryId && initialCategory) ||
-    null
-
-  return (
-    <Combobox
-      autoHighlight
-      items={items}
-      open={open}
-      onOpenChange={setOpen}
-      value={selectedItem}
-      onValueChange={(value) => setCategoryId(value?.id ?? null)}
-      itemToStringLabel={(item) => item.name}
-      itemToStringValue={(item) => item.id.toString()}
-      isItemEqualToValue={(itemValue, item) => itemValue.id === item.id}
-    >
-      <ComboboxInput placeholder="Assing a category" />
-      <ComboboxContent>
-        <ComboboxEmpty>No categories found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item: z.infer<typeof schemas.Category>) => (
-            <ComboboxItem key={item.id} value={item}>
-              <Item size="sm" className="p-0">
-                <ItemContent>
-                  <ItemTitle>{item.name}</ItemTitle>
-                  <ItemDescription>{item.description}</ItemDescription>
-                </ItemContent>
-              </Item>
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
-  )
-}
-
-function BrandCombobox({
-  initialItem: initialBrand,
-  value: brandId,
-  onValueChange: setBrandId,
-  product,
-  form,
-}: {
-  initialItem: z.infer<typeof schemas.Brand> | null
-  value: number
-  onValueChange: (value: number | null) => void
-  product: z.infer<typeof schemas.Product>
-  form: ReturnType<typeof useProductForm>
-}) {
-  const [{ data: items }, { open, setOpen }] = useQueryOnOpen(
-    getBrandsQueryOptions()
-  )
-
-  const selectedItem =
-    items?.find((item) => item.id === brandId) ||
-    (initialBrand?.id === brandId && initialBrand) ||
-    null
-
-  return (
-    <Combobox
-      autoHighlight
-      items={items}
-      open={open}
-      onOpenChange={setOpen}
-      value={selectedItem}
-      onValueChange={(value) => setBrandId(value?.id ?? null)}
-      itemToStringLabel={(item) => item.name}
-      itemToStringValue={(item) => item.id.toString()}
-      isItemEqualToValue={(itemValue, value) => itemValue.id === value.id}
-    >
-      <ComboboxInput placeholder="Assing a brand">
-        <InputGroupAddon align="inline-end">
-          <DetectAndAssignBrandButton
-            product={product}
-            onSuccess={form.reset}
-          />
-        </InputGroupAddon>
-      </ComboboxInput>
-      <ComboboxContent>
-        <ComboboxEmpty>No brands found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item: z.infer<typeof schemas.Brand>) => (
-            <ComboboxItem key={item.id} value={item}>
-              {item.name}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
-  )
-}
+    )
+  },
+})
 
 function GenerateSKUButton({
-  product: item,
+  product,
   onSuccess,
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
   product: z.infer<typeof schemas.Product>
-  onSuccess: (data: z.infer<typeof schemas.Product>) => void
+  onSuccess?: (data: z.infer<typeof schemas.Product>) => void
 }) {
   const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
-      apiClient.products_generate_sku_create(item, {
-        params: { slug: item.slug as string },
+      apiClient.products_generate_sku_create(product, {
+        params: { slug: product.slug as string },
       }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      onSuccess(data)
+      onSuccess?.(data)
     },
   })
 
@@ -504,23 +433,23 @@ function GenerateSKUButton({
 }
 
 function DetectAndAssignBrandButton({
-  product: item,
+  product,
   onSuccess,
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
   product: z.infer<typeof schemas.Product>
-  onSuccess: (data: z.infer<typeof schemas.Product>) => void
+  onSuccess?: (data: z.infer<typeof schemas.Product>) => void
 }) {
   const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
-      apiClient.products_detect_and_assign_brand_create(item, {
-        params: { slug: item.slug as string },
+      apiClient.products_detect_and_assign_brand_create(product, {
+        params: { slug: product.slug as string },
       }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      onSuccess(data)
+      onSuccess?.(data)
     },
   })
 

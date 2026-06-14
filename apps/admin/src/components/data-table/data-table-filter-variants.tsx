@@ -1,6 +1,6 @@
 "use client"
 import { type Option } from "@/types/data-table"
-import { UseQueryOptions } from "@tanstack/react-query"
+import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
   Combobox,
   ComboboxChips,
@@ -33,7 +33,6 @@ import { Calendar } from "@workspace/ui/components/calendar"
 import { format } from "date-fns"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { DateRange } from "react-day-picker"
-import { useQueryOnOpen } from "@/hooks/use-query-on-open"
 
 const onNumberChange = (setValue: (val: number) => void) => {
   return (e: any) => setValue(Number(e.target.value))
@@ -259,9 +258,11 @@ export function AsyncComboboxFilter<
   React.ComponentProps<typeof ComboboxFilter<Value, Multiple>>,
   "items"
 > & { items: UseQueryOptions<any, any, Option[], any> }) {
-  const [{ data: items }, { open, setOpen }] = useQueryOnOpen({
+  const [open, setOpen] = React.useState(false)
+
+  const { data: items } = useQuery({
     ...itemsQueryOptions,
-    enabled: !!value && Array.isArray(value) && value.length > 0,
+    enabled: open || (!!value && Array.isArray(value) && value.length > 0),
   })
 
   return (
