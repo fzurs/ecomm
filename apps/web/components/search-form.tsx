@@ -1,31 +1,45 @@
 "use client"
-import { Search } from "lucide-react"
+import { SearchIcon } from "lucide-react"
 
-import { Label } from "@workspace/ui/components/label"
-import { SidebarInput } from "@workspace/ui/components/sidebar"
-import { parseAsString, useQueryState } from "nuqs"
+import Form from "next/form"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@workspace/ui/components/input-group"
+import { debounce, parseAsString, useQueryState } from "nuqs"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 
-export function SearchForm({ ...props }: React.ComponentProps<"form">) {
+export function SearchForm() {
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault("").withOptions({ shallow: false })
   )
 
   return (
-    <form {...props}>
-      <div className="relative">
-        <Label htmlFor="search" className="sr-only">
-          Search
-        </Label>
-        <SidebarInput
+    <Form action="/products">
+      <InputGroup className="h-8">
+        <InputGroupInput
+          placeholder="Search for products..."
           id="search"
-          placeholder="Search for a Product..."
-          className="h-8 pl-7"
+          name="search"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) =>
+            setSearch(e.target.value, {
+              // Send immediate update if resetting, otherwise debounce at 500ms
+              limitUrlUpdates:
+                e.target.value === "" ? undefined : debounce(500),
+            })
+          }
         />
-        <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
-      </div>
-    </form>
+        <InputGroupAddon>
+          <SearchIcon />
+        </InputGroupAddon>
+      </InputGroup>
+    </Form>
   )
+}
+
+export function SearchFormSkeleton () {
+  return <Skeleton className="h-8 min-w-52 w-auto" />
 }

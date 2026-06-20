@@ -1,28 +1,30 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { PageHeader } from "@/components/page-header"
-import { ProductCard } from "@/components/product-card"
+import { ProductsGrid } from "@/components/products-grid"
 import { apiClient } from "@/lib/api-client"
 import { SidebarInset } from "@workspace/ui/components/sidebar"
 
-export default async function ProductPage(props: PageProps<"/[slug]">) {
+export default async function BrandPage(props: PageProps<"/brands/[slug]">) {
   const params = await props.params
-  const product = await apiClient.products_retrieve({ params })
+  const brand = await apiClient.brands_retrieve({ params })
+  const products = await apiClient.products_list({
+    queries: { brand: [brand.slug as string] },
+  })
 
   return (
     <>
       <PageHeader
         breadcrumbs={{
-          items: [{ title: "Home", href: "/" }],
-          page: product.name,
+          items: [
+            { title: "Home", href: "/" },
+          ],
+          page: brand.name,
         }}
       />
       <div className="flex flex-1">
         <AppSidebar />
         <SidebarInset>
-          <ProductCard
-            product={product}
-            className="flex aspect-auto border-0"
-          />
+          <ProductsGrid products={products.results} />
         </SidebarInset>
       </div>
     </>

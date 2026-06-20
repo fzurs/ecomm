@@ -1,16 +1,16 @@
-# Demo de Tienda Online
+# Ecommerce Demo
 
-Monorepo dockerizado para el desarrollo, con Django y Nextjs.
+Dockerized monorepo for development, built with Django and Next.js.
 
-## Estructura del monorepo
+## Monorepo Structure
 
 ```
-|-  .devcontainer/  # Docker Dev Opts
+|-  .devcontainer/  # Docker Dev Config
 |
 |-  apps/
 |   |-  api/    # Django
 |   |-  admin/  # Admin Dashboard
-|   |-  web/    # Eccomerce Web
+|   |-  web/    # Ecommerce Web
 |
 |-  packages/
 |   |-  api-client/ # Zodios Gen
@@ -20,52 +20,61 @@ Monorepo dockerizado para el desarrollo, con Django y Nextjs.
 
 ## Monorepo Setup (WSL + DevContainers)
 
-### Requisitos
+### Requirements
 
-Antes de empezar, asegurate de tener instalado:
+Before getting started, make sure you have the following installed:
 
-- WSL2 (Linux en Windows)
-- Docker Desktop (con integración WSL activada)
-- VSCode + extensión Dev Containers
+- WSL2 (Linux on Windows)
+- Docker Desktop (with WSL integration enabled)
+- VSCode + Dev Containers extension
 
-### Setup de WSL (Crítico)
+### WSL Setup (Critical)
 
-#### NO USAR EL FILE SYSTEM DE WINDOWS!!!
+#### DO NOT USE THE WINDOWS FILE SYSTEM!!!
 
-NO desarrolles en:
+Do **not** develop under:
 
-```/mnt/c/Users/...```
+```
+/mnt/c/Users/...
+```
 
-Esto Causa:
-- Typescript Lento
-- Hot reload roto
-- Alto uso de CPU
+This causes:
 
-#### Usar File System de Linux
+- Slow TypeScript
+- Broken hot reload
+- High CPU usage
 
-Trabaja siempre en:
+#### Use the Linux File System
 
-```/home/<usuario>/<nombre_del_repositorio>```
+Always work under:
 
-#### Clona el Repo
+```
+/home/<username>/<repository-name>
+```
 
-```git clone <url del repo>```
+#### Clone the Repo
 
-### Abrir VSCode desde Linux
+```bash
+git clone <repo-url>
+```
 
-```code ./nombre_del_repo```
+### Open VSCode from Linux
+
+```bash
+code ./repo-name
+```
 
 ### Dev Containers
 
-Una vez abierto el proyecto:
-1. ```Ctrl + Shift + p```
-2. Ejecutar: **Reopen in Container**
+Once the project is open:
 
-### Primer Arranque
-El container solo atiende a los requirimientos de Python
+1. Press `Ctrl + Shift + P`
+2. Run: **Reopen in Container**
 
-Lo que prosigue es:
-1. Correr migraciones
-2. Instalar paquetes de pnpm `pnpm install` desde el root
-3. Ejecutar todas la apps con `pnpm run dev`
+### First Run
 
+The container only handles Python requirements on startup. After that:
+
+1. Run migrations
+2. Install pnpm packages — run `pnpm install` from the root
+3. Start all apps with `pnpm run dev`

@@ -1,22 +1,40 @@
-"use client"
-
 import { Command } from "lucide-react"
 
-import { NavProducts } from "@/components/nav-products"
 import {
   Sidebar,
   SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
-import { NavCategories } from "./nav-categories"
-import { Suspense } from "react"
-import { NavBrands } from "./nav-brands"
+import * as React from "react"
+import { apiClient } from "@/lib/api-client"
+import { SidebarMenuLink } from "./sidebar-link"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  const [categories, brands] = await Promise.all([
+    apiClient.categories_list(),
+    apiClient.brands_list(),
+  ])
+
+  const navMain = [
+    {
+      title: "Categories",
+      items: categories.map((c) => ({ title: c.name, url: `/${c.slug}` })),
+    },
+    {
+      title: "Brands",
+      items: brands.map((c) => ({ title: c.name, url: `/brands/${c.slug}` })),
+    },
+  ]
+
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
@@ -31,8 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-medium">Acme Store</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -40,11 +57,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavProducts />
-        <Suspense>
-          <NavCategories />
-          <NavBrands />
-        </Suspense>
+        {navMain.map(({ title, items }) => (
+          <SidebarGroup key={title}>
+            <SidebarGroupLabel>{title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuLink href={item.url}>
+                      {item.title}
+                    </SidebarMenuLink>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
     </Sidebar>
   )
