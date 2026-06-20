@@ -6,12 +6,19 @@ import * as React from "react"
 
 export function SidebarMenuLink({
   href,
+  size,
   ...props
-}: React.ComponentProps<typeof Link>) {
+}: React.ComponentProps<typeof Link> & {
+  size?: React.ComponentProps<typeof SidebarMenuButton>["size"]
+}) {
   const pathname = usePathname()
 
   return (
-    <SidebarMenuButton isActive={Boolean(href && pathname === href)} asChild>
+    <SidebarMenuButton
+      isActive={Boolean(href && pathname === href)}
+      size={size}
+      asChild
+    >
       <Link href={href} {...props} />
     </SidebarMenuButton>
   )

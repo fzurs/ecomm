@@ -1,27 +1,17 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { PageHeader } from "@/components/page-header"
-import { ProductsGrid } from "@/components/products-grid"
-import { apiClient } from "@/lib/api-client"
-import { schemas } from "@workspace/api-client"
+import { ProductGridSkeleton, ProductsGrid } from "@/components/products-grid"
+import { getProducts } from "@/lib/cache"
 import { SidebarInset } from "@workspace/ui/components/sidebar"
 import { createLoader, parseAsString } from "nuqs/server"
+import { Suspense } from "react"
 
 const loadSearchParams = createLoader({
-  search: parseAsString,
+  search: parseAsString.withDefault(""),
 })
 
 export default async function ProductsPage(props: PageProps<"/">) {
-  const searchParams = await loadSearchParams(props.searchParams)
-  const products = await apiClient.products_list({
-    queries: {
-      search: searchParams.search || undefined,
-      status: [
-        schemas.StatusEnum.Enum.active,
-        schemas.StatusEnum.Enum.out_of_stock,
-      ],
-      limit: 10000,
-    },
-  })
+  const searchParams = loadSearchParams(props.searchParams)
 
   return (
     <>
@@ -29,9 +19,20 @@ export default async function ProductsPage(props: PageProps<"/">) {
       <div className="flex flex-1">
         <AppSidebar />
         <SidebarInset>
-          <ProductsGrid products={products.results} />
+          <Suspense fallback={<ProductGridSkeleton />}>
+            <ProductList searchParams={searchParams} />
+          </Suspense>
         </SidebarInset>
       </div>
     </>
   )
+}
+
+async function ProductList(props: {
+  searchParams: ReturnType<typeof loadSearchParams>
+}) {
+  const { search } = await props.searchParams
+  const products = await getProducts({ search: search || undefined })
+
+  return <ProductsGrid products={products.results} />
 }
