@@ -38,3 +38,15 @@ export async function getProduct(slug: string) {
   cacheLife("hours")
   return apiClient.products_retrieve({ params: { slug } })
 }
+
+export async function getCategories() {
+  "use cache"
+  cacheLife("days")
+  return apiClient.categories_list()
+}
+
+export async function getBrands() {
+  "use cache"
+  cacheLife("days")
+  return apiClient.brands_list()
+}

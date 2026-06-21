@@ -1,4 +1,3 @@
-"use cache"
 import { AppSidebar } from "@/components/app-sidebar"
 import { PageHeader } from "@/components/page-header"
 import { ProductGridSkeleton, ProductsGrid } from "@/components/products-grid"

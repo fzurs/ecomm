@@ -1,4 +1,3 @@
-"use cache"
 import { AppSidebar } from "@/components/app-sidebar"
 import { PageHeader } from "@/components/page-header"
 import { ProductCard } from "@/components/product-card"
