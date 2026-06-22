@@ -120,7 +120,7 @@ export const columns = [
     },
   },
   {
-    accessorKey: "description",
+    id: "description",
     header: "Description",
     cell: ({ row }) => {
       if (!row.original.description) return null
@@ -130,6 +130,11 @@ export const columns = [
         </div>
       )
     },
+  },
+  {
+    id: "image",
+    header: "Image",
+    cell: ({ row }) => row.original.image && <img src={row.original.image} />,
   },
   {
     id: "category",
