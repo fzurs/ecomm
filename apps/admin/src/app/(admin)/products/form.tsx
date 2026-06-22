@@ -31,7 +31,6 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { Checkbox } from "@workspace/ui/components/checkbox"
-import { cn } from "@workspace/ui/lib/utils"
 import { schemas } from "@workspace/api-client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
@@ -54,7 +53,11 @@ import { formOptions } from "@tanstack/react-form"
 import { useAppForm, withForm } from "@/hooks/form"
 import { ComboboxQueryOnOpenById } from "@/components/combobox"
 
-const defaultProduct: z.infer<typeof schemas.Product> = {
+const formSchema = schemas.Product.extend({
+  imageFile: z.instanceof(File).nullish(),
+})
+
+const defaultProduct: typeof formSchema._type = {
   id: 0,
   name: "",
   category: null,
@@ -64,25 +67,30 @@ const defaultProduct: z.infer<typeof schemas.Product> = {
 
 const productFormOpts = formOptions({
   defaultValues: defaultProduct,
-  validators: { onSubmit: schemas.Product },
+  validators: {
+    onSubmit: formSchema,
+  },
 })
 
 export function useProductForm({
-  item,
+  item: itemProp,
   setOpen,
 }: {
-  item?: z.infer<typeof schemas.Product>
+  item?: typeof schemas.Product._type
   setOpen: (open: false) => void
 }) {
+  const item = itemProp ? { ...itemProp, image: null } : undefined
   const queryClient = useQueryClient()
 
   const { mutateAsync } = useMutation({
-    mutationFn: (data: z.infer<typeof schemas.Product>) =>
-      item
-        ? apiClient.products_update(data, {
+    mutationFn: (values: typeof formSchema._type) => {
+      const data = { ...values, image: values.imageFile }
+      return item
+        ? apiClient.products_update(data as never, {
             params: { slug: item.slug as string },
           })
-        : apiClient.products_create(data),
+        : apiClient.products_create(data as never)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
       setOpen(false)
@@ -95,7 +103,7 @@ export function useProductForm({
       ? `update-product-form-${item.slug ?? item.id}`
       : "create-product-form",
     defaultValues: item ?? defaultProduct,
-    onSubmit: ({ value }) => mutateAsync(value),
+    onSubmit: ({ value }) => mutateAsync(value as never),
   })
 
   return form
@@ -182,6 +190,28 @@ export const ProductForm = withForm({
                   onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
                   placeholder="Describe your product in detail: features, materials, dimensions, and any other relevant information..."
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        />
+        <form.Field
+          name="imageFile"
+          children={(field) => {
+            const fieldId = `${form.formId}-${field.name}`
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={fieldId}>Image</FieldLabel>
+                <Input
+                  type="file"
+                  id={fieldId}
+                  name={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.files?.item(0))}
+                  aria-invalid={isInvalid}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -409,8 +439,8 @@ function GenerateSKUButton({
   onSuccess,
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
-  product: z.infer<typeof schemas.Product>
-  onSuccess?: (data: z.infer<typeof schemas.Product>) => void
+  product: typeof schemas.Product._type
+  onSuccess?: (data: typeof schemas.Product._type) => void
 }) {
   const queryClient = useQueryClient()
 
@@ -437,8 +467,8 @@ function DetectAndAssignBrandButton({
   onSuccess,
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
-  product: z.infer<typeof schemas.Product>
-  onSuccess?: (data: z.infer<typeof schemas.Product>) => void
+  product: typeof schemas.Product._type
+  onSuccess?: (data: typeof schemas.Product._type) => void
 }) {
   const queryClient = useQueryClient()
 

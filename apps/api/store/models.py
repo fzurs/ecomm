@@ -43,6 +43,8 @@ class Product(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
 
+    image = models.ImageField(upload_to='products', blank=True, null=True)
+
     category = models.ForeignKey(Category, models.SET_NULL, null=True, blank=True)
     brand = models.ForeignKey(Brand, models.SET_NULL, null=True, blank=True)
 

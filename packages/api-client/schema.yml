@@ -252,6 +252,7 @@ paths:
       - brands
       security:
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -299,6 +300,7 @@ paths:
       - brands
       security:
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -396,6 +398,7 @@ paths:
       - categories
       security:
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -443,6 +446,7 @@ paths:
       - categories
       security:
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -636,6 +640,7 @@ paths:
       - products
       security:
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -681,6 +686,7 @@ paths:
       - products
       security:
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -1005,6 +1011,10 @@ components:
         description:
           type: string
           nullable: true
+        image:
+          type: string
+          format: uri
+          nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
         featured:
@@ -1083,6 +1093,10 @@ components:
           maxLength: 255
         description:
           type: string
+          nullable: true
+        image:
+          type: string
+          format: uri
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'

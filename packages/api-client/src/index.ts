@@ -128,6 +128,7 @@ const Product = z
     sku: z.string().max(255).nullish(),
     name: z.string().max(255),
     description: z.string().nullish(),
+    image: z.string().url().nullish(),
     status: StatusEnum.optional(),
     featured: z.boolean().optional(),
     price: z
@@ -167,6 +168,7 @@ const PatchedProduct = z
     sku: z.string().max(255).nullable(),
     name: z.string().max(255),
     description: z.string().nullable(),
+    image: z.string().url().nullable(),
     status: StatusEnum,
     featured: z.boolean(),
     price: z
@@ -687,7 +689,7 @@ Returns UserModel fields.`,
     method: 'put',
     path: '/products/:slug/',
     alias: 'products_update',
-    requestFormat: 'json',
+    requestFormat: 'form-data',
     parameters: [
       {
         name: 'body',

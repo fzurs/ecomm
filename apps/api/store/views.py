@@ -36,7 +36,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         if not is_success: return Response({'message': 'No brand was detected in the product name'}, status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
+    
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.order_by("name")

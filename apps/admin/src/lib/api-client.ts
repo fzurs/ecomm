@@ -9,7 +9,6 @@ const axiosConfig: AxiosRequestConfig = {
 export const api = axios.create({
   ...axiosConfig,
   baseURL: "http://localhost:8000",
-  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 })
 
@@ -30,4 +29,5 @@ api.interceptors.request.use(async (config) => {
 export const apiClient = createApiClient("http://localhost:8000", {
   axiosConfig: axiosConfig,
   axiosInstance: api,
+  validate: "response",
 })
