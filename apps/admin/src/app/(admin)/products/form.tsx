@@ -47,17 +47,19 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  InputGroupText,
 } from "@workspace/ui/components/input-group"
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, withForm } from "@/hooks/form"
 import { ComboboxQueryOnOpenById } from "@/components/combobox"
+import { X } from "lucide-react"
 
 const formSchema = schemas.Product.extend({
   imageFile: z.instanceof(File).nullish(),
 })
 
-const defaultProduct: typeof formSchema._type = {
+const defaultProduct: z.infer<typeof schemas.Product> = {
   id: 0,
   name: "",
   category: null,
@@ -65,31 +67,30 @@ const defaultProduct: typeof formSchema._type = {
   created_at: new Date().toISOString(),
 }
 
+const defaultValues: z.infer<typeof formSchema> = defaultProduct
+
 const productFormOpts = formOptions({
-  defaultValues: defaultProduct,
-  validators: {
-    onSubmit: formSchema,
-  },
+  defaultValues,
+  validators: { onSubmit: formSchema },
 })
 
 export function useProductForm({
-  item: itemProp,
+  item,
   setOpen,
 }: {
-  item?: typeof schemas.Product._type
+  item?: z.infer<typeof schemas.Product>
   setOpen: (open: false) => void
 }) {
-  const item = itemProp ? { ...itemProp, image: null } : undefined
   const queryClient = useQueryClient()
 
   const { mutateAsync } = useMutation({
-    mutationFn: (values: typeof formSchema._type) => {
-      const data = { ...values, image: values.imageFile }
+    mutationFn: ({ imageFile, ...values }: z.infer<typeof formSchema>) => {
+      const data = { ...values, image: imageFile as never }
       return item
-        ? apiClient.products_update(data as never, {
+        ? apiClient.products_update(data, {
             params: { slug: item.slug as string },
           })
-        : apiClient.products_create(data as never)
+        : apiClient.products_create(data)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
@@ -103,7 +104,7 @@ export function useProductForm({
       ? `update-product-form-${item.slug ?? item.id}`
       : "create-product-form",
     defaultValues: item ?? defaultProduct,
-    onSubmit: ({ value }) => mutateAsync(value as never),
+    onSubmit: ({ value }) => mutateAsync(value),
   })
 
   return form
@@ -205,6 +206,13 @@ export const ProductForm = withForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={fieldId}>Image</FieldLabel>
+                {product.image && (
+                  <img
+                    className="rounded-md"
+                    src={product.image}
+                    alt="Image of product"
+                  />
+                )}
                 <Input
                   type="file"
                   id={fieldId}
@@ -437,6 +445,7 @@ export const ProductForm = withForm({
 function GenerateSKUButton({
   product,
   onSuccess,
+  size = "icon-xs",
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
   product: typeof schemas.Product._type
@@ -456,7 +465,7 @@ function GenerateSKUButton({
   })
 
   return (
-    <InputGroupButton onClick={() => mutate()} {...props}>
+    <InputGroupButton onClick={() => mutate()} size={size} {...props}>
       {isPending ? <IconLoader className="animate-spin" /> : <IconSparkles />}
     </InputGroupButton>
   )
@@ -465,6 +474,7 @@ function GenerateSKUButton({
 function DetectAndAssignBrandButton({
   product,
   onSuccess,
+  size = "icon-xs",
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
   product: typeof schemas.Product._type
@@ -484,7 +494,7 @@ function DetectAndAssignBrandButton({
   })
 
   return (
-    <InputGroupButton onClick={() => mutate()} {...props}>
+    <InputGroupButton onClick={() => mutate()} size={size} {...props}>
       {isPending ? <IconLoader className="animate-spin" /> : <IconTextScan2 />}
     </InputGroupButton>
   )
