@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Category, Brand
 from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
 from .filters import ProductFilter, ProductOrdering
+from drf_spectacular.utils import extend_schema
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -43,22 +44,34 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
-    pagination_class = None
     lookup_field = "slug"
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
+    
+    @extend_schema(operation_id="categories_list_all", responses=CategorySerializer(many=True))
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def all(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
-    pagination_class = None
     lookup_field = "slug"
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
+
+    @extend_schema(operation_id="brands_list_all", responses=BrandSerializer(many=True))
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def all(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

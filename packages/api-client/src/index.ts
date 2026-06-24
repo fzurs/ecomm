@@ -71,6 +71,14 @@ const Brand = z
     name: z.string().max(255),
   })
   .passthrough()
+const PaginatedBrandList = z
+  .object({
+    count: z.number().int(),
+    next: z.string().url().nullish(),
+    previous: z.string().url().nullish(),
+    results: z.array(Brand),
+  })
+  .passthrough()
 const PatchedBrand = z
   .object({
     id: z.number().int(),
@@ -92,6 +100,14 @@ const Category = z
       .optional(),
     name: z.string().max(255),
     description: z.string().nullish(),
+  })
+  .passthrough()
+const PaginatedCategoryList = z
+  .object({
+    count: z.number().int(),
+    next: z.string().url().nullish(),
+    previous: z.string().url().nullish(),
+    results: z.array(Category),
   })
   .passthrough()
 const PatchedCategory = z
@@ -198,8 +214,10 @@ export const schemas = {
   UserDetails,
   PatchedUserDetails,
   Brand,
+  PaginatedBrandList,
   PatchedBrand,
   Category,
+  PaginatedCategoryList,
   PatchedCategory,
   StatusEnum,
   Product,
@@ -372,7 +390,19 @@ Returns UserModel fields.`,
     path: '/brands/',
     alias: 'brands_list',
     requestFormat: 'json',
-    response: z.array(Brand),
+    parameters: [
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.number().int().optional(),
+      },
+      {
+        name: 'offset',
+        type: 'Query',
+        schema: z.number().int().optional(),
+      },
+    ],
+    response: PaginatedBrandList,
   },
   {
     method: 'post',
@@ -456,17 +486,34 @@ Returns UserModel fields.`,
   },
   {
     method: 'get',
+    path: '/brands/all/',
+    alias: 'brands_list_all',
+    requestFormat: 'json',
+    response: z.array(Brand),
+  },
+  {
+    method: 'get',
     path: '/categories/',
     alias: 'categories_list',
     requestFormat: 'json',
     parameters: [
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.number().int().optional(),
+      },
+      {
+        name: 'offset',
+        type: 'Query',
+        schema: z.number().int().optional(),
+      },
       {
         name: 'search',
         type: 'Query',
         schema: z.string().optional(),
       },
     ],
-    response: z.array(Category),
+    response: PaginatedCategoryList,
   },
   {
     method: 'post',
@@ -547,6 +594,20 @@ Returns UserModel fields.`,
       },
     ],
     response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/categories/all/',
+    alias: 'categories_list_all',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'search',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+    ],
+    response: z.array(Category),
   },
   {
     method: 'get',
@@ -689,7 +750,7 @@ Returns UserModel fields.`,
     method: 'put',
     path: '/products/:slug/',
     alias: 'products_update',
-    requestFormat: 'form-data',
+    requestFormat: 'json',
     parameters: [
       {
         name: 'body',

@@ -40,8 +40,8 @@ import {
   parseAsStringEnum,
 } from "nuqs"
 import {
-  getBrandsQueryOptions,
-  getCategoriesQueryOptions,
+  getBrandsAllQueryOptions,
+  getCategoriesAllQueryOptions,
   queryKeys,
   selectAsOption,
 } from "@/lib/query-options"
@@ -149,7 +149,7 @@ export const columns = [
         variant: "async-multi",
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
-          ...getCategoriesQueryOptions(),
+          ...getCategoriesAllQueryOptions,
           select: selectAsOption,
         }),
       },
@@ -165,7 +165,7 @@ export const columns = [
         variant: "async-multi",
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
-          ...getBrandsQueryOptions(),
+          ...getBrandsAllQueryOptions,
           select: selectAsOption,
         }),
       },

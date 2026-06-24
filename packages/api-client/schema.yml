@@ -248,6 +248,19 @@ paths:
   /brands/:
     get:
       operationId: brands_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - brands
       security:
@@ -258,9 +271,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Brand'
+                $ref: '#/components/schemas/PaginatedBrandList'
           description: ''
     post:
       operationId: brands_create
@@ -384,10 +395,38 @@ paths:
       responses:
         '204':
           description: No response body
+  /brands/all/:
+    get:
+      operationId: brands_list_all
+      tags:
+      - brands
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+          description: ''
   /categories/:
     get:
       operationId: categories_list
       parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       - name: search
         required: false
         in: query
@@ -404,9 +443,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/PaginatedCategoryList'
           description: ''
     post:
       operationId: categories_create
@@ -530,6 +567,29 @@ paths:
       responses:
         '204':
           description: No response body
+  /categories/all/:
+    get:
+      operationId: categories_list_all
+      parameters:
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - categories
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
   /products/:
     get:
       operationId: products_list
@@ -883,6 +943,52 @@ components:
           type: string
       required:
       - password
+    PaginatedBrandList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Brand'
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
     PaginatedProductList:
       type: object
       required:

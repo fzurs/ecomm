@@ -35,8 +35,8 @@ import { schemas } from "@workspace/api-client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import {
-  getBrandsQueryOptions,
-  getCategoriesQueryOptions,
+  getBrandsAllQueryOptions,
+  getCategoriesAllQueryOptions,
   queryKeys,
 } from "@/lib/query-options"
 import z from "zod"
@@ -53,7 +53,6 @@ import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, withForm } from "@/hooks/form"
 import { ComboboxQueryOnOpenById } from "@/components/combobox"
-import { X } from "lucide-react"
 
 const formSchema = schemas.Product.extend({
   imageFile: z.instanceof(File).nullish(),
@@ -239,7 +238,7 @@ export const ProductForm = withForm({
                   value={field.state.value as number}
                   onValueChange={field.handleChange}
                   initialItem={product.category}
-                  itemsQueryOptions={getCategoriesQueryOptions()}
+                  itemsQueryOptions={getCategoriesAllQueryOptions}
                 >
                   <ComboboxInput placeholder="Assing a category" />
                   <ComboboxContent>
@@ -280,7 +279,7 @@ export const ProductForm = withForm({
                 <ComboboxQueryOnOpenById
                   value={field.state.value as number}
                   onValueChange={field.handleChange}
-                  itemsQueryOptions={getBrandsQueryOptions()}
+                  itemsQueryOptions={getBrandsAllQueryOptions}
                   initialItem={product.brand}
                 >
                   <ComboboxInput placeholder="Assing a brand">

@@ -1,6 +1,6 @@
 "use client"
 
-import { PackageIcon } from "lucide-react"
+import { PackageIcon, StarsIcon, TagsIcon } from "lucide-react"
 
 import {
   Sidebar,
@@ -25,6 +25,16 @@ const items = [
     url: "/products",
     icon: PackageIcon,
   },
+  {
+    title: "Categories",
+    url: "/categories",
+    icon: TagsIcon,
+  },
+  {
+    title: "Brands",
+    url: "/brands",
+    icon: StarsIcon,
+  },
 ]
 
 export function AppSidebar() {
@@ -35,12 +45,9 @@ export function AppSidebar() {
       <SidebarHeader className="h-(--header-height) border-b">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild>
               <Link href="/">
-                <IconInnerShadowTop className="!size-5" />
+                <IconInnerShadowTop />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </Link>
             </SidebarMenuButton>

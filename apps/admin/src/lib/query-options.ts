@@ -50,12 +50,24 @@ export function getCategoriesQueryOptions(
   })
 }
 
-export function getBrandsQueryOptions() {
+export const getCategoriesAllQueryOptions = queryOptions({
+  queryKey: [queryKeys.categories.all()],
+  queryFn: () => apiClient.categories_list_all(),
+})
+
+export function getBrandsQueryOptions(
+  queries?: ListQuery<typeof queryKeys.brands>
+) {
   return queryOptions({
-    queryKey: ["brands"],
+    queryKey: [queryKeys.brands.list(queries)],
     queryFn: () => apiClient.brands_list(),
   })
 }
+
+export const getBrandsAllQueryOptions = queryOptions({
+  queryKey: [queryKeys.brands.all()],
+  queryFn: () => apiClient.brands_list_all(),
+})
 
 export function useSession(
   options?: Omit<
