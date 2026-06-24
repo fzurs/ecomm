@@ -34,7 +34,7 @@ export function DataTable<TData>({
         className
       )}
     >
-      {children || <DataTableToolbar table={table} />}
+      {children ?? <DataTableToolbar table={table} />}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>
