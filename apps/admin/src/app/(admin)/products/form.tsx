@@ -47,7 +47,6 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-  InputGroupText,
 } from "@workspace/ui/components/input-group"
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
