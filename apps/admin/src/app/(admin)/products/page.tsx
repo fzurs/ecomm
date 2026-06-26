@@ -29,11 +29,9 @@ import { columns } from "./columns"
 import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
-import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
 import { formatISO } from "date-fns"
 import { ModeToggle } from "@workspace/ui/components/mode-toggle"
-import { useProductForm } from "./form"
+import { ProductFormRequired, useProductForm } from "./form"
 
 const DEBOUNCE_DELAY = 300
 
@@ -123,9 +121,7 @@ function QuickCreateProductDialog() {
       </DialogTrigger>
       <DialogContent
         onAnimationEnd={(e) => {
-          if (!open && e.animationName === "exit") {
-            form.reset()
-          }
+          if (!open && e.animationName === "exit") form.reset()
         }}
       >
         <DialogHeader>
@@ -135,39 +131,7 @@ function QuickCreateProductDialog() {
             catalog.
           </DialogDescription>
         </DialogHeader>
-        <form
-          id={form.formId}
-          onSubmit={(e) => {
-            e.preventDefault()
-            form.handleSubmit()
-          }}
-        >
-          <form.Field
-            name="name"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
-                  <Input
-                    id={fieldId}
-                    name={field.name}
-                    value={field.state.value as string}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    required
-                    placeholder="e.g. AMD Ryzen 9 7950X"
-                    autoFocus
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-        </form>
+        <ProductFormRequired form={form} />
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>

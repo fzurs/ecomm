@@ -317,16 +317,9 @@ function TableCellViewer({
           <DrawerTitle>{item.name}</DrawerTitle>
           <DrawerDescription />
         </DrawerHeader>
-        <form
-          id={form.formId}
-          onSubmit={(e) => {
-            e.preventDefault()
-            form.handleSubmit()
-          }}
-          className="overflow-auto px-4"
-        >
+        <div className="overflow-auto px-4">
           <ProductForm form={form} />
-        </form>
+        </div>
         <DrawerFooter>
           <form.AppForm>
             <form.SubscribeButton>Save changes</form.SubscribeButton>
