@@ -27,7 +27,8 @@ function createResourceKeys<T extends (...args: any[]) => any>(
 
 export const queryKeys = {
   products: createResourceKeys<typeof apiClient.products_list>("products"),
-  categories: createResourceKeys<typeof apiClient.categories_list>("products"),
+  categories:
+    createResourceKeys<typeof apiClient.categories_list>("categories"),
   brands: createResourceKeys<typeof apiClient.brands_list>("brands"),
   session: { all: () => ["session"] as const },
 }
@@ -51,7 +52,7 @@ export function getCategoriesQueryOptions(
 }
 
 export const getCategoriesAllQueryOptions = queryOptions({
-  queryKey: [queryKeys.categories.all()],
+  queryKey: queryKeys.categories.all(),
   queryFn: () => apiClient.categories_list_all(),
 })
 
@@ -59,13 +60,13 @@ export function getBrandsQueryOptions(
   queries?: ListQuery<typeof queryKeys.brands>
 ) {
   return queryOptions({
-    queryKey: [queryKeys.brands.list(queries)],
-    queryFn: () => apiClient.brands_list(),
+    queryKey: queryKeys.brands.list(queries),
+    queryFn: () => apiClient.brands_list({ queries }),
   })
 }
 
 export const getBrandsAllQueryOptions = queryOptions({
-  queryKey: [queryKeys.brands.all()],
+  queryKey: queryKeys.brands.all(),
   queryFn: () => apiClient.brands_list_all(),
 })
 

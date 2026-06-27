@@ -19,11 +19,16 @@ export function DataTable<TData>({
   table,
   className,
   children,
+  showToolbar = true,
+  showPagination = true,
 }: {
   className?: string
   table: TanstackTable<TData>
   children?: React.ReactNode
+  showToolbar?: boolean
+  showPagination?: boolean
 }) {
+  const hasChildren = React.Children.count(children) > 0
   const isFiltered = table.getState().columnFilters.length > 0
   const clearFilters = () => table.resetColumnFilters()
 
@@ -34,7 +39,9 @@ export function DataTable<TData>({
         className
       )}
     >
-      {children ?? <DataTableToolbar table={table} />}
+      {hasChildren
+        ? children
+        : showToolbar && <DataTableToolbar table={table} />}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>
@@ -99,7 +106,7 @@ export function DataTable<TData>({
             </TableBody>
           </Table>
         </div>
-        <DataTablePagination table={table} />
+        {showPagination && <DataTablePagination table={table} />}
       </div>
     </div>
   )

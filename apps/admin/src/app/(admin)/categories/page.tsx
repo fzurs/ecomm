@@ -53,7 +53,7 @@ export default function CategoriesPage() {
         </PageHeaderAction>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
-        <DataTable table={table}>
+        <DataTable table={table} showPagination={false}>
           <div className="flex gap-2 md:gap-4">
             <InputGroup>
               <InputGroupInput
