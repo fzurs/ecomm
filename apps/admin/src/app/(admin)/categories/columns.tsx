@@ -49,7 +49,7 @@ export const columns: ColumnDef<z.infer<typeof schemas.Category>>[] = [
     id: "description",
     header: "Description",
     cell: ({ row }) => (
-      <div className="min-w-72 text-sm text-pretty text-muted-foreground">
+      <div className="min-w-sm text-sm text-pretty text-muted-foreground">
         {row.original.description}
       </div>
     ),
