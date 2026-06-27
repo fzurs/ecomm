@@ -1,6 +1,6 @@
 import {
-  PageAction,
   PageHeader,
+  PageHeaderAction,
   PageHeaderHeading,
 } from "@/components/page-header"
 import { ModeToggle } from "@workspace/ui/components/mode-toggle"
@@ -10,9 +10,9 @@ export default function Page() {
     <>
       <PageHeader>
         <PageHeaderHeading>Home</PageHeaderHeading>
-        <PageAction>
+        <PageHeaderAction>
           <ModeToggle />
-        </PageAction>
+        </PageHeaderAction>
       </PageHeader>
     </>
   )

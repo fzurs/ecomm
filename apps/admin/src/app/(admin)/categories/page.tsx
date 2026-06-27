@@ -3,6 +3,7 @@ import { DataTable } from "@/components/data-table/data-table"
 import {
   PageContent,
   PageHeader,
+  PageHeaderAction,
   PageHeaderHeading,
 } from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
@@ -18,7 +19,21 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@workspace/ui/components/input-group"
+import { Button } from "@workspace/ui/components/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog"
 import { SearchIcon } from "lucide-react"
+import * as React from "react"
+import { CategoryFormRequired, useCategoryForm } from "./form"
+import { IconTagPlus } from "@tabler/icons-react"
 
 const DEBOUNCE_DELAY = 300
 
@@ -34,6 +49,9 @@ export default function CategoriesPage() {
     <>
       <PageHeader>
         <PageHeaderHeading>Categories</PageHeaderHeading>
+        <PageHeaderAction>
+          <CreateCategoryDialog />
+        </PageHeaderAction>
       </PageHeader>
       <PageContent>
         <DataTable table={table}>
@@ -58,5 +76,44 @@ export default function CategoriesPage() {
         </DataTable>
       </PageContent>
     </>
+  )
+}
+
+function CreateCategoryDialog() {
+  const [open, setOpen] = React.useState(false)
+
+  const form = useCategoryForm({ setOpen })
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <IconTagPlus />
+          Quick Create
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onAnimationEnd={(e) => {
+          if (!open && e.animationName === "exit") form.reset()
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>New Category</DialogTitle>
+          <DialogDescription className="sr-only">
+            These categories can be assigned to products to be able to filter
+            and sort them.
+          </DialogDescription>
+        </DialogHeader>
+        <CategoryFormRequired form={form} />
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DialogClose>
+          <form.AppForm>
+            <form.SubscribeButton>Create</form.SubscribeButton>
+          </form.AppForm>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

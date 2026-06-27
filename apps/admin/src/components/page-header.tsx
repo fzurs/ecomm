@@ -8,7 +8,7 @@ export function PageHeader({
   ...props
 }: React.ComponentProps<"div">) {
   return (
-    <header className="sticky z-50 top-0 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="sticky top-0 z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div
         className={cn(
           "flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6",
@@ -34,7 +34,7 @@ export function PageHeaderHeading({
   return <h1 className={cn("text-base font-medium", className)} {...props} />
 }
 
-export function PageAction({
+export function PageHeaderAction({
   className,
   ...props
 }: React.ComponentProps<"div">) {

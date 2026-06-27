@@ -57,10 +57,40 @@ export function useCategoryForm({
   return form
 }
 
-export const CategoryForm = withForm({
+export const CategoryNameField = withForm({
   ...categoryFormOpts,
   render: function Render({ form }) {
-    const category = form.state.values
+    return (
+      <form.AppField
+        name="name"
+        children={(field) => {
+          const fieldId = `${form.formId}-${field.name}`
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
+              <Input
+                id={fieldId}
+                name={field.name}
+                value={field.state.value as string}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                aria-invalid={isInvalid}
+              />
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+            </Field>
+          )
+        }}
+      />
+    )
+  },
+})
+
+export const CategoryFormWrapper = withForm({
+  ...categoryFormOpts,
+  props: { children: null as React.ReactNode },
+  render: function Render({ form, children }) {
     return (
       <form
         id={form.formId}
@@ -69,29 +99,31 @@ export const CategoryForm = withForm({
           form.handleSubmit()
         }}
       >
+        {children}
+      </form>
+    )
+  },
+})
+
+export const CategoryFormRequired = withForm({
+  ...categoryFormOpts,
+  render: function Render({ form }) {
+    return (
+      <CategoryFormWrapper form={form}>
+        <CategoryNameField form={form} />
+      </CategoryFormWrapper>
+    )
+  },
+})
+
+export const CategoryForm = withForm({
+  ...categoryFormOpts,
+  render: function Render({ form }) {
+    const category = form.state.values
+    return (
+      <CategoryFormWrapper form={form}>
         <FieldGroup>
-          <form.AppField
-            name="name"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
-                  <Input
-                    id={fieldId}
-                    name={field.name}
-                    value={field.state.value as string}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
+          <CategoryNameField form={form} />
           <form.AppField
             name="description"
             children={(field) => {
@@ -100,7 +132,7 @@ export const CategoryForm = withForm({
                 field.state.meta.isTouched && !field.state.meta.isValid
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
+                  <FieldLabel htmlFor={fieldId}>Description</FieldLabel>
                   <Textarea
                     id={fieldId}
                     name={field.name}
@@ -115,7 +147,7 @@ export const CategoryForm = withForm({
             }}
           />
         </FieldGroup>
-      </form>
+      </CategoryFormWrapper>
     )
   },
 })

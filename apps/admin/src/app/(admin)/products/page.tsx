@@ -2,7 +2,7 @@
 
 import { DataTable } from "@/components/data-table/data-table"
 import {
-  PageAction,
+  PageHeaderAction,
   PageHeader,
   PageHeaderHeading,
 } from "@/components/page-header"
@@ -30,7 +30,6 @@ import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
-import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 import { ProductFormRequired, useProductForm } from "./form"
 
 const DEBOUNCE_DELAY = 300
@@ -94,10 +93,9 @@ export default function Page() {
     <>
       <PageHeader>
         <PageHeaderHeading>Products</PageHeaderHeading>
-        <PageAction>
-          <ModeToggle />
+        <PageHeaderAction>
           <QuickCreateProductDialog />
-        </PageAction>
+        </PageHeaderAction>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table} />
