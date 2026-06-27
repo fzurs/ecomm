@@ -3,9 +3,8 @@ import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 
 import { SidebarProvider } from "@workspace/ui/components/sidebar"
 import { NuqsAdapter } from "nuqs/adapters/next"
-import { Suspense } from "react"
 import { SidebarItemsContext } from "@/hooks/sidebar-items"
-import { getBrands, getCategories } from "@/lib/cache"
+import { getAllBrands, getAllCategories } from "@/lib/cache"
 
 export const metadata = {
   title: "Sitio web eccomerce",
@@ -25,7 +24,10 @@ export default function RootLayout({
             <div className="[--header-height:calc(--spacing(12))]">
               <SidebarProvider className="flex flex-col">
                 <SidebarItemsContext
-                  value={{ categories: getCategories(), brands: getBrands() }}
+                  value={{
+                    categories: getAllCategories(),
+                    brands: getAllBrands(),
+                  }}
                 >
                   {children}
                 </SidebarItemsContext>

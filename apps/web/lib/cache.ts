@@ -39,14 +39,14 @@ export async function getProduct(slug: string) {
   return apiClient.products_retrieve({ params: { slug } })
 }
 
-export async function getCategories() {
+export async function getAllCategories() {
   "use cache"
   cacheLife("days")
-  return apiClient.categories_list()
+  return apiClient.categories_list_all()
 }
 
-export async function getBrands() {
+export async function getAllBrands() {
   "use cache"
   cacheLife("days")
-  return apiClient.brands_list()
+  return apiClient.brands_list_all()
 }

@@ -3,7 +3,6 @@ import Cookies from "js-cookie"
 
 export const apiClient = createApiClient("http://localhost:8000", {
   axiosConfig: {
-    baseURL: "http://localhost:8000",
     withCredentials: true,
     paramsSerializer: { indexes: null },
   },
@@ -11,15 +10,6 @@ export const apiClient = createApiClient("http://localhost:8000", {
 })
 
 apiClient.axios.interceptors.request.use(async (config) => {
-  const isServer = typeof window === "undefined"
-
-  if (isServer) {
-    const { cookies } = await import("next/headers")
-    const cookieStore = await cookies()
-    config.headers["Cookie"] = cookieStore
-  } else {
-    config.headers["X-CSRFToken"] = Cookies.get("csrftoken")
-  }
-
+  config.headers["X-CSRFToken"] = Cookies.get("csrftoken")
   return config
 })
