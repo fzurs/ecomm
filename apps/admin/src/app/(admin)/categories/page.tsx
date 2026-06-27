@@ -1,7 +1,6 @@
 "use client"
 import { DataTable } from "@/components/data-table/data-table"
 import {
-  PageContent,
   PageHeader,
   PageHeaderAction,
   PageHeaderHeading,
@@ -53,7 +52,7 @@ export default function CategoriesPage() {
           <CreateCategoryDialog />
         </PageHeaderAction>
       </PageHeader>
-      <PageContent>
+      <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table}>
           <div className="flex gap-2 md:gap-4">
             <InputGroup>
@@ -74,7 +73,7 @@ export default function CategoriesPage() {
             <DataTableViewOptions table={table} />
           </div>
         </DataTable>
-      </PageContent>
+      </div>
     </>
   )
 }
@@ -98,7 +97,7 @@ function CreateCategoryDialog() {
         }}
       >
         <DialogHeader>
-          <DialogTitle>New Category</DialogTitle>
+          <DialogTitle>Create Category</DialogTitle>
           <DialogDescription className="sr-only">
             These categories can be assigned to products to be able to filter
             and sort them.
