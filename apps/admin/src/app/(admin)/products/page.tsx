@@ -31,6 +31,7 @@ import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
 import { ProductFormRequired, useProductForm } from "./form"
+import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
 const DEBOUNCE_DELAY = 300
 
@@ -94,6 +95,7 @@ export default function Page() {
       <PageHeader>
         <PageHeaderHeading>Products</PageHeaderHeading>
         <PageHeaderAction>
+          <ModeToggle />
           <QuickCreateProductDialog />
         </PageHeaderAction>
       </PageHeader>

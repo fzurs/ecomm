@@ -66,6 +66,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form
+            id={form.formId}
             onSubmit={(e) => {
               e.preventDefault()
               form.handleSubmit()

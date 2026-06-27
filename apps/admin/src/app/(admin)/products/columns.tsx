@@ -104,6 +104,21 @@ export const statusOptions = schemas.StatusEnum.options.map((status) => ({
 
 export const columns = [
   {
+    id: "image",
+    header: "Image",
+    cell: ({ row }) => (
+      <div className="aspect-video max-w-92 min-w-44">
+        {row.original.image && (
+          <img
+            src={row.original.image}
+            className="rounded-md"
+            alt={`${row.original.name} Image`}
+          />
+        )}
+      </div>
+    ),
+  },
+  {
     id: "sku",
     header: "SKU",
     accessorKey: "sku",
@@ -125,17 +140,13 @@ export const columns = [
     cell: ({ row }) => {
       if (!row.original.description) return null
       return (
-        <div className="min-w-72 text-sm text-pretty text-muted-foreground">
+        <div className="min-w-sm text-sm text-pretty text-muted-foreground">
           {row.original.description}
         </div>
       )
     },
   },
-  {
-    id: "image",
-    header: "Image",
-    cell: ({ row }) => row.original.image && <img src={row.original.image} />,
-  },
+
   {
     id: "category",
     accessorKey: "Category",
@@ -281,6 +292,7 @@ export const columns = [
   {
     id: "actions",
     cell: ({ row }) => <TableCellActions item={row.original} />,
+    enableHiding: false,
   },
 ] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[]
 
