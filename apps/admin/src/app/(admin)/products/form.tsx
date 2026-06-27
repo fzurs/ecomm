@@ -88,7 +88,7 @@ export function useProductForm({
       return item
         ? apiClient.products_update(data, {
             params: { slug: item.slug as string },
-            headers: {"Content-Type": "multipart/form-data"}
+            headers: { "Content-Type": "multipart/form-data" },
           })
         : apiClient.products_create(data)
     },
