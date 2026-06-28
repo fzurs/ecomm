@@ -1,14 +1,9 @@
 import {
-  Field,
   FieldContent,
   FieldDescription,
-  FieldError,
   FieldGroup,
-  FieldLabel,
   FieldTitle,
 } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
   ComboboxContent,
   ComboboxEmpty,
@@ -23,14 +18,11 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/item"
 import {
-  Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { Checkbox } from "@workspace/ui/components/checkbox"
 import { schemas } from "@workspace/api-client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
@@ -46,12 +38,12 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, withForm } from "@/hooks/form"
 import { ComboboxQueryOnOpenById } from "@/components/combobox"
+import { getFieldId } from "@/lib/utils"
 
 const formSchema = schemas.Product.extend({
   imageFile: z.instanceof(File).nullish(),
@@ -110,386 +102,267 @@ export function useProductForm({
   return form
 }
 
-export const ProductNameField = withForm({
+export const ProductForm = withForm({
   ...productFormOpts,
-  props: { placeholder: "" } as { placeholder?: string } | undefined,
-  render: function Render({ form, placeholder }) {
-    return (
-      <form.Field
+  props: { variant: "full" } as { variant?: "full" | "required" } | undefined,
+  render: function Render({ form, variant = "full" }) {
+    const product = form.state.values
+
+    const nameField = (
+      <form.AppField
         name="name"
         children={(field) => {
-          const fieldId = `${form.formId}-${field.name}`
-          const isInvalid =
-            field.state.meta.isTouched && !field.state.meta.isValid
+          const fieldId = getFieldId(form, field)
           return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
-              <Input
-                id={fieldId}
-                name={field.name}
-                value={field.state.value as string}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                aria-invalid={isInvalid}
-                placeholder={placeholder}
-                required
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
+            <field.Field>
+              <field.Label htmlFor={fieldId}>Name</field.Label>
+              <field.Input id={fieldId} required />
+              <field.Message />
+            </field.Field>
           )
         }}
       />
     )
-  },
-})
 
-export const ProductFormWrapper = withForm({
-  ...productFormOpts,
-  props: { children: undefined as React.ReactNode },
-  render: function Render({ form, children }) {
-    return (
-      <form
-        id={form.formId}
-        onSubmit={(e) => {
-          e.preventDefault()
-          form.handleSubmit()
-        }}
-      >
-        {children}
-      </form>
-    )
-  },
-})
-
-export const ProductFormRequired = withForm({
-  ...productFormOpts,
-  render: function Render({ form }) {
-    return (
-      <ProductFormWrapper form={form}>
-        <ProductNameField form={form} placeholder="e.g. AMD Ryzen 9 7950X" />
-      </ProductFormWrapper>
-    )
-  },
-})
-
-export const ProductForm = withForm({
-  ...productFormOpts,
-  render: function Render({ form }) {
-    const product = form.state.values
-
-    return (
-      <ProductFormWrapper form={form}>
-        <FieldGroup>
-          <form.Field
-            name="sku"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>SKU</FieldLabel>
-                  <InputGroup>
-                    <InputGroupInput
-                      id={fieldId}
-                      name={field.name}
-                      value={(field.state.value as string) ?? ""}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
+    const fullFields = (
+      <>
+        <form.AppField
+          name="sku"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>SKU</field.Label>
+                <InputGroup>
+                  <field.InputGroupInput id={fieldId} />
+                  <InputGroupAddon align="inline-end">
+                    <GenerateSKUButton
+                      product={product}
+                      onSuccess={form.reset}
                     />
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldDescription>
+                  Unique identifier code used to track and manage this product
+                  in your inventory.
+                </FieldDescription>
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+        {nameField}
+        <form.AppField
+          name="description"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>Description</field.Label>
+                <field.Textarea
+                  id={fieldId}
+                  placeholder="Describe your product in detail: features, materials, dimensions, and any other relevant information..."
+                />
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+        <form.AppField
+          name="imageFile"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>Image</field.Label>
+                {product.image && (
+                  <img
+                    className="rounded-md"
+                    src={product.image}
+                    alt="Image of product"
+                  />
+                )}
+                <field.Input type="file" id={fieldId} />
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+        <form.AppField
+          name="category_id"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>Category</field.Label>
+                <ComboboxQueryOnOpenById
+                  value={field.state.value as number}
+                  onValueChange={field.handleChange}
+                  initialItem={product.category}
+                  itemsQueryOptions={getCategoriesAllQueryOptions}
+                >
+                  <ComboboxInput placeholder="Assing a category" />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No categories found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: z.infer<typeof schemas.Category>) => (
+                        <ComboboxItem key={item.id} value={item}>
+                          <Item size="sm" className="p-0">
+                            <ItemContent>
+                              <ItemTitle>{item.name}</ItemTitle>
+                              <ItemDescription>
+                                {item.description}
+                              </ItemDescription>
+                            </ItemContent>
+                          </Item>
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </ComboboxQueryOnOpenById>
+                <FieldDescription>
+                  The category allows you to group products.
+                </FieldDescription>
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+        <form.AppField
+          name="brand_id"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>Brand</field.Label>
+                <ComboboxQueryOnOpenById
+                  value={field.state.value as number}
+                  onValueChange={field.handleChange}
+                  itemsQueryOptions={getBrandsAllQueryOptions}
+                  initialItem={product.brand}
+                >
+                  <ComboboxInput placeholder="Assing a brand">
                     <InputGroupAddon align="inline-end">
-                      <GenerateSKUButton
+                      <DetectAndAssignBrandButton
                         product={product}
                         onSuccess={form.reset}
                       />
                     </InputGroupAddon>
-                  </InputGroup>
-                  <FieldDescription>
-                    Unique identifier code used to track and manage this product
-                    in your inventory.
-                  </FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-          <ProductNameField form={form} />
-          <form.Field
-            name="description"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Description</FieldLabel>
-                  <Textarea
-                    id={fieldId}
-                    name={field.name}
-                    value={(field.state.value as string) ?? ""}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="Describe your product in detail: features, materials, dimensions, and any other relevant information..."
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-          <form.Field
-            name="imageFile"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Image</FieldLabel>
-                  {product.image && (
-                    <img
-                      className="rounded-md"
-                      src={product.image}
-                      alt="Image of product"
-                    />
-                  )}
-                  <Input
-                    type="file"
-                    id={fieldId}
-                    name={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(e) =>
-                      field.handleChange(e.target.files?.item(0))
-                    }
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-          <form.Field
-            name="category_id"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Category</FieldLabel>
-                  <ComboboxQueryOnOpenById
-                    value={field.state.value as number}
-                    onValueChange={field.handleChange}
-                    initialItem={product.category}
-                    itemsQueryOptions={getCategoriesAllQueryOptions}
-                  >
-                    <ComboboxInput placeholder="Assing a category" />
-                    <ComboboxContent>
-                      <ComboboxEmpty>No categories found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(item: z.infer<typeof schemas.Category>) => (
-                          <ComboboxItem key={item.id} value={item}>
-                            <Item size="sm" className="p-0">
-                              <ItemContent>
-                                <ItemTitle>{item.name}</ItemTitle>
-                                <ItemDescription>
-                                  {item.description}
-                                </ItemDescription>
-                              </ItemContent>
-                            </Item>
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </ComboboxQueryOnOpenById>
-                  <FieldDescription>
-                    The category allows you to group products.
-                  </FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-          <form.Field
-            name="brand_id"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Brand</FieldLabel>
-                  <ComboboxQueryOnOpenById
-                    value={field.state.value as number}
-                    onValueChange={field.handleChange}
-                    itemsQueryOptions={getBrandsAllQueryOptions}
-                    initialItem={product.brand}
-                  >
-                    <ComboboxInput placeholder="Assing a brand">
-                      <InputGroupAddon align="inline-end">
-                        <DetectAndAssignBrandButton
-                          product={product}
-                          onSuccess={form.reset}
-                        />
-                      </InputGroupAddon>
-                    </ComboboxInput>
-                    <ComboboxContent>
-                      <ComboboxEmpty>No brands found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(item: z.infer<typeof schemas.Brand>) => (
-                          <ComboboxItem key={item.id} value={item}>
-                            {item.name}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </ComboboxQueryOnOpenById>
-                  <FieldDescription>
-                    The product&apos;s brand can be inferred from its name.
-                  </FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-          <form.Field
-            name="status"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Status</FieldLabel>
-                  <Select
-                    value={field.state.value as string}
-                    onValueChange={field.handleChange}
-                  >
-                    <SelectTrigger
-                      id={fieldId}
-                      aria-invalid={isInvalid}
-                      className="w-full"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {statusOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.icon} {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    By default, the product status is &quot;draft&quot;.
-                  </FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-          <form.Field
-            name="featured"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              const fieldId = `${form.formId}-${field.name}`
-              return (
-                <FieldLabel htmlFor={fieldId} data-invalid={isInvalid}>
-                  <Field orientation="horizontal">
-                    <Checkbox
-                      id={fieldId}
-                      aria-invalid={isInvalid}
-                      checked={field.state.value as never}
-                      onBlur={field.handleBlur}
-                      onCheckedChange={field.handleChange}
-                    />
-                    <FieldContent>
-                      <FieldTitle>Featured product</FieldTitle>
-                      <FieldDescription>
-                        Featured products are displayed on the home page and in
-                        priority search results.
-                      </FieldDescription>
-                    </FieldContent>
-                  </Field>
-                </FieldLabel>
-              )
-            }}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <form.Field
-              name="price"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                const fieldId = `${form.formId}-${field.name}`
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={fieldId}>Price</FieldLabel>
-                    <Input
-                      type="number"
-                      id={fieldId}
-                      name={field.name}
-                      value={(field.state.value as string) ?? ""}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        field.handleChange(
-                          value ? Number(e.target.value) : null
-                        )
-                      }}
-                      aria-invalid={isInvalid}
-                    />
+                  </ComboboxInput>
+                  <ComboboxContent>
+                    <ComboboxEmpty>No brands found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: z.infer<typeof schemas.Brand>) => (
+                        <ComboboxItem key={item.id} value={item}>
+                          {item.name}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </ComboboxQueryOnOpenById>
+                <FieldDescription>
+                  The product&apos;s brand can be inferred from its name.
+                </FieldDescription>
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+        <form.AppField
+          name="status"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>Status</field.Label>
+                <field.Select>
+                  <field.SelectTrigger id={fieldId} className="w-full">
+                    <SelectValue />
+                  </field.SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {statusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.icon} {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </field.Select>
+                <FieldDescription>
+                  By default, the product status is &quot;draft&quot;.
+                </FieldDescription>
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+        <form.AppField
+          name="featured"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Label htmlFor={fieldId}>
+                <field.Field orientation="horizontal">
+                  <field.Checkbox id={fieldId} />
+                  <FieldContent>
+                    <FieldTitle>Featured product</FieldTitle>
                     <FieldDescription>
-                      The actual price of product.
+                      Featured products are displayed on the home page and in
+                      priority search results.
                     </FieldDescription>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            />
-            <form.Field
-              name="discount_price"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                const fieldId = `${form.formId}-${field.name}`
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={fieldId}>Discount Price</FieldLabel>
-                    <Input
-                      type="number"
-                      id={fieldId}
-                      name={field.name}
-                      value={(field.state.value as string) ?? ""}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        field.handleChange(
-                          value ? Number(e.target.value) : null
-                        )
-                      }}
-                      aria-invalid={isInvalid}
-                    />
-                    <FieldDescription>
-                      Discounted price after applying any promotions or coupon
-                      codes.
-                    </FieldDescription>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            />
-          </div>
-        </FieldGroup>
-      </ProductFormWrapper>
+                  </FieldContent>
+                </field.Field>
+              </field.Label>
+            )
+          }}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <form.AppField
+            name="price"
+            children={(field) => {
+              const fieldId = getFieldId(form, field)
+              return (
+                <field.Field>
+                  <field.Label htmlFor={fieldId}>Price</field.Label>
+                  <field.NumberInput id={fieldId} />
+                  <FieldDescription>
+                    The actual price of product.
+                  </FieldDescription>
+                  <field.Message />
+                </field.Field>
+              )
+            }}
+          />
+          <form.AppField
+            name="discount_price"
+            children={(field) => {
+              const fieldId = getFieldId(form, field)
+              return (
+                <field.Field>
+                  <field.Label htmlFor={fieldId}>Discount Price</field.Label>
+                  <field.NumberInput id={fieldId} />
+                  <FieldDescription>
+                    Discounted price after applying any promotions or coupon
+                    codes.
+                  </FieldDescription>
+                  <field.Message />
+                </field.Field>
+              )
+            }}
+          />
+        </div>
+      </>
+    )
+
+    return (
+      <form.AppForm>
+        <form.Form>
+          <FieldGroup>
+            {variant === "required" ? nameField : fullFields}
+          </FieldGroup>
+        </form.Form>
+      </form.AppForm>
     )
   },
 })

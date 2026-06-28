@@ -1,17 +1,11 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { apiClient } from "@/lib/api-client"
 import { queryKeys } from "@/lib/query-options"
+import { getFieldId } from "@/lib/utils"
 import { formOptions } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { schemas } from "@workspace/api-client"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
+import { FieldGroup } from "@workspace/ui/components/field"
 import z from "zod"
 
 const defaultCategory: z.infer<typeof schemas.Category> = {
@@ -57,97 +51,55 @@ export function useCategoryForm({
   return form
 }
 
-export const CategoryNameField = withForm({
+export const CategoryForm = withForm({
   ...categoryFormOpts,
-  render: function Render({ form }) {
-    return (
+  props: { variant: "full" } as { variant?: "full" | "required" },
+  render: function Render({ form, variant }) {
+    // const category = form.state.values
+
+    const nameField = (
       <form.AppField
         name="name"
         children={(field) => {
-          const fieldId = `${form.formId}-${field.name}`
-          const isInvalid =
-            field.state.meta.isTouched && !field.state.meta.isValid
+          const fieldId = getFieldId(form, field)
           return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={fieldId}>Name</FieldLabel>
-              <Input
-                id={fieldId}
-                name={field.name}
-                value={field.state.value as string}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                aria-invalid={isInvalid}
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
+            <field.Field>
+              <field.Label htmlFor={fieldId}>Name</field.Label>
+              <field.Input id={fieldId} />
+              <field.Message />
+            </field.Field>
           )
         }}
       />
     )
-  },
-})
 
-export const CategoryFormWrapper = withForm({
-  ...categoryFormOpts,
-  props: { children: null as React.ReactNode },
-  render: function Render({ form, children }) {
-    return (
-      <form
-        id={form.formId}
-        onSubmit={(e) => {
-          e.preventDefault()
-          form.handleSubmit()
-        }}
-      >
-        {children}
-      </form>
+    const fullFields = (
+      <>
+        {nameField}
+        <form.AppField
+          name="description"
+          children={(field) => {
+            const fieldId = getFieldId(form, field)
+            return (
+              <field.Field>
+                <field.Label htmlFor={fieldId}>Description</field.Label>
+                <field.Textarea id={fieldId} />
+                <field.Message />
+              </field.Field>
+            )
+          }}
+        />
+      </>
     )
-  },
-})
 
-export const CategoryFormRequired = withForm({
-  ...categoryFormOpts,
-  render: function Render({ form }) {
     return (
-      <CategoryFormWrapper form={form}>
-        <CategoryNameField form={form} />
-      </CategoryFormWrapper>
-    )
-  },
-})
-
-export const CategoryForm = withForm({
-  ...categoryFormOpts,
-  render: function Render({ form }) {
-    const category = form.state.values
-    return (
-      <CategoryFormWrapper form={form}>
-        <FieldGroup>
-          <CategoryNameField form={form} />
-          <form.AppField
-            name="description"
-            children={(field) => {
-              const fieldId = `${form.formId}-${field.name}`
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={fieldId}>Description</FieldLabel>
-                  <Textarea
-                    id={fieldId}
-                    name={field.name}
-                    value={field.state.value as string}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-        </FieldGroup>
-      </CategoryFormWrapper>
+      <form.AppForm>
+        <form.Form>
+          <FieldGroup>
+            {variant === "required" ? nameField : fullFields}
+          </FieldGroup>
+        </form.Form>
+      </form.AppForm>
     )
   },
 })

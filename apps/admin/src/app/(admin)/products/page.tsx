@@ -30,7 +30,7 @@ import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
-import { ProductFormRequired, useProductForm } from "./form"
+import { ProductForm, useProductForm } from "./form"
 import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 
 const DEBOUNCE_DELAY = 300
@@ -131,13 +131,13 @@ function QuickCreateProductDialog() {
             catalog.
           </DialogDescription>
         </DialogHeader>
-        <ProductFormRequired form={form} />
+        <ProductForm form={form} variant="required" />
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.SubscribeButton>Create</form.SubscribeButton>
+            <form.Submit>Create</form.Submit>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

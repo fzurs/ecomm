@@ -31,7 +31,7 @@ import {
 } from "@workspace/ui/components/dialog"
 import { SearchIcon } from "lucide-react"
 import * as React from "react"
-import { CategoryFormRequired, useCategoryForm } from "./form"
+import { CategoryForm, useCategoryForm } from "./form"
 import { IconTagPlus } from "@tabler/icons-react"
 
 const DEBOUNCE_DELAY = 300
@@ -103,13 +103,13 @@ function CreateCategoryDialog() {
             and sort them.
           </DialogDescription>
         </DialogHeader>
-        <CategoryFormRequired form={form} />
+        <CategoryForm form={form} variant="required" />
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.SubscribeButton>Create</form.SubscribeButton>
+            <form.Submit>Create</form.Submit>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

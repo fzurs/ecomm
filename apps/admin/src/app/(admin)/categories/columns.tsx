@@ -71,7 +71,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schemas.Category> }) {
       open={open}
       onOpenChange={setOpen}
       direction={isMobile ? "bottom" : "right"}
-      // modal={false}
+      modal={false}
     >
       <DrawerTrigger asChild>
         <Button size="sm" variant="link">
@@ -93,7 +93,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schemas.Category> }) {
         </div>
         <DrawerFooter>
           <form.AppForm>
-            <form.SubscribeButton>Save changes</form.SubscribeButton>
+            <form.Submit>Save changes</form.Submit>
           </form.AppForm>
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>

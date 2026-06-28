@@ -1,3 +1,5 @@
+import { AnyFieldApi, AnyFormApi } from "@tanstack/react-form"
+
 export function snakeCaseToTitle(value: string) {
   return value
     .split("_")
@@ -15,4 +17,8 @@ export function nullsToUndefined<T extends Record<string, unknown>>(
   return Object.fromEntries(
     Object.entries(obj).map(([key, value]) => [key, value ?? undefined])
   ) as NullToUndefined<T>
+}
+
+export function getFieldId(form: AnyFormApi, field: AnyFieldApi) {
+  return form.formId + "-" + field.name
 }

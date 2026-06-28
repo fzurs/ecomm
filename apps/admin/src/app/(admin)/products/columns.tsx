@@ -69,14 +69,13 @@ import {
 import { cn } from "@workspace/ui/lib/utils"
 import { format } from "date-fns"
 
-export const getFeaturedIcon = (
-  featured: z.infer<typeof schemas.Product>["featured"]
-) =>
-  featured ? (
+export function getFeaturedIcon(featured: boolean) {
+  return featured ? (
     <IconStar className="fill-yellow-500 text-yellow-500" />
   ) : (
     <IconStar className="size-4 text-muted-foreground" />
   )
+}
 
 export const getStatusIcon = (status: z.infer<typeof schemas.StatusEnum>) => {
   const statuses = schemas.StatusEnum.Enum
@@ -213,7 +212,7 @@ export const columns = [
     header: "Featured",
     cell: ({ row }) => (
       <div className="[&>svg]:size-4">
-        {getFeaturedIcon(row.original.featured)}
+        {getFeaturedIcon(!!row.original.featured)}
       </div>
     ),
     meta: {
@@ -334,7 +333,7 @@ function TableCellViewer({
         </div>
         <DrawerFooter>
           <form.AppForm>
-            <form.SubscribeButton>Save changes</form.SubscribeButton>
+            <form.Submit>Save changes</form.Submit>
           </form.AppForm>
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>

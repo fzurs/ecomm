@@ -70,7 +70,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schemas.Brand> }) {
         </div>
         <DrawerFooter>
           <form.AppForm>
-            <form.SubscribeButton>Save Changes</form.SubscribeButton>
+            <form.Submit>Save Changes</form.Submit>
           </form.AppForm>
           <DrawerClose asChild>
             <Button variant="outline">Close</Button>
