@@ -22,9 +22,11 @@ import { PlusIcon } from "lucide-react"
 import { columns } from "./columns"
 import { BrandForm, useBrandForm } from "./form"
 import * as React from "react"
+import { usePaginationValues } from "@/hooks/use-pagination"
 
 export default function BrandsPage() {
-  const { data } = useQuery(getBrandsQueryOptions())
+  const pagination = usePaginationValues()
+  const { data } = useQuery(getBrandsQueryOptions({ ...pagination }))
 
   const table = useDataTable({ data, columns })
 
@@ -37,7 +39,7 @@ export default function BrandsPage() {
         </PageHeaderAction>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
-        <DataTable table={table} showToolbar={false} showPagination={false} />
+        <DataTable table={table} showToolbar={false} />
       </div>
     </>
   )
@@ -66,7 +68,7 @@ function QuickCreateBrandDialog() {
             <Button variant="outline">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.SubscribeButton>Create</form.SubscribeButton>
+            <form.Submit>Create</form.Submit>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

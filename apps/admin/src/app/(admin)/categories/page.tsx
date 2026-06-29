@@ -33,14 +33,18 @@ import { SearchIcon } from "lucide-react"
 import * as React from "react"
 import { CategoryForm, useCategoryForm } from "./form"
 import { IconTagPlus } from "@tabler/icons-react"
+import { usePaginationValues } from "@/hooks/use-pagination"
 
 const DEBOUNCE_DELAY = 300
 
 export default function CategoriesPage() {
+  const pagination = usePaginationValues()
   const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
 
   const filters = useDebounce({ search }, DEBOUNCE_DELAY)
-  const { data, isSuccess } = useQuery(getCategoriesQueryOptions(filters))
+  const { data, isSuccess } = useQuery(
+    getCategoriesQueryOptions({ ...filters, ...pagination })
+  )
 
   const table = useDataTable({ data, columns })
 
@@ -53,7 +57,7 @@ export default function CategoriesPage() {
         </PageHeaderAction>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
-        <DataTable table={table} showPagination={false}>
+        <DataTable table={table}>
           <div className="flex gap-2 md:gap-4">
             <InputGroup>
               <InputGroupInput

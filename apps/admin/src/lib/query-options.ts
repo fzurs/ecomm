@@ -62,6 +62,7 @@ export function getBrandsQueryOptions(
   return queryOptions({
     queryKey: queryKeys.brands.list(queries),
     queryFn: () => apiClient.brands_list({ queries }),
+    placeholderData: keepPreviousData,
   })
 }
 
