@@ -19,7 +19,7 @@ import {
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import * as React from "react"
 import { z } from "zod"
-import { snakeCaseToTitle } from "@/lib/utils"
+import { selectAsOption, snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   IconCircleDashedCheck,
@@ -43,7 +43,6 @@ import {
   getBrandsAllQueryOptions,
   getCategoriesAllQueryOptions,
   queryKeys,
-  selectAsOption,
 } from "@/lib/query-options"
 import { ProductForm, useProductForm } from "./form"
 import {
@@ -145,7 +144,6 @@ export const columns = [
       )
     },
   },
-
   {
     id: "category",
     accessorKey: "Category",

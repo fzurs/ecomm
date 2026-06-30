@@ -5,7 +5,6 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 import { apiClient } from "./api-client"
-import { Option } from "@/types/data-table"
 import { schemas } from "@workspace/api-client"
 import z from "zod"
 
@@ -84,15 +83,3 @@ export function useSession(
     ...options,
   })
 }
-
-export const selectAsOption = (
-  data: {
-    slug?: string | null
-    id: number
-    name: string
-  }[]
-): Option[] =>
-  data.map((item) => ({
-    label: item.name,
-    value: item.slug || item.id,
-  }))

@@ -1,3 +1,4 @@
+import { Option } from "@/types/data-table"
 import { AnyFieldApi, AnyFormApi } from "@tanstack/react-form"
 
 export function snakeCaseToTitle(value: string) {
@@ -21,4 +22,16 @@ export function nullsToUndefined<T extends Record<string, unknown>>(
 
 export function getFieldId(form: AnyFormApi, field: AnyFieldApi) {
   return form.formId + "-" + field.name
+}
+
+export function selectAsOption(
+  data: {
+    slug?: string | null
+    name: string
+  }[]
+): Option[] {
+  return data.map((item) => ({
+    label: item.name,
+    value: item.slug,
+  }))
 }

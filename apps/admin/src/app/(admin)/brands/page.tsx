@@ -26,6 +26,7 @@ import { usePaginationValues } from "@/hooks/use-pagination"
 
 export default function BrandsPage() {
   const pagination = usePaginationValues()
+
   const { data } = useQuery(getBrandsQueryOptions({ ...pagination }))
 
   const table = useDataTable({ data, columns })
