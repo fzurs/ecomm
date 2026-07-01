@@ -2,7 +2,7 @@
 
 import { DataTable } from "@/components/data-table/data-table"
 import {
-  PageHeaderAction,
+  PageHeaderActions,
   PageHeader,
   PageHeaderHeading,
 } from "@/components/page-header"
@@ -93,9 +93,9 @@ export default function Page() {
     <>
       <PageHeader>
         <PageHeaderHeading>Products</PageHeaderHeading>
-        <PageHeaderAction>
+        <PageHeaderActions>
           <QuickCreateProductDialog />
-        </PageHeaderAction>
+        </PageHeaderActions>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table} />

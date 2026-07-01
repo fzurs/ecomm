@@ -5,6 +5,7 @@ import {
   FormField,
   FormLabel,
   FormInput,
+  FormImageInput,
   FormNumberInput,
   FormInputGroupInput,
   FormTextarea,
@@ -13,6 +14,7 @@ import {
   FormCheckbox,
   FormMessage,
   FormSubmit,
+  FormComboboxQueryOnOpenById,
 } from "@/components/form"
 
 export const { useAppForm, useTypedAppFormContext, withForm } = createFormHook({
@@ -21,12 +23,14 @@ export const { useAppForm, useTypedAppFormContext, withForm } = createFormHook({
     Label: FormLabel,
     Input: FormInput,
     NumberInput: FormNumberInput,
+    ImageInput: FormImageInput,
     InputGroupInput: FormInputGroupInput,
     Textarea: FormTextarea,
     Select: FormSelect,
     SelectTrigger: FormSelectTrigger,
     Checkbox: FormCheckbox,
     Message: FormMessage,
+    ComboboxQueryOnOpenById: FormComboboxQueryOnOpenById,
   },
   formComponents: { Form: FormRoot, Submit: FormSubmit },
   fieldContext,

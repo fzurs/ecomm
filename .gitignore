@@ -49,3 +49,6 @@ local_settings.py
 
 .env
 db.sqlite3
+
+### Media Files Django ###
+media/

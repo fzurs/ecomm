@@ -7,6 +7,7 @@ import { InputGroupInput } from "@workspace/ui/components/input-group"
 import { Select, SelectTrigger } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
 import * as React from "react"
+import { ComboboxQueryOnOpenById } from "./combobox"
 
 function FormRoot({ ...props }: React.ComponentProps<"form">) {
   const form = useFormContext()
@@ -47,6 +48,26 @@ function FormInput({ ...props }: React.ComponentProps<typeof Input>) {
       value={(field.state.value as string) ?? ""}
       onBlur={field.handleBlur}
       onChange={(e) => field.handleChange(e.target.value)}
+      aria-invalid={isInvalid}
+      {...props}
+    />
+  )
+}
+
+function FormImageInput({
+  type = "file",
+  ...props
+}: React.ComponentProps<typeof Input>) {
+  const field = useFieldContext()
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+
+  return (
+    <Input
+      id={field.name}
+      type={type}
+      name={field.name}
+      onBlur={field.handleBlur}
+      onChange={(e) => field.handleChange(e.target.files?.item(0) ?? null)}
       aria-invalid={isInvalid}
       {...props}
     />
@@ -145,7 +166,7 @@ function FormMessage({ ...props }: React.ComponentProps<typeof FieldError>) {
   const field = useFieldContext()
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
-  if (isInvalid) return null
+  if (!isInvalid) return null
 
   return <FieldError errors={field.state.meta.errors} {...props} />
 }
@@ -168,11 +189,29 @@ function FormSubmit({ ...props }: React.ComponentProps<typeof Button>) {
   )
 }
 
+function FormComboboxQueryOnOpenById({
+  ...props
+}: Omit<
+  React.ComponentProps<typeof ComboboxQueryOnOpenById>,
+  "value" | "onValueChange"
+>) {
+  const field = useFieldContext()
+
+  return (
+    <ComboboxQueryOnOpenById
+      value={field.state.value as number}
+      onValueChange={field.handleChange}
+      {...props}
+    />
+  )
+}
+
 export {
   FormRoot,
   FormField,
   FormLabel,
   FormInput,
+  FormImageInput,
   FormNumberInput,
   FormInputGroupInput,
   FormTextarea,
@@ -181,4 +220,5 @@ export {
   FormCheckbox,
   FormMessage,
   FormSubmit,
+  FormComboboxQueryOnOpenById,
 }

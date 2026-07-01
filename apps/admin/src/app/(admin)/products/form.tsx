@@ -44,6 +44,7 @@ import { formOptions } from "@tanstack/react-form"
 import { useAppForm, withForm } from "@/hooks/form"
 import { ComboboxQueryOnOpenById } from "@/components/combobox"
 import { getFieldId } from "@/lib/utils"
+import { ImagePreview, ImagePreviewClose } from "@/components/image-preview"
 
 const formSchema = schemas.Product.extend({
   imageFile: z.instanceof(File).nullish(),
@@ -76,7 +77,15 @@ export function useProductForm({
 
   const { mutateAsync } = useMutation({
     mutationFn: ({ imageFile, ...values }: z.infer<typeof formSchema>) => {
-      const data = { ...values, image: imageFile as never }
+      const data = {
+        ...values,
+        ...(imageFile
+          ? { image: imageFile as never }
+          : item?.image
+            ? { image: "" }
+            : {}),
+      }
+
       return item
         ? apiClient.products_update(data, {
             params: { slug: item.slug as string },
@@ -176,13 +185,18 @@ export const ProductForm = withForm({
               <field.Field>
                 <field.Label htmlFor={fieldId}>Image</field.Label>
                 {product.image && (
-                  <img
-                    className="rounded-md"
-                    src={product.image}
-                    alt="Image of product"
-                  />
+                  <ImagePreview>
+                    <img
+                      className="rounded-md"
+                      src={product.image}
+                      alt={`${product.name} Image`}
+                    />
+                    <ImagePreviewClose
+                      onClick={() => field.handleChange(null)}
+                    />
+                  </ImagePreview>
                 )}
-                <field.Input type="file" id={fieldId} />
+                <field.ImageInput id={fieldId} />
                 <field.Message />
               </field.Field>
             )
@@ -195,9 +209,7 @@ export const ProductForm = withForm({
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Category</field.Label>
-                <ComboboxQueryOnOpenById
-                  value={field.state.value as number}
-                  onValueChange={field.handleChange}
+                <field.ComboboxQueryOnOpenById
                   initialItem={product.category}
                   itemsQueryOptions={getCategoriesAllQueryOptions}
                 >
@@ -219,7 +231,7 @@ export const ProductForm = withForm({
                       )}
                     </ComboboxList>
                   </ComboboxContent>
-                </ComboboxQueryOnOpenById>
+                </field.ComboboxQueryOnOpenById>
                 <FieldDescription>
                   The category allows you to group products.
                 </FieldDescription>
@@ -235,9 +247,7 @@ export const ProductForm = withForm({
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Brand</field.Label>
-                <ComboboxQueryOnOpenById
-                  value={field.state.value as number}
-                  onValueChange={field.handleChange}
+                <field.ComboboxQueryOnOpenById
                   itemsQueryOptions={getBrandsAllQueryOptions}
                   initialItem={product.brand}
                 >
@@ -259,7 +269,7 @@ export const ProductForm = withForm({
                       )}
                     </ComboboxList>
                   </ComboboxContent>
-                </ComboboxQueryOnOpenById>
+                </field.ComboboxQueryOnOpenById>
                 <FieldDescription>
                   The product&apos;s brand can be inferred from its name.
                 </FieldDescription>

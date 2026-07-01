@@ -2,7 +2,7 @@
 import { DataTable } from "@/components/data-table/data-table"
 import {
   PageHeader,
-  PageHeaderAction,
+  PageHeaderActions,
   PageHeaderHeading,
 } from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
@@ -35,9 +35,9 @@ export default function BrandsPage() {
     <>
       <PageHeader>
         <PageHeaderHeading>Brands</PageHeaderHeading>
-        <PageHeaderAction>
+        <PageHeaderActions>
           <QuickCreateBrandDialog />
-        </PageHeaderAction>
+        </PageHeaderActions>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table} showToolbar={false} />

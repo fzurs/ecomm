@@ -2,7 +2,7 @@
 import { DataTable } from "@/components/data-table/data-table"
 import {
   PageHeader,
-  PageHeaderAction,
+  PageHeaderActions,
   PageHeaderHeading,
 } from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
@@ -52,9 +52,9 @@ export default function CategoriesPage() {
     <>
       <PageHeader>
         <PageHeaderHeading>Categories</PageHeaderHeading>
-        <PageHeaderAction>
+        <PageHeaderActions>
           <CreateCategoryDialog />
-        </PageHeaderAction>
+        </PageHeaderActions>
       </PageHeader>
       <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table}>

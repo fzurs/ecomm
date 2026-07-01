@@ -34,7 +34,7 @@ export function PageHeaderHeading({
   return <h1 className={cn("text-base font-medium", className)} {...props} />
 }
 
-export function PageHeaderAction({
+export function PageHeaderActions({
   className,
   ...props
 }: React.ComponentProps<"div">) {
