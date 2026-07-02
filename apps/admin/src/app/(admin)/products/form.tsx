@@ -1,7 +1,9 @@
 import {
+  Field,
   FieldContent,
   FieldDescription,
   FieldGroup,
+  FieldLabel,
   FieldTitle,
 } from "@workspace/ui/components/field"
 import {
@@ -42,12 +44,16 @@ import {
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, withForm } from "@/hooks/form"
-import { ComboboxQueryOnOpenById } from "@/components/combobox"
 import { getFieldId } from "@/lib/utils"
-import { ImagePreview, ImagePreviewClose } from "@/components/image-preview"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 
 const formSchema = schemas.Product.extend({
   imageFile: z.instanceof(File).nullish(),
+  clearImage: z.boolean().nullish(),
 })
 
 const defaultProduct: z.infer<typeof schemas.Product> = {
@@ -76,14 +82,14 @@ export function useProductForm({
   const queryClient = useQueryClient()
 
   const { mutateAsync } = useMutation({
-    mutationFn: ({ imageFile, ...values }: z.infer<typeof formSchema>) => {
+    mutationFn: ({
+      imageFile,
+      clearImage,
+      ...values
+    }: z.infer<typeof formSchema>) => {
       const data = {
         ...values,
-        ...(imageFile
-          ? { image: imageFile as never }
-          : item?.image
-            ? { image: "" }
-            : {}),
+        image: (imageFile as never) ?? (clearImage ? "" : null),
       }
 
       return item
@@ -104,7 +110,7 @@ export function useProductForm({
     formId: item
       ? `update-product-form-${item.slug ?? item.id}`
       : "create-product-form",
-    defaultValues: item ?? defaultProduct,
+    defaultValues: item ?? defaultValues,
     onSubmit: ({ value }) => mutateAsync(value),
   })
 
@@ -177,31 +183,45 @@ export const ProductForm = withForm({
             )
           }}
         />
-        <form.AppField
-          name="imageFile"
-          children={(field) => {
-            const fieldId = getFieldId(form, field)
-            return (
-              <field.Field>
-                <field.Label htmlFor={fieldId}>Image</field.Label>
-                {product.image && (
-                  <ImagePreview>
-                    <img
-                      className="rounded-md"
-                      src={product.image}
-                      alt={`${product.name} Image`}
-                    />
-                    <ImagePreviewClose
-                      onClick={() => field.handleChange(null)}
-                    />
-                  </ImagePreview>
-                )}
-                <field.ImageInput id={fieldId} />
-                <field.Message />
-              </field.Field>
-            )
-          }}
-        />
+        <FieldGroup>
+          <Field>
+            <FieldLabel id={`${form.formId}-image`}>Image</FieldLabel>
+            <Avatar className="aspect-video size-auto rounded-md">
+              {product.image && (
+                <AvatarImage src={product.image} className="aspect-auto" />
+              )}
+              <AvatarFallback className="rounded-md">
+                {product.image ? "Fail to load" : "No image"}
+              </AvatarFallback>
+            </Avatar>
+          </Field>
+          <form.AppField
+            name="clearImage"
+            children={(field) => {
+              const fieldId = getFieldId(form, field)
+              return (
+                <field.Field orientation="horizontal">
+                  <field.Checkbox id={fieldId} />
+                  <field.Label className="font-normal">
+                    Clear product image
+                  </field.Label>
+                </field.Field>
+              )
+            }}
+          />
+          <form.AppField
+            name="imageFile"
+            children={(field) => {
+              const fieldId = getFieldId(form, field)
+              return (
+                <field.Field>
+                  <field.ImageInput id={fieldId} />
+                  <field.Message />
+                </field.Field>
+              )
+            }}
+          />
+        </FieldGroup>
         <form.AppField
           name="category_id"
           children={(field) => {

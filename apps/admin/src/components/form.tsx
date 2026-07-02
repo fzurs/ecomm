@@ -154,7 +154,7 @@ function FormCheckbox({ ...props }: React.ComponentProps<typeof Checkbox>) {
     <Checkbox
       id={field.name}
       aria-invalid={isInvalid}
-      checked={field.state.value as never}
+      checked={field.state.value as never ?? false}
       onBlur={field.handleBlur}
       onCheckedChange={field.handleChange}
       {...props}

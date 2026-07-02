@@ -67,6 +67,11 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { cn } from "@workspace/ui/lib/utils"
 import { format } from "date-fns"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 
 export function getFeaturedIcon(featured: boolean) {
   return featured ? (
@@ -104,17 +109,17 @@ export const columns = [
   {
     id: "image",
     header: "Image",
-    cell: ({ row }) => (
-      <div className="aspect-video max-w-92 min-w-44">
-        {row.original.image && (
-          <img
-            src={row.original.image}
-            className="rounded-md"
-            alt={`${row.original.name} Image`}
-          />
-        )}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const product = row.original
+      return (
+        <Avatar className="aspect-video size-auto min-w-44 rounded-md">
+          <AvatarImage src={product.image ?? undefined} className="aspect-auto" />
+          <AvatarFallback className="rounded-md">
+            {product.image ? "Fail to load" : "No image"}
+          </AvatarFallback>
+        </Avatar>
+      )
+    },
   },
   {
     id: "sku",
