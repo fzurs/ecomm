@@ -35,7 +35,7 @@ import {
 } from "@/lib/query-options"
 import z from "zod"
 import { apiClient } from "@/lib/api-client"
-import { statusOptions } from "./columns"
+import { ProductImagePreview, statusOptions } from "./columns"
 import {
   InputGroup,
   InputGroupAddon,
@@ -186,14 +186,7 @@ export const ProductForm = withForm({
         <FieldGroup>
           <Field>
             <FieldLabel id={`${form.formId}-image`}>Image</FieldLabel>
-            <Avatar className="aspect-video size-auto rounded-md">
-              {product.image && (
-                <AvatarImage src={product.image} className="aspect-auto" />
-              )}
-              <AvatarFallback className="rounded-md">
-                {product.image ? "Fail to load" : "No image"}
-              </AvatarFallback>
-            </Avatar>
+            <ProductImagePreview product={product} />
           </Field>
           <form.AppField
             name="clearImage"

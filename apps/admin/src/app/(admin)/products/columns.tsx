@@ -105,21 +105,26 @@ export const statusOptions = schemas.StatusEnum.options.map((status) => ({
   icon: getStatusIcon(status),
 }))
 
+export function ProductImagePreview({
+  product,
+}: {
+  product: z.infer<typeof schemas.Product>
+}) {
+  return (
+    <Avatar className="aspect-square size-full max-w-92 min-w-44 rounded-md">
+      <AvatarImage src={product.image ?? undefined} />
+      <AvatarFallback className="rounded-md">
+        {product.image ? "Fail to load" : "No image"}
+      </AvatarFallback>
+    </Avatar>
+  )
+}
+
 export const columns = [
   {
     id: "image",
     header: "Image",
-    cell: ({ row }) => {
-      const product = row.original
-      return (
-        <Avatar className="aspect-video size-auto min-w-44 rounded-md">
-          <AvatarImage src={product.image ?? undefined} className="aspect-auto" />
-          <AvatarFallback className="rounded-md">
-            {product.image ? "Fail to load" : "No image"}
-          </AvatarFallback>
-        </Avatar>
-      )
-    },
+    cell: ({ row }) => <ProductImagePreview product={row.original} />,
   },
   {
     id: "sku",
