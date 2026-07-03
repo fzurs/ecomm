@@ -47,7 +47,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "all"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
     
@@ -65,7 +65,7 @@ class BrandViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "all"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
 

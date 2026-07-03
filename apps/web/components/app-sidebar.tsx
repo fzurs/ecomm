@@ -4,33 +4,17 @@ import { Command } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
-import { useSidebarItems } from "@/hooks/sidebar-items"
-import { usePathname } from "next/navigation"
-import { Suspense } from "react"
+import * as React from "react"
+import { NavCategories } from "./nav-categories"
+import { NavBrands } from "./nav-brands"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { categories, brands } = useSidebarItems()
-
-  const navMain = [
-    {
-      title: "Categories",
-      items: categories.map((c) => ({ title: c.name, url: `/${c.slug}` })),
-    },
-    {
-      title: "Brands",
-      items: brands.map((c) => ({ title: c.name, url: `/brands/${c.slug}` })),
-    },
-  ]
-
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
@@ -53,56 +37,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {navMain.map((item) => (
-          <Suspense key={item.title} fallback={<NavMainLoading />}>
-            <NavMain {...item} />
-          </Suspense>
-        ))}
+        <NavCategories />
+        <NavBrands />
       </SidebarContent>
     </Sidebar>
-  )
-}
-
-function NavMain({
-  title,
-  items,
-}: {
-  title: string
-  items: { title: string; url: string }[]
-}) {
-  const pathname = usePathname()
-
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton isActive={pathname === item.url} asChild>
-                <Link href={item.url}>{item.title}</Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  )
-}
-
-function NavMainLoading() {
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>...</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <SidebarMenuItem key={i}>
-              <SidebarMenuButton>...</SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
   )
 }
