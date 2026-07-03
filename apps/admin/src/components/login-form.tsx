@@ -7,18 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@workspace/ui/components/field"
+import { Field, FieldGroup } from "@workspace/ui/components/field"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api-client"
 import { schemas } from "@workspace/api-client"
 import z from "zod"
 import { useRouter } from "next/navigation"
-import { Input } from "@workspace/ui/components/input"
 import { useAppForm } from "@/hooks/form"
 
 const defaultLogin: z.infer<typeof schemas.Login> = {
@@ -65,94 +59,45 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            id={form.formId}
-            onSubmit={(e) => {
-              e.preventDefault()
-              form.handleSubmit()
-            }}
-          >
-            <FieldGroup>
-              <form.Field
-                name="username"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Username</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value as string}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        placeholder="@admin"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
-              <form.Field
-                name="email"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value as string}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        type="email"
-                        placeholder="m@example.com"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
-              <form.Field
-                name="password"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value as string}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        type="password"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
-              <Field>
-                <form.AppForm>
-                  <form.SubscribeButton>Login</form.SubscribeButton>
-                </form.AppForm>
-              </Field>
-            </FieldGroup>
-          </form>
+          <form.AppForm>
+            <form.Form>
+              <FieldGroup>
+                <form.AppField
+                  name="username"
+                  children={(field) => (
+                    <field.Field>
+                      <field.Label>Username</field.Label>
+                      <field.Input placeholder="@admin" />
+                      <field.Message />
+                    </field.Field>
+                  )}
+                />
+                <form.AppField
+                  name="email"
+                  children={(field) => (
+                    <field.Field>
+                      <field.Label>Email</field.Label>
+                      <field.Input type="email" placeholder="m@example.com" />
+                      <field.Message />
+                    </field.Field>
+                  )}
+                />
+                <form.AppField
+                  name="password"
+                  children={(field) => (
+                    <field.Field>
+                      <field.Label>Password</field.Label>
+                      <field.Input type="password" />
+                      <field.Message />
+                    </field.Field>
+                  )}
+                />
+                <Field>
+                  <form.Submit className="w-full">Login</form.Submit>
+                </Field>
+              </FieldGroup>
+            </form.Form>
+          </form.AppForm>
         </CardContent>
       </Card>
     </div>
