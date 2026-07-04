@@ -31,6 +31,7 @@ import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
 import { ProductForm, useProductForm } from "./form"
+import { hooks } from "@/lib/api-client"
 
 const DEBOUNCE_DELAY = 300
 

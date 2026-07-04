@@ -3,7 +3,7 @@
   "extends": "../../packages/typescript-config/nextjs.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/api-client": ["../../packages/api-client/src/index.ts"],
       "@workspace/api-client/*": ["../../packages/api-client/src/*"]
