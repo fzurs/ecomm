@@ -4,19 +4,8 @@ import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 import { SidebarProvider } from "@workspace/ui/components/sidebar"
 import { NuqsAdapter } from "nuqs/adapters/next"
 import { getAllBrands, getAllCategories } from "@/lib/cache"
-import { Outfit, Geist_Mono } from "next/font/google"
 import CategoriesProvider from "@/components/categories-provider"
 import BrandsProvider from "@/components/brands-provider"
-
-const fontSans = Outfit({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
 
 export const metadata = {
   title: "Sitio web eccomerce",
@@ -33,7 +22,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontMono.variable} antialiased`}>
+      <body>
         <ThemeProvider>
           <NuqsAdapter>
             <div className="[--header-height:calc(--spacing(12))]">
