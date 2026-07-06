@@ -52,3 +52,6 @@ db.sqlite3
 
 ### Media Files Django ###
 media/
+
+### API SCHEMA ###
+schema.yml
