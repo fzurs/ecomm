@@ -53,19 +53,25 @@ import {
   productsListQueryKey,
   productsUpdateMutation,
 } from "@workspace/api-client/query"
+import z from "zod"
 
-type ImageWritable = { imageFile?: File | null; clearImage?: boolean | null }
+const formSchema = zProductWritable.extend({
+  imageFile: z.instanceof(File).nullish(),
+  clearImage: z.boolean().nullish(),
+})
 
-const defaultValues: ProductWritable & ImageWritable = {
+type ProductFormValues = z.infer<typeof formSchema>
+
+const defaultValues: ProductFormValues = {
   name: "",
-  description: "",
-  status: "draft",
-  featured: false,
+  imageFile: null,
+  clearImage: false,
+  // ...any other required fields from zProductWritable
 }
 
 const productFormOpts = formOptions({
   defaultValues,
-  validators: { onSubmit: zProductWritable },
+  validators: { onSubmit: formSchema },
 })
 
 export function useProductForm({
@@ -91,15 +97,20 @@ export function useProductForm({
 
   const form = useAppForm({
     ...productFormOpts,
+    defaultValues: { ...defaultValues, ...(item ?? {}) },
     formId,
-    defaultValues: item ?? defaultValues,
-    onSubmit: ({ value: body }) =>
+    onSubmit: ({ value: { imageFile, clearImage, ...value } }) => {
+      const body: ProductWritable = {
+        ...value,
+        image: clearImage ? "" : ((imageFile as never) ?? undefined),
+      }
       item
         ? updateMutation.mutateAsync({
             path: { slug: item.slug as string },
             body,
           })
-        : createMutation.mutateAsync({ body }),
+        : createMutation.mutateAsync({ body })
+    },
   })
 
   return form
