@@ -1,6 +1,5 @@
 "use client"
 
-import { apiClient } from "@/lib/api-client"
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -9,13 +8,10 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { schemas } from "@workspace/api-client"
+import { UserDetails } from "@workspace/api-client"
+import { authLogoutCreateMutation } from "@workspace/api-client/query"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,22 +27,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@workspace/ui/components/sidebar"
-import z from "zod"
 
-export function NavUser({
-  user,
-}: {
-  user: z.infer<typeof schemas.UserDetails>
-}) {
+export function NavUser({ user }: { user: UserDetails }) {
   const { isMobile } = useSidebar()
 
   const queryClient = useQueryClient()
 
   const { mutate } = useMutation({
-    mutationFn: () => apiClient.auth_logout_create(undefined),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries()
-    },
+    ...authLogoutCreateMutation(),
+    onSuccess: () => queryClient.invalidateQueries(),
   })
 
   return (
@@ -115,7 +104,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => mutate()}>
+            <DropdownMenuItem onClick={() => mutate({})}>
               <IconLogout />
               Log out
             </DropdownMenuItem>

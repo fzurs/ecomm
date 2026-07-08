@@ -5,16 +5,19 @@
       "@/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/api-client": ["../../packages/api-client/src/index.ts"],
-      "@workspace/api-client/*": ["../../packages/api-client/src/*"]
+      "@workspace/api-client/client": ["../../packages/api-client/src/client.gen.ts"],
+      "@workspace/api-client/query": ["../../packages/api-client/src/@tanstack/react-query.gen.ts"],
+      "@workspace/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"],
     },
-    "plugins": [ { "name": "next" } ]
+    "plugins": [{ "name": "next" }]
   },
-   "include": [
+  "include": [
     "next-env.d.ts",
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "orval.config.mjs"
   ],
   "exclude": ["node_modules"]
 }

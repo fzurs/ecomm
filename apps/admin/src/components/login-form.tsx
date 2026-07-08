@@ -9,13 +9,13 @@ import {
 } from "@workspace/ui/components/card"
 import { Field, FieldGroup } from "@workspace/ui/components/field"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { apiClient } from "@/lib/api-client"
-import { schemas } from "@workspace/api-client"
-import z from "zod"
 import { useRouter } from "next/navigation"
 import { useAppForm } from "@/hooks/form"
+import { Login } from "@workspace/api-client"
+import { authLoginCreateMutation } from "@workspace/api-client/query"
+import { zAuthLoginCreateBody } from "@workspace/api-client/zod"
 
-const defaultLogin: z.infer<typeof schemas.Login> = {
+const defaultValues: Login = {
   username: "",
   email: "",
   password: "",
@@ -26,8 +26,7 @@ function useLoginForm() {
   const queryClient = useQueryClient()
 
   const { mutate } = useMutation({
-    mutationFn: (data: z.infer<typeof schemas.Login>) =>
-      apiClient.auth_login_create(data),
+    ...authLoginCreateMutation(),
     onSuccess: async () => {
       await queryClient.invalidateQueries()
       router.push("/")
@@ -35,9 +34,9 @@ function useLoginForm() {
   })
 
   const form = useAppForm({
-    defaultValues: defaultLogin,
-    validators: { onSubmit: schemas.Login },
-    onSubmit: ({ value }) => mutate(value),
+    defaultValues,
+    validators: { onSubmit: zAuthLoginCreateBody },
+    onSubmit: ({ value }) => mutate({ body: value }),
   })
 
   return form

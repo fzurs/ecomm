@@ -1,5 +1,6 @@
 import { Option } from "@/types/data-table"
 import { AnyFieldApi, AnyFormApi } from "@tanstack/react-form"
+import Cookies from "js-cookie"
 
 export function snakeCaseToTitle(value: string) {
   return value
@@ -35,3 +36,9 @@ export function selectAsOption(
     value: item.slug,
   }))
 }
+
+export function getCSRFToken() {
+  return Cookies.get("csrftoken")
+}
+
+export const CSRFTOKEN_KEY = "X-CSRFToken"

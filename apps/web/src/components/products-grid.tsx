@@ -1,8 +1,8 @@
-import { schemas } from "@workspace/api-client"
 import Link from "next/link"
 import { ProductCard } from "./product-card"
 import React from "react"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Product } from "@workspace/api-client"
 
 function ProductGridWrapper({ children }: React.ComponentProps<"div">) {
   return (
@@ -14,11 +14,7 @@ function ProductGridWrapper({ children }: React.ComponentProps<"div">) {
   )
 }
 
-export function ProductsGrid({
-  products,
-}: {
-  products: (typeof schemas.Product._type)[]
-}) {
+export function ProductsGrid({ products }: { products: Product[] }) {
   return (
     <ProductGridWrapper>
       {products.map((product) => (

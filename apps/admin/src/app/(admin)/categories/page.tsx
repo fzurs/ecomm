@@ -6,8 +6,7 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
-import { getCategoriesQueryOptions } from "@/lib/query-options"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { columns } from "./columns"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import { parseAsString, useQueryState } from "nuqs"
@@ -34,6 +33,7 @@ import * as React from "react"
 import { CategoryForm, useCategoryForm } from "./form"
 import { IconTagPlus } from "@tabler/icons-react"
 import { usePaginationValues } from "@/hooks/use-pagination"
+import { categoriesListOptions } from "@workspace/api-client/query"
 
 const DEBOUNCE_DELAY = 300
 
@@ -42,9 +42,10 @@ export default function CategoriesPage() {
   const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
 
   const filters = useDebounce({ search }, DEBOUNCE_DELAY)
-  const { data, isSuccess } = useQuery(
-    getCategoriesQueryOptions({ ...filters, ...pagination })
-  )
+  const { data, isSuccess } = useQuery({
+    ...categoriesListOptions({ query: { ...filters, ...pagination } }),
+    placeholderData: keepPreviousData,
+  })
 
   const table = useDataTable({ data, columns })
 

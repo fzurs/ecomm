@@ -4,22 +4,42 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "generate:client": "openapi-zod-client schema.yml -o src/index.ts --export-schemas && pnpm prettier --write src/index.ts"
-  },
-  "dependencies": {
-    "@zodios/core": "^10.9.6",
-    "axios": "^1.15.2",
-    "zod": "^3.25.76"
+    "generate:api": "pnpm exec openapi-ts"
   },
   "devDependencies": {
-    "@workspace/prettier-config": "workspace:^",
+    "@hey-api/openapi-ts": "0.99.0",
+    "@tanstack/react-query": "^5.100.1",
     "@workspace/typescript-config": "workspace:*",
-    "openapi-zod-client": "^1.18.3"
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.100.1",
+    "zod": "^4.4.3"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-query": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "axios": "^1.15.2"
   },
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "types": "./src/index.ts"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./query": {
+      "types": "./src/@tanstack/react-query.gen.ts",
+      "default": "./src/@tanstack/react-query.gen.ts"
+    },
+    "./zod": {
+      "types": "./src/zod.gen.ts",
+      "default": "./src/zod.gen.ts"
     }
   }
 }

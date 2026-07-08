@@ -10,7 +10,11 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { useSortingValues } from "@/hooks/use-sorting"
 import React, { useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { PackagePlus } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -26,12 +30,15 @@ import {
 } from "@workspace/ui/components/dialog"
 
 import { columns } from "./columns"
-import { queryKeys, useProducts } from "@/lib/query-options"
 import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
 import { ProductForm, useProductForm } from "./form"
-import { hooks } from "@/lib/api-client"
+import { ProductsListData } from "@workspace/api-client"
+import {
+  productsListOptions,
+  productsListQueryKey,
+} from "@workspace/api-client/query"
 
 const DEBOUNCE_DELAY = 300
 
@@ -42,7 +49,7 @@ export default function Page() {
   const sorting = useSortingValues()
   const columnFilters = useColumnFilterValues(columns)
 
-  const filters = React.useMemo<Parameters<typeof useProducts>[0]>(() => {
+  const filters = React.useMemo<ProductsListData["query"]>(() => {
     const {
       name: search,
       price = [],
@@ -70,13 +77,17 @@ export default function Page() {
   }, [pagination, sorting, columnFilters])
 
   const isCached =
-    queryClient.getQueryData(queryKeys.products.list(filters)) !== undefined
+    queryClient.getQueryData(productsListQueryKey({ query: filters })) !==
+    undefined
 
   const debouncedFilters = useDebounce(filters, DEBOUNCE_DELAY)
 
   const activeFilters = isCached ? filters : debouncedFilters
 
-  const { data } = useProducts(activeFilters)
+  const { data } = useQuery({
+    ...productsListOptions({ query: activeFilters }),
+    placeholderData: keepPreviousData,
+  })
 
   const table = useDataTable({
     data,

@@ -1,5 +1,5 @@
 import { isOutOfStock as isProudctOutOfStock } from "@/lib/utils"
-import { schemas } from "@workspace/api-client"
+import { Product } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import React from "react"
-import z from "zod"
 import { OutOfStockAlert } from "./out-of-stock-alert"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -20,7 +19,7 @@ export function ProductCard({
   className,
   ...props
 }: React.ComponentProps<typeof Card> & {
-  product: z.infer<typeof schemas.Product>
+  product: Product
 }) {
   const isOutOfStock = isProudctOutOfStock(product.status)
   return (

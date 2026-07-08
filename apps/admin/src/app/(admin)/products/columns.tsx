@@ -4,7 +4,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
-import { schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   Drawer,
@@ -18,7 +17,6 @@ import {
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import * as React from "react"
-import { z } from "zod"
 import { selectAsOption, snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -39,11 +37,7 @@ import {
   parseAsString,
   parseAsStringEnum,
 } from "nuqs"
-import {
-  getBrandsAllQueryOptions,
-  getCategoriesAllQueryOptions,
-  queryKeys,
-} from "@/lib/query-options"
+
 import { ProductForm, useProductForm } from "./form"
 import {
   DropdownMenu,
@@ -52,7 +46,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { apiClient } from "@/lib/api-client"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,6 +66,19 @@ import {
   AvatarImage,
 } from "@workspace/ui/components/avatar"
 
+import {
+  PaginatedProductList,
+  Product,
+  StatusEnum,
+} from "@workspace/api-client"
+import { zStatusEnum } from "@workspace/api-client/zod"
+import {
+  brandsListAllOptions,
+  categoriesListAllOptions,
+  productsDestroyMutation,
+  productsListQueryKey,
+} from "@workspace/api-client/query"
+
 export function getFeaturedIcon(featured: boolean) {
   return featured ? (
     <IconStar className="fill-yellow-500 text-yellow-500" />
@@ -81,8 +87,8 @@ export function getFeaturedIcon(featured: boolean) {
   )
 }
 
-export const getStatusIcon = (status: z.infer<typeof schemas.StatusEnum>) => {
-  const statuses = schemas.StatusEnum.Enum
+export const getStatusIcon = (status: StatusEnum) => {
+  const statuses = zStatusEnum.enum
   switch (status) {
     case statuses.active:
       return <IconCircleDashedCheck className="text-green-500" />
@@ -99,22 +105,18 @@ export const getStatusIcon = (status: z.infer<typeof schemas.StatusEnum>) => {
   }
 }
 
-export const statusOptions = schemas.StatusEnum.options.map((status) => ({
+export const statusOptions = zStatusEnum.options.map((status) => ({
   label: snakeCaseToTitle(status),
   value: status,
   icon: getStatusIcon(status),
 }))
 
-export function ProductImagePreview({
-  product,
-}: {
-  product: z.infer<typeof schemas.Product>
-}) {
+export function ProductImagePreview({ product }: { product?: Product }) {
   return (
     <Avatar className="aspect-square size-full max-w-92 min-w-44 rounded-md">
-      <AvatarImage src={product.image ?? undefined} />
+      <AvatarImage src={product?.image ?? undefined} />
       <AvatarFallback className="rounded-md">
-        {product.image ? "Fail to load" : "No image"}
+        {product?.image ? "Fail to load" : "No image"}
       </AvatarFallback>
     </Avatar>
   )
@@ -167,7 +169,7 @@ export const columns = [
         variant: "async-multi",
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
-          ...getCategoriesAllQueryOptions,
+          ...categoriesListAllOptions(),
           select: selectAsOption,
         }),
       },
@@ -183,7 +185,7 @@ export const columns = [
         variant: "async-multi",
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
-          ...getBrandsAllQueryOptions,
+          ...brandsListAllOptions(),
           select: selectAsOption,
         }),
       },
@@ -210,7 +212,7 @@ export const columns = [
       filter: {
         variant: "multi-select",
         options: statusOptions,
-        parser: parseAsArrayOf(parseAsStringEnum(schemas.StatusEnum.options)),
+        parser: parseAsArrayOf(parseAsStringEnum(zStatusEnum.options)),
       },
     },
   },
@@ -301,13 +303,9 @@ export const columns = [
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
   },
-] as const satisfies ColumnDef<z.infer<typeof schemas.Product>>[]
+] as const satisfies ColumnDef<Product>[]
 
-function TableCellViewer({
-  original: item,
-}: {
-  original: z.infer<typeof schemas.Product>
-}) {
+function TableCellViewer({ original: item }: { original: Product }) {
   const isMobile = useIsMobile()
   const [open, setOpen] = React.useState(false)
 
@@ -352,8 +350,11 @@ function TableCellViewer({
   )
 }
 
-function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
+function TableCellActions({ item }: { item: Product }) {
   const destroyMutation = useOptimisticProductDestroy(item)
+
+  const onDestroy = () =>
+    destroyMutation.mutate({ path: { slug: item.slug as string } })
 
   return (
     <div className="flex justify-end">
@@ -391,10 +392,7 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={() => destroyMutation.mutate()}
-            >
+            <AlertDialogAction variant="destructive" onClick={onDestroy}>
               Delete Product
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -404,24 +402,21 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Product> }) {
   )
 }
 
-function useOptimisticProductDestroy(item: z.infer<typeof schemas.Product>) {
+function useOptimisticProductDestroy(item: Product) {
   const queryClient = useQueryClient()
 
-  const destroyMutation = useMutation({
-    mutationFn: () =>
-      apiClient.products_destroy(undefined, {
-        params: { slug: item.slug as string },
-      }),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.products.all() })
+  const queryKey = productsListQueryKey()
 
-      const previousData = queryClient.getQueryData(queryKeys.products.list())
+  const mutation = useMutation({
+    ...productsDestroyMutation({ path: { slug: item.slug as string } }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousData = queryClient.getQueryData(queryKey)
 
       queryClient.setQueriesData(
-        { queryKey: queryKeys.products.all() },
-        (
-          old: Awaited<ReturnType<typeof apiClient.products_list>> | undefined
-        ) => {
+        { queryKey },
+        (old: PaginatedProductList | undefined) => {
           if (!old) return old
           return {
             ...old,
@@ -433,15 +428,10 @@ function useOptimisticProductDestroy(item: z.infer<typeof schemas.Product>) {
       return { previousData }
     },
     onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(
-        queryKeys.products.list(),
-        onMutateResult?.previousData
-      )
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 
-  return destroyMutation
+  return mutation
 }

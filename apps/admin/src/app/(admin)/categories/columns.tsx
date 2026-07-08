@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   Drawer,
@@ -10,7 +9,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
-import z from "zod"
 import { CategoryForm, useCategoryForm } from "./form"
 import * as React from "react"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
@@ -35,10 +33,13 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { IconDots, IconTrash } from "@tabler/icons-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { queryKeys } from "@/lib/query-options"
-import { apiClient } from "@/lib/api-client"
+import { Category, PaginatedCategoryList } from "@workspace/api-client"
+import {
+  categoriesDestroyMutation,
+  categoriesListQueryKey,
+} from "@workspace/api-client/query"
 
-export const columns: ColumnDef<z.infer<typeof schemas.Category>>[] = [
+export const columns: ColumnDef<Category>[] = [
   {
     id: "name",
     header: "Name",
@@ -60,7 +61,7 @@ export const columns: ColumnDef<z.infer<typeof schemas.Category>>[] = [
   },
 ]
 
-function TableCellViewer({ item }: { item: z.infer<typeof schemas.Category> }) {
+function TableCellViewer({ item }: { item: Category }) {
   const isMobile = useIsMobile()
   const [open, setOpen] = React.useState(false)
 
@@ -104,12 +105,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schemas.Category> }) {
   )
 }
 
-function TableCellActions({
-  item,
-}: {
-  item: z.infer<typeof schemas.Category>
-}) {
+function TableCellActions({ item }: { item: Category }) {
   const destroyMutation = useOptimisticCategoryDestroy(item)
+  const onDestroy = () =>
+    destroyMutation.mutate({ path: { slug: item.slug as string } })
 
   return (
     <div className="flex justify-end">
@@ -144,10 +143,7 @@ function TableCellActions({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={() => destroyMutation.mutate()}
-            >
+            <AlertDialogAction variant="destructive" onClick={onDestroy}>
               Delete Category
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -157,24 +153,21 @@ function TableCellActions({
   )
 }
 
-function useOptimisticCategoryDestroy(item: z.infer<typeof schemas.Category>) {
+function useOptimisticCategoryDestroy(item: Category) {
   const queryClient = useQueryClient()
 
-  const destroyMutation = useMutation({
-    mutationFn: () =>
-      apiClient.categories_destroy(undefined, {
-        params: { slug: item.slug as string },
-      }),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.categories.all() })
+  const queryKey = categoriesListQueryKey()
 
-      const previousData = queryClient.getQueryData(queryKeys.categories.list())
+  const mutation = useMutation({
+    ...categoriesDestroyMutation(),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousData = queryClient.getQueryData(queryKey)
 
       queryClient.setQueriesData(
-        { queryKey: queryKeys.categories.all() },
-        (
-          old: Awaited<ReturnType<typeof apiClient.categories_list>> | undefined
-        ) => {
+        { queryKey },
+        (old: PaginatedCategoryList | undefined) => {
           if (!old) return old
           return {
             ...old,
@@ -186,15 +179,10 @@ function useOptimisticCategoryDestroy(item: z.infer<typeof schemas.Category>) {
       return { previousData }
     },
     onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(
-        queryKeys.categories.list(),
-        onMutateResult?.previousData
-      )
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.categories.all() })
-    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 
-  return destroyMutation
+  return mutation
 }

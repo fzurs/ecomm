@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   Drawer,
@@ -11,7 +10,6 @@ import {
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import z from "zod"
 import * as React from "react"
 import { BrandForm, useBrandForm } from "./form"
 import {
@@ -28,10 +26,13 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { IconTrash } from "@tabler/icons-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { apiClient } from "@/lib/api-client"
-import { queryKeys } from "@/lib/query-options"
+import { Brand, PaginatedBrandList } from "@workspace/api-client"
+import {
+  brandsDestroyMutation,
+  brandsListQueryKey,
+} from "@workspace/api-client/query"
 
-export const columns: ColumnDef<z.infer<typeof schemas.Brand>>[] = [
+export const columns: ColumnDef<Brand>[] = [
   {
     id: "name",
     header: "Name",
@@ -44,7 +45,7 @@ export const columns: ColumnDef<z.infer<typeof schemas.Brand>>[] = [
   },
 ]
 
-function TableCellViewer({ item }: { item: z.infer<typeof schemas.Brand> }) {
+function TableCellViewer({ item }: { item: Brand }) {
   const isMobile = useIsMobile()
   const [open, setOpen] = React.useState(false)
 
@@ -81,8 +82,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schemas.Brand> }) {
   )
 }
 
-function TableCellActions({ item }: { item: z.infer<typeof schemas.Brand> }) {
-  const { mutate } = useOptimisticBrandDestroy(item)
+function TableCellActions({ item }: { item: Brand }) {
+  const destroyMutation = useOptimisticBrandDestroy(item)
+  const onDestroy = () =>
+    destroyMutation.mutate({ path: { slug: item.slug as string } })
 
   return (
     <div className="flex justify-end">
@@ -106,7 +109,7 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Brand> }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={() => mutate()}>
+            <AlertDialogAction variant="destructive" onClick={onDestroy}>
               Delete Brand
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -116,24 +119,22 @@ function TableCellActions({ item }: { item: z.infer<typeof schemas.Brand> }) {
   )
 }
 
-function useOptimisticBrandDestroy(item: z.infer<typeof schemas.Brand>) {
+function useOptimisticBrandDestroy(item: Brand) {
   const queryClient = useQueryClient()
+  const queryKey = brandsListQueryKey()
 
   const destroyMutation = useMutation({
-    mutationFn: () =>
-      apiClient.brands_destroy(undefined, {
-        params: { slug: item.slug as string },
-      }),
+    ...brandsDestroyMutation(),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.brands.all() })
+      await queryClient.cancelQueries({
+        queryKey,
+      })
 
-      const previousData = queryClient.getQueryData(queryKeys.brands.list())
+      const previousData = queryClient.getQueryData(queryKey)
 
       queryClient.setQueriesData(
-        { queryKey: queryKeys.brands.all() },
-        (
-          old: Awaited<ReturnType<typeof apiClient.brands_list>> | undefined
-        ) => {
+        { queryKey },
+        (old: PaginatedBrandList | undefined) => {
           if (!old) return old
           return {
             ...old,
@@ -145,13 +146,10 @@ function useOptimisticBrandDestroy(item: z.infer<typeof schemas.Brand>) {
       return { previousData }
     },
     onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(
-        queryKeys.brands.list(),
-        onMutateResult?.previousData
-      )
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all() })
+      queryClient.invalidateQueries({ queryKey })
     },
   })
 

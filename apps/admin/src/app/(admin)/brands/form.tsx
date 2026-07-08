@@ -1,51 +1,55 @@
 import { useAppForm, withForm } from "@/hooks/form"
-import { apiClient } from "@/lib/api-client"
-import { queryKeys } from "@/lib/query-options"
 import { getFieldId } from "@/lib/utils"
 import { formOptions } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { schemas } from "@workspace/api-client"
+import { Brand, BrandWritable } from "@workspace/api-client"
+import {
+  brandsCreateMutation,
+  brandsListQueryKey,
+  brandsUpdateMutation,
+} from "@workspace/api-client/query"
+import { zBrandWritable } from "@workspace/api-client/zod"
 import { FieldGroup } from "@workspace/ui/components/field"
-import z from "zod"
 
-const defaultBrand: z.infer<typeof schemas.Brand> = {
-  id: 0,
+const defaultValues: Brand | BrandWritable = {
   name: "",
-  description: "",
 }
 
 const brandFormOpts = formOptions({
-  defaultValues: defaultBrand,
-  validators: { onSubmit: schemas.Brand },
+  defaultValues,
+  validators: { onSubmit: zBrandWritable },
 })
 
 export function useBrandForm({
   item,
   setOpen,
 }: {
-  item?: z.infer<typeof schemas.Brand>
+  item?: Brand
   setOpen: (open: boolean) => void
 }) {
   const queryClient = useQueryClient()
 
-  const { mutateAsync } = useMutation({
-    mutationFn: (data: z.infer<typeof schemas.Brand>) =>
-      item
-        ? apiClient.brands_update(data, {
-            params: { slug: item.slug as string },
-          })
-        : apiClient.brands_create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.brands.all() })
-      setOpen(false)
-    },
-  })
+  const onSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: brandsListQueryKey() })
+    setOpen?.(false)
+  }
+
+  const updateMutation = useMutation({ ...brandsUpdateMutation(), onSuccess })
+  const createMutation = useMutation({ ...brandsCreateMutation(), onSuccess })
+
+  const formId = item ? `update-brand-form-${item.id}` : "create-brand-form"
 
   const form = useAppForm({
     ...brandFormOpts,
-    formId: item ? `update-brand-form-${item.id}` : "create-brand-form",
-    defaultValues: item ?? defaultBrand,
-    onSubmit: ({ value }) => mutateAsync(value),
+    formId,
+    defaultValues: item ?? defaultValues,
+    onSubmit: ({ value: body }) =>
+      item
+        ? updateMutation.mutateAsync({
+            path: { slug: item.slug as string },
+            body,
+          })
+        : createMutation.mutateAsync({ body }),
   })
 
   return form

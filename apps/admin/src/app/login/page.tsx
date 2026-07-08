@@ -1,13 +1,14 @@
 "use client"
 import { LoginForm } from "@/components/login-form"
-import { useSession } from "@/lib/query-options"
+import { useQuery } from "@tanstack/react-query"
+import { authUserRetrieveOptions } from "@workspace/api-client/query"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
 export default function Page() {
   const router = useRouter()
 
-  const { isSuccess } = useSession()
+  const { isSuccess } = useQuery(authUserRetrieveOptions())
 
   React.useEffect(() => {
     if (isSuccess) router.push("/")

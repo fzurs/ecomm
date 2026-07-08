@@ -17,7 +17,8 @@ import {
 import { IconInnerShadowTop } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
-import { useSession } from "@/lib/query-options"
+import { useQuery } from "@tanstack/react-query"
+import { authUserRetrieveOptions } from "@workspace/api-client/query"
 
 const items = [
   {
@@ -38,7 +39,7 @@ const items = [
 ]
 
 export function AppSidebar() {
-  const { data: session } = useSession()
+  const { data: session } = useQuery(authUserRetrieveOptions())
 
   return (
     <Sidebar>

@@ -1,7 +1,8 @@
 "use client"
 
 import { AppSidebar } from "@/components/app-sidebar"
-import { useSession } from "@/lib/query-options"
+import { useQuery } from "@tanstack/react-query"
+import { authUserRetrieveOptions } from "@workspace/api-client/query"
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 import "@workspace/ui/globals.css"
 import { useRouter } from "next/navigation"
@@ -14,7 +15,7 @@ export default function AdminLayout({
 }) {
   const router = useRouter()
 
-  const { isSuccess, isError } = useSession()
+  const { isSuccess, isError } = useQuery(authUserRetrieveOptions())
 
   React.useEffect(() => {
     if (isError) router.push("/login")

@@ -1,52 +1,62 @@
-import { schemas } from "@workspace/api-client"
-import { apiClient } from "./api-client"
+import {
+  brandsListAll,
+  brandsRetrieve,
+  categoriesListAll,
+  categoriesRetrieve,
+  productsList,
+  ProductsListData,
+  productsRetrieve,
+} from "@workspace/api-client"
 import { cacheLife } from "next/cache"
 
-export async function getProducts(
-  filters?: NonNullable<
-    Parameters<typeof apiClient.products_list>[0]
-  >["queries"]
-) {
+const defaultConfig = { baseURL: "http://localhost:8000", throwOnError: true } as const
+
+export async function getProducts(filters?: ProductsListData["query"]) {
   "use cache"
   cacheLife("hours")
-  return apiClient.products_list({
-    queries: {
+
+  return productsList({
+    ...defaultConfig,
+    query: {
       ...filters,
-      status: [
-        schemas.StatusEnum.Enum.active,
-        schemas.StatusEnum.Enum.out_of_stock,
-      ],
+      status: ["active", "out_of_stock"],
       limit: 10000,
     },
-  })
+  }).then((res) => res.data)
 }
 
 export async function getCategory(slug: string) {
   "use cache"
   cacheLife("days")
-  return apiClient.categories_retrieve({ params: { slug } })
+  return categoriesRetrieve({ ...defaultConfig, path: { slug } }).then(
+    (res) => res.data
+  )
 }
 
 export async function getBrand(slug: string) {
   "use cache"
   cacheLife("days")
-  return apiClient.brands_retrieve({ params: { slug } })
+  return brandsRetrieve({ ...defaultConfig, path: { slug } }).then(
+    (res) => res.data
+  )
 }
 
 export async function getProduct(slug: string) {
   "use cache"
   cacheLife("hours")
-  return apiClient.products_retrieve({ params: { slug } })
+  return productsRetrieve({ ...defaultConfig, path: { slug } }).then(
+    (res) => res.data
+  )
 }
 
 export async function getAllCategories() {
   "use cache"
   cacheLife("days")
-  return apiClient.categories_list_all()
+  return categoriesListAll(defaultConfig).then((res) => res.data)
 }
 
 export async function getAllBrands() {
   "use cache"
   cacheLife("days")
-  return apiClient.brands_list_all()
+  return brandsListAll(defaultConfig).then((res) => res.data)
 }

@@ -1,18 +1,15 @@
 "use client"
-import { schemas } from "@workspace/api-client"
+import { Brand } from "@workspace/api-client"
 import * as React from "react"
-import z from "zod"
 
-type Brands = z.infer<typeof schemas.Brand>[]
-
-export const BrandsContext = React.createContext<Promise<Brands> | null>(null)
+export const BrandsContext = React.createContext<Promise<Brand[]> | null>(null)
 
 export default function BrandsProvider({
   children,
   brandsPromise,
 }: {
   children: React.ReactNode
-  brandsPromise: Promise<Brands>
+  brandsPromise: Promise<Brand[]>
 }) {
   return <BrandsContext value={brandsPromise}>{children}</BrandsContext>
 }

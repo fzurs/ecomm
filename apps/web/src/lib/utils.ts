@@ -1,7 +1,4 @@
-import { schemas } from "@workspace/api-client"
+import { StatusEnum } from "@workspace/api-client"
 
-export function isOutOfStock(
-  status?: (typeof schemas.StatusEnum.options)[number] | null
-) {
-  return !!status && status === schemas.StatusEnum.Enum.out_of_stock
-}
+export const isOutOfStock = (status?: StatusEnum | null) =>
+  !!status && status === "out_of_stock"

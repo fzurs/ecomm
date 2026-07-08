@@ -25,16 +25,8 @@ import {
   SelectItem,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { schemas } from "@workspace/api-client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
-import {
-  getBrandsAllQueryOptions,
-  getCategoriesAllQueryOptions,
-  queryKeys,
-} from "@/lib/query-options"
-import z from "zod"
-import { apiClient } from "@/lib/api-client"
 import { ProductImagePreview, statusOptions } from "./columns"
 import {
   InputGroup,
@@ -43,75 +35,71 @@ import {
 } from "@workspace/ui/components/input-group"
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
-import { useAppForm, withForm } from "@/hooks/form"
-import { getFieldId } from "@/lib/utils"
+import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
+import { getFieldId as getFieldIdPrimitive } from "@/lib/utils"
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+  Brand,
+  Category,
+  Product,
+  ProductWritable,
+} from "@workspace/api-client"
+import { zProductWritable } from "@workspace/api-client/zod"
+import {
+  brandsListAllOptions,
+  categoriesListAllOptions,
+  productsCreateMutation,
+  productsDetectAndAssignBrandCreateMutation,
+  productsGenerateSkuCreateMutation,
+  productsListQueryKey,
+  productsUpdateMutation,
+} from "@workspace/api-client/query"
 
-const formSchema = schemas.Product.extend({
-  imageFile: z.instanceof(File).nullish(),
-  clearImage: z.boolean().nullish(),
-})
+type ImageWritable = { imageFile?: File | null; clearImage?: boolean | null }
 
-const defaultProduct: z.infer<typeof schemas.Product> = {
-  id: 0,
+const defaultValues: ProductWritable & ImageWritable = {
   name: "",
-  category: null,
-  brand: null,
-  created_at: new Date().toISOString(),
-  discount_price: null,
+  description: "",
+  status: "draft",
+  featured: false,
 }
 
-const defaultValues: z.infer<typeof formSchema> = defaultProduct
-
 const productFormOpts = formOptions({
-  defaultValues: defaultValues,
-  validators: { onSubmit: formSchema },
+  defaultValues,
+  validators: { onSubmit: zProductWritable },
 })
 
 export function useProductForm({
   item,
   setOpen,
 }: {
-  item?: z.infer<typeof schemas.Product>
-  setOpen: (open: false) => void
+  item?: Product
+  setOpen?: (open: boolean) => void
 }) {
   const queryClient = useQueryClient()
 
-  const { mutateAsync } = useMutation({
-    mutationFn: ({
-      imageFile,
-      clearImage,
-      ...values
-    }: z.infer<typeof formSchema>) => {
-      const data = {
-        ...values,
-        image: (imageFile as never) ?? (clearImage ? "" : null),
-      }
+  const onSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+    setOpen?.(false)
+  }
 
-      return item
-        ? apiClient.products_update(data, {
-            params: { slug: item.slug as string },
-            headers: { "Content-Type": "multipart/form-data" },
-          })
-        : apiClient.products_create(data)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      setOpen(false)
-    },
-  })
+  const updateMutation = useMutation({ ...productsUpdateMutation(), onSuccess })
+  const createMutation = useMutation({ ...productsCreateMutation(), onSuccess })
+
+  const formId = item
+    ? `update-product-form-${item.slug ?? item.id}`
+    : "create-product-form"
 
   const form = useAppForm({
     ...productFormOpts,
-    formId: item
-      ? `update-product-form-${item.slug ?? item.id}`
-      : "create-product-form",
+    formId,
     defaultValues: item ?? defaultValues,
-    onSubmit: ({ value }) => mutateAsync(value),
+    onSubmit: ({ value: body }) =>
+      item
+        ? updateMutation.mutateAsync({
+            path: { slug: item.slug as string },
+            body,
+          })
+        : createMutation.mutateAsync({ body }),
   })
 
   return form
@@ -119,15 +107,20 @@ export function useProductForm({
 
 export const ProductForm = withForm({
   ...productFormOpts,
-  props: { variant: "full" } as { variant?: "full" | "required" } | undefined,
-  render: function Render({ form, variant = "full" }) {
-    const product = form.state.values
+  props: { variant: "full" } as { variant?: "full" | "required" },
+  render: function Render({ form, variant }) {
+    const defaultValues = form.options.defaultValues
+    const product =
+      defaultValues && "id" in defaultValues
+        ? (defaultValues as Product)
+        : undefined
+    const getFieldId = getFieldIdPrimitive.bind(null, form)
 
     const nameField = (
       <form.AppField
         name="name"
         children={(field) => {
-          const fieldId = getFieldId(form, field)
+          const fieldId = getFieldId(field)
           return (
             <field.Field>
               <field.Label htmlFor={fieldId}>Name</field.Label>
@@ -144,18 +137,17 @@ export const ProductForm = withForm({
         <form.AppField
           name="sku"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>SKU</field.Label>
                 <InputGroup>
                   <field.InputGroupInput id={fieldId} />
-                  <InputGroupAddon align="inline-end">
-                    <GenerateSKUButton
-                      product={product}
-                      onSuccess={form.reset}
-                    />
-                  </InputGroupAddon>
+                  {product && (
+                    <InputGroupAddon align="inline-end">
+                      <GenerateSKUButton product={product} />
+                    </InputGroupAddon>
+                  )}
                 </InputGroup>
                 <FieldDescription>
                   Unique identifier code used to track and manage this product
@@ -170,7 +162,7 @@ export const ProductForm = withForm({
         <form.AppField
           name="description"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Description</field.Label>
@@ -191,7 +183,7 @@ export const ProductForm = withForm({
           <form.AppField
             name="clearImage"
             children={(field) => {
-              const fieldId = getFieldId(form, field)
+              const fieldId = getFieldId(field)
               return (
                 <field.Field orientation="horizontal">
                   <field.Checkbox id={fieldId} />
@@ -205,7 +197,7 @@ export const ProductForm = withForm({
           <form.AppField
             name="imageFile"
             children={(field) => {
-              const fieldId = getFieldId(form, field)
+              const fieldId = getFieldId(field)
               return (
                 <field.Field>
                   <field.ImageInput id={fieldId} />
@@ -218,19 +210,19 @@ export const ProductForm = withForm({
         <form.AppField
           name="category_id"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Category</field.Label>
                 <field.ComboboxQueryOnOpenById
-                  initialItem={product.category}
-                  itemsQueryOptions={getCategoriesAllQueryOptions}
+                  initialItem={product?.category}
+                  itemsQueryOptions={categoriesListAllOptions()}
                 >
                   <ComboboxInput placeholder="Assing a category" />
                   <ComboboxContent>
                     <ComboboxEmpty>No categories found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item: z.infer<typeof schemas.Category>) => (
+                      {(item: Category) => (
                         <ComboboxItem key={item.id} value={item}>
                           <Item size="sm" className="p-0">
                             <ItemContent>
@@ -256,26 +248,25 @@ export const ProductForm = withForm({
         <form.AppField
           name="brand_id"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Brand</field.Label>
                 <field.ComboboxQueryOnOpenById
-                  itemsQueryOptions={getBrandsAllQueryOptions}
-                  initialItem={product.brand}
+                  itemsQueryOptions={brandsListAllOptions()}
+                  initialItem={product?.brand}
                 >
                   <ComboboxInput placeholder="Assing a brand">
-                    <InputGroupAddon align="inline-end">
-                      <DetectAndAssignBrandButton
-                        product={product}
-                        onSuccess={form.reset}
-                      />
-                    </InputGroupAddon>
+                    {product && (
+                      <InputGroupAddon align="inline-end">
+                        <DetectAndAssignBrandButton product={product} />
+                      </InputGroupAddon>
+                    )}
                   </ComboboxInput>
                   <ComboboxContent>
                     <ComboboxEmpty>No brands found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item: z.infer<typeof schemas.Brand>) => (
+                      {(item: Brand) => (
                         <ComboboxItem key={item.id} value={item}>
                           {item.name}
                         </ComboboxItem>
@@ -294,7 +285,7 @@ export const ProductForm = withForm({
         <form.AppField
           name="status"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Status</field.Label>
@@ -323,7 +314,7 @@ export const ProductForm = withForm({
         <form.AppField
           name="featured"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Label htmlFor={fieldId}>
                 <field.Field orientation="horizontal">
@@ -344,7 +335,7 @@ export const ProductForm = withForm({
           <form.AppField
             name="price"
             children={(field) => {
-              const fieldId = getFieldId(form, field)
+              const fieldId = getFieldId(field)
               return (
                 <field.Field>
                   <field.Label htmlFor={fieldId}>Price</field.Label>
@@ -360,7 +351,7 @@ export const ProductForm = withForm({
           <form.AppField
             name="discount_price"
             children={(field) => {
-              const fieldId = getFieldId(form, field)
+              const fieldId = getFieldId(field)
               return (
                 <field.Field>
                   <field.Label htmlFor={fieldId}>Discount Price</field.Label>
@@ -392,28 +383,27 @@ export const ProductForm = withForm({
 
 function GenerateSKUButton({
   product,
-  onSuccess,
   size = "icon-xs",
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
-  product: typeof schemas.Product._type
-  onSuccess?: (data: typeof schemas.Product._type) => void
+  product: Product
 }) {
   const queryClient = useQueryClient()
+  const form = useTypedAppFormContext(productFormOpts)
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
-      apiClient.products_generate_sku_create(product, {
-        params: { slug: product.slug as string },
-      }),
+    ...productsGenerateSkuCreateMutation(),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      onSuccess?.(data)
+      queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+      form.reset(data)
     },
   })
 
+  const onClick = () =>
+    mutate({ path: { slug: product.slug as string }, body: product })
+
   return (
-    <InputGroupButton onClick={() => mutate()} size={size} {...props}>
+    <InputGroupButton onClick={onClick} size={size} {...props}>
       {isPending ? <IconLoader className="animate-spin" /> : <IconSparkles />}
     </InputGroupButton>
   )
@@ -421,28 +411,27 @@ function GenerateSKUButton({
 
 function DetectAndAssignBrandButton({
   product,
-  onSuccess,
   size = "icon-xs",
   ...props
 }: React.ComponentProps<typeof InputGroupButton> & {
-  product: typeof schemas.Product._type
-  onSuccess?: (data: typeof schemas.Product._type) => void
+  product: Product
 }) {
   const queryClient = useQueryClient()
+  const form = useTypedAppFormContext(productFormOpts)
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
-      apiClient.products_detect_and_assign_brand_create(product, {
-        params: { slug: product.slug as string },
-      }),
+    ...productsDetectAndAssignBrandCreateMutation(),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() })
-      onSuccess?.(data)
+      queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+      form.reset(data)
     },
   })
 
+  const onClick = () =>
+    mutate({ path: { slug: product.slug as string }, body: product })
+
   return (
-    <InputGroupButton onClick={() => mutate()} size={size} {...props}>
+    <InputGroupButton onClick={onClick} size={size} {...props}>
       {isPending ? <IconLoader className="animate-spin" /> : <IconTextScan2 />}
     </InputGroupButton>
   )

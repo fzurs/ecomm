@@ -6,8 +6,7 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
-import { getBrandsQueryOptions } from "@/lib/query-options"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -23,11 +22,15 @@ import { columns } from "./columns"
 import { BrandForm, useBrandForm } from "./form"
 import * as React from "react"
 import { usePaginationValues } from "@/hooks/use-pagination"
+import { brandsListOptions } from "@workspace/api-client/query"
 
 export default function BrandsPage() {
   const pagination = usePaginationValues()
 
-  const { data } = useQuery(getBrandsQueryOptions({ ...pagination }))
+  const { data } = useQuery({
+    ...brandsListOptions({ query: pagination }),
+    placeholderData: keepPreviousData,
+  })
 
   const table = useDataTable({ data, columns })
 
