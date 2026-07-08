@@ -62,12 +62,7 @@ const formSchema = zProductWritable.extend({
 
 type ProductFormValues = z.infer<typeof formSchema>
 
-const defaultValues: ProductFormValues = {
-  name: "",
-  imageFile: null,
-  clearImage: false,
-  // ...any other required fields from zProductWritable
-}
+const defaultValues: ProductFormValues = { name: "" }
 
 const productFormOpts = formOptions({
   defaultValues,
@@ -99,17 +94,23 @@ export function useProductForm({
     ...productFormOpts,
     defaultValues: { ...defaultValues, ...(item ?? {}) },
     formId,
-    onSubmit: ({ value: { imageFile, clearImage, ...value } }) => {
+    onSubmit: ({
+      value: { imageFile = null, clearImage = false, ...value },
+    }) => {
       const body: ProductWritable = {
         ...value,
         image: clearImage ? "" : ((imageFile as never) ?? undefined),
+      }
+      const headers = {
+        "Content-Type": "multipart/form-data",
       }
       item
         ? updateMutation.mutateAsync({
             path: { slug: item.slug as string },
             body,
+            headers,
           })
-        : createMutation.mutateAsync({ body })
+        : createMutation.mutateAsync({ body, headers })
     },
   })
 
@@ -120,11 +121,8 @@ export const ProductForm = withForm({
   ...productFormOpts,
   props: { variant: "full" } as { variant?: "full" | "required" },
   render: function Render({ form, variant }) {
-    const defaultValues = form.options.defaultValues
-    const product =
-      defaultValues && "id" in defaultValues
-        ? (defaultValues as Product)
-        : undefined
+    const defValues = form.options.defaultValues ?? {}
+    const product = "id" in defValues ? (defValues as Product) : undefined
     const getFieldId = getFieldIdPrimitive.bind(null, form)
 
     const nameField = (

@@ -3,7 +3,6 @@ import { CSRFTOKEN_KEY, getCSRFToken } from "./utils"
 
 client.setConfig({
   baseURL: "http://localhost:8000",
-  headers: { "Content-Type": "multipart/form-data" },
   withCredentials: true,
 })
 
