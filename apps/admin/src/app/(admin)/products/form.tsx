@@ -196,7 +196,7 @@ export const ProductForm = withForm({
               return (
                 <field.Field orientation="horizontal">
                   <field.Checkbox id={fieldId} />
-                  <field.Label className="font-normal">
+                  <field.Label htmlFor={fieldId} className="font-normal">
                     Clear product image
                   </field.Label>
                 </field.Field>
