@@ -203,18 +203,25 @@ export const ProductForm = withForm({
               )
             }}
           />
-          <form.AppField
-            name="imageFile"
-            children={(field) => {
-              const fieldId = getFieldId(field)
-              return (
-                <field.Field>
-                  <field.ImageInput id={fieldId} />
-                  <field.Message />
-                </field.Field>
-              )
-            }}
-          />
+          <form.Subscribe selector={(state) => state.values.clearImage}>
+            {(clearImage) => (
+              <form.AppField
+                name="imageFile"
+                children={(field) => {
+                  const fieldId = getFieldId(field)
+                  return (
+                    <field.Field>
+                      <field.ImageInput
+                        id={fieldId}
+                        disabled={clearImage ?? false}
+                      />
+                      <field.Message />
+                    </field.Field>
+                  )
+                }}
+              />
+            )}
+          </form.Subscribe>
         </FieldGroup>
         <form.AppField
           name="category_id"
