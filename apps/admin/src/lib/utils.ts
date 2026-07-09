@@ -33,3 +33,13 @@ export function getCSRFToken() {
 }
 
 export const CSRFTOKEN_KEY = "X-CSRFToken"
+
+export const setFormErrors = (form: AnyFormApi, err: any) => {
+  Object.entries(err.response?.data ?? {}).forEach(([fieldName, message]) => {
+    form.fieldInfo[
+      fieldName as keyof typeof form.fieldInfo
+    ]?.instance?.setErrorMap({
+      onSubmit: { message },
+    })
+  })
+}

@@ -36,7 +36,7 @@ import {
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
-import { getFieldId as getFieldIdPrimitive } from "@/lib/utils"
+import { getFieldId as getFieldIdPrimitive, setFormErrors } from "@/lib/utils"
 import {
   Brand,
   Category,
@@ -78,13 +78,24 @@ export function useProductForm({
 }) {
   const queryClient = useQueryClient()
 
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
-    setOpen?.(false)
+  const options = {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+      setOpen?.(false)
+    },
+    onError: (err: any) => {
+      setFormErrors(form, err)
+    },
   }
 
-  const updateMutation = useMutation({ ...productsUpdateMutation(), onSuccess })
-  const createMutation = useMutation({ ...productsCreateMutation(), onSuccess })
+  const updateMutation = useMutation({
+    ...options,
+    ...productsUpdateMutation(),
+  })
+  const createMutation = useMutation({
+    ...options,
+    ...productsCreateMutation(),
+  })
 
   const formId = item
     ? `update-product-form-${item.slug ?? item.id}`

@@ -116,7 +116,7 @@ function FormTextarea({ ...props }: React.ComponentProps<typeof Textarea>) {
     <Textarea
       id={field.name}
       name={field.name}
-      value={field.state.value as string ?? ""}
+      value={(field.state.value as string) ?? ""}
       onBlur={field.handleBlur}
       onChange={(e) => field.handleChange(e.target.value)}
       aria-invalid={isInvalid}
@@ -154,7 +154,7 @@ function FormCheckbox({ ...props }: React.ComponentProps<typeof Checkbox>) {
     <Checkbox
       id={field.name}
       aria-invalid={isInvalid}
-      checked={field.state.value as never ?? false}
+      checked={(field.state.value as never) ?? false}
       onBlur={field.handleBlur}
       onCheckedChange={field.handleChange}
       {...props}
