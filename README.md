@@ -13,7 +13,7 @@ Dockerized monorepo for development, built with Django and Next.js.
 |   |-  web/    # Ecommerce Web
 |
 |-  packages/
-|   |-  api-client/ # Zodios Gen
+|   |-  api-client/ # openapi-ts@hey-api 
 |   |-  ui/         # shadcn/ui
 |   |-  other packages...
 ```
