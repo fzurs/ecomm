@@ -1,12 +1,13 @@
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 
-import { SidebarProvider } from "@workspace/ui/components/sidebar"
+import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 import { NuqsAdapter } from "nuqs/adapters/next"
 import { getAllBrands, getAllCategories } from "@/lib/cache"
 import CategoriesProvider from "@/components/categories-provider"
 import BrandsProvider from "@/components/brands-provider"
 import { Suspense } from "react"
+import { AppSidebar } from "@/components/app-sidebar"
 
 export const metadata = {
   title: "Sitio web eccomerce",
@@ -26,15 +27,18 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <NuqsAdapter>
-            <div className="[--header-height:calc(--spacing(12))]">
-              <SidebarProvider className="flex flex-col">
-                <CategoriesProvider categoriesPromise={categoriesPromise}>
-                  <BrandsProvider brandsPromise={brandsPromise}>
-                    <Suspense>{children}</Suspense>
-                  </BrandsProvider>
-                </CategoriesProvider>
-              </SidebarProvider>
-            </div>
+            <SidebarProvider className="flex flex-col">
+              <CategoriesProvider categoriesPromise={categoriesPromise}>
+                <BrandsProvider brandsPromise={brandsPromise}>
+                  <div className="flex flex-1 [--header-height:calc(--spacing(12))]">
+                    <AppSidebar />
+                    <SidebarInset className="mt-(--header-height)">
+                      <Suspense>{children}</Suspense>
+                    </SidebarInset>
+                  </div>
+                </BrandsProvider>
+              </CategoriesProvider>
+            </SidebarProvider>
           </NuqsAdapter>
         </ThemeProvider>
       </body>

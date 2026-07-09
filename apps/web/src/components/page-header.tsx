@@ -2,7 +2,6 @@
 import { Button } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { useSidebar } from "@workspace/ui/components/sidebar"
-import { cn } from "@workspace/ui/lib/utils"
 import { SidebarIcon } from "lucide-react"
 import React, { Suspense } from "react"
 import { SearchForm, SearchFormSkeleton } from "./search-form"
@@ -24,7 +23,7 @@ export function PageHeader({
   const { toggleSidebar } = useSidebar()
 
   return (
-    <header className="sticky top-0 z-50 flex w-full items-center border-b bg-background">
+    <header className="fixed inset-x-0 top-0 z-50 flex w-full items-center border-b bg-background">
       <div className="flex h-(--header-height) w-full items-center gap-2 px-4">
         <Button
           className="h-8 w-8"

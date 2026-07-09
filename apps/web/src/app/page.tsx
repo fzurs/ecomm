@@ -1,8 +1,6 @@
-import { AppSidebar } from "@/components/app-sidebar"
 import { PageHeader } from "@/components/page-header"
 import { ProductGridSkeleton, ProductsGrid } from "@/components/products-grid"
 import { getProducts } from "@/lib/cache"
-import { SidebarInset } from "@workspace/ui/components/sidebar"
 import { createLoader, parseAsString } from "nuqs/server"
 import { Suspense } from "react"
 
@@ -16,14 +14,9 @@ export default async function ProductsPage(props: PageProps<"/">) {
   return (
     <>
       <PageHeader breadcrumbs={{ page: "Home" }} />
-      <div className="flex flex-1">
-        <AppSidebar />
-        <SidebarInset>
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductList searchParams={searchParams} />
-          </Suspense>
-        </SidebarInset>
-      </div>
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <ProductList searchParams={searchParams} />
+      </Suspense>
     </>
   )
 }
