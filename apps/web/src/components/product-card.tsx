@@ -1,18 +1,15 @@
-import { isOutOfStock as isProudctOutOfStock } from "@/lib/utils"
 import { Product } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
   CardAction,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import React from "react"
-import { OutOfStockAlert } from "./out-of-stock-alert"
 import { cn } from "@workspace/ui/lib/utils"
+import React from "react"
 
 export function ProductCard({
   product,
@@ -21,27 +18,21 @@ export function ProductCard({
 }: React.ComponentProps<typeof Card> & {
   product: Product
 }) {
-  const isOutOfStock = isProudctOutOfStock(product.status)
   return (
-    <Card
-      className={cn("grid aspect-square grid-rows-6", className)}
-      {...props}
-    >
+    <Card className={cn("h-full pt-0", className)} {...props}>
+      <img
+        src={product.image ?? ""}
+        className="aspect-video rounded-t-xl object-cover"
+      />
       <CardHeader>
         <CardTitle>{product.name}</CardTitle>
         <CardAction>
-          <span className="text-sm text-muted-foreground">
-            {product.brand?.name}
-          </span>
+          {product.status === "out_of_stock" && (
+            <Badge variant="destructive">Out of stock</Badge>
+          )}
         </CardAction>
       </CardHeader>
-      <CardContent className="row-span-3 space-y-2 md:space-y-4">
-        {product.description && (
-          <CardDescription>{product.description}</CardDescription>
-        )}
-        {isOutOfStock && <OutOfStockAlert />}
-      </CardContent>
-      <CardFooter className="row-span-2 items-end">
+      <CardFooter>
         {product.price &&
           (product.discount_price ? (
             <div className="flex flex-col">
