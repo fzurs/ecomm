@@ -9,7 +9,10 @@ import {
 } from "@workspace/api-client"
 import { cacheLife } from "next/cache"
 
-const defaultConfig = { baseURL: "http://localhost:8000", throwOnError: true } as const
+const defaultConfig = {
+  baseURL: "http://localhost:8000",
+  throwOnError: true,
+} as const
 
 export async function getProducts(filters?: ProductsListData["query"]) {
   "use cache"
@@ -28,25 +31,40 @@ export async function getProducts(filters?: ProductsListData["query"]) {
 export async function getCategory(slug: string) {
   "use cache"
   cacheLife("days")
-  return categoriesRetrieve({ ...defaultConfig, path: { slug } }).then(
-    (res) => res.data
-  )
+  const res = await categoriesRetrieve({
+    ...defaultConfig,
+    throwOnError: false,
+    path: { slug },
+  })
+  if (res.status === 404) return null
+  if (!res.data) throw res.error
+  return res.data
 }
 
 export async function getBrand(slug: string) {
   "use cache"
   cacheLife("days")
-  return brandsRetrieve({ ...defaultConfig, path: { slug } }).then(
-    (res) => res.data
-  )
+  const res = await brandsRetrieve({
+    ...defaultConfig,
+    throwOnError: false,
+    path: { slug },
+  })
+  if (res.status === 404) return null
+  if (!res.data) throw res.error
+  return res.data
 }
 
 export async function getProduct(slug: string) {
   "use cache"
   cacheLife("hours")
-  return productsRetrieve({ ...defaultConfig, path: { slug } }).then(
-    (res) => res.data
-  )
+  const res = await productsRetrieve({
+    ...defaultConfig,
+    throwOnError: false,
+    path: { slug },
+  })
+  if (res.status === 404) return null
+  if (!res.data) throw res.error
+  return res.data
 }
 
 export async function getAllCategories() {

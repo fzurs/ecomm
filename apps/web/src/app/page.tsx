@@ -33,6 +33,5 @@ async function ProductList(props: {
 }) {
   const { search } = await props.searchParams
   const products = await getProducts({ search: search || undefined })
-
   return <ProductsGrid products={products.results} />
 }

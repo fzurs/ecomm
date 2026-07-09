@@ -17,7 +17,7 @@ import {
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import * as React from "react"
-import { selectAsOption, snakeCaseToTitle } from "@/lib/utils"
+import { itemListToOptions, snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   IconCircleDashedCheck,
@@ -170,7 +170,7 @@ export const columns = [
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
           ...categoriesListAllOptions(),
-          select: selectAsOption,
+          select: itemListToOptions,
         }),
       },
     },
@@ -186,7 +186,7 @@ export const columns = [
         parser: parseAsArrayOf(parseAsString),
         options: queryOptions({
           ...brandsListAllOptions(),
-          select: selectAsOption,
+          select: itemListToOptions,
         }),
       },
     },

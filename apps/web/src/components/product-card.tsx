@@ -19,7 +19,7 @@ export function ProductCard({
   product: Product
 }) {
   return (
-    <Card className={cn("h-full pt-0", className)} {...props}>
+    <Card className={cn("pt-0", className)} {...props}>
       <img
         src={product.image ?? ""}
         className="aspect-video rounded-t-xl object-cover"

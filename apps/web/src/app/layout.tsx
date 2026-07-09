@@ -6,6 +6,7 @@ import { NuqsAdapter } from "nuqs/adapters/next"
 import { getAllBrands, getAllCategories } from "@/lib/cache"
 import CategoriesProvider from "@/components/categories-provider"
 import BrandsProvider from "@/components/brands-provider"
+import { Suspense } from "react"
 
 export const metadata = {
   title: "Sitio web eccomerce",
@@ -29,7 +30,7 @@ export default function RootLayout({
               <SidebarProvider className="flex flex-col">
                 <CategoriesProvider categoriesPromise={categoriesPromise}>
                   <BrandsProvider brandsPromise={brandsPromise}>
-                    {children}
+                    <Suspense>{children}</Suspense>
                   </BrandsProvider>
                 </CategoriesProvider>
               </SidebarProvider>

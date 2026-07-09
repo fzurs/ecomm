@@ -25,17 +25,8 @@ export function getFieldId(form: AnyFormApi, field: AnyFieldApi) {
   return form.formId + "-" + field.name
 }
 
-export function selectAsOption(
-  data: {
-    slug?: string | null
-    name: string
-  }[]
-): Option[] {
-  return data.map((item) => ({
-    label: item.name,
-    value: item.slug,
-  }))
-}
+export const itemListToOptions = (data: { name: string; slug?: string }[]) =>
+  data.map((item) => ({ label: item.name, value: item.slug }))
 
 export function getCSRFToken() {
   return Cookies.get("csrftoken")

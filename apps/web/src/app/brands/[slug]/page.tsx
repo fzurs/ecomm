@@ -1,9 +1,9 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { PageHeader } from "@/components/page-header"
-import { ProductGridSkeleton, ProductsGrid } from "@/components/products-grid"
+import { ProductsGrid } from "@/components/products-grid"
 import { getBrand, getProducts } from "@/lib/cache"
 import { SidebarInset } from "@workspace/ui/components/sidebar"
-import { Suspense } from "react"
+import { notFound } from "next/navigation"
 
 const breadcrumbs = {
   items: [
@@ -12,36 +12,22 @@ const breadcrumbs = {
   ],
 }
 
-export default async function BrandPage(props: PageProps<"/brands/[slug]">) {
+export default async function BrandPage({
+  params,
+}: PageProps<"/brands/[slug]">) {
+  const { slug } = await params
+  const brand = await getBrand(slug)
+  if (!brand) notFound()
+  const products = await getProducts({ brand: [slug] })
   return (
     <>
-      <Suspense fallback={<PageHeaderLoading />}>
-        <PageHeaderHeading params={props.params} />
-      </Suspense>
+      <PageHeader breadcrumbs={{ ...breadcrumbs, page: brand.name }} />
       <div className="flex flex-1">
         <AppSidebar />
         <SidebarInset>
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductList params={props.params} />
-          </Suspense>
+          <ProductsGrid products={products.results} />
         </SidebarInset>
       </div>
     </>
   )
-}
-
-async function PageHeaderHeading(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params
-  const brand = await getBrand(params.slug)
-  return <PageHeader breadcrumbs={{ ...breadcrumbs, page: brand.name }} />
-}
-
-function PageHeaderLoading() {
-  return <PageHeader breadcrumbs={{ ...breadcrumbs, page: "..." }} />
-}
-
-async function ProductList(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params
-  const products = await getProducts({ brand: [params.slug] })
-  return <ProductsGrid products={products.results} />
 }
