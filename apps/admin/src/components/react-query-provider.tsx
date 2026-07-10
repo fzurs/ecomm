@@ -1,6 +1,5 @@
 "use client"
 
-import "@/lib/api-setup"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
 
@@ -15,7 +14,6 @@ export function ReactQueryProvider({
         defaultOptions: { queries: { staleTime: 5 * 60 * 1000 } },
       })
   )
-
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
