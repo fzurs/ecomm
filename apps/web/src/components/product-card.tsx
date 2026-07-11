@@ -3,13 +3,13 @@ import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
   CardAction,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
 import { cn } from "@workspace/ui/lib/utils"
 import React from "react"
+import { ProductPrice } from "./product-price"
 
 export function ProductCard({
   product,
@@ -33,25 +33,7 @@ export function ProductCard({
         </CardAction>
       </CardHeader>
       <CardFooter>
-        {product.price &&
-          (product.discount_price ? (
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground line-through">
-                $ {product.price}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">
-                  $ {product.price - product.discount_price}
-                </span>
-                <Badge variant="secondary">
-                  {Math.ceil((product.discount_price * 100) / product.price)} %
-                  OFF
-                </Badge>
-              </div>
-            </div>
-          ) : (
-            <span className="text-xl">$ {product.price}</span>
-          ))}
+        <ProductPrice {...product} />
       </CardFooter>
     </Card>
   )
