@@ -15,7 +15,10 @@ export default function AdminLayout({
 }) {
   const router = useRouter()
 
-  const { isSuccess, isError } = useQuery(authUserRetrieveOptions())
+  const { isSuccess, isError } = useQuery({
+    ...authUserRetrieveOptions(),
+    retry: false,
+  })
 
   React.useEffect(() => {
     if (isError) router.push("/login")

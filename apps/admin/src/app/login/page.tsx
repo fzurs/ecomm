@@ -8,7 +8,7 @@ import * as React from "react"
 export default function Page() {
   const router = useRouter()
 
-  const { isSuccess } = useQuery(authUserRetrieveOptions())
+  const { isSuccess } = useQuery({ ...authUserRetrieveOptions(), retry: false })
 
   React.useEffect(() => {
     if (isSuccess) router.push("/")
