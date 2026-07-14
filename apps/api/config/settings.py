@@ -21,6 +21,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 WORKDIR = BASE_DIR.parent.parent
 
 environ.Env.read_env(os.path.join(WORKDIR, "db.env"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+AFIPSDK_CUIT = env("AFIPSDK_CUIT")
+AFIPSDK_CERT_PATH = env("AFIPSDK_CERT_PATH")
+AFIPSDK_KEY_PATH = env("AFIPSDK_KEY_PATH")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -50,6 +55,8 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'store',
+    'orders',
+    'billing',
 ]
 
 REST_FRAMEWORK = {

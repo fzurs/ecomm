@@ -55,3 +55,8 @@ media/
 
 ### API SCHEMA ###
 schema.yml
+
+### ARCA ###
+arca-certificado.crt
+arca-csr.crt
+arca-key.key
