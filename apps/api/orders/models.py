@@ -28,7 +28,7 @@ class Order(models.Model):
         return sum(item.subtotal for item in self.items.all())
 
     def __str__(self):
-        return f'Order {self.pk} - {self.customer}'
+        return f"Order #{self.pk} - {self.customer} ({self.get_status_display()})"
 
 
 class OrderItem(models.Model):
@@ -48,4 +48,4 @@ class OrderItem(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Order Item - {self.quantity} x {self.product.name}'
+        return f"Order #{self.order_id} - {self.quantity} × {self.product}"
