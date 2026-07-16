@@ -4,13 +4,13 @@ from store.models import Product
 
 
 class ProductSummarySerializer(serializers.Serializer):
-    id = serializers.ReadOnlyField()
-    slug = serializers.ReadOnlyField()
-    name = serializers.ReadOnlyField()
+    id = serializers.IntegerField(read_only=True)
+    slug = serializers.CharField(read_only=True)
+    name = serializers.CharField(read_only=True)
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    subtotal = serializers.ReadOnlyField()
+    subtotal = serializers.IntegerField()
     product_detail = ProductSummarySerializer(read_only=True, source='product')
     product = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.filter(status=Product.Status.ACTIVE))
@@ -23,7 +23,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(read_only=True, many=True)
-    total = serializers.ReadOnlyField()
+    total = serializers.IntegerField(read_only=True)
     customer_detail = serializers.SlugRelatedField(
         source='customer', read_only=True, slug_field='username')
 
