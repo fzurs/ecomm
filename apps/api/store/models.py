@@ -10,7 +10,7 @@ class Brand(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.name
 
@@ -34,8 +34,12 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    STATUS_CHOICES = [('draft', 'Draft'), ('active', 'Active'), ('inactive', 'Inactive'),
-                      ('out_of_stock', 'Out of stock'), ('discontinued', 'Discontinued'), ]
+    class Status(models.TextChoices):
+        DRAFT = ('draft', 'Draft')
+        ACTIVE = ('active', 'Active')
+        INACTIVE = ('inactive', 'Inactive')
+        OUT_OF_STOCK = ('out_of_stock', 'Out of stock')
+        DISCONTINUED = ('discontinued', 'Discontinued')
 
     slug = models.SlugField(max_length=255, blank=True, unique=True)
     sku = models.CharField('SKU', max_length=255, blank=True, null=True)
@@ -45,11 +49,12 @@ class Product(models.Model):
 
     image = models.ImageField(upload_to='products', blank=True, null=True)
 
-    category = models.ForeignKey(Category, models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(
+        Category, models.SET_NULL, null=True, blank=True)
     brand = models.ForeignKey(Brand, models.SET_NULL, null=True, blank=True)
 
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default='draft')
+        max_length=20, choices=Status.choices, default='draft')
     featured = models.BooleanField(default=False)
 
     price = models.PositiveIntegerField(default=0, blank=True, null=True)
@@ -63,7 +68,7 @@ class Product(models.Model):
     def generate_sku(self):
         id = str(self.pk)
         first = self.name.replace(" ", "")[0:5].upper()
-        self.sku = first+"-"+"0"*(4-len(id))+id if len(id) < 4 else id 
+        self.sku = first+"-"+"0"*(4-len(id))+id if len(id) < 4 else id
         self.save()
         return True
 

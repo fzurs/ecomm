@@ -1,9 +1,18 @@
 from django.utils.translation import gettext_lazy as _
-from django.db import models
+from django.db import models, transaction
 from store.models import Product
 from django.contrib.auth import get_user_model
 
 UserModel = get_user_model()
+
+
+class OrderManager(models.Manager):
+    @transaction.atomic
+    def create_with_items(self, *, items, **order_data):
+        order = self.create(**order_data)
+        for item in items:
+            OrderItem.objects.create(**item, order=order)
+        return order
 
 
 class Order(models.Model):
@@ -18,10 +27,12 @@ class Order(models.Model):
         UserModel, on_delete=models.PROTECT, related_name='orders')
 
     status = models.CharField(
-        max_length=20, choices=Status.choices, default=Status.PENDING)
+        max_length=20, choices=Status.choices, default=Status.PENDING, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = OrderManager()
 
     @property
     def total(self):
@@ -44,7 +55,8 @@ class OrderItem(models.Model):
         return self.unit_price * self.quantity
 
     def save(self, *args, **kwargs):
-        self.unit_price = self.product.price
+        if self._state.adding and not self.unit_price:
+            self.unit_price = self.product.price
         return super().save(*args, **kwargs)
 
     def __str__(self):
