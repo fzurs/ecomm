@@ -4,6 +4,8 @@ export type ClientOptions = {
     baseURL: `${string}://schema.yml` | (string & {});
 };
 
+export type BlankEnum = '';
+
 export type Brand = {
     readonly id: number;
     slug?: string;
@@ -23,6 +25,52 @@ export type Login = {
     password: string;
 };
 
+export type Order = {
+    readonly id: number;
+    readonly items: Array<OrderItem>;
+    readonly total: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    readonly customer_detail: string;
+    status?: OrderStatus | BlankEnum;
+    readonly created_at: string;
+    readonly updated_at: string;
+    customer: number;
+};
+
+export type OrderCreate = {
+    readonly id: number;
+    items: Array<OrderItem>;
+    readonly total: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    readonly customer_detail: string;
+    status?: OrderStatus | BlankEnum;
+    readonly created_at: string;
+    readonly updated_at: string;
+    customer: number;
+};
+
+export type OrderItem = {
+    readonly id: number;
+    subtotal: number;
+    product_detail: ProductSummary;
+    product: number;
+    quantity?: number;
+    readonly unit_price: number;
+};
+
+/**
+ * * `pending` - Pending
+ * * `paid` - Paid
+ * * `shipped` - Shipped
+ * * `delivered` - Delivered
+ * * `cancelled` - Cancelled
+ */
+export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+
 export type PaginatedBrandList = {
     count: number;
     next?: string | null;
@@ -35,6 +83,13 @@ export type PaginatedCategoryList = {
     next?: string | null;
     previous?: string | null;
     results: Array<Category>;
+};
+
+export type PaginatedOrderList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<Order>;
 };
 
 export type PaginatedProductList = {
@@ -79,6 +134,20 @@ export type PatchedCategory = {
     description?: string | null;
 };
 
+export type PatchedOrder = {
+    readonly id?: number;
+    readonly items?: Array<OrderItem>;
+    readonly total?: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    readonly customer_detail?: string;
+    status?: OrderStatus | BlankEnum;
+    readonly created_at?: string;
+    readonly updated_at?: string;
+    customer?: number;
+};
+
 export type PatchedProduct = {
     readonly id?: number;
     brand?: Brand | null;
@@ -90,7 +159,7 @@ export type PatchedProduct = {
     name?: string;
     description?: string | null;
     image?: string | null;
-    status?: StatusEnum;
+    status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
     discount_price?: number | null;
@@ -128,15 +197,11 @@ export type Product = {
     name: string;
     description?: string | null;
     image?: string | null;
-    status?: StatusEnum;
+    status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
     discount_price?: number | null;
     readonly created_at: string;
-};
-
-export type RestAuthDetail = {
-    readonly detail: string;
 };
 
 /**
@@ -146,7 +211,17 @@ export type RestAuthDetail = {
  * * `out_of_stock` - Out of stock
  * * `discontinued` - Discontinued
  */
-export type StatusEnum = 'draft' | 'active' | 'inactive' | 'out_of_stock' | 'discontinued';
+export type ProductStatus = 'draft' | 'active' | 'inactive' | 'out_of_stock' | 'discontinued';
+
+export type ProductSummary = {
+    readonly id: number;
+    readonly slug: string;
+    readonly name: string;
+};
+
+export type RestAuthDetail = {
+    readonly detail: string;
+};
 
 /**
  * Serializer for Token model.
@@ -186,6 +261,23 @@ export type CategoryWritable = {
     description?: string | null;
 };
 
+export type OrderWritable = {
+    status?: OrderStatus | BlankEnum;
+    customer: number;
+};
+
+export type OrderCreateWritable = {
+    items: Array<OrderItemWritable>;
+    status?: OrderStatus | BlankEnum;
+    customer: number;
+};
+
+export type OrderItemWritable = {
+    subtotal: number;
+    product: number;
+    quantity?: number;
+};
+
 export type PaginatedBrandListWritable = {
     count: number;
     next?: string | null;
@@ -198,6 +290,13 @@ export type PaginatedCategoryListWritable = {
     next?: string | null;
     previous?: string | null;
     results: Array<CategoryWritable>;
+};
+
+export type PaginatedOrderListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<OrderWritable>;
 };
 
 export type PaginatedProductListWritable = {
@@ -218,6 +317,11 @@ export type PatchedCategoryWritable = {
     description?: string | null;
 };
 
+export type PatchedOrderWritable = {
+    status?: OrderStatus | BlankEnum;
+    customer?: number;
+};
+
 export type PatchedProductWritable = {
     brand_id?: number | null;
     category_id?: number | null;
@@ -226,7 +330,7 @@ export type PatchedProductWritable = {
     name?: string;
     description?: string | null;
     image?: string | null;
-    status?: StatusEnum;
+    status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
     discount_price?: number | null;
@@ -252,7 +356,7 @@ export type ProductWritable = {
     name: string;
     description?: string | null;
     image?: string | null;
-    status?: StatusEnum;
+    status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
     discount_price?: number | null;
@@ -604,6 +708,116 @@ export type CategoriesListAllResponses = {
 };
 
 export type CategoriesListAllResponse = CategoriesListAllResponses[keyof CategoriesListAllResponses];
+
+export type OrdersListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Number of results to return per page.
+         */
+        limit?: number;
+        /**
+         * The initial index from which to return the results.
+         */
+        offset?: number;
+    };
+    url: '/orders/';
+};
+
+export type OrdersListResponses = {
+    200: PaginatedOrderList;
+};
+
+export type OrdersListResponse = OrdersListResponses[keyof OrdersListResponses];
+
+export type OrdersCreateData = {
+    body: OrderCreateWritable;
+    path?: never;
+    query?: never;
+    url: '/orders/';
+};
+
+export type OrdersCreateResponses = {
+    201: OrderCreate;
+};
+
+export type OrdersCreateResponse = OrdersCreateResponses[keyof OrdersCreateResponses];
+
+export type OrdersDestroyData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this order.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/orders/{id}/';
+};
+
+export type OrdersDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type OrdersDestroyResponse = OrdersDestroyResponses[keyof OrdersDestroyResponses];
+
+export type OrdersRetrieveData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this order.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/orders/{id}/';
+};
+
+export type OrdersRetrieveResponses = {
+    200: Order;
+};
+
+export type OrdersRetrieveResponse = OrdersRetrieveResponses[keyof OrdersRetrieveResponses];
+
+export type OrdersPartialUpdateData = {
+    body?: PatchedOrderWritable;
+    path: {
+        /**
+         * A unique integer value identifying this order.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/orders/{id}/';
+};
+
+export type OrdersPartialUpdateResponses = {
+    200: Order;
+};
+
+export type OrdersPartialUpdateResponse = OrdersPartialUpdateResponses[keyof OrdersPartialUpdateResponses];
+
+export type OrdersUpdateData = {
+    body: OrderWritable;
+    path: {
+        /**
+         * A unique integer value identifying this order.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/orders/{id}/';
+};
+
+export type OrdersUpdateResponses = {
+    200: Order;
+};
+
+export type OrdersUpdateResponse = OrdersUpdateResponses[keyof OrdersUpdateResponses];
 
 export type ProductsListData = {
     body?: never;
