@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { Combobox } from "@workspace/ui/components/combobox"

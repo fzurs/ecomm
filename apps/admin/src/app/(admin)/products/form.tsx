@@ -36,7 +36,7 @@ import {
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
-import { getFieldId as getFieldIdPrimitive, setFormErrors } from "@/lib/utils"
+import { getFieldId as getFieldIdPrimitive } from "@/lib/utils"
 import {
   Brand,
   Category,
@@ -83,14 +83,20 @@ export function useProductForm({
       queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
       setOpen?.(false)
     },
-    onError: (err: any) => {
-      setFormErrors(form, err)
-    },
   }
 
   const updateMutation = useMutation({
-    ...options,
     ...productsUpdateMutation(),
+    onError: (error) => {
+      if (error.response?.data) {
+        Object.entries(error.response.data).forEach(([fieldName, messages]) => {
+          form.setFieldMeta(fieldName as never, (prev) => ({
+            ...prev,
+            errorMap: { ...prev.errorMap, onSubmit: messages[0] },
+          }))
+        })
+      }
+    },
   })
   const createMutation = useMutation({
     ...options,
@@ -115,13 +121,15 @@ export function useProductForm({
       const headers = {
         "Content-Type": "multipart/form-data",
       }
-      item
-        ? updateMutation.mutateAsync({
-            path: { slug: item.slug as string },
-            body,
-            headers,
-          })
-        : createMutation.mutateAsync({ body, headers })
+      if (item) {
+        updateMutation.mutateAsync({
+          path: { slug: item.slug as string },
+          body,
+          headers,
+        })
+      } else {
+        createMutation.mutateAsync({ body, headers })
+      }
     },
   })
 

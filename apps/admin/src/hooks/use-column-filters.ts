@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { nullsToUndefined } from "@/lib/utils"
 import {
   ColumnDef,

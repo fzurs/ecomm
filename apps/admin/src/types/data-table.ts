@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UseQueryOptions } from "@tanstack/react-query"
 import type { RowData } from "@tanstack/react-table"
 import { SingleParser } from "nuqs"

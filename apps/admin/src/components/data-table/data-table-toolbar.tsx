@@ -62,7 +62,7 @@ function DataTableToolbarFilter<TData>({
   const filterMeta = column.columnDef.meta?.filter
 
   const placeholder = filterMeta?.placeholder || snakeCaseToTitle(column.id)
-  const value = column.getFilterValue() as any
+  const value = column.getFilterValue()
   const setValue = column.setFilterValue
 
   switch (filterMeta?.variant) {
@@ -70,7 +70,7 @@ function DataTableToolbarFilter<TData>({
       return (
         <Input
           className="w-auto"
-          value={value ?? ""}
+          value={(value as string) ?? ""}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
         />
@@ -79,7 +79,7 @@ function DataTableToolbarFilter<TData>({
       return (
         <Input
           className="w-auto"
-          value={value ?? ""}
+          value={(value as string) ?? ""}
           onChange={(e) => {
             const newValue = e.target.value
             setValue(newValue ? Number(newValue) : null)
@@ -115,7 +115,7 @@ function DataTableToolbarFilter<TData>({
     case "range":
       return (
         <RangeFilter
-          range={value ?? []}
+          range={(value as number[]) ?? []}
           setRange={setValue}
           placeholder={placeholder}
         />
@@ -123,7 +123,7 @@ function DataTableToolbarFilter<TData>({
     case "date-range":
       return (
         <DateRangeFilter
-          range={value ?? []}
+          range={(value as Date[]) ?? []}
           setRange={setValue}
           placeholder={placeholder}
         />
@@ -143,7 +143,7 @@ function DataTableToolbarFilter<TData>({
         <ComboboxFilter
           multiple
           autoHighlight
-          value={value ?? []}
+          value={(value as string[]) ?? []}
           onValueChange={(val) => setValue(val.length > 0 ? val : null)}
           placeholder={placeholder}
           items={filterMeta.options}
@@ -164,7 +164,7 @@ function DataTableToolbarFilter<TData>({
         <AsyncComboboxFilter
           multiple
           autoHighlight
-          value={value ?? []}
+          value={(value as string[]) ?? []}
           onValueChange={(val) => setValue(val.length > 0 ? val : null)}
           placeholder={placeholder}
           items={filterMeta.options}

@@ -69,9 +69,9 @@ import {
 import {
   PaginatedProductList,
   Product,
-  StatusEnum,
+  ProductStatus as StatusEnum,
 } from "@workspace/api-client"
-import { zStatusEnum } from "@workspace/api-client/zod"
+import { zProductStatus as zStatusEnum } from "@workspace/api-client/zod"
 import {
   brandsListAllOptions,
   categoriesListAllOptions,

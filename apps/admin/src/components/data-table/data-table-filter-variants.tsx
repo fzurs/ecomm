@@ -22,7 +22,7 @@ import {
   InputGroupText,
 } from "@workspace/ui/components/input-group"
 import { Separator } from "@workspace/ui/components/separator"
-import { CalendarIcon, X, XIcon } from "lucide-react"
+import { CalendarIcon, XIcon } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -35,7 +35,8 @@ import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { DateRange } from "react-day-picker"
 
 const onNumberChange = (setValue: (val: number) => void) => {
-  return (e: any) => setValue(Number(e.target.value))
+  return (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
+    setValue(Number(e.target.value))
 }
 
 export function RangeFilter({
@@ -257,6 +258,7 @@ export function AsyncComboboxFilter<
 }: Omit<
   React.ComponentProps<typeof ComboboxFilter<Value, Multiple>>,
   "items"
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 > & { items: UseQueryOptions<any, any, Option[], any> }) {
   const [open, setOpen] = React.useState(false)
 
