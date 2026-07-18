@@ -1,6 +1,6 @@
 "use client"
 
-import { PackageIcon, StarsIcon, TagsIcon } from "lucide-react"
+import { ClipboardList, PackageIcon, StarsIcon, TagsIcon } from "lucide-react"
 
 import {
   Sidebar,
@@ -35,6 +35,11 @@ const items = [
     title: "Brands",
     url: "/brands",
     icon: StarsIcon,
+  },
+  {
+    title: "Orders",
+    url: "/orders",
+    icon: ClipboardList,
   },
 ]
 

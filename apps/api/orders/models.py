@@ -1,9 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
 from store.models import Product
-from django.contrib.auth import get_user_model
 
-UserModel = get_user_model()
+
+class Customer(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+
+    def __str__(self): return self.name
 
 
 class OrderManager(models.Manager):
@@ -24,7 +29,7 @@ class Order(models.Model):
         CANCELLED = 'cancelled', _('Cancelled')
 
     customer = models.ForeignKey(
-        UserModel, on_delete=models.PROTECT, related_name='orders')
+        Customer, on_delete=models.PROTECT, related_name='orders')
 
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING, blank=True)

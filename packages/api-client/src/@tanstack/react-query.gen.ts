@@ -4,8 +4,8 @@ import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOption
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListAll, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListAll, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsDetectAndAssignBrandCreate, productsGenerateSkuCreate, productsList, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
-import type { AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListAllData, BrandsListAllResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListAllData, CategoriesListAllResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsDetectAndAssignBrandCreateData, ProductsDetectAndAssignBrandCreateResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+import { authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListAll, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListAll, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListAll, customersPartialUpdate, customersRetrieve, customersUpdate, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsDetectAndAssignBrandCreate, productsGenerateSkuCreate, productsList, productsListAll, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
+import type { AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListAllData, BrandsListAllResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListAllData, CategoriesListAllResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListAllData, CustomersListAllResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsDetectAndAssignBrandCreateData, ProductsDetectAndAssignBrandCreateResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListAllData, ProductsListAllResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
 
 /**
  * Check the credentials and return the REST Token
@@ -503,6 +503,134 @@ export const categoriesListAllOptions = (options?: Options<CategoriesListAllData
     queryKey: categoriesListAllQueryKey(options)
 });
 
+export const customersListQueryKey = (options?: Options<CustomersListData>) => createQueryKey('customersList', options);
+
+export const customersListOptions = (options?: Options<CustomersListData>) => queryOptions<CustomersListResponse, AxiosError<DefaultError>, CustomersListResponse, ReturnType<typeof customersListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await customersList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: customersListQueryKey(options)
+});
+
+export const customersListInfiniteQueryKey = (options?: Options<CustomersListData>): QueryKey<Options<CustomersListData>> => createQueryKey('customersList', options, true);
+
+export const customersListInfiniteOptions = (options?: Options<CustomersListData>) => {
+    const opts = infiniteQueryOptions<CustomersListResponse, AxiosError<DefaultError>, InfiniteData<CustomersListResponse>, QueryKey<Options<CustomersListData>>, number | Pick<QueryKey<Options<CustomersListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<CustomersListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    offset: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await customersList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: customersListInfiniteQueryKey(options)
+    });
+    return opts as Omit<typeof opts, 'initialData'>;
+};
+
+export const customersCreateMutation = (options?: Partial<Options<CustomersCreateData>>): UseMutationOptions<CustomersCreateResponse, AxiosError<DefaultError>, Options<CustomersCreateData>> => {
+    const mutationOptions: UseMutationOptions<CustomersCreateResponse, AxiosError<DefaultError>, Options<CustomersCreateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await customersCreate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const customersDestroyMutation = (options?: Partial<Options<CustomersDestroyData>>): UseMutationOptions<CustomersDestroyResponse, AxiosError<DefaultError>, Options<CustomersDestroyData>> => {
+    const mutationOptions: UseMutationOptions<CustomersDestroyResponse, AxiosError<DefaultError>, Options<CustomersDestroyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await customersDestroy({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const customersRetrieveQueryKey = (options: Options<CustomersRetrieveData>) => createQueryKey('customersRetrieve', options);
+
+export const customersRetrieveOptions = (options: Options<CustomersRetrieveData>) => queryOptions<CustomersRetrieveResponse, AxiosError<DefaultError>, CustomersRetrieveResponse, ReturnType<typeof customersRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await customersRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: customersRetrieveQueryKey(options)
+});
+
+export const customersPartialUpdateMutation = (options?: Partial<Options<CustomersPartialUpdateData>>): UseMutationOptions<CustomersPartialUpdateResponse, AxiosError<DefaultError>, Options<CustomersPartialUpdateData>> => {
+    const mutationOptions: UseMutationOptions<CustomersPartialUpdateResponse, AxiosError<DefaultError>, Options<CustomersPartialUpdateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await customersPartialUpdate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const customersUpdateMutation = (options?: Partial<Options<CustomersUpdateData>>): UseMutationOptions<CustomersUpdateResponse, AxiosError<DefaultError>, Options<CustomersUpdateData>> => {
+    const mutationOptions: UseMutationOptions<CustomersUpdateResponse, AxiosError<DefaultError>, Options<CustomersUpdateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await customersUpdate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const customersListAllQueryKey = (options?: Options<CustomersListAllData>) => createQueryKey('customersListAll', options);
+
+export const customersListAllOptions = (options?: Options<CustomersListAllData>) => queryOptions<CustomersListAllResponse, AxiosError<DefaultError>, CustomersListAllResponse, ReturnType<typeof customersListAllQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await customersListAll({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: customersListAllQueryKey(options)
+});
+
 export const ordersListQueryKey = (options?: Options<OrdersListData>) => createQueryKey('ordersList', options);
 
 export const ordersListOptions = (options?: Options<OrdersListData>) => queryOptions<OrdersListResponse, AxiosError<DefaultError>, OrdersListResponse, ReturnType<typeof ordersListQueryKey>>({
@@ -756,3 +884,18 @@ export const productsGenerateSkuCreateMutation = (options?: Partial<Options<Prod
     };
     return mutationOptions;
 };
+
+export const productsListAllQueryKey = (options?: Options<ProductsListAllData>) => createQueryKey('productsListAll', options);
+
+export const productsListAllOptions = (options?: Options<ProductsListAllData>) => queryOptions<ProductsListAllResponse, AxiosError<DefaultError>, ProductsListAllResponse, ReturnType<typeof productsListAllQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await productsListAll({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: productsListAllQueryKey(options)
+});

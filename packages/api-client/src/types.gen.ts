@@ -19,6 +19,13 @@ export type Category = {
     description?: string | null;
 };
 
+export type Customer = {
+    readonly id: number;
+    name: string;
+    email?: string;
+    phone?: string;
+};
+
 export type Login = {
     username?: string;
     email?: string;
@@ -29,10 +36,7 @@ export type Order = {
     readonly id: number;
     readonly items: Array<OrderItem>;
     readonly total: number;
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    readonly customer_detail: string;
+    customer_detail: Customer;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
     readonly updated_at: string;
@@ -43,10 +47,7 @@ export type OrderCreate = {
     readonly id: number;
     items: Array<OrderItem>;
     readonly total: number;
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    readonly customer_detail: string;
+    customer_detail: Customer;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
     readonly updated_at: string;
@@ -55,7 +56,7 @@ export type OrderCreate = {
 
 export type OrderItem = {
     readonly id: number;
-    subtotal: number;
+    readonly subtotal: number;
     product_detail: ProductSummary;
     product: number;
     quantity?: number;
@@ -83,6 +84,13 @@ export type PaginatedCategoryList = {
     next?: string | null;
     previous?: string | null;
     results: Array<Category>;
+};
+
+export type PaginatedCustomerList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<Customer>;
 };
 
 export type PaginatedOrderList = {
@@ -134,14 +142,18 @@ export type PatchedCategory = {
     description?: string | null;
 };
 
+export type PatchedCustomer = {
+    readonly id?: number;
+    name?: string;
+    email?: string;
+    phone?: string;
+};
+
 export type PatchedOrder = {
     readonly id?: number;
     readonly items?: Array<OrderItem>;
     readonly total?: number;
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    readonly customer_detail?: string;
+    customer_detail?: Customer;
     status?: OrderStatus | BlankEnum;
     readonly created_at?: string;
     readonly updated_at?: string;
@@ -261,6 +273,12 @@ export type CategoryWritable = {
     description?: string | null;
 };
 
+export type CustomerWritable = {
+    name: string;
+    email?: string;
+    phone?: string;
+};
+
 export type OrderWritable = {
     status?: OrderStatus | BlankEnum;
     customer: number;
@@ -273,7 +291,6 @@ export type OrderCreateWritable = {
 };
 
 export type OrderItemWritable = {
-    subtotal: number;
     product: number;
     quantity?: number;
 };
@@ -290,6 +307,13 @@ export type PaginatedCategoryListWritable = {
     next?: string | null;
     previous?: string | null;
     results: Array<CategoryWritable>;
+};
+
+export type PaginatedCustomerListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<CustomerWritable>;
 };
 
 export type PaginatedOrderListWritable = {
@@ -315,6 +339,12 @@ export type PatchedCategoryWritable = {
     slug?: string;
     name?: string;
     description?: string | null;
+};
+
+export type PatchedCustomerWritable = {
+    name?: string;
+    email?: string;
+    phone?: string;
 };
 
 export type PatchedOrderWritable = {
@@ -709,6 +739,129 @@ export type CategoriesListAllResponses = {
 
 export type CategoriesListAllResponse = CategoriesListAllResponses[keyof CategoriesListAllResponses];
 
+export type CustomersListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Number of results to return per page.
+         */
+        limit?: number;
+        /**
+         * The initial index from which to return the results.
+         */
+        offset?: number;
+    };
+    url: '/customers/';
+};
+
+export type CustomersListResponses = {
+    200: PaginatedCustomerList;
+};
+
+export type CustomersListResponse = CustomersListResponses[keyof CustomersListResponses];
+
+export type CustomersCreateData = {
+    body: CustomerWritable;
+    path?: never;
+    query?: never;
+    url: '/customers/';
+};
+
+export type CustomersCreateResponses = {
+    201: Customer;
+};
+
+export type CustomersCreateResponse = CustomersCreateResponses[keyof CustomersCreateResponses];
+
+export type CustomersDestroyData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this customer.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/customers/{id}/';
+};
+
+export type CustomersDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type CustomersDestroyResponse = CustomersDestroyResponses[keyof CustomersDestroyResponses];
+
+export type CustomersRetrieveData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this customer.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/customers/{id}/';
+};
+
+export type CustomersRetrieveResponses = {
+    200: Customer;
+};
+
+export type CustomersRetrieveResponse = CustomersRetrieveResponses[keyof CustomersRetrieveResponses];
+
+export type CustomersPartialUpdateData = {
+    body?: PatchedCustomerWritable;
+    path: {
+        /**
+         * A unique integer value identifying this customer.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/customers/{id}/';
+};
+
+export type CustomersPartialUpdateResponses = {
+    200: Customer;
+};
+
+export type CustomersPartialUpdateResponse = CustomersPartialUpdateResponses[keyof CustomersPartialUpdateResponses];
+
+export type CustomersUpdateData = {
+    body: CustomerWritable;
+    path: {
+        /**
+         * A unique integer value identifying this customer.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/customers/{id}/';
+};
+
+export type CustomersUpdateResponses = {
+    200: Customer;
+};
+
+export type CustomersUpdateResponse = CustomersUpdateResponses[keyof CustomersUpdateResponses];
+
+export type CustomersListAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/customers/all/';
+};
+
+export type CustomersListAllResponses = {
+    200: Array<Customer>;
+};
+
+export type CustomersListAllResponse = CustomersListAllResponses[keyof CustomersListAllResponses];
+
 export type OrdersListData = {
     body?: never;
     path?: never;
@@ -971,3 +1124,42 @@ export type ProductsGenerateSkuCreateResponses = {
 };
 
 export type ProductsGenerateSkuCreateResponse = ProductsGenerateSkuCreateResponses[keyof ProductsGenerateSkuCreateResponses];
+
+export type ProductsListAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        brand?: Array<string>;
+        category?: Array<string>;
+        created_at_after?: string;
+        created_at_before?: string;
+        discount_price_max?: number | null;
+        discount_price_min?: number | null;
+        featured?: boolean;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        price_max?: number | null;
+        price_min?: number | null;
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * * `draft` - Draft
+         * * `active` - Active
+         * * `inactive` - Inactive
+         * * `out_of_stock` - Out of stock
+         * * `discontinued` - Discontinued
+         */
+        status?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+    };
+    url: '/products/all/';
+};
+
+export type ProductsListAllResponses = {
+    200: Array<Product>;
+};
+
+export type ProductsListAllResponse = ProductsListAllResponses[keyof ProductsListAllResponses];

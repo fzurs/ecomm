@@ -1,6 +1,12 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import Order, OrderItem, Customer
 from store.models import Product
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = serializers.ALL_FIELDS
 
 
 class ProductSummarySerializer(serializers.Serializer):
@@ -10,7 +16,7 @@ class ProductSummarySerializer(serializers.Serializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    subtotal = serializers.IntegerField()
+    subtotal = serializers.IntegerField(read_only=True)
     product_detail = ProductSummarySerializer(read_only=True, source='product')
     product = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.filter(status=Product.Status.ACTIVE))
@@ -24,8 +30,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(read_only=True, many=True)
     total = serializers.IntegerField(read_only=True)
-    customer_detail = serializers.SlugRelatedField(
-        source='customer', read_only=True, slug_field='username')
+    customer_detail = CustomerSerializer(source="customer", read_only=True)
 
     class Meta:
         model = Order

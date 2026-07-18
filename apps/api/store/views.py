@@ -11,10 +11,12 @@ from drf_spectacular.utils import extend_schema
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend, ProductOrdering]
+    filter_backends = [filters.SearchFilter,
+                       DjangoFilterBackend, ProductOrdering]
     filterset_class = ProductFilter
     search_fields = ["name", "description", "category__name", "brand__name"]
-    ordering_fields = ["name", "category", "brand", "status", "featured", "price", "discount_price", "created_at"]
+    ordering_fields = ["name", "category", "brand", "status",
+                       "featured", "price", "discount_price", "created_at"]
     lookup_field = "slug"
 
     def get_permissions(self):
@@ -26,18 +28,27 @@ class ProductViewSet(viewsets.ModelViewSet):
     def generate_sku(self, request, **kwargs):
         instance = self.get_object()
         is_success = instance.generate_sku()
-        if not is_success: return Response({'message': 'The SKU could not be generated'}, status.HTTP_400_BAD_REQUEST) 
+        if not is_success:
+            return Response({'message': 'The SKU could not be generated'}, status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(instance)
-        return Response(serializer.data) 
+        return Response(serializer.data)
 
     @action(detail=True, methods=["post"], url_path='detect-and-assign-brand')
     def detect_and_assign_brand(self, request, **kwargs):
         instance = self.get_object()
         is_success = instance.detect_and_assign_brand()
-        if not is_success: return Response({'message': 'No brand was detected in the product name'}, status.HTTP_400_BAD_REQUEST)
+        if not is_success:
+            return Response({'message': 'No brand was detected in the product name'}, status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
+
+    @extend_schema(operation_id="products_list_all", responses=ProductSerializer(many=True))
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def all(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.order_by("name")
@@ -50,7 +61,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "retrieve", "all"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
-    
+
     @extend_schema(operation_id="categories_list_all", responses=CategorySerializer(many=True))
     @action(detail=False, methods=["get"], pagination_class=None)
     def all(self, request):
