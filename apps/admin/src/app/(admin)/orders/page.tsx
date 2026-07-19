@@ -48,7 +48,7 @@ function CreateOrderDialog() {
   const form = useCreateOrderForm({ setOpen })
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} modal={false}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
           <ClipboardPlus />
@@ -59,7 +59,7 @@ function CreateOrderDialog() {
         <DialogHeader>
           <DialogTitle>Create New Order</DialogTitle>
         </DialogHeader>
-        <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
+        <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4 pb-4">
           <CreateOrderForm form={form} />
         </div>
         <DialogFooter>
