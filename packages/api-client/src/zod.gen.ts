@@ -179,8 +179,9 @@ export const zPaginatedProductList = z.object({
 
 export const zProductSummary = z.object({
     id: z.int().readonly(),
-    slug: z.string().readonly(),
-    name: z.string().readonly()
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    name: z.string().max(255),
+    price: z.int().gte(0).lte(2147483647).nullish()
 });
 
 export const zOrderItem = z.object({
@@ -397,6 +398,12 @@ export const zPaginatedProductListWritable = z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
     results: z.array(zProductWritable)
+});
+
+export const zProductSummaryWritable = z.object({
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    name: z.string().max(255),
+    price: z.int().gte(0).lte(2147483647).nullish()
 });
 
 /**

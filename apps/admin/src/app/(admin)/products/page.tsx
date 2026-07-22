@@ -1,11 +1,6 @@
 "use client"
 
 import { DataTable } from "@/components/data-table/data-table"
-import {
-  PageHeaderActions,
-  PageHeader,
-  PageHeaderHeading,
-} from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { useSortingValues } from "@/hooks/use-sorting"
@@ -39,6 +34,14 @@ import {
   productsListOptions,
   productsListQueryKey,
 } from "@workspace/api-client/query"
+import {
+  AppHeader,
+  AppHeaderActions,
+  AppHeaderContent,
+  AppHeaderSeparator,
+  AppHeaderSidebarTrigger,
+} from "@/components/app-header"
+import { NavBreadcrumb } from "@/components/nav-breadcrumb"
 
 const DEBOUNCE_DELAY = 300
 
@@ -103,12 +106,16 @@ export default function Page() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeaderHeading>Products</PageHeaderHeading>
-        <PageHeaderActions>
+      <AppHeader>
+        <AppHeaderContent>
+          <AppHeaderSidebarTrigger />
+          <AppHeaderSeparator />
+          <NavBreadcrumb items={[{ type: "page", label: "Products" }]} />
+        </AppHeaderContent>
+        <AppHeaderActions>
           <QuickCreateProductDialog />
-        </PageHeaderActions>
-      </PageHeader>
+        </AppHeaderActions>
+      </AppHeader>
       <div className="@container/main flex py-4 md:py-6">
         <DataTable table={table} />
       </div>

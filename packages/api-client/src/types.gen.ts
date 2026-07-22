@@ -227,8 +227,9 @@ export type ProductStatus = 'draft' | 'active' | 'inactive' | 'out_of_stock' | '
 
 export type ProductSummary = {
     readonly id: number;
-    readonly slug: string;
-    readonly name: string;
+    slug?: string;
+    name: string;
+    price?: number | null;
 };
 
 export type RestAuthDetail = {
@@ -390,6 +391,12 @@ export type ProductWritable = {
     featured?: boolean;
     price?: number | null;
     discount_price?: number | null;
+};
+
+export type ProductSummaryWritable = {
+    slug?: string;
+    name: string;
+    price?: number | null;
 };
 
 /**

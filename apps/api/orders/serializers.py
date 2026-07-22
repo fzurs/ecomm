@@ -9,10 +9,10 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = serializers.ALL_FIELDS
 
 
-class ProductSummarySerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    slug = serializers.CharField(read_only=True)
-    name = serializers.CharField(read_only=True)
+class ProductSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "slug", "name", "price"]
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

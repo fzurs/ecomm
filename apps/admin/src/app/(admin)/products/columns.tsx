@@ -351,10 +351,7 @@ function TableCellViewer({ original: item }: { original: Product }) {
 }
 
 function TableCellActions({ item }: { item: Product }) {
-  const destroyMutation = useOptimisticProductDestroy(item)
-
-  const onDestroy = () =>
-    destroyMutation.mutate({ path: { slug: item.slug as string } })
+  const { onDestroy } = useOptimisticProductDestroy(item)
 
   return (
     <div className="flex justify-end">
@@ -408,7 +405,7 @@ function useOptimisticProductDestroy(item: Product) {
   const queryKey = productsListQueryKey()
 
   const mutation = useMutation({
-    ...productsDestroyMutation({ path: { slug: item.slug as string } }),
+    ...productsDestroyMutation(),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey })
 
@@ -433,5 +430,8 @@ function useOptimisticProductDestroy(item: Product) {
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 
-  return mutation
+  const onDestroy = () =>
+    mutation.mutate({ path: { slug: item.slug as string } })
+
+  return { mutation, onDestroy }
 }

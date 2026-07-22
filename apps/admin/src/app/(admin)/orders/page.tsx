@@ -1,37 +1,49 @@
 "use client"
 import { DataTable } from "@/components/data-table/data-table"
-import {
-  PageHeader,
-  PageHeaderActions,
-  PageHeaderHeading,
-} from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { ordersListOptions } from "@workspace/api-client/query"
 import { columns } from "./columns"
 import { Button } from "@workspace/ui/components/button"
 import { ClipboardPlus } from "lucide-react"
 import Link from "next/link"
+import { usePaginationValues } from "@/hooks/use-pagination"
+import {
+  AppHeader,
+  AppHeaderActions,
+  AppHeaderContent,
+  AppHeaderSeparator,
+  AppHeaderSidebarTrigger,
+} from "@/components/app-header"
+import { NavBreadcrumb } from "@/components/nav-breadcrumb"
 
 export default function OrdersPage() {
-  const { data } = useQuery(ordersListOptions())
+  const pagination = usePaginationValues()
+  const { data } = useQuery({
+    ...ordersListOptions({ query: pagination }),
+    placeholderData: keepPreviousData,
+  })
 
   const table = useDataTable({ data, columns })
 
   return (
     <>
-      <PageHeader>
-        <PageHeaderHeading>Orders</PageHeaderHeading>
-        <PageHeaderActions>
+      <AppHeader>
+        <AppHeaderContent>
+          <AppHeaderSidebarTrigger />
+          <AppHeaderSeparator />
+          <NavBreadcrumb items={[{ type: "page", label: "Orders" }]} />
+        </AppHeaderContent>
+        <AppHeaderActions>
           <Button size="sm" asChild>
             <Link href="/orders/new">
               <ClipboardPlus />
-              Create New Order
+              New Order
             </Link>
           </Button>
-        </PageHeaderActions>
-      </PageHeader>
-      <div className="py-4 md:py-6">
+        </AppHeaderActions>
+      </AppHeader>
+      <div className="@container py-4 md:py-6">
         <DataTable table={table} />
       </div>
     </>

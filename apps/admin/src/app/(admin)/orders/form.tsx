@@ -1,34 +1,23 @@
-import { ComboboxQueryOnOpenById } from "@/components/combobox"
-import { useAppForm, withForm } from "@/hooks/form"
-import { formOptions } from "@tanstack/react-form"
-import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query"
+"use client"
+import { useAppForm } from "@/hooks/form"
+import { useSelector } from "@tanstack/react-form"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Customer,
   OrderCreateWritable,
+  OrderItem,
   OrderItemWritable,
   Product,
-  UserDetails,
 } from "@workspace/api-client"
 import {
   customersListAllOptions,
-  customersListOptions,
   ordersCreateMutation,
   ordersListQueryKey,
   productsListAllOptions,
+  productsListOptions,
 } from "@workspace/api-client/query"
-import {
-  zOrderCreateWritable,
-  zOrderItemWritable,
-} from "@workspace/api-client/zod"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { zOrderCreateWritable, zProductStatus } from "@workspace/api-client/zod"
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
   Combobox,
@@ -37,205 +26,360 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
 import {
-  Field,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@workspace/ui/components/command"
+import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldLegend,
-  FieldSeparator,
   FieldSet,
+  Field,
+  FieldSeparator,
+  FieldError,
 } from "@workspace/ui/components/field"
-import { InputGroupAddon } from "@workspace/ui/components/input-group"
+import { Input } from "@workspace/ui/components/input"
 import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "@workspace/ui/components/item"
-import { X } from "lucide-react"
-import React from "react"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import {
+  TableCell,
+  TableFooter,
+  TableRow,
+} from "@workspace/ui/components/table"
+import { PlusIcon, XIcon } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import * as React from "react"
+import { OrderItemsTableViewer } from "./columns"
 
-const defaultOrderItem: OrderItemWritable = {
-  product: 0,
-  quantity: 1,
-}
-const defaultValues: OrderCreateWritable = {
-  customer: 0,
-  items: [defaultOrderItem],
-}
+const defaultValues: OrderCreateWritable = { customer: -1, items: [] }
 
-export const createOrderFormOpts = formOptions({
-  defaultValues,
-  validators: { onSubmit: zOrderCreateWritable },
-})
-
-export function useCreateOrderForm({
-  setOpen,
-}: {
-  setOpen: (open: boolean) => void
-}) {
+export function CreateOrderForm() {
+  const router = useRouter()
   const queryClient = useQueryClient()
-  const mutation = useMutation({
+
+  const { mutateAsync } = useMutation({
     ...ordersCreateMutation(),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ordersListQueryKey() })
-      setOpen(false)
+      router.push(`/orders/${data.id}`)
     },
   })
+
   const form = useAppForm({
-    ...createOrderFormOpts,
-    onSubmit: ({ value }) => mutation.mutateAsync({ body: value }),
+    defaultValues,
+    validators: { onSubmit: zOrderCreateWritable },
+    onSubmit: ({ value }) => mutateAsync({ body: value }),
   })
-  return form
+
+  const orderItems = useSelector(form.store, (state) => state.values.items)
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        form.handleSubmit()
+      }}
+    >
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>New Order</FieldLegend>
+          <FieldDescription>
+            Select a customer, add products to the order, adjust quantities as
+            needed, and review the order total before saving.
+          </FieldDescription>
+          <FieldGroup>
+            <form.Field
+              name="customer"
+              validators={{
+                onSubmit: ({ value }) =>
+                  !value || value < 0
+                    ? { message: "Please select a customer." }
+                    : undefined,
+              }}
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid
+                return (
+                  <Field data-invalid={isInvalid} orientation="horizontal">
+                    <FieldLabel htmlFor={field.name}>Customer</FieldLabel>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                    <CustomerSelect
+                      value={field.state.value}
+                      onValueChange={(value) => field.handleChange(value ?? -1)}
+                    />
+                  </Field>
+                )
+              }}
+            />
+          </FieldGroup>
+        </FieldSet>
+        <FieldSeparator />
+        <form.Field
+          name="items"
+          mode="array"
+          validators={{
+            onSubmit: ({ value }) =>
+              value.length < 1
+                ? { message: "Please add at least one item to the order." }
+                : undefined,
+          }}
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+
+            return (
+              <FieldSet>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <FieldLegend>Items section</FieldLegend>
+                    <FieldDescription>
+                      Can select a few products in you order.
+                    </FieldDescription>
+                  </div>
+                  <AddOrderItem
+                    orderItems={orderItems}
+                    addOrderItem={field.insertValue}
+                    replaceOrderItem={field.replaceValue}
+                  />
+                </div>
+                <FieldGroup>
+                  <OrderItemsTable
+                    orderItems={orderItems}
+                    removeOrderItem={field.removeValue}
+                    renderQuantityCell={(index) => (
+                      <form.Field
+                        name={`items[${index}].quantity`}
+                        children={(subField) => {
+                          const isInvalid =
+                            subField.state.meta.isTouched &&
+                            !subField.state.meta.isValid
+                          return (
+                            <Input
+                              type="number"
+                              id={subField.name}
+                              name={subField.name}
+                              value={subField.state.value}
+                              onBlur={subField.handleBlur}
+                              onChange={(e) => {
+                                const value = Number(e.target.value)
+                                subField.handleChange(value > 0 ? value : 1)
+                              }}
+                              aria-invalid={isInvalid}
+                              className="max-w-20"
+                            />
+                          )
+                        }}
+                      />
+                    )}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </FieldGroup>
+              </FieldSet>
+            )
+          }}
+        />
+        <Field orientation="horizontal">
+          <Button type="submit">Save</Button>
+          <Button variant="outline" type="button" asChild>
+            <Link href="/orders">Cancel</Link>
+          </Button>
+        </Field>
+      </FieldGroup>
+    </form>
+  )
 }
 
-export const CreateOrderForm = withForm({
-  ...createOrderFormOpts,
-  render: ({ form }) => {
-    return (
-      <form.AppForm>
-        <form.Form>
-          <FieldGroup>
-            <form.AppField
-              name="customer"
-              children={(field) => (
-                <field.Field>
-                  <field.Label>Customer</field.Label>
-                  <field.ComboboxQueryOnOpenById
-                    initialItem={null}
-                    itemsQueryOptions={customersListAllOptions()}
+function CustomerSelect({
+  value,
+  onValueChange,
+}: {
+  value: number
+  onValueChange: (value: number | null) => void
+}) {
+  const { data: customers } = useQuery(customersListAllOptions())
+
+  const selectedCustomer = customers?.find((customer) => customer.id === value)
+
+  return (
+    <Combobox
+      items={customers}
+      value={selectedCustomer ?? null}
+      onValueChange={(customer) => onValueChange(customer?.id ?? null)}
+      itemToStringValue={(customer) => customer.id.toString()}
+      itemToStringLabel={(customer) => customer.name}
+    >
+      <ComboboxInput
+        placeholder="Select a customer"
+        className="w-full max-w-xs"
+        showClear
+      />
+      <ComboboxContent>
+        <ComboboxEmpty>No customers result.</ComboboxEmpty>
+        <ComboboxList>
+          {(customer: Customer) => (
+            <ComboboxItem key={customer.id} value={customer}>
+              {customer.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+
+function AddOrderItem({
+  orderItems,
+  addOrderItem,
+  replaceOrderItem,
+}: {
+  orderItems: OrderItemWritable[]
+  addOrderItem: (index: number, newItem: OrderItemWritable) => void
+  replaceOrderItem: (index: number, updatedItem: OrderItemWritable) => void
+}) {
+  const { data } = useQuery(
+    productsListOptions({
+      query: {
+        limit: 10000,
+        status: [zProductStatus.enum.active],
+        price_min: 1,
+      },
+    })
+  )
+  const products = data?.results
+
+  const productItems = React.useMemo(
+    () =>
+      products?.map((product) => {
+        const orderItemIndex = orderItems.findIndex(
+          (item) => product.id === item.product
+        )
+        const orderItem = orderItems[orderItemIndex]
+        const isSelected = orderItem !== undefined
+        const onSelect = () => {
+          if (isSelected) {
+            replaceOrderItem(orderItemIndex, {
+              ...orderItem,
+              quantity: (orderItem.quantity ?? 0) + 1,
+            })
+          } else {
+            addOrderItem(orderItems.length, {
+              product: product.id,
+              quantity: 1,
+            })
+          }
+        }
+        const quantity = orderItem?.quantity ?? 1
+        return { product, isSelected, onSelect, quantity }
+      }) ?? [],
+    [addOrderItem, orderItems, products, replaceOrderItem]
+  )
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button type="button" size="sm" variant="secondary">
+          <PlusIcon />
+          Add Item
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0" align="end">
+        <Command>
+          <CommandInput placeholder="Filter by name" />
+          <CommandList>
+            <CommandEmpty>No products result.</CommandEmpty>
+            <CommandGroup>
+              {productItems.map(
+                ({ product, isSelected, onSelect, quantity }) => (
+                  <CommandItem
+                    key={product.id}
+                    value={product.name}
+                    onSelect={onSelect}
+                    className="justify-between gap-2"
                   >
-                    <ComboboxInput placeholder="Assing a customer" />
-                    <ComboboxContent>
-                      <ComboboxList>
-                        {(customer: Customer) => (
-                          <ComboboxItem key={customer.id} value={customer}>
-                            {customer.name}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </field.ComboboxQueryOnOpenById>
-                  <field.Message />
-                </field.Field>
+                    {product.name}
+                    {isSelected && <Badge variant="outline">x{quantity}</Badge>}
+                  </CommandItem>
+                )
               )}
-            />
-            <FieldSeparator />
-            <FieldSet>
-              <FieldLegend>Items</FieldLegend>
-              <FieldDescription>
-                Product items to be ordered for the purchase.
-              </FieldDescription>
-              <form.AppField
-                name="items"
-                mode="array"
-                children={(field) => (
-                  <FieldGroup>
-                    {field.state.value.map((_, i) => (
-                      <div key={i} className="flex items-baseline-last gap-4">
-                        <FieldGroup className="grid grid-cols-4 items-center gap-4">
-                          <form.AppField name={`items[${i}].product`}>
-                            {(subField) => (
-                              <subField.Field className="col-span-3">
-                                <subField.Label>Product</subField.Label>
-                                <subField.ComboboxQueryOnOpenById
-                                  itemsQueryOptions={productsListAllOptions()}
-                                >
-                                  <ComboboxValue>
-                                    {(value: Product | null) => (
-                                      <ComboboxInput>
-                                        {value?.image && (
-                                          <InputGroupAddon>
-                                            <Avatar className="size-4">
-                                              <AvatarImage src={value.image} />
-                                              <AvatarFallback />
-                                            </Avatar>
-                                          </InputGroupAddon>
-                                        )}
-                                      </ComboboxInput>
-                                    )}
-                                  </ComboboxValue>
-                                  <ComboboxContent>
-                                    <ComboboxEmpty>No products.</ComboboxEmpty>
-                                    <ComboboxList>
-                                      {(product: Product) => (
-                                        <ComboboxItem
-                                          key={product.id}
-                                          value={product}
-                                          className="p-0"
-                                        >
-                                          <Item>
-                                            <ItemMedia>
-                                              <Avatar>
-                                                <AvatarImage
-                                                  src={product.image ?? ""}
-                                                />
-                                                <AvatarFallback />
-                                              </Avatar>
-                                            </ItemMedia>
-                                            <ItemContent>
-                                              <ItemTitle>
-                                                {product.name}
-                                              </ItemTitle>
-                                              <ItemDescription>
-                                                {product.description}
-                                              </ItemDescription>
-                                            </ItemContent>
-                                          </Item>
-                                        </ComboboxItem>
-                                      )}
-                                    </ComboboxList>
-                                  </ComboboxContent>
-                                </subField.ComboboxQueryOnOpenById>
-                                <subField.Message />
-                              </subField.Field>
-                            )}
-                          </form.AppField>
-                          <form.AppField name={`items[${i}].quantity`}>
-                            {(subField) => (
-                              <subField.Field>
-                                <subField.Label>Quantity</subField.Label>
-                                <subField.NumberInput />
-                                <subField.Message />
-                              </subField.Field>
-                            )}
-                          </form.AppField>
-                        </FieldGroup>
-                        <Button
-                          type="button"
-                          size="icon-xs"
-                          variant="destructive"
-                          onClick={() => field.removeValue(i)}
-                        >
-                          <X />
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        field.insertValue(
-                          field.state.value.length,
-                          defaultOrderItem
-                        )
-                      }
-                    >
-                      Add New Item
-                    </Button>
-                  </FieldGroup>
-                )}
-              />
-            </FieldSet>
-          </FieldGroup>
-        </form.Form>
-      </form.AppForm>
-    )
-  },
-})
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function OrderItemsTable({
+  orderItems,
+  renderQuantityCell,
+  removeOrderItem,
+}: {
+  orderItems: OrderItemWritable[]
+  renderQuantityCell: (index: number) => React.ReactNode
+  removeOrderItem: (index: number) => void
+}) {
+  const { data: products } = useQuery(productsListAllOptions())
+
+  const rows = React.useMemo<OrderItem[]>(
+    () =>
+      orderItems.map((orderItem) => {
+        const product = products?.find(
+          (product) => product.id === orderItem.product
+        )
+
+        const subtotal =
+          product?.price && orderItem.quantity
+            ? product.price * orderItem.quantity
+            : 0
+
+        return {
+          id: -1,
+          subtotal,
+          product: product?.id ?? 0,
+          product_detail: product as Product,
+          unit_price: product?.price ?? 0,
+        }
+      }),
+    [orderItems, products]
+  )
+
+  const total = rows.reduce((sum, row) => sum + row.subtotal, 0)
+
+  return (
+    <OrderItemsTableViewer
+      orderItems={rows}
+      renderQuantityCell={renderQuantityCell}
+      renderActionsCell={(index) => (
+        <Button
+          type="button"
+          variant="destructive"
+          size="icon-xs"
+          onClick={() => removeOrderItem(index)}
+        >
+          <XIcon />
+        </Button>
+      )}
+    >
+      <TableFooter>
+        <TableRow>
+          <TableCell colSpan={3}>Total</TableCell>
+          <TableCell className="text-right">{total || ""}</TableCell>
+          <TableCell />
+        </TableRow>
+      </TableFooter>
+    </OrderItemsTableViewer>
+  )
+}

@@ -1,33 +1,28 @@
-import { PageHeader } from "@/components/page-header"
-import { CreateOrderForm } from "./form"
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@workspace/ui/components/breadcrumb"
-import Link from "next/link"
+  AppHeader,
+  AppHeaderContent,
+  AppHeaderSeparator,
+  AppHeaderSidebarTrigger,
+} from "@/components/app-header"
+import { NavBreadcrumb } from "@/components/nav-breadcrumb"
+
+import { CreateOrderForm } from "../form"
 
 export default function OrdersCreatePage() {
   return (
     <>
-      <PageHeader>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/orders">Orders</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>New</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </PageHeader>
+      <AppHeader>
+        <AppHeaderContent>
+          <AppHeaderSidebarTrigger />
+          <AppHeaderSeparator />
+          <NavBreadcrumb
+            items={[
+              { type: "link", label: "Orders", href: "/orders" },
+              { type: "page", label: "New" },
+            ]}
+          />
+        </AppHeaderContent>
+      </AppHeader>
       <div className="mx-auto w-full max-w-2xl p-6">
         <CreateOrderForm />
       </div>

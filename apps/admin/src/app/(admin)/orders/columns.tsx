@@ -1,10 +1,29 @@
 import { snakeCaseToTitle } from "@/lib/utils"
+import { IconDots } from "@tabler/icons-react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
-import { Order, OrderStatus } from "@workspace/api-client"
+import {
+  Order,
+  OrderItem,
+  OrderStatus,
+  PaginatedOrderList,
+} from "@workspace/api-client"
+import {
+  ordersDestroyMutation,
+  ordersListQueryKey,
+} from "@workspace/api-client/query"
 import { zOrderStatus } from "@workspace/api-client/zod"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
-import { Empty, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import {
   Popover,
   PopoverContent,
@@ -18,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
+import { cn } from "@workspace/ui/lib/utils"
 import { Loader, Package } from "lucide-react"
 import React from "react"
 
@@ -40,6 +60,11 @@ export const statusOptions = zOrderStatus.options.map((status) => {
 
 export const columns: ColumnDef<Order>[] = [
   {
+    id: "id",
+    accessorKey: "id",
+    header: "Number of order",
+  },
+  {
     id: "customer",
     accessorKey: "customer_detail",
     header: "Customer",
@@ -51,7 +76,21 @@ export const columns: ColumnDef<Order>[] = [
   {
     id: "items",
     header: "Items",
-    cell: ({ row }) => <TableCellItemsPopover items={row.original.items} />,
+    cell: ({ row }) => {
+      const orderItems = row.original.items
+      return (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="ghost">
+              <Package />x {orderItems.length}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-1" side="right">
+            <OrderItemsTableViewer orderItems={orderItems} size="sm" />
+          </PopoverContent>
+        </Popover>
+      )
+    },
   },
   {
     id: "status",
@@ -73,48 +112,110 @@ export const columns: ColumnDef<Order>[] = [
     accessorKey: "total",
     header: "Total",
     cell: ({ row }) => (
-      <div className="text-right pr-2">$ {row.original.total || "-"}</div>
+      <div className="pr-2 text-right">$ {row.original.total || "-"}</div>
     ),
+  },
+  {
+    id: "actions",
+    cell: function TableCellActions({ row }) {
+      const order = row.original
+      const onDestroy = useOptimisticOrderDestroy(order)
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon-sm" variant="ghost">
+              <IconDots />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuGroup>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
+              <DropdownMenuItem variant="destructive" onClick={onDestroy}>
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
   },
 ]
 
-export function TableCellItemsPopover({ items }: { items: Order["items"] }) {
+export function OrderItemsTableViewer({
+  orderItems,
+  renderQuantityCell,
+  renderActionsCell,
+  size = "md",
+  children,
+}: {
+  orderItems: OrderItem[]
+  renderQuantityCell?: (index: number) => React.ReactNode
+  renderActionsCell?: (index: number) => React.ReactNode
+  children?: React.ReactNode
+  size?: "sm" | "md"
+}) {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button size="sm" variant="ghost">
-          <Package />x {items.length}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-1" align="start">
-        <Table>
-          <TableHeader className="text-xs [&_th]:h-6">
-            <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Unit Price</TableHead>
-              <TableHead className="text-right">Subtotal</TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow className={cn(size === "sm" && "text-xs [&_th]:h-6")}>
+          <TableHead>Product</TableHead>
+          <TableHead className="text-right">Quantity</TableHead>
+          <TableHead className="text-right">Unit Price</TableHead>
+          <TableHead className="text-right">Subtotal</TableHead>
+          {renderActionsCell && <TableHead />}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {orderItems.map(
+          ({ product_detail: product, subtotal, quantity }, index) => (
+            <TableRow key={index}>
+              <TableCell>{product.name}</TableCell>
+              <TableCell className="text-right">
+                {renderQuantityCell?.(index) ?? quantity}
+              </TableCell>
+              <TableCell className="text-right">{product.price}</TableCell>
+              <TableCell className="text-right">{subtotal}</TableCell>
+              {renderActionsCell && (
+                <TableCell className="text-right">
+                  {renderActionsCell(index)}
+                </TableCell>
+              )}
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.product_detail.name}</TableCell>
-                <TableCell className="text-right">{item.quantity}</TableCell>
-                <TableCell className="text-right">{item.unit_price}</TableCell>
-                <TableCell className="text-right">{item.subtotal}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {items.length === 0 && (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle className="text-sm">No items</EmptyTitle>
-            </EmptyHeader>
-          </Empty>
+          )
         )}
-      </PopoverContent>
-    </Popover>
+      </TableBody>
+      {children}
+    </Table>
   )
+}
+
+function useOptimisticOrderDestroy(order: Order) {
+  const queryClient = useQueryClient()
+  const queryKey = ordersListQueryKey()
+  const destroyMutation = useMutation({
+    ...ordersDestroyMutation(),
+    onMutate: () => {
+      queryClient.cancelQueries({ queryKey })
+      const previousData = queryClient.getQueryData(queryKey)
+      queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
+        if (!old) return old
+        return {
+          ...old,
+          results: old.results.filter((item) => item.id !== order.id),
+        }
+      })
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) => {
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  })
+  const onDestroy = () => destroyMutation.mutate({ path: { id: order.id } })
+  return onDestroy
 }

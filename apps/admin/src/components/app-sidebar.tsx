@@ -13,12 +13,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@workspace/ui/components/sidebar"
 import { IconInnerShadowTop } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useQuery } from "@tanstack/react-query"
 import { authUserRetrieveOptions } from "@workspace/api-client/query"
+import { cn } from "@workspace/ui/lib/utils"
 
 const items = [
   {
@@ -82,4 +84,11 @@ export function AppSidebar() {
       <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
     </Sidebar>
   )
+}
+
+export function AppSidebarTrigger({
+  className,
+  ...props
+}: React.ComponentProps<typeof SidebarTrigger>) {
+  return <SidebarTrigger {...props} className={cn("-ml-1", className)} />
 }
