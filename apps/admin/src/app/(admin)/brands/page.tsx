@@ -23,6 +23,21 @@ import { BrandForm, useBrandForm } from "./form"
 import * as React from "react"
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { brandsListOptions } from "@workspace/api-client/query"
+import {
+  AppHeader,
+  AppHeaderActions,
+  AppHeaderContent,
+  AppHeaderSeparator,
+} from "@/components/app-header"
+import { AppSidebarTrigger } from "@/components/app-sidebar"
+import { NavBreadcrumb } from "@/components/nav-breadcrumb"
+import {
+  Section,
+  SectionContent,
+  SectionGroup,
+  SectionHeader,
+  SectionTitle,
+} from "@/components/section"
 
 export default function BrandsPage() {
   const pagination = usePaginationValues()
@@ -36,15 +51,26 @@ export default function BrandsPage() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeaderHeading>Brands</PageHeaderHeading>
-        <PageHeaderActions>
+      <AppHeader>
+        <AppHeaderContent>
+          <AppSidebarTrigger />
+          <AppHeaderSeparator />
+          <NavBreadcrumb items={[{ type: "page", label: "Brands" }]} />
+        </AppHeaderContent>
+        <AppHeaderActions>
           <QuickCreateBrandDialog />
-        </PageHeaderActions>
-      </PageHeader>
-      <div className="@container/main flex py-4 md:py-6">
-        <DataTable table={table} showToolbar={false} />
-      </div>
+        </AppHeaderActions>
+      </AppHeader>
+      <SectionGroup>
+        <Section>
+          <SectionHeader>
+            <SectionTitle>Brands</SectionTitle>
+          </SectionHeader>
+          <SectionContent>
+            <DataTable table={table} showToolbar={false} />
+          </SectionContent>
+        </Section>
+      </SectionGroup>
     </>
   )
 }

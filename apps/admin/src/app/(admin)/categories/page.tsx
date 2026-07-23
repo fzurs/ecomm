@@ -1,10 +1,5 @@
 "use client"
 import { DataTable } from "@/components/data-table/data-table"
-import {
-  PageHeader,
-  PageHeaderActions,
-  PageHeaderHeading,
-} from "@/components/page-header"
 import { useDataTable } from "@/hooks/use-data-table"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { columns } from "./columns"
@@ -17,23 +12,17 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@workspace/ui/components/input-group"
-import { Button } from "@workspace/ui/components/button"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@workspace/ui/components/dialog"
 import { SearchIcon } from "lucide-react"
-import * as React from "react"
-import { CategoryForm, useCategoryForm } from "./form"
-import { IconTagPlus } from "@tabler/icons-react"
+
 import { usePaginationValues } from "@/hooks/use-pagination"
 import { categoriesListOptions } from "@workspace/api-client/query"
+import {
+  SectionGroup,
+  Section,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+} from "@/components/section"
 
 const DEBOUNCE_DELAY = 300
 
@@ -50,74 +39,34 @@ export default function CategoriesPage() {
   const table = useDataTable({ data, columns })
 
   return (
-    <>
-      <PageHeader>
-        <PageHeaderHeading>Categories</PageHeaderHeading>
-        <PageHeaderActions>
-          <CreateCategoryDialog />
-        </PageHeaderActions>
-      </PageHeader>
-      <div className="@container/main flex py-4 md:py-6">
-        <DataTable table={table}>
-          <div className="flex gap-2 md:gap-4">
-            <InputGroup>
-              <InputGroupInput
-                placeholder="Search for a categories..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <InputGroupAddon>
-                <SearchIcon />
-              </InputGroupAddon>
-              {search.trim() && filters.search.trim() && isSuccess && (
-                <InputGroupAddon align="inline-end">
-                  <InputGroupText>{data.count} results</InputGroupText>
+    <SectionGroup>
+      <Section>
+        <SectionHeader>
+          <SectionTitle>Categories</SectionTitle>
+        </SectionHeader>
+        <SectionContent>
+          <DataTable table={table}>
+            <div className="flex gap-2 md:gap-4">
+              <InputGroup>
+                <InputGroupInput
+                  placeholder="Search for a categories..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <InputGroupAddon>
+                  <SearchIcon />
                 </InputGroupAddon>
-              )}
-            </InputGroup>
-            <DataTableViewOptions table={table} />
-          </div>
-        </DataTable>
-      </div>
-    </>
-  )
-}
-
-function CreateCategoryDialog() {
-  const [open, setOpen] = React.useState(false)
-
-  const form = useCategoryForm({ setOpen })
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <IconTagPlus />
-          Quick Create
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        onAnimationEnd={(e) => {
-          if (!open && e.animationName === "exit") form.reset()
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle>Create Category</DialogTitle>
-          <DialogDescription className="sr-only">
-            These categories can be assigned to products to be able to filter
-            and sort them.
-          </DialogDescription>
-        </DialogHeader>
-        <CategoryForm form={form} variant="required" />
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
-          </DialogClose>
-          <form.AppForm>
-            <form.Submit>Create</form.Submit>
-          </form.AppForm>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                {search.trim() && filters.search.trim() && isSuccess && (
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText>{data.count} results</InputGroupText>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+              <DataTableViewOptions table={table} />
+            </div>
+          </DataTable>
+        </SectionContent>
+      </Section>
+    </SectionGroup>
   )
 }

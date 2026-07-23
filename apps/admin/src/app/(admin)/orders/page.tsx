@@ -16,9 +16,18 @@ import {
   AppHeaderSidebarTrigger,
 } from "@/components/app-header"
 import { NavBreadcrumb } from "@/components/nav-breadcrumb"
+import {
+  Section,
+  SectionContent,
+  SectionDescription,
+  SectionGroup,
+  SectionHeader,
+  SectionTitle,
+} from "@/components/section"
 
 export default function OrdersPage() {
   const pagination = usePaginationValues()
+
   const { data } = useQuery({
     ...ordersListOptions({ query: pagination }),
     placeholderData: keepPreviousData,
@@ -43,9 +52,19 @@ export default function OrdersPage() {
           </Button>
         </AppHeaderActions>
       </AppHeader>
-      <div className="@container py-4 md:py-6">
-        <DataTable table={table} />
-      </div>
+      <SectionGroup>
+        <Section>
+          <SectionHeader>
+            <SectionTitle>Orders</SectionTitle>
+            <SectionDescription>
+              Browse all orders, track their status, and manage them.
+            </SectionDescription>
+          </SectionHeader>
+          <SectionContent>
+            <DataTable table={table} showToolbar={false} />
+          </SectionContent>
+        </Section>
+      </SectionGroup>
     </>
   )
 }

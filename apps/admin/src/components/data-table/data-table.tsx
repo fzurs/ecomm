@@ -35,7 +35,7 @@ export function DataTable<TData>({
   return (
     <div
       className={cn(
-        "flex w-full flex-col justify-start gap-6 px-4 lg:px-6",
+        "flex w-full flex-col justify-start gap-6",
         className
       )}
     >

@@ -1,14 +1,13 @@
 "use client"
 import {
-  PageHeader,
-  PageHeaderActions,
-  PageHeaderHeading,
-} from "@/components/page-header"
+  AppHeader,
+  AppHeaderContent,
+  AppHeaderSeparator,
+  AppHeaderSidebarTrigger,
+} from "@/components/app-header"
+import { NavBreadcrumb } from "@/components/nav-breadcrumb"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { ordersRetrieveOptions } from "@workspace/api-client/query"
-import { Button } from "@workspace/ui/components/button"
-import { ChevronLeftIcon } from "lucide-react"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 
 export default function EditOrderPage() {
@@ -19,17 +18,18 @@ export default function EditOrderPage() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeaderHeading>Order: {order.id}</PageHeaderHeading>
-        <PageHeaderActions>
-          <Button size="sm" variant="ghost" asChild>
-            <Link href="/orders">
-              <ChevronLeftIcon />
-              Orders
-            </Link>
-          </Button>
-        </PageHeaderActions>
-      </PageHeader>
+      <AppHeader>
+        <AppHeaderContent>
+          <AppHeaderSidebarTrigger />
+          <AppHeaderSeparator />
+          <NavBreadcrumb
+            items={[
+              { type: "link", label: "Orders", href: "/orders" },
+              { type: "page", label: order.id.toString() },
+            ]}
+          />
+        </AppHeaderContent>
+      </AppHeader>
     </>
   )
 }

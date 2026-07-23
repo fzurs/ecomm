@@ -39,6 +39,7 @@ import {
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 import { Loader, Package } from "lucide-react"
+import Link from "next/link"
 import React from "react"
 
 export function getStatusIcon(status: OrderStatus) {
@@ -130,7 +131,9 @@ export const columns: ColumnDef<Order>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuGroup>
-              <DropdownMenuItem>Edit</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/orders/${order.id}/edit`}>Edit</Link>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>

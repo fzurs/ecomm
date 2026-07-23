@@ -42,6 +42,14 @@ import {
   AppHeaderSidebarTrigger,
 } from "@/components/app-header"
 import { NavBreadcrumb } from "@/components/nav-breadcrumb"
+import {
+  Section,
+  SectionContent,
+  SectionDescription,
+  SectionGroup,
+  SectionHeader,
+  SectionTitle,
+} from "@/components/section"
 
 const DEBOUNCE_DELAY = 300
 
@@ -116,9 +124,17 @@ export default function Page() {
           <QuickCreateProductDialog />
         </AppHeaderActions>
       </AppHeader>
-      <div className="@container/main flex py-4 md:py-6">
-        <DataTable table={table} />
-      </div>
+      <SectionGroup>
+        <Section>
+          <SectionHeader>
+            <SectionTitle>Products</SectionTitle>
+            <SectionDescription>List of all products.</SectionDescription>
+          </SectionHeader>
+          <SectionContent>
+            <DataTable table={table} />
+          </SectionContent>
+        </Section>
+      </SectionGroup>
     </>
   )
 }
