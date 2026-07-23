@@ -72,9 +72,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
-                    isActive={item.url.includes(
-                      pathname.slice(0, item.url.length)
-                    )}
+                    isActive={
+                      pathname !== "/" &&
+                      item.url.includes(pathname.slice(0, item.url.length))
+                    }
                     asChild
                   >
                     <Link href={item.url}>
