@@ -46,9 +46,7 @@ export function DataTableToolbar<TData>({
           />
         ))}
       </div>
-      <div className="flex items-center gap-2">
-        <DataTableViewOptions table={table} />
-      </div>
+      <DataTableViewOptions table={table} />
     </div>
   )
 }

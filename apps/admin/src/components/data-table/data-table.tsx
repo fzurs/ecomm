@@ -15,6 +15,10 @@ import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { Button } from "@workspace/ui/components/button"
 
+export function DataTableWrapper() {
+  return
+}
+
 export function DataTable<TData>({
   table,
   className,
@@ -33,12 +37,7 @@ export function DataTable<TData>({
   const clearFilters = () => table.resetColumnFilters()
 
   return (
-    <div
-      className={cn(
-        "flex w-full flex-col justify-start gap-6",
-        className
-      )}
-    >
+    <div className={cn("flex w-full flex-col justify-start gap-6", className)}>
       {hasChildren
         ? children
         : showToolbar && <DataTableToolbar table={table} />}
