@@ -1,5 +1,12 @@
+import {
+  ActionMenu,
+  ActionMenuContent,
+  ActionMenuGroup,
+  ActionMenuItem,
+  ActionMenuSeparator,
+  ActionMenuTrigger,
+} from "@/components/action-menu"
 import { snakeCaseToTitle } from "@/lib/utils"
-import { IconDots } from "@tabler/icons-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import {
@@ -13,17 +20,20 @@ import {
   ordersListQueryKey,
 } from "@workspace/api-client/query"
 import { zOrderStatus } from "@workspace/api-client/zod"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@workspace/ui/components/alert-dialog"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
 import {
   Popover,
   PopoverContent,
@@ -38,7 +48,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
-import { Loader, Package } from "lucide-react"
+import { Loader, Package, SquarePenIcon, Trash2Icon } from "lucide-react"
 import Link from "next/link"
 import React from "react"
 
@@ -123,27 +133,54 @@ export const columns: ColumnDef<Order>[] = [
       const onDestroy = useOptimisticOrderDestroy(order)
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-sm" variant="ghost">
-              <IconDots />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href={`/orders/${order.id}/edit`}>Edit</Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
-              <DropdownMenuItem variant="destructive" onClick={onDestroy}>
+        <AlertDialog>
+          <ActionMenu>
+            <ActionMenuTrigger />
+            <ActionMenuContent>
+              <ActionMenuGroup>
+                <ActionMenuItem asChild>
+                  <Link href={`/orders/${order.id}`}>
+                    <SquarePenIcon />
+                    View details
+                  </Link>
+                </ActionMenuItem>
+                <ActionMenuItem asChild>
+                  <Link href={`/orders/${order.id}/edit`}>
+                    <SquarePenIcon />
+                    Edit
+                  </Link>
+                </ActionMenuItem>
+              </ActionMenuGroup>
+              <ActionMenuSeparator />
+              <ActionMenuGroup>
+                <AlertDialogTrigger asChild>
+                  <ActionMenuItem variant="destructive">
+                    <Trash2Icon />
+                    Delete order
+                  </ActionMenuItem>
+                </AlertDialogTrigger>
+              </ActionMenuGroup>
+            </ActionMenuContent>
+          </ActionMenu>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogMedia className="bg-destructive/10 text-destructive">
+                <Trash2Icon />
+              </AlertDialogMedia>
+              <AlertDialogTitle>Delete order?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                order and remove all associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={onDestroy}>
                 Delete
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )
     },
   },

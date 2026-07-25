@@ -5,8 +5,6 @@ import {
   AppHeaderSidebarTrigger,
 } from "@/components/app-header"
 import { NavBreadcrumb } from "@/components/nav-breadcrumb"
-
-import { CreateOrderForm } from "../form"
 import {
   Section,
   SectionContent,
@@ -15,7 +13,7 @@ import {
   SectionHeader,
   SectionTitle,
 } from "@/components/section"
-import { Card, CardContent } from "@workspace/ui/components/card"
+import { CreateOrderForm } from "../form"
 
 export default function OrdersCreatePage() {
   return (
@@ -32,7 +30,7 @@ export default function OrdersCreatePage() {
           />
         </AppHeaderContent>
       </AppHeader>
-      <SectionGroup>
+      <SectionGroup className="mx-auto w-full max-w-2xl">
         <Section>
           <SectionHeader>
             <SectionTitle>Create Order</SectionTitle>

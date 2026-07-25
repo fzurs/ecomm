@@ -22,11 +22,9 @@ import { Badge } from "@workspace/ui/components/badge"
 import {
   IconCircleDashedCheck,
   IconCircleDashedX,
-  IconDots,
   IconLoader,
   IconPackageOff,
   IconStar,
-  IconTrash,
   IconTrashX,
 } from "@tabler/icons-react"
 import {
@@ -40,12 +38,12 @@ import {
 
 import { ProductForm, useProductForm } from "./form"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
+  ActionMenu,
+  ActionMenuContent,
+  ActionMenuGroup,
+  ActionMenuItem,
+  ActionMenuTrigger,
+} from "@/components/action-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -78,6 +76,7 @@ import {
   productsDestroyMutation,
   productsListQueryKey,
 } from "@workspace/api-client/query"
+import { Trash2Icon } from "lucide-react"
 
 export function getFeaturedIcon(featured: boolean) {
   return featured ? (
@@ -354,48 +353,39 @@ function TableCellActions({ item }: { item: Product }) {
   const { onDestroy } = useOptimisticProductDestroy(item)
 
   return (
-    <div className="flex justify-end">
-      <AlertDialog>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <IconDots />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem variant="destructive">
-                  <IconTrash />
-                  Delete
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Confirmation of product destruction */}
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-              <IconTrash />
-            </AlertDialogMedia>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Once deleted, there is no going back; the item will be permanently
-              deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={onDestroy}>
-              Delete Product
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+    <AlertDialog>
+      <ActionMenu>
+        <ActionMenuTrigger />
+        <ActionMenuContent>
+          <ActionMenuGroup>
+            <AlertDialogTrigger asChild>
+              <ActionMenuItem variant="destructive">
+                <Trash2Icon />
+                Delete product
+              </ActionMenuItem>
+            </AlertDialogTrigger>
+          </ActionMenuGroup>
+        </ActionMenuContent>
+      </ActionMenu>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10 text-destructive">
+            <Trash2Icon />
+          </AlertDialogMedia>
+          <AlertDialogTitle>Delete product?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the
+            product and remove all associated data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onDestroy}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
