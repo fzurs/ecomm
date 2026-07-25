@@ -15,10 +15,6 @@ import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { Button } from "@workspace/ui/components/button"
 
-export function DataTableWrapper() {
-  return
-}
-
 export function DataTable<TData>({
   table,
   className,
