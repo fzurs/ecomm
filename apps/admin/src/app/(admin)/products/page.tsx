@@ -42,14 +42,7 @@ import {
   AppHeaderSidebarTrigger,
 } from "@/components/app-header"
 import { NavBreadcrumb } from "@/components/nav-breadcrumb"
-import {
-  Section,
-  SectionContent,
-  SectionDescription,
-  SectionGroup,
-  SectionHeader,
-  SectionTitle,
-} from "@/components/section"
+import { Section, SectionContent, SectionGroup } from "@/components/section"
 
 const DEBOUNCE_DELAY = 300
 
@@ -60,7 +53,7 @@ export default function Page() {
   const sorting = useSortingValues()
   const columnFilters = useColumnFilterValues(columns)
 
-  const filters = React.useMemo<ProductsListData["query"]>(() => {
+  const filtersToDebounced = React.useMemo<ProductsListData["query"]>(() => {
     const {
       name: search,
       price = [],
@@ -74,7 +67,6 @@ export default function Page() {
       formatISO(date, { representation: "date" })
     )
     return {
-      ...pagination,
       ...sorting,
       ...moreFilters,
       search,
@@ -85,15 +77,22 @@ export default function Page() {
       created_at_after,
       created_at_before,
     }
-  }, [pagination, sorting, columnFilters])
+  }, [sorting, columnFilters])
+  const filters = React.useMemo<ProductsListData["query"]>(
+    () => ({ ...filtersToDebounced, ...pagination }),
+    [filtersToDebounced, pagination]
+  )
 
   const isCached =
     queryClient.getQueryData(productsListQueryKey({ query: filters })) !==
     undefined
 
-  const debouncedFilters = useDebounce(filters, DEBOUNCE_DELAY)
+  const debouncedFilters = useDebounce(filtersToDebounced, DEBOUNCE_DELAY)
 
-  const activeFilters = isCached ? filters : debouncedFilters
+  const activeFilters = React.useMemo(
+    () => (isCached ? filters : { ...pagination, ...debouncedFilters }),
+    [isCached, filters, pagination, debouncedFilters]
+  )
 
   const { data } = useQuery({
     ...productsListOptions({ query: activeFilters }),
@@ -126,10 +125,6 @@ export default function Page() {
       </AppHeader>
       <SectionGroup>
         <Section>
-          <SectionHeader>
-            <SectionTitle>Products</SectionTitle>
-            <SectionDescription>List of all products.</SectionDescription>
-          </SectionHeader>
           <SectionContent>
             <DataTable table={table} />
           </SectionContent>
