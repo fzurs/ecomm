@@ -7,7 +7,7 @@ from .serializers import OrderSerializer, OrderCreateSerializer, CustomerSeriali
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.order_by("-created_at")
 
     def get_serializer_class(self):
         if self.action == 'create':

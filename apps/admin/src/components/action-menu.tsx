@@ -4,7 +4,13 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { EllipsisVertical } from "lucide-react"
@@ -33,7 +39,7 @@ function ActionMenuContent({
   align = "end",
   ...props
 }: React.ComponentProps<typeof DropdownMenuContent>) {
-  return <DropdownMenuContent className="min-w-44" align={align} {...props} />
+  return <DropdownMenuContent align={align} {...props} />
 }
 
 const ActionMenuGroup = DropdownMenuGroup
@@ -42,6 +48,18 @@ const ActionMenuItem = DropdownMenuItem
 
 const ActionMenuSeparator = DropdownMenuSeparator
 
+const ActionMenuSub = DropdownMenuSub
+
+const ActionMenuSubContent = DropdownMenuSubContent
+
+const ActionMenuSubTrigger = DropdownMenuSubTrigger
+
+const ActionMenuPortal = DropdownMenuPortal
+
+const ActionMenuRadioGroup = DropdownMenuRadioGroup
+
+const ActionMenuRadioItem = DropdownMenuRadioItem
+
 export {
   ActionMenu,
   ActionMenuTrigger,
@@ -49,4 +67,10 @@ export {
   ActionMenuGroup,
   ActionMenuItem,
   ActionMenuSeparator,
+  ActionMenuSub,
+  ActionMenuSubContent,
+  ActionMenuSubTrigger,
+  ActionMenuPortal,
+  ActionMenuRadioGroup,
+  ActionMenuRadioItem
 }

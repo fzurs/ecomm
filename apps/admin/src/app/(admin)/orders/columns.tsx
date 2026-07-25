@@ -3,7 +3,13 @@ import {
   ActionMenuContent,
   ActionMenuGroup,
   ActionMenuItem,
+  ActionMenuPortal,
+  ActionMenuRadioGroup,
+  ActionMenuRadioItem,
   ActionMenuSeparator,
+  ActionMenuSub,
+  ActionMenuSubContent,
+  ActionMenuSubTrigger,
   ActionMenuTrigger,
 } from "@/components/action-menu"
 import { snakeCaseToTitle } from "@/lib/utils"
@@ -18,6 +24,7 @@ import {
 import {
   ordersDestroyMutation,
   ordersListQueryKey,
+  ordersPartialUpdateMutation,
 } from "@workspace/api-client/query"
 import { zOrderStatus } from "@workspace/api-client/zod"
 import {
@@ -48,14 +55,30 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
-import { Loader, Package, SquarePenIcon, Trash2Icon } from "lucide-react"
-import Link from "next/link"
-import React from "react"
+import {
+  CircleCheckIcon,
+  CircleXIcon,
+  ContainerIcon,
+  LoaderIcon,
+  Package,
+  SquarePenIcon,
+  Trash2Icon,
+  TruckIcon,
+} from "lucide-react"
+import React, { useState } from "react"
 
 export function getStatusIcon(status: OrderStatus) {
   switch (status) {
     case "pending":
-      return <Loader />
+      return <LoaderIcon className="text-muted-foreground" />
+    case "paid":
+      return <CircleCheckIcon className="text-green-600" />
+    case "shipped":
+      return <ContainerIcon className="text-blue-600" />
+    case "delivered":
+      return <TruckIcon className="text-yellow-600" />
+    case "cancelled":
+      return <CircleXIcon className="text-red-500" />
     default:
       return null
   }
@@ -128,61 +151,7 @@ export const columns: ColumnDef<Order>[] = [
   },
   {
     id: "actions",
-    cell: function TableCellActions({ row }) {
-      const order = row.original
-      const onDestroy = useOptimisticOrderDestroy(order)
-
-      return (
-        <AlertDialog>
-          <ActionMenu>
-            <ActionMenuTrigger />
-            <ActionMenuContent>
-              <ActionMenuGroup>
-                <ActionMenuItem asChild>
-                  <Link href={`/orders/${order.id}`}>
-                    <SquarePenIcon />
-                    View details
-                  </Link>
-                </ActionMenuItem>
-                <ActionMenuItem asChild>
-                  <Link href={`/orders/${order.id}/edit`}>
-                    <SquarePenIcon />
-                    Edit
-                  </Link>
-                </ActionMenuItem>
-              </ActionMenuGroup>
-              <ActionMenuSeparator />
-              <ActionMenuGroup>
-                <AlertDialogTrigger asChild>
-                  <ActionMenuItem variant="destructive">
-                    <Trash2Icon />
-                    Delete order
-                  </ActionMenuItem>
-                </AlertDialogTrigger>
-              </ActionMenuGroup>
-            </ActionMenuContent>
-          </ActionMenu>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogMedia className="bg-destructive/10 text-destructive">
-                <Trash2Icon />
-              </AlertDialogMedia>
-              <AlertDialogTitle>Delete order?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                order and remove all associated data.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" onClick={onDestroy}>
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )
-    },
+    cell: ({ row }) => <TableCellActions item={row.original} />,
   },
 ]
 
@@ -234,6 +203,84 @@ export function OrderItemsTableViewer({
   )
 }
 
+function TableCellActions({ item: order }: { item: Order }) {
+  const onDestroy = useOptimisticOrderDestroy(order)
+
+  const [status, setStatus] = useState<string>(order.status ?? "")
+  const updateMutation = useOptimisticOrderUpdate(order)
+  const onStatusChange = (value: string) => {
+    setStatus(value)
+    updateMutation.mutate({
+      path: { id: order.id },
+      body: { status: value as OrderStatus },
+    })
+  }
+
+  return (
+    <AlertDialog>
+      <ActionMenu>
+        <ActionMenuTrigger />
+        <ActionMenuContent>
+          <ActionMenuGroup>
+            <ActionMenuSub>
+              <ActionMenuSubTrigger>
+                <SquarePenIcon />
+                Change status
+              </ActionMenuSubTrigger>
+              <ActionMenuPortal>
+                <ActionMenuSubContent>
+                  <ActionMenuRadioGroup
+                    value={status}
+                    onValueChange={onStatusChange}
+                  >
+                    {statusOptions.map((option) => (
+                      <ActionMenuRadioItem
+                        key={option.value}
+                        value={option.value}
+                        className="justity-between"
+                      >
+                        {option.icon}
+                        {option.label}
+                      </ActionMenuRadioItem>
+                    ))}
+                  </ActionMenuRadioGroup>
+                </ActionMenuSubContent>
+              </ActionMenuPortal>
+            </ActionMenuSub>
+          </ActionMenuGroup>
+          <ActionMenuSeparator />
+          <ActionMenuGroup>
+            <AlertDialogTrigger asChild>
+              <ActionMenuItem variant="destructive">
+                <Trash2Icon />
+                Delete order
+              </ActionMenuItem>
+            </AlertDialogTrigger>
+          </ActionMenuGroup>
+        </ActionMenuContent>
+      </ActionMenu>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10 text-destructive">
+            <Trash2Icon />
+          </AlertDialogMedia>
+          <AlertDialogTitle>Delete order?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the order
+            and remove all associated data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onDestroy}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
 function useOptimisticOrderDestroy(order: Order) {
   const queryClient = useQueryClient()
   const queryKey = ordersListQueryKey()
@@ -258,4 +305,30 @@ function useOptimisticOrderDestroy(order: Order) {
   })
   const onDestroy = () => destroyMutation.mutate({ path: { id: order.id } })
   return onDestroy
+}
+
+function useOptimisticOrderUpdate(order: Order) {
+  const queryClient = useQueryClient()
+  const queryKey = ordersListQueryKey()
+  return useMutation({
+    ...ordersPartialUpdateMutation(),
+    onMutate: (data) => {
+      queryClient.cancelQueries({ queryKey })
+      const previousData = queryClient.getQueryData(queryKey)
+      queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
+        if (!old) return old
+        return {
+          ...old,
+          results: old.results.map((item) =>
+            item.id === order.id ? { ...order, ...data } : item
+          ),
+        }
+      })
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) => {
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  })
 }
