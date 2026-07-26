@@ -38,12 +38,12 @@ import {
 
 import { ProductForm, useProductForm } from "./form"
 import {
-  ActionMenu,
-  ActionMenuContent,
-  ActionMenuGroup,
-  ActionMenuItem,
-  ActionMenuTrigger,
-} from "@/components/action-menu"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,7 +76,7 @@ import {
   productsDestroyMutation,
   productsListQueryKey,
 } from "@workspace/api-client/query"
-import { Trash2Icon } from "lucide-react"
+import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 
 export function getFeaturedIcon(featured: boolean) {
   return featured ? (
@@ -354,19 +354,23 @@ function TableCellActions({ item }: { item: Product }) {
 
   return (
     <AlertDialog>
-      <ActionMenu>
-        <ActionMenuTrigger />
-        <ActionMenuContent>
-          <ActionMenuGroup>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon-sm" variant="ghost" aria-label="Open actions">
+            <EllipsisVerticalIcon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
             <AlertDialogTrigger asChild>
-              <ActionMenuItem variant="destructive">
+              <DropdownMenuItem variant="destructive">
                 <Trash2Icon />
                 Delete product
-              </ActionMenuItem>
+              </DropdownMenuItem>
             </AlertDialogTrigger>
-          </ActionMenuGroup>
-        </ActionMenuContent>
-      </ActionMenu>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10 text-destructive">

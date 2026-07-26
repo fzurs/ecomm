@@ -1,17 +1,3 @@
-import {
-  ActionMenu,
-  ActionMenuContent,
-  ActionMenuGroup,
-  ActionMenuItem,
-  ActionMenuPortal,
-  ActionMenuRadioGroup,
-  ActionMenuRadioItem,
-  ActionMenuSeparator,
-  ActionMenuSub,
-  ActionMenuSubContent,
-  ActionMenuSubTrigger,
-  ActionMenuTrigger,
-} from "@/components/action-menu"
 import { snakeCaseToTitle } from "@/lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
@@ -42,6 +28,20 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -59,11 +59,13 @@ import {
   CircleCheckIcon,
   CircleXIcon,
   ContainerIcon,
+  EllipsisVerticalIcon,
   LoaderIcon,
   Package,
   SquarePenIcon,
   Trash2Icon,
   TruckIcon,
+  ViewIcon,
 } from "lucide-react"
 import React, { useState } from "react"
 
@@ -218,47 +220,55 @@ function TableCellActions({ item: order }: { item: Order }) {
 
   return (
     <AlertDialog>
-      <ActionMenu>
-        <ActionMenuTrigger />
-        <ActionMenuContent>
-          <ActionMenuGroup>
-            <ActionMenuSub>
-              <ActionMenuSubTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon-sm" variant="ghost" aria-label="Open actions">
+            <EllipsisVerticalIcon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <ViewIcon />
+              View details
+            </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
                 <SquarePenIcon />
                 Change status
-              </ActionMenuSubTrigger>
-              <ActionMenuPortal>
-                <ActionMenuSubContent>
-                  <ActionMenuRadioGroup
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuRadioGroup
                     value={status}
                     onValueChange={onStatusChange}
                   >
                     {statusOptions.map((option) => (
-                      <ActionMenuRadioItem
+                      <DropdownMenuRadioItem
                         key={option.value}
                         value={option.value}
                         className="justity-between"
                       >
                         {option.icon}
                         {option.label}
-                      </ActionMenuRadioItem>
+                      </DropdownMenuRadioItem>
                     ))}
-                  </ActionMenuRadioGroup>
-                </ActionMenuSubContent>
-              </ActionMenuPortal>
-            </ActionMenuSub>
-          </ActionMenuGroup>
-          <ActionMenuSeparator />
-          <ActionMenuGroup>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
             <AlertDialogTrigger asChild>
-              <ActionMenuItem variant="destructive">
+              <DropdownMenuItem variant="destructive">
                 <Trash2Icon />
                 Delete order
-              </ActionMenuItem>
+              </DropdownMenuItem>
             </AlertDialogTrigger>
-          </ActionMenuGroup>
-        </ActionMenuContent>
-      </ActionMenu>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10 text-destructive">
