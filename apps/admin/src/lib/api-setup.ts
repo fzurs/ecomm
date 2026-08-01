@@ -1,5 +1,5 @@
 import { client } from "@workspace/api-client/client"
-import { CSRFTOKEN_KEY, getCSRFToken } from "./utils"
+import Cookies from "js-cookie"
 
 client.setConfig({
   baseURL: "http://localhost:8000",
@@ -7,6 +7,6 @@ client.setConfig({
 })
 
 client.instance.interceptors.request.use((config) => {
-  config.headers[CSRFTOKEN_KEY] = getCSRFToken()
+  config.headers["X-CSRFToken"] = Cookies.get("csrftoken")
   return config
 })

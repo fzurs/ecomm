@@ -123,20 +123,17 @@ export function ProductImagePreview({ product }: { product?: Product }) {
 
 export const columns = [
   {
-    id: "image",
-    header: "Image",
+    accessorKey: "Image",
     cell: ({ row }) => <ProductImagePreview product={row.original} />,
   },
   {
-    id: "sku",
-    header: "SKU",
     accessorKey: "sku",
-    enableSorting: false,
+    header: "SKU",
+    // meta: { label: "", variant: "text" },
   },
   {
-    id: "name",
-    header: "Name",
     accessorKey: "name",
+    header: "Name",
     cell: ({ row }) => <TableCellViewer original={row.original} />,
     enableHiding: false,
     meta: {

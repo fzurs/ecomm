@@ -1,13 +1,19 @@
 from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import OrderFilter
 from .models import Order, Customer
 from .serializers import OrderSerializer, OrderCreateSerializer, CustomerSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.order_by("-created_at")
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_class = OrderFilter
+    ordering_fields = ["status"]
 
     def get_serializer_class(self):
         if self.action == 'create':

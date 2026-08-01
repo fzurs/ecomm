@@ -582,7 +582,15 @@ export const zCustomersListAllResponse = z.array(zCustomer);
 
 export const zOrdersListQuery = z.object({
     limit: z.int().optional(),
-    offset: z.int().optional()
+    offset: z.int().optional(),
+    ordering: z.string().optional(),
+    status: z.array(z.enum([
+        'cancelled',
+        'delivered',
+        'paid',
+        'pending',
+        'shipped'
+    ])).optional()
 });
 
 export const zOrdersListResponse = zPaginatedOrderList;

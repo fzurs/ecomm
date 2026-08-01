@@ -4,10 +4,18 @@
     "paths": {
       "@/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
+      "@workspace/data-table": ["../../packages/data-table/src/index.ts"],
+      "@workspace/data-table/components/*": [
+        "../../packages/data-table/src/components/*"
+      ],
       "@workspace/api-client": ["../../packages/api-client/src/index.ts"],
-      "@workspace/api-client/client": ["../../packages/api-client/src/client.gen.ts"],
-      "@workspace/api-client/query": ["../../packages/api-client/src/@tanstack/react-query.gen.ts"],
-      "@workspace/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"],
+      "@workspace/api-client/client": [
+        "../../packages/api-client/src/client.gen.ts"
+      ],
+      "@workspace/api-client/query": [
+        "../../packages/api-client/src/@tanstack/react-query.gen.ts"
+      ],
+      "@workspace/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"]
     },
     "plugins": [{ "name": "next" }]
   },
@@ -16,7 +24,7 @@
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

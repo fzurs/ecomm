@@ -60,7 +60,7 @@ import { PlusIcon, XIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
-import { OrderItemsTableViewer } from "./columns"
+import { OrderItemsTable } from "./columns"
 
 const defaultValues: OrderCreateWritable = { customer: -1, items: [] }
 
@@ -157,10 +157,10 @@ export function CreateOrderForm() {
                   />
                 </div>
                 <FieldGroup>
-                  <OrderItemsTable
+                  <OrderItemsField
                     orderItems={orderItems}
                     removeOrderItem={field.removeValue}
-                    renderQuantityCell={(index) => (
+                    renderQuantity={(index) => (
                       <form.Field
                         name={`items[${index}].quantity`}
                         children={(subField) => {
@@ -323,13 +323,13 @@ function AddOrderItem({
   )
 }
 
-function OrderItemsTable({
+function OrderItemsField({
   orderItems,
-  renderQuantityCell,
+  renderQuantity,
   removeOrderItem,
 }: {
   orderItems: OrderItemWritable[]
-  renderQuantityCell: (index: number) => React.ReactNode
+  renderQuantity: (index: number) => React.ReactNode
   removeOrderItem: (index: number) => void
 }) {
   const { data: products } = useQuery(productsListAllOptions())
@@ -360,14 +360,15 @@ function OrderItemsTable({
   const total = rows.reduce((sum, row) => sum + row.subtotal, 0)
 
   return (
-    <OrderItemsTableViewer
+    <OrderItemsTable
       orderItems={rows}
-      renderQuantityCell={renderQuantityCell}
-      renderActionsCell={(index) => (
+      renderQuantity={renderQuantity}
+      renderActions={(index) => (
         <Button
           type="button"
           variant="destructive"
           size="icon-xs"
+          aria-label="Remove item"
           onClick={() => removeOrderItem(index)}
         >
           <XIcon />
@@ -376,11 +377,13 @@ function OrderItemsTable({
     >
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">{total || ""}</TableCell>
+          <TableCell>Total</TableCell>
+          <TableCell colSpan={3} className="text-right">
+            ${total || ""}
+          </TableCell>
           <TableCell />
         </TableRow>
       </TableFooter>
-    </OrderItemsTableViewer>
+    </OrderItemsTable>
   )
 }

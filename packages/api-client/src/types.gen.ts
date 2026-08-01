@@ -881,6 +881,18 @@ export type OrdersListData = {
          * The initial index from which to return the results.
          */
         offset?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * * `pending` - Pending
+         * * `paid` - Paid
+         * * `shipped` - Shipped
+         * * `delivered` - Delivered
+         * * `cancelled` - Cancelled
+         */
+        status?: Array<'cancelled' | 'delivered' | 'paid' | 'pending' | 'shipped'>;
     };
     url: '/orders/';
 };

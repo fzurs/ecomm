@@ -5,6 +5,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { ChevronLeftIcon } from "lucide-react"
 import Link from "next/link"
 import React from "react"
+import { NavBreadcrumb } from "./nav-breadcrumb"
 
 function AppHeader({ className, ...props }: React.ComponentProps<"header">) {
   return (
@@ -24,17 +25,13 @@ function AppHeaderContent({
 }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex w-full items-center gap-1", className)}
+      className={cn(
+        "flex w-full items-center gap-1 [&_[data-slot=sidebar-trigger]]:-ml-1",
+        className
+      )}
       {...props}
     />
   )
-}
-
-function AppHeaderSidebarTrigger({
-  className,
-  ...props
-}: React.ComponentProps<typeof SidebarTrigger>) {
-  return <SidebarTrigger className={cn("-ml-1", className)} {...props} />
 }
 
 function AppHeaderSeparator({
@@ -77,11 +74,23 @@ function AppHeaderBackLink({
   )
 }
 
+function AppHeaderNav({
+  ...props
+}: React.ComponentProps<typeof NavBreadcrumb>) {
+  return (
+    <AppHeaderContent>
+      <SidebarTrigger />
+      <AppHeaderSeparator />
+      <NavBreadcrumb {...props} />
+    </AppHeaderContent>
+  )
+}
+
 export {
   AppHeader,
   AppHeaderContent,
-  AppHeaderSidebarTrigger,
   AppHeaderSeparator,
   AppHeaderActions,
   AppHeaderBackLink,
+  AppHeaderNav,
 }

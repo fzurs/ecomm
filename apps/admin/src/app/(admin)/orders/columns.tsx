@@ -1,4 +1,3 @@
-import { snakeCaseToTitle } from "@/lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import {
@@ -55,145 +54,148 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
-import {
-  CircleCheckIcon,
-  CircleXIcon,
-  ContainerIcon,
-  EllipsisVerticalIcon,
-  LoaderIcon,
-  Package,
-  SquarePenIcon,
-  Trash2Icon,
-  TruckIcon,
-  ViewIcon,
-} from "lucide-react"
+import { format } from "date-fns"
+import { EllipsisIcon, RefreshCw, Trash2Icon, ViewIcon } from "lucide-react"
 import React, { useState } from "react"
 
-export function getStatusIcon(status: OrderStatus) {
-  switch (status) {
-    case "pending":
-      return <LoaderIcon className="text-muted-foreground" />
-    case "paid":
-      return <CircleCheckIcon className="text-green-600" />
-    case "shipped":
-      return <ContainerIcon className="text-blue-600" />
-    case "delivered":
-      return <TruckIcon className="text-yellow-600" />
-    case "cancelled":
-      return <CircleXIcon className="text-red-500" />
-    default:
-      return null
-  }
+const statusClasses: Record<OrderStatus, string> = {
+  pending: "bg-yellow-500/15 text-yellow-900 dark:text-yellow-400",
+  paid: "bg-green-500/15 text-green-900 dark:text-green-400",
+  shipped: "bg-blue-500/15 text-blue-900 dark:text-blue-400",
+  delivered: "bg-emerald-500/15 text-emerald-900 dark:text-emerald-400",
+  cancelled: "bg-red-500/15 text-red-900 dark:text-red-400",
 }
 
-export const statusOptions = zOrderStatus.options.map((status) => {
-  return {
-    label: snakeCaseToTitle(status),
-    value: status,
-    icon: getStatusIcon(status),
-  }
-})
-
-export const columns: ColumnDef<Order>[] = [
+export const columns = [
   {
-    id: "id",
-    accessorKey: "id",
-    header: "Number of order",
+    accessorKey: "total",
+    cell: ({ row }) => `$${row.original.total}`,
+    meta: {
+      thClassName: "text-right",
+      className: "text-right font-semibold",
+      variant: "number",
+    },
+    enableHiding: false,
+    enableColumnFilter: true,
   },
   {
-    id: "customer",
-    accessorKey: "customer_detail",
-    header: "Customer",
-    cell: ({ row }) => (
-      <div className="font-semibold">{row.original.customer_detail.name}</div>
-    ),
+    id: "currency",
+    cell: "USD",
+    meta: { className: "text-muted-foreground font-medium" },
     enableHiding: false,
   },
   {
-    id: "items",
-    header: "Items",
+    accessorKey: "status",
+    cell: ({ row }) => {
+      const status = row.original.status || "pending"
+      return (
+        <Badge
+          className={cn("h-6 rounded-md capitalize", statusClasses[status])}
+        >
+          {status}
+        </Badge>
+      )
+    },
+    enableSorting: true,
+  },
+  {
+    accessorKey: "id",
+    header: "Order Number",
+    cell: ({ row }) => `C654523-00${row.original.id}`,
+    meta: { className: "text-muted-foreground font-medium" },
+  },
+  {
+    accessorKey: "items",
     cell: ({ row }) => {
       const orderItems = row.original.items
       return (
         <Popover>
           <PopoverTrigger asChild>
-            <Button size="sm" variant="ghost">
-              <Package />x {orderItems.length}
+            <Button variant="ghost" size="sm" className="font-normal">
+              {orderItems.length} item{orderItems.length > 1 && "s"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-1" side="right">
-            <OrderItemsTableViewer orderItems={orderItems} size="sm" />
+          <PopoverContent className="w-auto p-1">
+            <OrderItemsTable orderItems={orderItems} className="[&_th]:h-6" />
           </PopoverContent>
         </Popover>
       )
     },
+    meta: {
+      thClassName: "text-center",
+      className: "text-center",
+    },
   },
   {
-    id: "status",
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "customer",
     cell: ({ row }) => {
-      const status = row.original.status
-      const statusOption = statusOptions.find((o) => o.value === status)
-      if (!statusOption) return null
+      const customer = row.original.customer_detail
       return (
-        <Badge variant="outline">
-          {statusOption.icon} {statusOption.label}
-        </Badge>
+        <div>
+          <div className="font-medium">{customer.name}</div>
+          <div className="text-muted-foreground">{customer.email}</div>
+        </div>
       )
     },
   },
   {
-    id: "total",
-    accessorKey: "total",
-    header: "Total",
-    cell: ({ row }) => (
-      <div className="pr-2 text-right">$ {row.original.total || "-"}</div>
-    ),
+    accessorKey: "updated_at",
+    header: "Updated",
+    cell: ({ row }) => format(row.original.updated_at, "MMM dd"),
+    meta: { className: "text-muted-foreground" },
+  },
+  {
+    accessorKey: "created_at",
+    header: "Created",
+    cell: ({ row }) => format(row.original.created_at, "MMM dd, p"),
+    meta: { className: "text-muted-foreground" },
   },
   {
     id: "actions",
     cell: ({ row }) => <TableCellActions item={row.original} />,
+    enableHiding: false,
   },
-]
+] as const satisfies ColumnDef<Order>[]
 
-export function OrderItemsTableViewer({
+export function OrderItemsTable({
   orderItems,
-  renderQuantityCell,
-  renderActionsCell,
-  size = "md",
+  renderActions,
+  renderQuantity,
   children,
+  className,
 }: {
   orderItems: OrderItem[]
-  renderQuantityCell?: (index: number) => React.ReactNode
-  renderActionsCell?: (index: number) => React.ReactNode
+  renderActions?: (index: number) => React.ReactNode
+  renderQuantity?: (index: number) => React.ReactNode
   children?: React.ReactNode
-  size?: "sm" | "md"
+  className?: string
 }) {
   return (
-    <Table>
+    <Table className={className}>
       <TableHeader>
-        <TableRow className={cn(size === "sm" && "text-xs [&_th]:h-6")}>
+        <TableRow>
           <TableHead>Product</TableHead>
-          <TableHead className="text-right">Quantity</TableHead>
-          <TableHead className="text-right">Unit Price</TableHead>
+          <TableHead className="text-center">Quantity</TableHead>
+          <TableHead className="text-center">Unit Price</TableHead>
           <TableHead className="text-right">Subtotal</TableHead>
-          {renderActionsCell && <TableHead />}
+          {renderActions && <TableHead />}
         </TableRow>
       </TableHeader>
       <TableBody>
         {orderItems.map(
-          ({ product_detail: product, subtotal, quantity }, index) => (
+          ({ product_detail: product, quantity, subtotal }, index) => (
             <TableRow key={index}>
               <TableCell>{product.name}</TableCell>
-              <TableCell className="text-right">
-                {renderQuantityCell?.(index) ?? quantity}
+              <TableCell className="text-center">
+                {renderQuantity?.(index) ?? quantity}
               </TableCell>
-              <TableCell className="text-right">{product.price}</TableCell>
-              <TableCell className="text-right">{subtotal}</TableCell>
-              {renderActionsCell && (
+              <TableCell className="text-center">${product.price}</TableCell>
+              <TableCell className="text-right font-semibold">
+                ${subtotal}
+              </TableCell>
+              {renderActions && (
                 <TableCell className="text-right">
-                  {renderActionsCell(index)}
+                  {renderActions(index)}
                 </TableCell>
               )}
             </TableRow>
@@ -205,25 +207,92 @@ export function OrderItemsTableViewer({
   )
 }
 
-function TableCellActions({ item: order }: { item: Order }) {
-  const onDestroy = useOptimisticOrderDestroy(order)
+function useOptimisticOrderUpdate(order: Order) {
+  const queryClient = useQueryClient()
+  const queryKey = ordersListQueryKey()
 
-  const [status, setStatus] = useState<string>(order.status ?? "")
+  return useMutation({
+    ...ordersPartialUpdateMutation(),
+    onMutate: (data) => {
+      queryClient.cancelQueries({ queryKey })
+      const previousData = queryClient.getQueryData(queryKey)
+      queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
+        if (!old) return old
+        return {
+          ...old,
+          results: old.results.map((item) =>
+            item.id === order.id ? { ...order, ...data } : item
+          ),
+        }
+      })
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) =>
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData),
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  })
+}
+
+function useOptimisticOrderDestroy(order: Order) {
+  const queryClient = useQueryClient()
+  const queryKey = ordersListQueryKey()
+
+  return useMutation({
+    ...ordersDestroyMutation(),
+    onMutate: () => {
+      queryClient.cancelQueries({ queryKey })
+
+      const previousData = queryClient.getQueryData(queryKey)
+
+      queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
+        if (!old) return old
+        return {
+          ...old,
+          results: old.results.filter((item) => item.id !== order.id),
+        }
+      })
+
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) =>
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData),
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  })
+}
+
+function TableCellActions({ item: order }: { item: Order }) {
+  const destroyMutation = useOptimisticOrderDestroy(order)
+  const onDestroy = () => destroyMutation.mutate({ path: { id: order.id } })
+
   const updateMutation = useOptimisticOrderUpdate(order)
-  const onStatusChange = (value: string) => {
-    setStatus(value)
-    updateMutation.mutate({
-      path: { id: order.id },
-      body: { status: value as OrderStatus },
-    })
-  }
+  const [status, setStatus] = useState<OrderStatus>(order.status || "pending")
+  const onStatusChange = React.useCallback(
+    (value: OrderStatus) => {
+      if (value === status) return
+      if (updateMutation.isPending) return
+
+      setStatus(value)
+      const previous = status
+
+      updateMutation.mutate(
+        {
+          path: { id: order.id },
+          body: { status: value },
+        },
+        {
+          onError: () => setStatus(previous),
+        }
+      )
+    },
+    [order.id, status, updateMutation]
+  )
 
   return (
     <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="icon-sm" variant="ghost" aria-label="Open actions">
-            <EllipsisVerticalIcon />
+            <EllipsisIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -234,25 +303,31 @@ function TableCellActions({ item: order }: { item: Order }) {
             </DropdownMenuItem>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                <SquarePenIcon />
-                Change status
+                <RefreshCw />
+                Change Status
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   <DropdownMenuRadioGroup
                     value={status}
-                    onValueChange={onStatusChange}
+                    onValueChange={(value) =>
+                      onStatusChange(value as OrderStatus)
+                    }
                   >
-                    {statusOptions.map((option) => (
-                      <DropdownMenuRadioItem
-                        key={option.value}
-                        value={option.value}
-                        className="justity-between"
-                      >
-                        {option.icon}
-                        {option.label}
-                      </DropdownMenuRadioItem>
-                    ))}
+                    {zOrderStatus.options.map((status) => {
+                      return (
+                        <DropdownMenuRadioItem
+                          key={status}
+                          value={status}
+                          className={cn(
+                            statusClasses[status],
+                            "bg-transparent capitalize"
+                          )}
+                        >
+                          {status}
+                        </DropdownMenuRadioItem>
+                      )
+                    })}
                   </DropdownMenuRadioGroup>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
@@ -289,56 +364,4 @@ function TableCellActions({ item: order }: { item: Order }) {
       </AlertDialogContent>
     </AlertDialog>
   )
-}
-
-function useOptimisticOrderDestroy(order: Order) {
-  const queryClient = useQueryClient()
-  const queryKey = ordersListQueryKey()
-  const destroyMutation = useMutation({
-    ...ordersDestroyMutation(),
-    onMutate: () => {
-      queryClient.cancelQueries({ queryKey })
-      const previousData = queryClient.getQueryData(queryKey)
-      queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
-        if (!old) return old
-        return {
-          ...old,
-          results: old.results.filter((item) => item.id !== order.id),
-        }
-      })
-      return { previousData }
-    },
-    onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
-  })
-  const onDestroy = () => destroyMutation.mutate({ path: { id: order.id } })
-  return onDestroy
-}
-
-function useOptimisticOrderUpdate(order: Order) {
-  const queryClient = useQueryClient()
-  const queryKey = ordersListQueryKey()
-  return useMutation({
-    ...ordersPartialUpdateMutation(),
-    onMutate: (data) => {
-      queryClient.cancelQueries({ queryKey })
-      const previousData = queryClient.getQueryData(queryKey)
-      queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
-        if (!old) return old
-        return {
-          ...old,
-          results: old.results.map((item) =>
-            item.id === order.id ? { ...order, ...data } : item
-          ),
-        }
-      })
-      return { previousData }
-    },
-    onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
-  })
 }

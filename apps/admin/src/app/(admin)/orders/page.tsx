@@ -1,69 +1,51 @@
 "use client"
-import { DataTable } from "@/components/data-table/data-table"
-import { useDataTable } from "@/hooks/use-data-table"
-import { keepPreviousData, useQuery } from "@tanstack/react-query"
+
+import { useQuery } from "@tanstack/react-query"
 import { ordersListOptions } from "@workspace/api-client/query"
+import { zOrderStatus } from "@workspace/api-client/zod"
+import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { columns } from "./columns"
+import {
+  useDataTable,
+  useFilters,
+  usePagination,
+  useSorting,
+} from "@workspace/data-table"
+import { AppHeader, AppHeaderActions, AppHeaderNav } from "@/components/app-header"
+import { SectionGroup } from "@/components/section"
+import { DataTable } from "@workspace/data-table/components/data-table"
 import { Button } from "@workspace/ui/components/button"
-import { ClipboardPlus } from "lucide-react"
 import Link from "next/link"
-import { usePaginationValues } from "@/hooks/use-pagination"
-import {
-  AppHeader,
-  AppHeaderActions,
-  AppHeaderContent,
-  AppHeaderSeparator,
-  AppHeaderSidebarTrigger,
-} from "@/components/app-header"
-import { NavBreadcrumb } from "@/components/nav-breadcrumb"
-import {
-  Section,
-  SectionContent,
-  SectionDescription,
-  SectionGroup,
-  SectionHeader,
-  SectionTitle,
-} from "@/components/section"
+
+const filterParsers = {
+  status: parseAsArrayOf(parseAsStringEnum(zOrderStatus.options)),
+}
 
 export default function OrdersPage() {
-  const pagination = usePaginationValues()
+  const pagination = usePagination()
+  const sorting = useSorting()
+  const filters = useFilters(columns, filterParsers)
 
-  const { data } = useQuery({
-    ...ordersListOptions({ query: pagination }),
-    placeholderData: keepPreviousData,
-  })
+  const { data } = useQuery(
+    ordersListOptions({
+      query: { ...pagination, ...sorting, ...filters },
+    })
+  )
 
   const table = useDataTable({ data, columns })
 
   return (
     <>
       <AppHeader>
-        <AppHeaderContent>
-          <AppHeaderSidebarTrigger />
-          <AppHeaderSeparator />
-          <NavBreadcrumb items={[{ type: "page", label: "Orders" }]} />
-        </AppHeaderContent>
+        <AppHeaderNav items={[{ type: "page", label: "Orders" }]} />
         <AppHeaderActions>
           <Button size="sm" asChild>
-            <Link href="/orders/new">
-              <ClipboardPlus />
-              New Order
-            </Link>
+            <Link href="/orders/new">New Order</Link>
           </Button>
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <Section>
-          <SectionHeader>
-            <SectionTitle>Orders</SectionTitle>
-            <SectionDescription>
-              Browse all orders, track their status, and manage them.
-            </SectionDescription>
-          </SectionHeader>
-          <SectionContent>
-            <DataTable table={table} showToolbar={false} />
-          </SectionContent>
-        </Section>
+        <DataTable table={table} />
       </SectionGroup>
     </>
   )

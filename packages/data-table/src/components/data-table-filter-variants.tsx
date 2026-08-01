@@ -1,6 +1,4 @@
 "use client"
-import { type Option } from "@/types/data-table"
-import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import {
   Combobox,
   ComboboxChips,
@@ -33,6 +31,7 @@ import { Calendar } from "@workspace/ui/components/calendar"
 import { format } from "date-fns"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { DateRange } from "react-day-picker"
+import { Option } from "@workspace/data-table/types/data-table"
 
 const onNumberChange = (setValue: (val: number) => void) => {
   return (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
@@ -204,11 +203,8 @@ export function ComboboxFilter<
                     </ComboboxChip>
                   ) : (
                     selectedItems.map((item) => (
-                      <ComboboxChip
-                        key={String(item.value)}
-                        className="[&>svg]:size-3.5"
-                      >
-                        {item.icon} {item.label}
+                      <ComboboxChip key={String(item.value)}>
+                        {item.label}
                       </ComboboxChip>
                     ))
                   )}
@@ -228,9 +224,7 @@ export function ComboboxFilter<
                 placeholder={placeholder}
                 showClear
                 showTrigger={false}
-              >
-                {item?.icon && <InputGroupAddon>{item.icon}</InputGroupAddon>}
-              </ComboboxInput>
+              />
             )
           }}
         </ComboboxValue>
@@ -239,41 +233,11 @@ export function ComboboxFilter<
         <ComboboxList>
           {(item: Option) => (
             <ComboboxItem key={String(item.value)} value={item.value}>
-              {item.icon} {item.label}
+              {item.label}
             </ComboboxItem>
           )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
-  )
-}
-
-export function AsyncComboboxFilter<
-  Value,
-  Multiple extends boolean | undefined = false,
->({
-  items: itemsQueryOptions,
-  value,
-  ...props
-}: Omit<
-  React.ComponentProps<typeof ComboboxFilter<Value, Multiple>>,
-  "items"
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-> & { items: UseQueryOptions<any, any, Option[], any> }) {
-  const [open, setOpen] = React.useState(false)
-
-  const { data: items } = useQuery({
-    ...itemsQueryOptions,
-    enabled: open || (!!value && Array.isArray(value) && value.length > 0),
-  })
-
-  return (
-    <ComboboxFilter
-      items={items}
-      value={value}
-      open={open}
-      onOpenChange={setOpen}
-      {...props}
-    />
   )
 }
