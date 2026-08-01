@@ -17,7 +17,6 @@ import {
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import * as React from "react"
-import { itemListToOptions, snakeCaseToTitle } from "@/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   IconCircleDashedCheck,
@@ -104,12 +103,6 @@ export const getStatusIcon = (status: StatusEnum) => {
   }
 }
 
-export const statusOptions = zStatusEnum.options.map((status) => ({
-  label: snakeCaseToTitle(status),
-  value: status,
-  icon: getStatusIcon(status),
-}))
-
 export function ProductImagePreview({ product }: { product?: Product }) {
   return (
     <Avatar className="aspect-square size-full max-w-92 min-w-44 rounded-md">
@@ -129,7 +122,6 @@ export const columns = [
   {
     accessorKey: "sku",
     header: "SKU",
-    // meta: { label: "", variant: "text" },
   },
   {
     accessorKey: "name",
