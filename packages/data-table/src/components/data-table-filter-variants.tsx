@@ -39,6 +39,7 @@ import {
 import { Option } from "../types.data-table"
 import { Column } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { cn } from "@workspace/ui/lib/utils"
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -192,10 +193,13 @@ export function DateRangeFilter<TData>({ column }: { column: Column<TData> }) {
           <Button
             variant="outline"
             id="date-picker-range"
-            className="justify-start px-2.5 font-normal text-muted-foreground"
+            className={cn(
+              "justify-start px-2.5 font-normal",
+              !date.from && "text-muted-foreground"
+            )}
           >
             <CalendarIcon />
-            {date?.from ? (
+            {date.from ? (
               date.to ? (
                 <>
                   {format(date.from, "LLL dd, y")} -{" "}
