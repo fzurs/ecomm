@@ -1,10 +1,8 @@
 "use client"
 import {
   AppHeader,
+  AppHeaderNav,
   AppHeaderActions,
-  AppHeaderContent,
-  AppHeaderSeparator,
-  AppHeaderSidebarTrigger,
 } from "@/components/app-header"
 import {
   Dialog,
@@ -16,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { NavBreadcrumb } from "@/components/nav-breadcrumb"
 import { useState } from "react"
 import { CategoryForm, useCategoryForm } from "./form"
 import { Button } from "@workspace/ui/components/button"
@@ -24,19 +21,13 @@ import { IconTagPlus } from "@tabler/icons-react"
 
 export default function CategoriesLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: LayoutProps<"/categories">) {
   return (
     <>
       <AppHeader>
-        <AppHeaderContent>
-          <AppHeaderSidebarTrigger />
-          <AppHeaderSeparator />
-          <NavBreadcrumb items={[{ type: "page", label: "Categories" }]} />
-        </AppHeaderContent>
+        <AppHeaderNav items={[{ type: "page", label: "Categories" }]} />
         <AppHeaderActions>
-          <CreateCategoryDialog />
+          <QuickCreateCategoryDialog />
         </AppHeaderActions>
       </AppHeader>
       {children}
@@ -44,7 +35,7 @@ export default function CategoriesLayout({
   )
 }
 
-function CreateCategoryDialog() {
+function QuickCreateCategoryDialog() {
   const [open, setOpen] = useState(false)
 
   const form = useCategoryForm({ setOpen })

@@ -1,5 +1,5 @@
 import { useAppForm, withForm } from "@/hooks/form"
-import { getFieldId } from "@/lib/utils"
+import { getFormFieldId } from "@/lib/utils"
 import { formOptions } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, CategoryWritable } from "@workspace/api-client"
@@ -69,12 +69,13 @@ export const CategoryForm = withForm({
   props: { variant: "full" } as { variant?: "full" | "required" },
   render: function Render({ form, variant }) {
     // const category = form.state.values
+    const getFieldId = getFormFieldId.bind(null, form)
 
     const nameField = (
       <form.AppField
         name="name"
         children={(field) => {
-          const fieldId = getFieldId(form, field)
+          const fieldId = getFieldId(field)
           return (
             <field.Field>
               <field.Label htmlFor={fieldId}>Name</field.Label>
@@ -92,7 +93,7 @@ export const CategoryForm = withForm({
         <form.AppField
           name="description"
           children={(field) => {
-            const fieldId = getFieldId(form, field)
+            const fieldId = getFieldId(field)
             return (
               <field.Field>
                 <field.Label htmlFor={fieldId}>Description</field.Label>

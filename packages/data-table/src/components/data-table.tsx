@@ -17,13 +17,15 @@ import { cn } from "@workspace/ui/lib/utils"
 export function DataTable<TData>({
   table,
   children,
+  showToolbar = true,
 }: {
   table: TanstackTable<TData>
   children?: React.ReactNode
+  showToolbar?: boolean
 }) {
   return (
     <div className="flex w-full flex-col justify-start gap-6">
-      {children ?? <DataTableToolbar table={table} />}
+      {children ?? (showToolbar && <DataTableToolbar table={table} />)}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>
@@ -35,7 +37,7 @@ export function DataTable<TData>({
                       key={header.id}
                       className={cn(
                         "text-xs uppercase",
-                        header.column.columnDef.meta?.thClassName,
+                        header.column.columnDef.meta?.thClassName
                       )}
                     >
                       {header.isPlaceholder

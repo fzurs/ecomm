@@ -1,5 +1,5 @@
 import { useAppForm, withForm } from "@/hooks/form"
-import { getFieldId } from "@/lib/utils"
+import { getFormFieldId } from "@/lib/utils"
 import { formOptions } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Brand, BrandWritable } from "@workspace/api-client"
@@ -58,6 +58,7 @@ export function useBrandForm({
 export const BrandForm = withForm({
   ...brandFormOpts,
   render: function Render({ form }) {
+    const getFieldId = getFormFieldId.bind(null, form)
     return (
       <form.AppForm>
         <form.Form>
@@ -65,7 +66,7 @@ export const BrandForm = withForm({
             <form.AppField
               name="name"
               children={(field) => {
-                const fieldId = getFieldId(form, field)
+                const fieldId = getFieldId(field)
                 return (
                   <field.Field>
                     <field.Label htmlFor={fieldId}>Name</field.Label>

@@ -2,22 +2,10 @@
 import {
   AppHeader,
   AppHeaderActions,
-  AppHeaderContent,
-  AppHeaderSeparator,
-  AppHeaderSidebarTrigger,
+  AppHeaderNav,
 } from "@/components/app-header"
-import { DataTable } from "@/components/data-table/data-table"
-import { NavBreadcrumb } from "@/components/nav-breadcrumb"
-import {
-  Section,
-  SectionContent,
-  SectionGroup,
-  SectionHeader,
-  SectionTitle,
-} from "@/components/section"
-import { useDataTable } from "@/hooks/use-data-table"
-import { usePaginationValues } from "@/hooks/use-pagination"
-import { useQuery } from "@tanstack/react-query"
+import { SectionGroup } from "@/components/section"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { customersListOptions } from "@workspace/api-client/query"
 import { Button } from "@workspace/ui/components/button"
 import { UserPlusIcon } from "lucide-react"
@@ -32,33 +20,29 @@ import {
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
 import { CustomerForm, useCustomerForm } from "./form"
+import { useDataTable, usePagination } from "@workspace/data-table"
+import { DataTable } from "@workspace/data-table/components/data-table"
 
 export default function CustomersPage() {
-  const pagination = usePaginationValues()
+  const pagination = usePagination()
 
-  const { data } = useQuery(customersListOptions({ query: pagination }))
+  const { data } = useQuery({
+    ...customersListOptions({ query: pagination }),
+    placeholderData: keepPreviousData,
+  })
 
   const table = useDataTable({ data, columns })
 
   return (
     <>
       <AppHeader>
-        <AppHeaderContent>
-          <AppHeaderSidebarTrigger />
-          <AppHeaderSeparator />
-          <NavBreadcrumb items={[{ type: "page", label: "Customers" }]} />
-        </AppHeaderContent>
-        <AppHeaderActions><CreateCustomerDialog /></AppHeaderActions>
+        <AppHeaderNav items={[{ type: "page", label: "Customers" }]} />
+        <AppHeaderActions>
+          <CreateCustomerDialog />
+        </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <Section>
-          <SectionHeader>
-            <SectionTitle>Customers</SectionTitle>
-          </SectionHeader>
-          <SectionContent>
-            <DataTable table={table} />
-          </SectionContent>
-        </Section>
+        <DataTable table={table} showToolbar={false} />
       </SectionGroup>
     </>
   )

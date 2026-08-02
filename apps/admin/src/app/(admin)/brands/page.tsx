@@ -1,11 +1,5 @@
 "use client"
-import { DataTable } from "@/components/data-table/data-table"
-import {
-  PageHeader,
-  PageHeaderActions,
-  PageHeaderHeading,
-} from "@/components/page-header"
-import { useDataTable } from "@/hooks/use-data-table"
+
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -20,27 +14,19 @@ import {
 import { PlusIcon } from "lucide-react"
 import { columns } from "./columns"
 import { BrandForm, useBrandForm } from "./form"
-import * as React from "react"
-import { usePaginationValues } from "@/hooks/use-pagination"
 import { brandsListOptions } from "@workspace/api-client/query"
 import {
   AppHeader,
   AppHeaderActions,
-  AppHeaderContent,
-  AppHeaderSeparator,
+  AppHeaderNav,
 } from "@/components/app-header"
-import { AppSidebarTrigger } from "@/components/app-sidebar"
-import { NavBreadcrumb } from "@/components/nav-breadcrumb"
-import {
-  Section,
-  SectionContent,
-  SectionGroup,
-  SectionHeader,
-  SectionTitle,
-} from "@/components/section"
+import { SectionGroup } from "@/components/section"
+import { useDataTable, usePagination } from "@workspace/data-table"
+import { DataTable } from "@workspace/data-table/components/data-table"
+import { useState } from "react"
 
 export default function BrandsPage() {
-  const pagination = usePaginationValues()
+  const pagination = usePagination()
 
   const { data } = useQuery({
     ...brandsListOptions({ query: pagination }),
@@ -52,31 +38,20 @@ export default function BrandsPage() {
   return (
     <>
       <AppHeader>
-        <AppHeaderContent>
-          <AppSidebarTrigger />
-          <AppHeaderSeparator />
-          <NavBreadcrumb items={[{ type: "page", label: "Brands" }]} />
-        </AppHeaderContent>
+        <AppHeaderNav items={[{ type: "page", label: "Brands" }]} />
         <AppHeaderActions>
           <QuickCreateBrandDialog />
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <Section>
-          <SectionHeader>
-            <SectionTitle>Brands</SectionTitle>
-          </SectionHeader>
-          <SectionContent>
-            <DataTable table={table} showToolbar={false} />
-          </SectionContent>
-        </Section>
+        <DataTable table={table} showToolbar={false} />
       </SectionGroup>
     </>
   )
 }
 
 function QuickCreateBrandDialog() {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const form = useBrandForm({ setOpen })
 

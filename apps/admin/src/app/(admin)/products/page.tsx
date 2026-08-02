@@ -44,7 +44,6 @@ import {
 } from "@workspace/data-table"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { zProductStatus } from "@workspace/api-client/zod"
-import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 
 const DEBOUNCE_DELAY = 300
 
@@ -136,9 +135,7 @@ export default function Page() {
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <DataTable table={table}>
-          <DataTableToolbar table={table} />
-        </DataTable>
+        <DataTable table={table} />
       </SectionGroup>
     </>
   )

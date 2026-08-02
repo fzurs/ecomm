@@ -39,18 +39,17 @@ import {
   categoriesListQueryKey,
 } from "@workspace/api-client/query"
 
-export const columns: ColumnDef<Category>[] = [
+export const columns = [
   {
-    id: "name",
-    header: "Name",
+    accessorKey: "name",
     cell: ({ row }) => <TableCellViewer item={row.original} />,
     enableHiding: false,
+    meta: { thClassName: "pl-5" },
   },
   {
-    id: "description",
-    header: "Description",
+    accessorKey: "description",
     cell: ({ row }) => (
-      <div className="min-w-sm text-sm text-pretty text-muted-foreground">
+      <div className="min-w-sm text-pretty text-muted-foreground">
         {row.original.description}
       </div>
     ),
@@ -58,8 +57,10 @@ export const columns: ColumnDef<Category>[] = [
   {
     id: "actions",
     cell: ({ row }) => <TableCellActions item={row.original} />,
+    enableHiding: false,
+    meta: { className: "text-right" },
   },
-]
+] as const satisfies ColumnDef<Category>[]
 
 function TableCellViewer({ item }: { item: Category }) {
   const isMobile = useIsMobile()
@@ -107,49 +108,48 @@ function TableCellViewer({ item }: { item: Category }) {
 
 function TableCellActions({ item }: { item: Category }) {
   const destroyMutation = useOptimisticCategoryDestroy(item)
+
   const onDestroy = () =>
     destroyMutation.mutate({ path: { slug: item.slug as string } })
 
   return (
-    <div className="flex justify-end">
-      <AlertDialog>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <IconDots />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem variant="destructive">
-                  <IconTrash />
-                  Delete
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-              <IconTrash />
-            </AlertDialogMedia>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Once deleted, there is no going back; the item will be permanently
-              deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={onDestroy}>
-              Delete Category
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+    <AlertDialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <IconDots />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem variant="destructive">
+                <IconTrash />
+                Delete
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+            <IconTrash />
+          </AlertDialogMedia>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Once deleted, there is no going back; the item will be permanently
+            deleted.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onDestroy}>
+            Delete Category
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 

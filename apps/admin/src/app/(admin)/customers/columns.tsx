@@ -17,22 +17,25 @@ import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 
 export const columns: ColumnDef<Customer>[] = [
   {
-    id: "name",
     accessorKey: "name",
-    header: "Name",
     cell: ({ row }) => <TableCellViewer item={row.original} />,
+    meta: { thClassName: "pl-5" },
   },
-  { accessorKey: "email" },
+  { accessorKey: "email", meta: { className: "text-muted-foreground" } },
   { accessorKey: "phone" },
 ]
 
 function TableCellViewer({ item }: { item: Customer }) {
-    const isMobile = useIsMobile()
+  const isMobile = useIsMobile()
   const [open, setOpen] = useState(false)
   const form = useCustomerForm({ customer: item, setOpen })
 
   return (
-    <Drawer open={open} onOpenChange={setOpen} direction={isMobile ? "bottom" : "right"}>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      direction={isMobile ? "bottom" : "right"}
+    >
       <DrawerTrigger asChild>
         <Button size="sm" variant="link">
           {item.name}

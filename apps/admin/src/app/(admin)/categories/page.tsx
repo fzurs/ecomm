@@ -1,38 +1,76 @@
 "use client"
-import { DataTable } from "@/components/data-table/data-table"
-import { useDataTable } from "@/hooks/use-data-table"
-import { keepPreviousData, useQuery } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { columns } from "./columns"
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { parseAsString, useQueryState } from "nuqs"
 import { useDebounce } from "@/hooks/use-debounce"
+import {
+  categoriesListOptions,
+  categoriesListQueryKey,
+} from "@workspace/api-client/query"
+import { SectionGroup } from "@/components/section"
+import { useDataTable, useFilters, usePagination } from "@workspace/data-table"
+import { useMemo } from "react"
+import { CategoriesListData } from "@workspace/api-client"
+import { DataTable } from "@workspace/data-table/components/data-table"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  InputGroupText,
 } from "@workspace/ui/components/input-group"
 import { SearchIcon } from "lucide-react"
-
-import { usePaginationValues } from "@/hooks/use-pagination"
-import { categoriesListOptions } from "@workspace/api-client/query"
-import {
-  SectionGroup,
-  Section,
-  SectionContent,
-  SectionHeader,
-  SectionTitle,
-} from "@/components/section"
+import { parseAsString, useQueryState } from "nuqs"
 
 const DEBOUNCE_DELAY = 300
 
 export default function CategoriesPage() {
-  const pagination = usePaginationValues()
-  const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
+  const queryClient = useQueryClient()
 
-  const filters = useDebounce({ search }, DEBOUNCE_DELAY)
-  const { data, isSuccess } = useQuery({
-    ...categoriesListOptions({ query: { ...filters, ...pagination } }),
+  const pagination = usePagination()
+  const columnFilters = useFilters(columns, {})
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  )
+
+  const queryFilters = useMemo<CategoriesListData["query"]>(
+    () => ({ ...columnFilters, search }),
+    [columnFilters, search]
+  )
+
+  const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
+
+  const query = useMemo<CategoriesListData["query"]>(
+    () => ({
+      ...debouncedQueryFilters,
+      ...pagination,
+    }),
+    [debouncedQueryFilters, pagination]
+  )
+
+  const immediateQuery = useMemo(
+    () => ({
+      ...queryFilters,
+      ...pagination,
+    }),
+    [queryFilters, pagination]
+  )
+
+  const isCached = useMemo(
+    () =>
+      queryClient.getQueryData(
+        categoriesListQueryKey({ query: immediateQuery })
+      ) !== undefined,
+    [queryClient, immediateQuery]
+  )
+
+  const activeFilters = isCached ? immediateQuery : query
+
+  const { data } = useQuery({
+    ...categoriesListOptions({ query: activeFilters }),
     placeholderData: keepPreviousData,
   })
 
@@ -40,33 +78,22 @@ export default function CategoriesPage() {
 
   return (
     <SectionGroup>
-      <Section>
-        <SectionHeader>
-          <SectionTitle>Categories</SectionTitle>
-        </SectionHeader>
-        <SectionContent>
-          <DataTable table={table}>
-            <div className="flex gap-2 md:gap-4">
-              <InputGroup>
-                <InputGroupInput
-                  placeholder="Search for a categories..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <InputGroupAddon>
-                  <SearchIcon />
-                </InputGroupAddon>
-                {search.trim() && filters.search.trim() && isSuccess && (
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupText>{data.count} results</InputGroupText>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-              <DataTableViewOptions table={table} />
-            </div>
-          </DataTable>
-        </SectionContent>
-      </Section>
+      <DataTable table={table}>
+        <DataTableToolbar table={table}>
+          <InputGroup>
+            <InputGroupInput
+              type="search"
+              inputMode="search"
+              placeholder="Search for categories..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+          </InputGroup>
+        </DataTableToolbar>
+      </DataTable>
     </SectionGroup>
   )
 }

@@ -1,3 +1,4 @@
+import { capitalize } from "@/lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import {
@@ -66,6 +67,11 @@ const statusClasses: Record<OrderStatus, string> = {
   cancelled: "bg-red-500/15 text-red-900 dark:text-red-400",
 }
 
+export const statusOptions = zOrderStatus.options.map((status) => ({
+  label: capitalize(status.replaceAll("_", " ")),
+  value: status,
+}))
+
 export const columns = [
   {
     accessorKey: "total",
@@ -73,7 +79,6 @@ export const columns = [
     meta: {
       thClassName: "text-right",
       className: "text-right font-semibold",
-      variant: "number",
     },
     enableHiding: false,
     enableColumnFilter: true,
@@ -97,6 +102,7 @@ export const columns = [
       )
     },
     enableSorting: true,
+    meta: { variant: "multi-select", options: statusOptions },
   },
   {
     accessorKey: "id",
@@ -314,17 +320,17 @@ function TableCellActions({ item: order }: { item: Order }) {
                       onStatusChange(value as OrderStatus)
                     }
                   >
-                    {zOrderStatus.options.map((status) => {
+                    {statusOptions.map((opt) => {
                       return (
                         <DropdownMenuRadioItem
-                          key={status}
-                          value={status}
+                          key={opt.value}
+                          value={opt.value}
                           className={cn(
-                            statusClasses[status],
-                            "bg-transparent capitalize"
+                            statusClasses[opt.value],
+                            "bg-transparent"
                           )}
                         >
-                          {status}
+                          {opt.label}
                         </DropdownMenuRadioItem>
                       )
                     })}

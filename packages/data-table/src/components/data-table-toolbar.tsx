@@ -21,6 +21,7 @@ import { FilterVariant } from "../core/default-parsers"
 export function DataTableToolbar<TData>({
   table,
   className,
+  children,
   ...props
 }: React.ComponentProps<"div"> & {
   table: Table<TData>
@@ -37,15 +38,17 @@ export function DataTableToolbar<TData>({
       className={cn("flex items-end justify-between gap-2", className)}
       {...props}
     >
-      <div className="flex flex-1 flex-wrap items-center gap-2">
-        {columns.map((column) => (
-          <DataTableToolbarFilter
-            key={column.id}
-            column={column}
-            table={table}
-          />
-        ))}
-      </div>
+      {children ?? (
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          {columns.map((column) => (
+            <DataTableToolbarFilter
+              key={column.id}
+              column={column}
+              table={table}
+            />
+          ))}
+        </div>
+      )}
       <DataTableViewOptions table={table} />
     </div>
   )

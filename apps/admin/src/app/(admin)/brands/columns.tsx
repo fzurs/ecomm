@@ -31,17 +31,27 @@ import {
   brandsDestroyMutation,
   brandsListQueryKey,
 } from "@workspace/api-client/query"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { EllipsisIcon, Trash2Icon } from "lucide-react"
 
 export const columns: ColumnDef<Brand>[] = [
   {
-    id: "name",
-    header: "Name",
+    accessorKey: "name",
     cell: ({ row }) => <TableCellViewer item={row.original} />,
     enableHiding: false,
+    meta: { thClassName: "pl-5" },
   },
   {
     id: "actions",
     cell: ({ row }) => <TableCellActions item={row.original} />,
+    enableHiding: false,
+    meta: { className: "text-right" },
   },
 ]
 
@@ -84,38 +94,48 @@ function TableCellViewer({ item }: { item: Brand }) {
 
 function TableCellActions({ item }: { item: Brand }) {
   const destroyMutation = useOptimisticBrandDestroy(item)
+
   const onDestroy = () =>
     destroyMutation.mutate({ path: { slug: item.slug as string } })
 
   return (
-    <div className="flex justify-end">
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
+    <AlertDialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button size="icon-sm" variant="ghost">
-            <IconTrash />
-            <span className="sr-only">Delete</span>
+            <EllipsisIcon />
           </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-              <IconTrash />
-            </AlertDialogMedia>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Once deleted, there is no going back; the item will be permanently
-              deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={onDestroy}>
-              Delete Brand
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem variant="destructive">
+                <Trash2Icon />
+                Delete
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+            <IconTrash />
+          </AlertDialogMedia>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Once deleted, there is no going back; the item will be permanently
+            deleted.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onDestroy}>
+            Delete Brand
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
@@ -145,12 +165,9 @@ function useOptimisticBrandDestroy(item: Brand) {
 
       return { previousData }
     },
-    onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey })
-    },
+    onError: (err, _, onMutateResult) =>
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData),
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 
   return destroyMutation

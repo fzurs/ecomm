@@ -61,6 +61,7 @@ const onNumberChange = (setValue: (val: number) => void) => {
 export function TextFilter({ column }: { column: Column<any> }) {
   return (
     <Input
+      className="w-auto"
       value={(column.getFilterValue() as string) ?? ""}
       onChange={(e) => column.setFilterValue(e.target.value)}
       placeholder={getColumnLabel(column)}
