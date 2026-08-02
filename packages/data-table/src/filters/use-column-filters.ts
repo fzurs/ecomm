@@ -12,8 +12,10 @@ export function useDataTableColumnFilters(
   columns: ColumnDef<any>[],
   filterParsers: UseQueryStatesKeysMap = {}
 ) {
+  const columnParsers = useMemo(() => buildFilterParsers(columns), [columns])
+
   const [values, setValues] = useQueryStates({
-    ...buildFilterParsers(columns),
+    ...columnParsers,
     ...filterParsers,
   })
 
@@ -28,8 +30,6 @@ export function useDataTableColumnFilters(
   const onColumnFiltersChange = useCallback<OnChangeFn<ColumnFiltersState>>(
     (updater) => {
       const next = functionalUpdate(updater, columnFilters)
-
-      console.log(updater)
 
       setValues(
         Object.keys(values).reduce<Record<string, unknown>>((acc, id) => {

@@ -1,7 +1,7 @@
 import type { RowData } from "@tanstack/react-table"
 import { FilterVariant } from "./core/default-parsers"
 
-export type Option = { label: string; value: unknown }
+export type Option = Record<"label" | "value", string>
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData = RowData> {

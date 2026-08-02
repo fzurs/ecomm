@@ -1,10 +1,6 @@
 "use client"
 
-import { DataTable } from "@/components/data-table/data-table"
-import { useDataTable } from "@/hooks/use-data-table"
-import { usePaginationValues } from "@/hooks/use-pagination"
-import { useSortingValues } from "@/hooks/use-sorting"
-import React, { useState } from "react"
+import { useState, useMemo } from "react"
 import {
   keepPreviousData,
   useQuery,
@@ -25,7 +21,6 @@ import {
 } from "@workspace/ui/components/dialog"
 
 import { columns } from "./columns"
-import { useColumnFilterValues } from "@/hooks/use-column-filters"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
 import { ProductForm, useProductForm } from "./form"
@@ -37,38 +32,49 @@ import {
 import {
   AppHeader,
   AppHeaderActions,
-  AppHeaderContent,
-  AppHeaderSeparator,
-  AppHeaderSidebarTrigger,
+  AppHeaderNav,
 } from "@/components/app-header"
-import { NavBreadcrumb } from "@/components/nav-breadcrumb"
-import { Section, SectionContent, SectionGroup } from "@/components/section"
+import { SectionGroup } from "@/components/section"
+import { DataTable } from "@workspace/data-table/components/data-table"
+import {
+  useDataTable,
+  useFilters,
+  usePagination,
+  useSorting,
+} from "@workspace/data-table"
+import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
+import { zProductStatus } from "@workspace/api-client/zod"
 
 const DEBOUNCE_DELAY = 300
 
 export default function Page() {
   const queryClient = useQueryClient()
 
-  const pagination = usePaginationValues()
-  const sorting = useSortingValues()
-  const columnFilters = useColumnFilterValues(columns)
+  const pagination = usePagination()
+  const sorting = useSorting()
+  const columnFilters = useFilters(columns, {
+    status: parseAsArrayOf(parseAsStringEnum(zProductStatus.options)),
+  })
 
-  const filtersToDebounced = React.useMemo<ProductsListData["query"]>(() => {
+  const queryFilters = useMemo<ProductsListData["query"]>(() => {
     const {
       name: search,
-      price = [],
-      discount_price = [],
-      created_at = [],
-      ...moreFilters
+      price,
+      discount_price,
+      created_at,
+      ...rest
     } = columnFilters
-    const [price_min, price_max] = price
-    const [discount_price_min, discount_price_max] = discount_price
-    const [created_at_after, created_at_before] = created_at.map((date) =>
-      formatISO(date, { representation: "date" })
-    )
+
+    const [price_min, price_max] = price ?? []
+    const [discount_price_min, discount_price_max] = discount_price ?? []
+
+    const [created_at_after, created_at_before] =
+      created_at?.map((date) => formatISO(date, { representation: "date" })) ??
+      []
+
     return {
       ...sorting,
-      ...moreFilters,
+      ...rest,
       search,
       price_min,
       price_max,
@@ -78,21 +84,34 @@ export default function Page() {
       created_at_before,
     }
   }, [sorting, columnFilters])
-  const filters = React.useMemo<ProductsListData["query"]>(
-    () => ({ ...filtersToDebounced, ...pagination }),
-    [filtersToDebounced, pagination]
+
+  const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
+
+  const query = useMemo<ProductsListData["query"]>(
+    () => ({
+      ...debouncedQueryFilters,
+      ...pagination,
+    }),
+    [debouncedQueryFilters, pagination]
   )
 
-  const isCached =
-    queryClient.getQueryData(productsListQueryKey({ query: filters })) !==
-    undefined
-
-  const debouncedFilters = useDebounce(filtersToDebounced, DEBOUNCE_DELAY)
-
-  const activeFilters = React.useMemo(
-    () => (isCached ? filters : { ...pagination, ...debouncedFilters }),
-    [isCached, filters, pagination, debouncedFilters]
+  const immediateQuery = useMemo(
+    () => ({
+      ...queryFilters,
+      ...pagination,
+    }),
+    [queryFilters, pagination]
   )
+
+  const isCached = useMemo(
+    () =>
+      queryClient.getQueryData(
+        productsListQueryKey({ query: immediateQuery })
+      ) !== undefined,
+    [queryClient, immediateQuery]
+  )
+
+  const activeFilters = isCached ? immediateQuery : query
 
   const { data } = useQuery({
     ...productsListOptions({ query: activeFilters }),
@@ -105,30 +124,18 @@ export default function Page() {
     initialState: {
       columnVisibility: { description: false },
     },
-    defaultColumn: {
-      enableColumnFilter: true,
-      enableSorting: true,
-    },
   })
 
   return (
     <>
       <AppHeader>
-        <AppHeaderContent>
-          <AppHeaderSidebarTrigger />
-          <AppHeaderSeparator />
-          <NavBreadcrumb items={[{ type: "page", label: "Products" }]} />
-        </AppHeaderContent>
+        <AppHeaderNav items={[{ type: "page", label: "Products" }]} />
         <AppHeaderActions>
           <QuickCreateProductDialog />
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <Section>
-          <SectionContent>
-            <DataTable table={table} />
-          </SectionContent>
-        </Section>
+        <DataTable table={table} />
       </SectionGroup>
     </>
   )

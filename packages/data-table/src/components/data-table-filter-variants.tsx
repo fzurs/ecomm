@@ -1,16 +1,4 @@
 "use client"
-import {
-  Combobox,
-  ComboboxChips,
-  ComboboxChip,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxValue,
-  useComboboxAnchor,
-} from "@workspace/ui/components/combobox"
 import * as React from "react"
 import {
   InputGroup,
@@ -31,22 +19,48 @@ import { Calendar } from "@workspace/ui/components/calendar"
 import { format } from "date-fns"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { DateRange } from "react-day-picker"
-import { Option } from "@workspace/data-table/types/data-table"
+import { Input } from "@workspace/ui/components/input"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@workspace/ui/components/toggle-group"
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor,
+} from "@workspace/ui/components/combobox"
+import { Option } from "../types.data-table"
+import { Column } from "@tanstack/react-table"
+import { useMemo } from "react"
+
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+function getColumnLabel<TData>(column: Column<TData>) {
+  if (typeof column.columnDef.header === "string") {
+    return column.columnDef.header
+  }
+  return capitalize(column.id.replaceAll("_", " "))
+}
 
 const onNumberChange = (setValue: (val: number) => void) => {
   return (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
     setValue(Number(e.target.value))
 }
 
-export function RangeFilter({
-  range = [],
-  setRange,
-  placeholder = "Range",
-}: {
-  range?: number[]
-  setRange: (val: number[] | null) => void
-  placeholder?: string
-}) {
+export function RangeFilter<TData>({ column }: { column: Column<TData> }) {
+  const range = (column.getFilterValue() as number[]) ?? []
+  const setRange = column.setFilterValue
+  const placeholder = getColumnLabel(column)
+
   const [minValue = 0, maxValue] = range
 
   const setMinValue = React.useCallback(
@@ -112,15 +126,10 @@ export function RangeFilter({
   )
 }
 
-export function DateRangeFilter({
-  range,
-  setRange,
-  placeholder = "Date Range",
-}: {
-  range: Date[]
-  setRange: (val: Date[] | null) => void
-  placeholder?: string
-}) {
+export function DateRangeFilter<TData>({ column }: { column: Column<TData> }) {
+  const range = (column.getFilterValue() as Date[]) ?? []
+  const setRange = column.setFilterValue
+  const placeholder = getColumnLabel(column)
   const date = { from: range[0], to: range[1] }
   const setDate = (selected: DateRange | undefined) =>
     setRange([selected?.from, selected?.to].filter(Boolean) as Date[])
@@ -172,72 +181,147 @@ export function DateRangeFilter({
   )
 }
 
-export function ComboboxFilter<
-  Value,
-  Multiple extends boolean | undefined = false,
->({
-  multiple,
-  items = [],
-  placeholder,
+function SelectFilterContent({
   ...props
-}: Omit<React.ComponentProps<typeof Combobox<Value, Multiple>>, "items"> & {
-  items?: Option[]
-  placeholder?: string
+}: React.ComponentProps<typeof ComboboxContent>) {
+  return (
+    <ComboboxContent {...props}>
+      <ComboboxList>
+        {(option: Option) => (
+          <ComboboxItem key={option.value} value={option}>
+            {option.label}
+          </ComboboxItem>
+        )}
+      </ComboboxList>
+    </ComboboxContent>
+  )
+}
+
+export function SelectFilter<TData>({ column }: { column: Column<TData> }) {
+  const options = column.columnDef.meta?.options ?? []
+  const label = getColumnLabel(column)
+  const value: Option | null =
+    options.find((opt) => opt.value === column.getFilterValue()) ?? null
+  const onValueChange = (opt: Option | null) =>
+    column.setFilterValue(opt?.value)
+
+  return (
+    <Combobox<Option, false>
+      items={options}
+      value={value}
+      onValueChange={onValueChange}
+    >
+      <ComboboxInput placeholder={label} showClear />
+      <SelectFilterContent />
+    </Combobox>
+  )
+}
+
+export function MultiSelectFilter<TData>({
+  column,
+}: {
+  column: Column<TData>
 }) {
   const anchor = useComboboxAnchor()
 
+  const options = column.columnDef.meta?.options ?? []
+  const label = getColumnLabel(column)
+
+  const filterValue = (column.getFilterValue() as string[]) ?? []
+  const value = useMemo<Option[]>(
+    () =>
+      filterValue
+        .map((value) => options.find((opt) => opt.value === value))
+        .filter((opt) => opt !== undefined),
+    [filterValue]
+  )
+
+  const onValueChange = (opts: Option[]) =>
+    column.setFilterValue(
+      opts.length > 0 ? opts.map((opt) => opt.value) : undefined
+    )
+
+  React.useEffect(() => {
+    console.log(value)
+  }, [value])
+
   return (
-    <Combobox multiple={multiple} items={items} {...props}>
-      {multiple ? (
-        <ComboboxChips ref={anchor}>
-          <ComboboxValue>
-            {(values) => {
-              const selectedItems = items.filter((item) =>
-                values.includes(item.value)
-              )
-              return (
-                <React.Fragment>
-                  {selectedItems.length > 2 ? (
-                    <ComboboxChip showRemove={false}>
-                      {selectedItems.length} selected
-                    </ComboboxChip>
-                  ) : (
-                    selectedItems.map((item) => (
-                      <ComboboxChip key={String(item.value)}>
-                        {item.label}
-                      </ComboboxChip>
-                    ))
-                  )}
-                  <ComboboxChipsInput placeholder={placeholder} />
-                </React.Fragment>
-              )
-            }}
-          </ComboboxValue>
-        </ComboboxChips>
-      ) : (
+    <Combobox<Option, true>
+      multiple
+      items={options}
+      value={value}
+      onValueChange={onValueChange}
+    >
+      <ComboboxChips ref={anchor}>
         <ComboboxValue>
-          {(value) => {
-            const item = items?.find((item) => item.value === value)
-            return (
-              <ComboboxInput
-                value={item?.label ?? ""}
-                placeholder={placeholder}
-                showClear
-                showTrigger={false}
-              />
-            )
-          }}
-        </ComboboxValue>
-      )}
-      <ComboboxContent anchor={anchor}>
-        <ComboboxList>
-          {(item: Option) => (
-            <ComboboxItem key={String(item.value)} value={item.value}>
-              {item.label}
-            </ComboboxItem>
+          {(values: Option[]) => (
+            <>
+              {values.length > 3 ? (
+                <ComboboxChip>{values.length} selected</ComboboxChip>
+              ) : (
+                values.map((opt) => (
+                  <ComboboxChip key={opt.value}>{opt.label}</ComboboxChip>
+                ))
+              )}
+              <ComboboxChipsInput placeholder={label} />
+            </>
           )}
-        </ComboboxList>
-      </ComboboxContent>
+        </ComboboxValue>
+      </ComboboxChips>
+      <SelectFilterContent anchor={anchor} />
     </Combobox>
+  )
+}
+
+export function BooleanFilter<TData>({ column }: { column: Column<TData> }) {
+  const options = column.columnDef.meta?.options ?? []
+  return (
+    <ToggleGroup
+      variant="outline"
+      type="single"
+      value={String(column.getFilterValue())}
+      onValueChange={(val) =>
+        column.setFilterValue(
+          val === "true" ? true : val === "false" ? false : null
+        )
+      }
+    >
+      {options.slice(0, 2).map((option) => (
+        <ToggleGroupItem
+          key={option.value}
+          value={option.value}
+          aria-label={`Toggle ${option.label}`}
+          className="w-auto"
+        >
+          {option.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  )
+}
+
+export function TextFilter({ column }: { column: Column<any> }) {
+  return (
+    <Input
+      value={(column.getFilterValue() as string) ?? ""}
+      onChange={(e) => column.setFilterValue(e.target.value)}
+      placeholder={getColumnLabel(column)}
+    />
+  )
+}
+
+export function NumberFilter({ column }: { column: Column<any> }) {
+  return (
+    <Input
+      type="number"
+      inputMode="numeric"
+      min={0}
+      className="w-full"
+      value={(column.getFilterValue() as string) ?? ""}
+      onChange={(e) => {
+        column.setFilterValue(e.target.value)
+      }}
+      placeholder={getColumnLabel(column)}
+    />
   )
 }

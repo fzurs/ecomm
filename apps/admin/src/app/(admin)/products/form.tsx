@@ -27,7 +27,7 @@ import {
 } from "@workspace/ui/components/select"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
-import { ProductImagePreview, statusOptions } from "./columns"
+import { ProductImagePreview, statusIcons, statusOptions } from "./columns"
 import {
   InputGroup,
   InputGroupAddon,
@@ -36,14 +36,14 @@ import {
 import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
-import { getFieldId as getFieldIdPrimitive } from "@/lib/utils"
+import { getFormFieldId } from "@/lib/utils"
 import {
   Brand,
   Category,
   Product,
   ProductWritable,
 } from "@workspace/api-client"
-import { zProductWritable } from "@workspace/api-client/zod"
+import { zProductStatus, zProductWritable } from "@workspace/api-client/zod"
 import {
   brandsListAllOptions,
   categoriesListAllOptions,
@@ -142,7 +142,7 @@ export const ProductForm = withForm({
   render: function Render({ form, variant }) {
     const defValues = form.options.defaultValues ?? {}
     const product = "id" in defValues ? (defValues as Product) : undefined
-    const getFieldId = getFieldIdPrimitive.bind(null, form)
+    const getFieldId = getFormFieldId.bind(null, form)
 
     const nameField = (
       <form.AppField
@@ -330,9 +330,9 @@ export const ProductForm = withForm({
                   </field.SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      {statusOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.icon} {option.label}
+                      {statusOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {statusIcons[opt.value]} {opt.label}
                         </SelectItem>
                       ))}
                     </SelectGroup>

@@ -1,8 +1,4 @@
-import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -16,7 +12,6 @@ import {
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import * as React from "react"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   IconCircleDashedCheck,
@@ -26,14 +21,6 @@ import {
   IconStar,
   IconTrashX,
 } from "@tabler/icons-react"
-import {
-  parseAsArrayOf,
-  parseAsBoolean,
-  parseAsInteger,
-  parseAsIsoDate,
-  parseAsString,
-  parseAsStringEnum,
-} from "nuqs"
 
 import { ProductForm, useProductForm } from "./form"
 import {
@@ -55,7 +42,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
-import { cn } from "@workspace/ui/lib/utils"
 import { format } from "date-fns"
 import {
   Avatar,
@@ -66,42 +52,34 @@ import {
 import {
   PaginatedProductList,
   Product,
-  ProductStatus as StatusEnum,
+  ProductStatus,
 } from "@workspace/api-client"
-import { zProductStatus as zStatusEnum } from "@workspace/api-client/zod"
 import {
-  brandsListAllOptions,
-  categoriesListAllOptions,
   productsDestroyMutation,
   productsListQueryKey,
 } from "@workspace/api-client/query"
 import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
+import { useState } from "react"
+import { zProductStatus } from "@workspace/api-client/zod"
+import { capitalize } from "@/lib/utils"
 
-export function getFeaturedIcon(featured: boolean) {
-  return featured ? (
-    <IconStar className="fill-yellow-500 text-yellow-500" />
-  ) : (
-    <IconStar className="size-4 text-muted-foreground" />
-  )
+const featuredIcons = {
+  true: <IconStar className="fill-yellow-500 text-yellow-500" />,
+  false: <IconStar className="text-muted-foreground" />,
+} as const
+
+export const statusIcons: Record<ProductStatus, React.JSX.Element> = {
+  active: <IconCircleDashedCheck className="text-green-500" />,
+  inactive: <IconCircleDashedX className="text-red-500" />,
+  draft: <IconLoader />,
+  out_of_stock: <IconPackageOff className="text-orange-500" />,
+  discontinued: <IconTrashX className="text-red-500" />,
 }
 
-export const getStatusIcon = (status: StatusEnum) => {
-  const statuses = zStatusEnum.enum
-  switch (status) {
-    case statuses.active:
-      return <IconCircleDashedCheck className="text-green-500" />
-    case statuses.inactive:
-      return <IconCircleDashedX className="text-red-500" />
-    case statuses.draft:
-      return <IconLoader />
-    case statuses.out_of_stock:
-      return <IconPackageOff className="text-orange-500" />
-    case statuses.discontinued:
-      return <IconTrashX className="text-red-500" />
-    default:
-      return null
-  }
-}
+export const statusOptions = zProductStatus.options.map((status) => ({
+  label: capitalize(status.replaceAll("_", " ")),
+  value: status,
+}))
 
 export function ProductImagePreview({ product }: { product?: Product }) {
   return (
@@ -118,184 +96,103 @@ export const columns = [
   {
     accessorKey: "Image",
     cell: ({ row }) => <ProductImagePreview product={row.original} />,
+    meta: { thClassName: "text-center" },
   },
   {
     accessorKey: "sku",
-    header: "SKU",
+    meta: { className: "text-muted-foreground font-medium" },
   },
   {
     accessorKey: "name",
-    header: "Name",
     cell: ({ row }) => <TableCellViewer original={row.original} />,
     enableHiding: false,
-    meta: {
-      filter: { variant: "text", parser: parseAsString },
-    },
+    meta: { variant: "text", thClassName: "pl-5" },
   },
   {
-    id: "description",
-    header: "Description",
-    cell: ({ row }) => {
-      if (!row.original.description) return null
-      return (
-        <div className="min-w-sm text-sm text-pretty text-muted-foreground">
-          {row.original.description}
-        </div>
-      )
-    },
+    accessorKey: "description",
+    cell: ({ row }) => (
+      <div className="min-w-sm text-pretty text-muted-foreground">
+        {row.original.description}
+      </div>
+    ),
   },
   {
-    id: "category",
-    accessorKey: "Category",
-    header: "Category",
+    accessorKey: "category",
     cell: ({ row }) =>
       row.original.category && (
         <Badge variant="secondary">{row.original.category.name}</Badge>
       ),
-    meta: {
-      filter: {
-        variant: "async-multi",
-        parser: parseAsArrayOf(parseAsString),
-        options: queryOptions({
-          ...categoriesListAllOptions(),
-          select: itemListToOptions,
-        }),
-      },
-    },
+    meta: { thClassName: "pl-4" },
   },
   {
-    id: "brand",
     accessorKey: "brand",
-    header: "Brand",
     cell: ({ row }) => row.original.brand?.name,
-    meta: {
-      filter: {
-        variant: "async-multi",
-        parser: parseAsArrayOf(parseAsString),
-        options: queryOptions({
-          ...brandsListAllOptions(),
-          select: itemListToOptions,
-        }),
-      },
-    },
   },
   {
-    id: "status",
     accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const option = statusOptions.find(
-        (option) => option.value === row.original.status
-      )
-      if (!option) return null
-      return (
-        <div className="flex justify-end">
-          <Badge variant={"outline"}>
-            {option.icon} {option.label}
-          </Badge>
-        </div>
-      )
-    },
+    cell: ({ row }) =>
+      row.original.status && (
+        <Badge variant="outline" className="capitalize">
+          {statusIcons[row.original.status]}{" "}
+          {row.original.status.replaceAll("_", " ")}
+        </Badge>
+      ),
     meta: {
-      filter: {
-        variant: "multi-select",
-        options: statusOptions,
-        parser: parseAsArrayOf(parseAsStringEnum(zStatusEnum.options)),
-      },
+      thClassName: "pl-4",
+      variant: "multi-select",
+      options: statusOptions,
     },
   },
   {
-    id: "featured",
     accessorKey: "featured",
-    header: "Featured",
-    cell: ({ row }) => (
-      <div className="[&>svg]:size-4">
-        {getFeaturedIcon(!!row.original.featured)}
-      </div>
-    ),
+    cell: ({ row }) => featuredIcons[row.original.featured ? "true" : "false"],
     meta: {
-      filter: {
-        variant: "boolean",
-        options: [
-          { label: "Featured", value: true, icon: getFeaturedIcon(true) },
-          { label: "Not Featured", value: false, icon: getFeaturedIcon(false) },
-        ],
-        parser: parseAsBoolean,
-      },
+      thClassName: "text-center",
+      className: "[&>svg]:size-4 [&>svg]:mx-auto",
+      variant: "boolean",
+      options: [
+        { label: "Featured", value: "true" },
+        { label: "Not Featured", value: "false" },
+      ],
     },
   },
   {
-    id: "price",
     accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => {
-      const price = row.original.price
-      const isEmpty = typeof price !== "number"
-
-      return (
-        <div
-          className={cn(
-            "text-end",
-            isEmpty ? "text-muted-foreground" : "text-green-500"
-          )}
-        >
-          {isEmpty ? "-" : price}
-        </div>
-      )
-    },
     meta: {
-      filter: {
-        variant: "range",
-        parser: parseAsArrayOf(parseAsInteger),
-      },
+      thClassName: "text-right",
+      className: "text-right text-green-500",
+      variant: "range",
     },
   },
   {
-    id: "discount_price",
     accessorKey: "discount_price",
-    header: "Discount Price",
-    cell: ({ row }) => {
-      const discount_price = row.original.discount_price
-      const isEmpty = typeof discount_price !== "number" || discount_price === 0
-
-      return (
-        <div
-          className={cn(isEmpty ? "text-muted-foreground" : "text-amber-500")}
-        >
-          {isEmpty ? "-" : discount_price}
-        </div>
-      )
-    },
+    header: "Discount",
     meta: {
-      filter: {
-        variant: "range",
-        parser: parseAsArrayOf(parseAsInteger),
-      },
+      thClassName: "text-left",
+      className: "text-amber-500",
+      variant: "range",
     },
   },
   {
-    id: "created_at",
     accessorKey: "created_at",
-    header: "Created At",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">
-        {format(row.original.created_at, "LLL dd, y")}
-      </div>
-    ),
+    header: "Created",
+    cell: ({ row }) => format(row.original.created_at, "LLL dd, y"),
     meta: {
-      filter: { variant: "date-range", parser: parseAsArrayOf(parseAsIsoDate) },
+      className: "text-muted-foreground",
+      variant: "date-range",
     },
   },
   {
     id: "actions",
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
+    meta: { className: "text-right" },
   },
 ] as const satisfies ColumnDef<Product>[]
 
 function TableCellViewer({ original: item }: { original: Product }) {
   const isMobile = useIsMobile()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const form = useProductForm({ item, setOpen })
 

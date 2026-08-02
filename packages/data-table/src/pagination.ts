@@ -9,7 +9,7 @@ import { useCallback, useMemo } from "react"
 export function usePaginationSearchParams() {
   return useQueryStates(
     {
-      pageIndex: parseAsIndex.withDefault(0),
+      pageIndex: parseAsIndex.withDefault(1),
       pageSize: parseAsInteger.withDefault(10),
     },
     {
@@ -54,7 +54,7 @@ export function usePagination() {
   return useMemo<LimitOffsetPagination>(
     () => ({
       limit: _pagination.pageSize,
-      offset: _pagination.pageIndex * _pagination.pageSize,
+      offset: (_pagination.pageIndex - 1) * _pagination.pageSize,
     }),
     [_pagination]
   )

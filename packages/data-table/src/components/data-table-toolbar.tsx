@@ -7,22 +7,16 @@ import { DataTableViewOptions } from "./data-table-view-options"
 
 import { cn } from "@workspace/ui/lib/utils"
 import {
-  ComboboxFilter,
+  BooleanFilter,
   DateRangeFilter,
+  MultiSelectFilter,
+  NumberFilter,
   RangeFilter,
+  SelectFilter,
+  TextFilter,
 } from "./data-table-filter-variants"
-import { Input } from "@workspace/ui/components/input"
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@workspace/ui/components/toggle-group"
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@workspace/ui/components/combobox"
+import { useMemo } from "react"
+import { FilterVariant } from "../core/default-parsers"
 
 export function DataTableToolbar<TData>({
   table,
@@ -31,9 +25,10 @@ export function DataTableToolbar<TData>({
 }: React.ComponentProps<"div"> & {
   table: Table<TData>
 }) {
-  const columns = table
-    .getAllColumns()
-    .filter((column) => column.getCanFilter())
+  const columns = useMemo(
+    () => table.getAllColumns().filter((column) => column.getCanFilter()),
+    [table]
+  )
 
   return (
     <div
@@ -56,145 +51,29 @@ export function DataTableToolbar<TData>({
   )
 }
 
-function capitalize(str: string) {
-  if (!str) return ""
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
 function DataTableToolbarFilter<TData>({
   column,
 }: {
   column: Column<TData>
   table: Table<TData>
 }) {
-  const columnMeta = column.columnDef.meta
-  const variant = columnMeta?.variant
+  const variant = column.columnDef.meta?.variant
 
-  const label =
-    typeof column.columnDef.header === "string"
-      ? column.columnDef.header
-      : capitalize(column.id)
+  const filterComponents = {
+    text: TextFilter,
+    number: NumberFilter,
+    select: SelectFilter,
+    "multi-select": MultiSelectFilter,
+    boolean: BooleanFilter,
+    range: RangeFilter,
+    "date-range": DateRangeFilter,
+    date: null,
+  } satisfies Record<
+    FilterVariant,
+    React.ComponentType<{ column: typeof column }> | null
+  >
 
-  const options =
-    columnMeta?.options?.map((option) =>
-      typeof option === "string"
-        ? { label: capitalize(option), value: option }
-        : option
-    ) ?? []
+  const Filter = variant ? filterComponents[variant] : undefined
 
-  switch (variant) {
-    case "text":
-      return (
-        <Input
-          className="w-auto"
-          value={(column.getFilterValue() as string) ?? ""}
-          onChange={(e) => column.setFilterValue(e.target.value)}
-          placeholder={label}
-        />
-      )
-    case "number":
-      return (
-        <Input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          className="w-full"
-          value={(column.getFilterValue() as string) ?? ""}
-          onChange={(e) => {
-            column.setFilterValue(e.target.value)
-          }}
-          placeholder={label}
-        />
-      )
-    // case "boolean":
-    //   return (
-    //     <ToggleGroup
-    //       variant="outline"
-    //       type="single"
-    //       value={String(column.getFilterValue())}
-    //       onValueChange={(val) =>
-    //         column.setFilterValue(
-    //           val === "true" ? true : val === "false" ? false : null
-    //         )
-    //       }
-    //     >
-    //       {options.slice(0, 2).map((option) => (
-    //         <ToggleGroupItem
-    //           key={option.value}
-    //           value={option.value}
-    //           aria-label={`Toggle ${option.label}`}
-    //           className="w-auto"
-    //         >
-    //           {option.label}
-    //         </ToggleGroupItem>
-    //       ))}
-    //     </ToggleGroup>
-    //   )
-    // case "range":
-    //   return (
-    //     <RangeFilter
-    //       range={(column.getFilterValue() as number[]) ?? []}
-    //       setRange={column.setFilterValue}
-    //       placeholder={label}
-    //     />
-    //   )
-    // case "date-range":
-    //   return (
-    //     <DateRangeFilter
-    //       range={(column.getFilterValue() as Date[]) ?? []}
-    //       setRange={column.setFilterValue}
-    //       placeholder={label}
-    //     />
-    //   )
-    // case "select":
-    //   return (
-    //     <ComboboxFilter
-    //       autoHighlight
-    //       value={column.getFilterValue() ?? null}
-    //       onValueChange={column.setFilterValue}
-    //       placeholder={label}
-    //       items={options}
-    //     />
-    //   )
-    // case "multi-select":
-    //   return (
-    //     <ComboboxFilter
-    //       multiple
-    //       autoHighlight
-    //       value={(column.getFilterValue() as string[]) ?? []}
-    //       onValueChange={(val) =>
-    //         column.setFilterValue(val.length > 0 ? val : null)
-    //       }
-    //       placeholder={label}
-    //       items={options}
-    //     />
-    //   )
-    // case "async-select":
-    //   return (
-    //     <AsyncComboboxFilter
-    //       autoHighlight
-    //       value={column.getFilterValue() ?? null}
-    //       onValueChange={column.setFilterValue}
-    //       placeholder={label}
-    //       items={columnMeta?.options?.map((option) => ({label: option,value: option}))}
-    //     />
-    //   )
-    // case "async-multi":
-    //   return (
-    //     <AsyncComboboxFilter
-    //       multiple
-    //       autoHighlight
-    //       value={(column.getFilterValue() as string[]) ?? []}
-    //       onValueChange={(val) =>
-    //         column.setFilterValue(val.length > 0 ? val : null)
-    //       }
-    //       placeholder={label}
-    //       items={columnMeta?.options?.map((option) => ({label: option,value: option}))}
-
-    //     />
-    //   )
-
-    default:
-      return null
-  }
+  return Filter ? <Filter column={column} /> : null
 }
