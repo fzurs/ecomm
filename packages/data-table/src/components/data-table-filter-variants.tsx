@@ -56,6 +56,59 @@ const onNumberChange = (setValue: (val: number) => void) => {
     setValue(Number(e.target.value))
 }
 
+export function TextFilter({ column }: { column: Column<any> }) {
+  return (
+    <Input
+      value={(column.getFilterValue() as string) ?? ""}
+      onChange={(e) => column.setFilterValue(e.target.value)}
+      placeholder={getColumnLabel(column)}
+    />
+  )
+}
+
+export function NumberFilter({ column }: { column: Column<any> }) {
+  return (
+    <Input
+      type="number"
+      inputMode="numeric"
+      min={0}
+      className="w-full"
+      value={(column.getFilterValue() as string) ?? ""}
+      onChange={(e) => {
+        column.setFilterValue(e.target.value)
+      }}
+      placeholder={getColumnLabel(column)}
+    />
+  )
+}
+
+export function BooleanFilter<TData>({ column }: { column: Column<TData> }) {
+  const options = column.columnDef.meta?.options ?? []
+  return (
+    <ToggleGroup
+      className="text-muted-foreground"
+      variant="outline"
+      type="single"
+      value={String(column.getFilterValue())}
+      onValueChange={(val) =>
+        column.setFilterValue(
+          val === "true" ? true : val === "false" ? false : null
+        )
+      }
+    >
+      {options.slice(0, 2).map((option) => (
+        <ToggleGroupItem
+          key={option.value}
+          value={option.value}
+          aria-label={`Toggle ${option.label}`}
+        >
+          {option.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  )
+}
+
 export function RangeFilter<TData>({ column }: { column: Column<TData> }) {
   const range = (column.getFilterValue() as number[]) ?? []
   const setRange = column.setFilterValue
@@ -64,7 +117,7 @@ export function RangeFilter<TData>({ column }: { column: Column<TData> }) {
   const [minValue = 0, maxValue] = range
 
   const setMinValue = React.useCallback(
-    (value: number) => {
+    (value: number) =>
       setRange(
         value
           ? maxValue
@@ -73,13 +126,12 @@ export function RangeFilter<TData>({ column }: { column: Column<TData> }) {
           : maxValue
             ? [0, maxValue]
             : null
-      )
-    },
+      ),
     [maxValue, setRange]
   )
 
   const setMaxValue = React.useCallback(
-    (value: number) => {
+    (value: number) =>
       setRange(
         value
           ? minValue
@@ -88,8 +140,7 @@ export function RangeFilter<TData>({ column }: { column: Column<TData> }) {
           : minValue
             ? [minValue]
             : null
-      )
-    },
+      ),
     [minValue, setRange]
   )
 
@@ -141,7 +192,7 @@ export function DateRangeFilter<TData>({ column }: { column: Column<TData> }) {
           <Button
             variant="outline"
             id="date-picker-range"
-            className="justify-start px-2.5 font-normal"
+            className="justify-start px-2.5 font-normal text-muted-foreground"
           >
             <CalendarIcon />
             {date?.from ? (
@@ -241,10 +292,6 @@ export function MultiSelectFilter<TData>({
       opts.length > 0 ? opts.map((opt) => opt.value) : undefined
     )
 
-  React.useEffect(() => {
-    console.log(value)
-  }, [value])
-
   return (
     <Combobox<Option, true>
       multiple
@@ -270,58 +317,5 @@ export function MultiSelectFilter<TData>({
       </ComboboxChips>
       <SelectFilterContent anchor={anchor} />
     </Combobox>
-  )
-}
-
-export function BooleanFilter<TData>({ column }: { column: Column<TData> }) {
-  const options = column.columnDef.meta?.options ?? []
-  return (
-    <ToggleGroup
-      variant="outline"
-      type="single"
-      value={String(column.getFilterValue())}
-      onValueChange={(val) =>
-        column.setFilterValue(
-          val === "true" ? true : val === "false" ? false : null
-        )
-      }
-    >
-      {options.slice(0, 2).map((option) => (
-        <ToggleGroupItem
-          key={option.value}
-          value={option.value}
-          aria-label={`Toggle ${option.label}`}
-          className="w-auto"
-        >
-          {option.label}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
-  )
-}
-
-export function TextFilter({ column }: { column: Column<any> }) {
-  return (
-    <Input
-      value={(column.getFilterValue() as string) ?? ""}
-      onChange={(e) => column.setFilterValue(e.target.value)}
-      placeholder={getColumnLabel(column)}
-    />
-  )
-}
-
-export function NumberFilter({ column }: { column: Column<any> }) {
-  return (
-    <Input
-      type="number"
-      inputMode="numeric"
-      min={0}
-      className="w-full"
-      value={(column.getFilterValue() as string) ?? ""}
-      onChange={(e) => {
-        column.setFilterValue(e.target.value)
-      }}
-      placeholder={getColumnLabel(column)}
-    />
   )
 }
