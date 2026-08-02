@@ -1,10 +1,4 @@
-import {
-  AppHeader,
-  AppHeaderContent,
-  AppHeaderSeparator,
-  AppHeaderSidebarTrigger,
-} from "@/components/app-header"
-import { NavBreadcrumb } from "@/components/nav-breadcrumb"
+import { AppHeader, AppHeaderNav } from "@/components/app-header"
 import {
   Section,
   SectionContent,
@@ -19,16 +13,12 @@ export default function OrdersCreatePage() {
   return (
     <>
       <AppHeader>
-        <AppHeaderContent>
-          <AppHeaderSidebarTrigger />
-          <AppHeaderSeparator />
-          <NavBreadcrumb
-            items={[
-              { type: "link", label: "Orders", href: "/orders" },
-              { type: "page", label: "New" },
-            ]}
-          />
-        </AppHeaderContent>
+        <AppHeaderNav
+          items={[
+            { type: "link", label: "Orders", href: "/orders" },
+            { type: "page", label: "New" },
+          ]}
+        />
       </AppHeader>
       <SectionGroup className="mx-auto w-full max-w-2xl">
         <Section>
