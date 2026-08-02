@@ -44,8 +44,11 @@ import {
 } from "@workspace/data-table"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { zProductStatus } from "@workspace/api-client/zod"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 
 const DEBOUNCE_DELAY = 300
+
+const columnVisibility = { description: false }
 
 export default function Page() {
   const queryClient = useQueryClient()
@@ -121,9 +124,7 @@ export default function Page() {
   const table = useDataTable({
     data,
     columns,
-    initialState: {
-      columnVisibility: { description: false },
-    },
+    initialState: { columnVisibility },
   })
 
   return (
@@ -135,7 +136,9 @@ export default function Page() {
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <DataTable table={table} />
+        <DataTable table={table}>
+          <DataTableToolbar table={table} />
+        </DataTable>
       </SectionGroup>
     </>
   )

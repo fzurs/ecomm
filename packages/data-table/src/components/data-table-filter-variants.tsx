@@ -38,8 +38,9 @@ import {
 } from "@workspace/ui/components/combobox"
 import { Option } from "../types.data-table"
 import { Column } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
+import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -244,7 +245,7 @@ function SelectFilterContent({
       <ComboboxList>
         {(option: Option) => (
           <ComboboxItem key={option.value} value={option}>
-            {option.label}
+            {option.icon} {option.label}
           </ComboboxItem>
         )}
       </ComboboxList>
@@ -272,14 +273,18 @@ export function SelectFilter<TData>({ column }: { column: Column<TData> }) {
   )
 }
 
-export function MultiSelectFilter<TData>({
+function MultiSelectFilterImpl<TData>({
   column,
+  options,
+  open,
+  setOpen,
 }: {
   column: Column<TData>
+  options: Option[]
+  open?: boolean
+  setOpen?: (open: boolean) => void
 }) {
   const anchor = useComboboxAnchor()
-
-  const options = column.columnDef.meta?.options ?? []
   const label = getColumnLabel(column)
 
   const filterValue = (column.getFilterValue() as string[]) ?? []
@@ -288,7 +293,7 @@ export function MultiSelectFilter<TData>({
       filterValue
         .map((value) => options.find((opt) => opt.value === value))
         .filter((opt) => opt !== undefined),
-    [filterValue]
+    [filterValue, options]
   )
 
   const onValueChange = (opts: Option[]) =>
@@ -297,11 +302,13 @@ export function MultiSelectFilter<TData>({
     )
 
   return (
-    <Combobox<Option, true>
+    <Combobox
+      open={open}
+      onOpenChange={setOpen}
       multiple
-      items={options}
       value={value}
       onValueChange={onValueChange}
+      items={options}
     >
       <ComboboxChips ref={anchor}>
         <ComboboxValue>
@@ -311,7 +318,9 @@ export function MultiSelectFilter<TData>({
                 <ComboboxChip>{values.length} selected</ComboboxChip>
               ) : (
                 values.map((opt) => (
-                  <ComboboxChip key={opt.value}>{opt.label}</ComboboxChip>
+                  <ComboboxChip key={opt.value} className="[&_svg]:size-3.5">
+                    {opt.icon} {opt.label}
+                  </ComboboxChip>
                 ))
               )}
               <ComboboxChipsInput placeholder={label} />
@@ -321,5 +330,60 @@ export function MultiSelectFilter<TData>({
       </ComboboxChips>
       <SelectFilterContent anchor={anchor} />
     </Combobox>
+  )
+}
+
+export function MultiSelectFilter<TData>({
+  column,
+}: {
+  column: Column<TData>
+}) {
+  if (column.columnDef.meta?.queryOptions) {
+    return (
+      <AsyncMultiSelectFilter
+        column={column}
+        queryOptions={column.columnDef.meta.queryOptions}
+      />
+    )
+  }
+  return (
+    <MultiSelectFilterImpl
+      column={column}
+      options={column.columnDef.meta?.options ?? []}
+    />
+  )
+}
+
+export function AsyncMultiSelectFilter<TData>({
+  column,
+  queryOptions,
+}: {
+  column: Column<TData>
+  queryOptions: UseQueryOptions<any, any, any[], any>
+}) {
+  const itemToLabel = column.columnDef.meta?.itemToLabel
+  const itemToValue = column.columnDef.meta?.itemToValue
+
+  const [open, setOpen] = useState(false)
+  const filterValue = column.getFilterValue()
+
+  const { data } = useQuery({
+    ...queryOptions,
+    enabled: Boolean(filterValue) || open,
+  })
+
+  const options: Option[] =
+    data?.map((item) => ({
+      label: itemToLabel?.(item) || item.label,
+      value: itemToValue?.(item) || item.value,
+    })) ?? []
+
+  return (
+    <MultiSelectFilterImpl
+      column={column}
+      options={options}
+      open={open}
+      setOpen={setOpen}
+    />
   )
 }

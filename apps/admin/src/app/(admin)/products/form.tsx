@@ -27,7 +27,7 @@ import {
 } from "@workspace/ui/components/select"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
-import { ProductImagePreview, statusIcons, statusOptions } from "./columns"
+import { ProductImagePreview, statusOptions } from "./columns"
 import {
   InputGroup,
   InputGroupAddon,
@@ -43,7 +43,7 @@ import {
   Product,
   ProductWritable,
 } from "@workspace/api-client"
-import { zProductStatus, zProductWritable } from "@workspace/api-client/zod"
+import { zProductWritable } from "@workspace/api-client/zod"
 import {
   brandsListAllOptions,
   categoriesListAllOptions,
@@ -332,7 +332,7 @@ export const ProductForm = withForm({
                     <SelectGroup>
                       {statusOptions.map((opt) => (
                         <SelectItem key={opt.value} value={opt.value}>
-                          {statusIcons[opt.value]} {opt.label}
+                          {opt.icon} {opt.label}
                         </SelectItem>
                       ))}
                     </SelectGroup>

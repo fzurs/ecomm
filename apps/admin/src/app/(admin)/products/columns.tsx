@@ -55,6 +55,8 @@ import {
   ProductStatus,
 } from "@workspace/api-client"
 import {
+  brandsListAllOptions,
+  categoriesListAllOptions,
   productsDestroyMutation,
   productsListQueryKey,
 } from "@workspace/api-client/query"
@@ -79,6 +81,7 @@ export const statusIcons: Record<ProductStatus, React.JSX.Element> = {
 export const statusOptions = zProductStatus.options.map((status) => ({
   label: capitalize(status.replaceAll("_", " ")),
   value: status,
+  icon: statusIcons[status],
 }))
 
 export function ProductImagePreview({ product }: { product?: Product }) {
@@ -122,11 +125,23 @@ export const columns = [
       row.original.category && (
         <Badge variant="secondary">{row.original.category.name}</Badge>
       ),
-    meta: { thClassName: "pl-4" },
+    meta: {
+      thClassName: "pl-4",
+      variant: "multi-select",
+      queryOptions: categoriesListAllOptions(),
+      itemToLabel: (item) => item.name,
+      itemToValue: (item) => item.slug,
+    },
   },
   {
     accessorKey: "brand",
     cell: ({ row }) => row.original.brand?.name,
+    meta: {
+      variant: "multi-select",
+      queryOptions: brandsListAllOptions(),
+      itemToLabel: (item) => item.name,
+      itemToValue: (item) => item.slug,
+    },
   },
   {
     accessorKey: "status",
