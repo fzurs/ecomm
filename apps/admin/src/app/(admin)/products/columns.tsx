@@ -125,6 +125,7 @@ export const columns = [
         {row.original.description}
       </div>
     ),
+    enableSorting: false,
   },
   {
     accessorKey: "category",
