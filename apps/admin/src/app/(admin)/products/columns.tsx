@@ -60,7 +60,7 @@ import {
   productsDestroyMutation,
   productsListQueryKey,
 } from "@workspace/api-client/query"
-import { ArrowUpDown, EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
+import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 import { useState } from "react"
 import { zProductStatus } from "@workspace/api-client/zod"
 import { capitalize } from "@/lib/utils"
@@ -108,12 +108,6 @@ export const columns = [
   },
   {
     accessorKey: "name",
-    header: () => (
-      <div className="flex gap-1 items-center">
-        <span>Name</span>
-        <ArrowUpDown className="size-4" />
-      </div>
-    ),
     cell: ({ row }) => <TableCellViewer original={row.original} />,
     enableHiding: false,
     meta: { variant: "text", thClassName: "px-5" },
