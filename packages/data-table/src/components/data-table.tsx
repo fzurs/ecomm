@@ -13,6 +13,8 @@ import {
 import { DataTableToolbar } from "./data-table-toolbar"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
+import { getColumnLabel } from "./data-table-filter-variants"
+import { DataTableColumnHeader } from "./data-table-column-header"
 
 export function DataTable<TData>({
   table,
@@ -40,12 +42,17 @@ export function DataTable<TData>({
                         header.column.columnDef.meta?.thClassName
                       )}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                        <DataTableColumnHeader
+                          column={header.column}
+                          title={getColumnLabel(header.column)}
+                        />
+                      ) : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      )}
                     </TableHead>
                   ))}
                 </TableRow>

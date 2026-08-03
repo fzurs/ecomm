@@ -87,6 +87,7 @@ export function useProductForm({
 
   const updateMutation = useMutation({
     ...productsUpdateMutation(),
+    ...options,
     onError: (error) => {
       if (error.response?.data) {
         Object.entries(error.response.data).forEach(([fieldName, messages]) => {

@@ -53,6 +53,7 @@ export const columns = [
         {row.original.description}
       </div>
     ),
+    enableSorting: false,
   },
   {
     id: "actions",

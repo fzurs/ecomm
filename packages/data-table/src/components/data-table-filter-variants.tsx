@@ -46,7 +46,7 @@ function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-function getColumnLabel<TData>(column: Column<TData>) {
+export function getColumnLabel<TData>(column: Column<TData>) {
   if (typeof column.columnDef.header === "string") {
     return column.columnDef.header
   }

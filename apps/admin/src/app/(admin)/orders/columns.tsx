@@ -81,7 +81,6 @@ export const columns = [
       className: "text-right font-semibold",
     },
     enableHiding: false,
-    enableColumnFilter: true,
   },
   {
     id: "currency",
@@ -101,13 +100,13 @@ export const columns = [
         </Badge>
       )
     },
-    enableSorting: true,
     meta: { variant: "multi-select", options: statusOptions },
   },
   {
     accessorKey: "id",
     header: "Order Number",
     cell: ({ row }) => `C654523-00${row.original.id}`,
+    enableSorting: false,
     meta: { className: "text-muted-foreground font-medium" },
   },
   {
@@ -127,6 +126,7 @@ export const columns = [
         </Popover>
       )
     },
+    enableSorting: false,
     meta: {
       thClassName: "text-center",
       className: "text-center",
