@@ -113,11 +113,12 @@ export function useProductForm({
     defaultValues: { ...defaultValues, ...(item ?? {}) },
     formId,
     onSubmit: ({
-      value: { imageFile = null, clearImage = false, ...value },
+      value: { imageFile = null, clearImage = false, discount_price, ...value },
     }) => {
       const body: ProductWritable = {
         ...value,
         image: clearImage ? "" : ((imageFile as never) ?? undefined),
+        discount_price: discount_price ?? ("" as never),
       }
       const headers = {
         "Content-Type": "multipart/form-data",
