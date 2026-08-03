@@ -2,7 +2,6 @@ import { AppHeader, AppHeaderNav } from "@/components/app-header"
 import {
   Section,
   SectionContent,
-  SectionDescription,
   SectionGroup,
   SectionHeader,
   SectionTitle,
@@ -24,10 +23,6 @@ export default function OrdersCreatePage() {
         <Section>
           <SectionHeader>
             <SectionTitle>Create Order</SectionTitle>
-            <SectionDescription>
-              Choose a customer, add products, and review the order before
-              saving.
-            </SectionDescription>
           </SectionHeader>
           <SectionContent>
             <CreateOrderForm />

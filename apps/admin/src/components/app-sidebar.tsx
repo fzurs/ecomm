@@ -19,14 +19,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@workspace/ui/components/sidebar"
 import { IconInnerShadowTop } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useQuery } from "@tanstack/react-query"
 import { authUserRetrieveOptions } from "@workspace/api-client/query"
-import { cn } from "@workspace/ui/lib/utils"
 import { usePathname } from "next/navigation"
 
 const items = [
@@ -59,6 +57,7 @@ const items = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+
   const { data: session } = useQuery(authUserRetrieveOptions())
 
   return (
@@ -80,22 +79,19 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    isActive={
-                      pathname !== "/" &&
-                      item.url.includes(pathname.slice(0, item.url.length))
-                    }
-                    asChild
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const isActive = item.url === pathname.slice(0, item.url.length)
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton isActive={isActive} asChild>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -103,11 +99,4 @@ export function AppSidebar() {
       <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
     </Sidebar>
   )
-}
-
-export function AppSidebarTrigger({
-  className,
-  ...props
-}: React.ComponentProps<typeof SidebarTrigger>) {
-  return <SidebarTrigger {...props} className={cn("-ml-1", className)} />
 }
