@@ -15,6 +15,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                        DjangoFilterBackend, ProductOrdering]
     filterset_class = ProductFilter
     search_fields = ["name", "description", "category__name", "brand__name"]
+    # Category and Brand are ordered by {model}__name, in ProductFilter
     ordering_fields = ["name", "category", "brand", "status",
                        "featured", "price", "discount_price", "created_at"]
     lookup_field = "slug"
@@ -53,7 +54,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.order_by("name")
     serializer_class = CategorySerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields = ['name']
     search_fields = ["name"]
     lookup_field = "slug"
 
@@ -74,6 +76,9 @@ class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     lookup_field = "slug"
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields = ['name']
+    search_fields = ['name']
 
     def get_permissions(self):
         if self.action in ["list", "retrieve", "all"]:

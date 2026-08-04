@@ -20,14 +20,32 @@ import {
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
 import { CustomerForm, useCustomerForm } from "./form"
-import { useDataTable, usePagination } from "@workspace/data-table"
+import { useDataTable, usePagination, useSorting } from "@workspace/data-table"
 import { DataTable } from "@workspace/data-table/components/data-table"
+import { useMemo } from "react"
+import { CustomersListData } from "@workspace/api-client"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
+import { SearchInput } from "@/components/search-input"
+import { parseAsString, useQueryState } from "nuqs"
+import { useDebounce } from "@/hooks/use-debounce"
 
 export default function CustomersPage() {
+  const sorting = useSorting()
   const pagination = usePagination()
 
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  )
+  const debouncedSearch = useDebounce(search, 300)
+
+  const queryFilters = useMemo<CustomersListData["query"]>(
+    () => ({ ...pagination, ...sorting, debouncedSearch }),
+    [pagination, sorting, debouncedSearch]
+  )
+
   const { data } = useQuery({
-    ...customersListOptions({ query: pagination }),
+    ...customersListOptions({ query: queryFilters }),
     placeholderData: keepPreviousData,
   })
 
@@ -42,7 +60,16 @@ export default function CustomersPage() {
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <DataTable table={table} showToolbar={false} />
+        <DataTable table={table}>
+          <DataTableToolbar table={table}>
+            <SearchInput
+              value={search}
+              onValueChange={setSearch}
+              count={data?.count}
+              placeholder="Search for a customers..."
+            />
+          </DataTableToolbar>
+        </DataTable>
       </SectionGroup>
     </>
   )

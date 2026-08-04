@@ -445,7 +445,9 @@ export const zAuthUserUpdateResponse = zUserDetails;
 
 export const zBrandsListQuery = z.object({
     limit: z.int().optional(),
-    offset: z.int().optional()
+    offset: z.int().optional(),
+    ordering: z.string().optional(),
+    search: z.string().optional()
 });
 
 export const zBrandsListResponse = zPaginatedBrandList;
@@ -485,11 +487,17 @@ export const zBrandsUpdatePath = z.object({
 
 export const zBrandsUpdateResponse = zBrand;
 
+export const zBrandsListAllQuery = z.object({
+    ordering: z.string().optional(),
+    search: z.string().optional()
+});
+
 export const zBrandsListAllResponse = z.array(zBrand);
 
 export const zCategoriesListQuery = z.object({
     limit: z.int().optional(),
     offset: z.int().optional(),
+    ordering: z.string().optional(),
     search: z.string().optional()
 });
 
@@ -531,6 +539,7 @@ export const zCategoriesUpdatePath = z.object({
 export const zCategoriesUpdateResponse = zCategory;
 
 export const zCategoriesListAllQuery = z.object({
+    ordering: z.string().optional(),
     search: z.string().optional()
 });
 
@@ -538,7 +547,9 @@ export const zCategoriesListAllResponse = z.array(zCategory);
 
 export const zCustomersListQuery = z.object({
     limit: z.int().optional(),
-    offset: z.int().optional()
+    offset: z.int().optional(),
+    ordering: z.string().optional(),
+    search: z.string().optional()
 });
 
 export const zCustomersListResponse = zPaginatedCustomerList;
@@ -578,12 +589,18 @@ export const zCustomersUpdatePath = z.object({
 
 export const zCustomersUpdateResponse = zCustomer;
 
+export const zCustomersListAllQuery = z.object({
+    ordering: z.string().optional(),
+    search: z.string().optional()
+});
+
 export const zCustomersListAllResponse = z.array(zCustomer);
 
 export const zOrdersListQuery = z.object({
     limit: z.int().optional(),
     offset: z.int().optional(),
     ordering: z.string().optional(),
+    search: z.string().optional(),
     status: z.array(z.enum([
         'cancelled',
         'delivered',

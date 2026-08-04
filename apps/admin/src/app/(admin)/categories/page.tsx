@@ -11,18 +11,18 @@ import {
   categoriesListQueryKey,
 } from "@workspace/api-client/query"
 import { SectionGroup } from "@/components/section"
-import { useDataTable, useFilters, usePagination } from "@workspace/data-table"
+import {
+  useDataTable,
+  useFilters,
+  usePagination,
+  useSorting,
+} from "@workspace/data-table"
 import { useMemo } from "react"
 import { CategoriesListData } from "@workspace/api-client"
 import { DataTable } from "@workspace/data-table/components/data-table"
 import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@workspace/ui/components/input-group"
-import { SearchIcon } from "lucide-react"
 import { parseAsString, useQueryState } from "nuqs"
+import { SearchInput } from "@/components/search-input"
 
 const DEBOUNCE_DELAY = 300
 
@@ -30,15 +30,17 @@ export default function CategoriesPage() {
   const queryClient = useQueryClient()
 
   const pagination = usePagination()
+  const sorting = useSorting()
   const columnFilters = useFilters(columns, {})
+
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault("")
   )
 
   const queryFilters = useMemo<CategoriesListData["query"]>(
-    () => ({ ...columnFilters, search }),
-    [columnFilters, search]
+    () => ({ ...columnFilters, ...sorting, search }),
+    [columnFilters, search, sorting]
   )
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
@@ -80,18 +82,12 @@ export default function CategoriesPage() {
     <SectionGroup>
       <DataTable table={table}>
         <DataTableToolbar table={table}>
-          <InputGroup>
-            <InputGroupInput
-              type="search"
-              inputMode="search"
-              placeholder="Search for categories..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <InputGroupAddon>
-              <SearchIcon />
-            </InputGroupAddon>
-          </InputGroup>
+          <SearchInput
+            value={search}
+            onValueChange={setSearch}
+            count={data?.count}
+            placeholder="Search for a categories..."
+          />
         </DataTableToolbar>
       </DataTable>
     </SectionGroup>

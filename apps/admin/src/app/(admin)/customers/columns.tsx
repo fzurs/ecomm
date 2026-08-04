@@ -20,9 +20,10 @@ export const columns: ColumnDef<Customer>[] = [
     accessorKey: "name",
     cell: ({ row }) => <TableCellViewer item={row.original} />,
     meta: { thClassName: "pl-5" },
+    enableHiding: false,
   },
   { accessorKey: "email", meta: { className: "text-muted-foreground" } },
-  { accessorKey: "phone" },
+  { accessorKey: "phone", enableSorting: false },
 ]
 
 function TableCellViewer({ item }: { item: Customer }) {

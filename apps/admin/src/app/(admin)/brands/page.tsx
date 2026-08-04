@@ -21,15 +21,32 @@ import {
   AppHeaderNav,
 } from "@/components/app-header"
 import { SectionGroup } from "@/components/section"
-import { useDataTable, usePagination } from "@workspace/data-table"
+import { useDataTable, usePagination, useSorting } from "@workspace/data-table"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { BrandsListData } from "@workspace/api-client"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
+import { parseAsString, useQueryState } from "nuqs"
+import { useDebounce } from "@/hooks/use-debounce"
+import { SearchInput } from "@/components/search-input"
 
 export default function BrandsPage() {
+  const sorting = useSorting()
   const pagination = usePagination()
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  )
+
+  const debouncedSearch = useDebounce(search, 300)
+
+  const queryFilters = useMemo<BrandsListData["query"]>(
+    () => ({ ...pagination, ...sorting, search: debouncedSearch || undefined }),
+    [pagination, sorting, debouncedSearch]
+  )
 
   const { data } = useQuery({
-    ...brandsListOptions({ query: pagination }),
+    ...brandsListOptions({ query: queryFilters }),
     placeholderData: keepPreviousData,
   })
 
@@ -44,7 +61,16 @@ export default function BrandsPage() {
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <DataTable table={table} showToolbar={false} />
+        <DataTable table={table}>
+          <DataTableToolbar table={table}>
+            <SearchInput
+              value={search}
+              onValueChange={setSearch}
+              count={data?.count}
+              placeholder="Search for a brands..."
+            />
+          </DataTableToolbar>
+        </DataTable>
       </SectionGroup>
     </>
   )

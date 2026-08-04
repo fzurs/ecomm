@@ -16,6 +16,10 @@ export function DataTableViewOptions<TData>({
 }: {
   table: Table<TData>
 }) {
+  const columns = table.getAllColumns().filter((column) => column.getCanHide())
+
+  if (columns.length === 0) return null
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,21 +30,18 @@ export function DataTableViewOptions<TData>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-44">
         <DropdownMenuGroup>
-          {table
-            .getAllColumns()
-            .filter((column) => column.getCanHide())
-            .map((column) => (
-              <DropdownMenuCheckboxItem
-                key={column.id}
-                checked={column.getIsVisible()}
-                onCheckedChange={column.toggleVisibility}
-                className="capitalize"
-              >
-                {typeof column.columnDef.header === "string"
-                  ? column.columnDef.header
-                  : column.id}
-              </DropdownMenuCheckboxItem>
-            ))}
+          {columns.map((column) => (
+            <DropdownMenuCheckboxItem
+              key={column.id}
+              checked={column.getIsVisible()}
+              onCheckedChange={column.toggleVisibility}
+              className="capitalize"
+            >
+              {typeof column.columnDef.header === "string"
+                ? column.columnDef.header
+                : column.id}
+            </DropdownMenuCheckboxItem>
+          ))}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

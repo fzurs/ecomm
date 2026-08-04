@@ -527,6 +527,14 @@ export type BrandsListData = {
          * The initial index from which to return the results.
          */
         offset?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
     };
     url: '/brands/';
 };
@@ -616,7 +624,16 @@ export type BrandsUpdateResponse = BrandsUpdateResponses[keyof BrandsUpdateRespo
 export type BrandsListAllData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
     url: '/brands/all/';
 };
 
@@ -638,6 +655,10 @@ export type CategoriesListData = {
          * The initial index from which to return the results.
          */
         offset?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
         /**
          * A search term.
          */
@@ -733,6 +754,10 @@ export type CategoriesListAllData = {
     path?: never;
     query?: {
         /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
          * A search term.
          */
         search?: string;
@@ -758,6 +783,14 @@ export type CustomersListData = {
          * The initial index from which to return the results.
          */
         offset?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
     };
     url: '/customers/';
 };
@@ -859,7 +892,16 @@ export type CustomersUpdateResponse = CustomersUpdateResponses[keyof CustomersUp
 export type CustomersListAllData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
     url: '/customers/all/';
 };
 
@@ -885,6 +927,10 @@ export type OrdersListData = {
          * Which field to use when ordering the results.
          */
         ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
         /**
          * * `pending` - Pending
          * * `paid` - Paid

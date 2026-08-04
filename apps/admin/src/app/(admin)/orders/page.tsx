@@ -43,7 +43,7 @@ export default function OrdersPage() {
   })
 
   const queryFilters = useMemo<OrdersListData["query"]>(
-    () => ({ ...columnFilters, ...sorting }),
+    () => ({ ...columnFilters, ...sorting, search: columnFilters.customer }),
     [columnFilters, sorting]
   )
 
