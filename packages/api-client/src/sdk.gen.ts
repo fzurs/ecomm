@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponses, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponses, AuthPasswordResetCreateData, AuthPasswordResetCreateResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, AuthUserUpdateData, AuthUserUpdateResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListAllData, BrandsListAllResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListAllData, CategoriesListAllResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListAllData, CustomersListAllResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsDetectAndAssignBrandCreateData, ProductsDetectAndAssignBrandCreateResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListAllData, ProductsListAllResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
+import type { AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponses, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponses, AuthPasswordResetCreateData, AuthPasswordResetCreateResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, AuthUserUpdateData, AuthUserUpdateResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsDetectAndAssignBrandCreateData, ProductsDetectAndAssignBrandCreateResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -272,14 +272,14 @@ export const brandsUpdate = <ThrowOnError extends boolean = false>(options: Opti
     }
 });
 
-export const brandsListAll = <ThrowOnError extends boolean = false>(options?: Options<BrandsListAllData, ThrowOnError>): RequestResult<BrandsListAllResponses, unknown, ThrowOnError> => (options?.client ?? client).get<BrandsListAllResponses, unknown, ThrowOnError>({
+export const brandsListChoices = <ThrowOnError extends boolean = false>(options?: Options<BrandsListChoicesData, ThrowOnError>): RequestResult<BrandsListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<BrandsListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/brands/all/',
+    url: '/brands/choices/',
     ...options
 });
 
@@ -360,14 +360,14 @@ export const categoriesUpdate = <ThrowOnError extends boolean = false>(options: 
     }
 });
 
-export const categoriesListAll = <ThrowOnError extends boolean = false>(options?: Options<CategoriesListAllData, ThrowOnError>): RequestResult<CategoriesListAllResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CategoriesListAllResponses, unknown, ThrowOnError>({
+export const categoriesListChoices = <ThrowOnError extends boolean = false>(options?: Options<CategoriesListChoicesData, ThrowOnError>): RequestResult<CategoriesListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CategoriesListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/categories/all/',
+    url: '/categories/choices/',
     ...options
 });
 
@@ -448,14 +448,14 @@ export const customersUpdate = <ThrowOnError extends boolean = false>(options: O
     }
 });
 
-export const customersListAll = <ThrowOnError extends boolean = false>(options?: Options<CustomersListAllData, ThrowOnError>): RequestResult<CustomersListAllResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CustomersListAllResponses, unknown, ThrowOnError>({
+export const customersListChoices = <ThrowOnError extends boolean = false>(options?: Options<CustomersListChoicesData, ThrowOnError>): RequestResult<CustomersListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CustomersListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/customers/all/',
+    url: '/customers/choices/',
     ...options
 });
 
@@ -643,13 +643,13 @@ export const productsGenerateSkuCreate = <ThrowOnError extends boolean = false>(
     }
 });
 
-export const productsListAll = <ThrowOnError extends boolean = false>(options?: Options<ProductsListAllData, ThrowOnError>): RequestResult<ProductsListAllResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ProductsListAllResponses, unknown, ThrowOnError>({
+export const productsListChoices = <ThrowOnError extends boolean = false>(options?: Options<ProductsListChoicesData, ThrowOnError>): RequestResult<ProductsListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ProductsListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/products/all/',
+    url: '/products/choices/',
     ...options
 });

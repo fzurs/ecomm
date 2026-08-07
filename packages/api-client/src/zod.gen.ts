@@ -10,10 +10,23 @@ export const zBrand = z.object({
     name: z.string().max(255)
 });
 
+export const zBrandChoice = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional()
+});
+
 export const zCategory = z.object({
     id: z.int().readonly(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
+    description: z.string().nullish()
+});
+
+export const zCategoryChoice = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     description: z.string().nullish()
 });
 
@@ -117,6 +130,13 @@ export const zPatchedUserDetails = z.object({
     email: z.email().readonly().optional(),
     first_name: z.string().max(150).optional(),
     last_name: z.string().max(150).optional()
+});
+
+export const zProductChoice = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    price: z.int().gte(0).lte(2147483647).nullish()
 });
 
 /**
@@ -269,9 +289,20 @@ export const zBrandWritable = z.object({
     name: z.string().max(255)
 });
 
+export const zBrandChoiceWritable = z.object({
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional()
+});
+
 export const zCategoryWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
+    description: z.string().nullish()
+});
+
+export const zCategoryChoiceWritable = z.object({
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     description: z.string().nullish()
 });
 
@@ -400,6 +431,12 @@ export const zPaginatedProductListWritable = z.object({
     results: z.array(zProductWritable)
 });
 
+export const zProductChoiceWritable = z.object({
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    price: z.int().gte(0).lte(2147483647).nullish()
+});
+
 export const zProductSummaryWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
@@ -487,12 +524,12 @@ export const zBrandsUpdatePath = z.object({
 
 export const zBrandsUpdateResponse = zBrand;
 
-export const zBrandsListAllQuery = z.object({
+export const zBrandsListChoicesQuery = z.object({
     ordering: z.string().optional(),
     search: z.string().optional()
 });
 
-export const zBrandsListAllResponse = z.array(zBrand);
+export const zBrandsListChoicesResponse = z.array(zBrandChoice);
 
 export const zCategoriesListQuery = z.object({
     limit: z.int().optional(),
@@ -538,12 +575,12 @@ export const zCategoriesUpdatePath = z.object({
 
 export const zCategoriesUpdateResponse = zCategory;
 
-export const zCategoriesListAllQuery = z.object({
+export const zCategoriesListChoicesQuery = z.object({
     ordering: z.string().optional(),
     search: z.string().optional()
 });
 
-export const zCategoriesListAllResponse = z.array(zCategory);
+export const zCategoriesListChoicesResponse = z.array(zCategoryChoice);
 
 export const zCustomersListQuery = z.object({
     limit: z.int().optional(),
@@ -589,12 +626,12 @@ export const zCustomersUpdatePath = z.object({
 
 export const zCustomersUpdateResponse = zCustomer;
 
-export const zCustomersListAllQuery = z.object({
+export const zCustomersListChoicesQuery = z.object({
     ordering: z.string().optional(),
     search: z.string().optional()
 });
 
-export const zCustomersListAllResponse = z.array(zCustomer);
+export const zCustomersListChoicesResponse = z.array(zCustomer);
 
 export const zOrdersListQuery = z.object({
     limit: z.int().optional(),
@@ -723,7 +760,7 @@ export const zProductsGenerateSkuCreatePath = z.object({
 
 export const zProductsGenerateSkuCreateResponse = zProduct;
 
-export const zProductsListAllQuery = z.object({
+export const zProductsListChoicesQuery = z.object({
     brand: z.array(z.string()).optional(),
     category: z.array(z.string()).optional(),
     created_at_after: z.iso.date().optional(),
@@ -744,4 +781,4 @@ export const zProductsListAllQuery = z.object({
     ])).optional()
 });
 
-export const zProductsListAllResponse = z.array(zProduct);
+export const zProductsListChoicesResponse = z.array(zProductChoice);

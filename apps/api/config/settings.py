@@ -23,9 +23,9 @@ WORKDIR = BASE_DIR.parent.parent
 environ.Env.read_env(os.path.join(WORKDIR, 'db.env'))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-AFIPSDK_CUIT = env('AFIPSDK_CUIT')
-AFIPSDK_CERT_PATH = env('AFIPSDK_CERT_PATH')
-AFIPSDK_KEY_PATH = env('AFIPSDK_KEY_PATH')
+AFIPSDK_CUIT = env('AFIPSDK_CUIT', default='')
+AFIPSDK_CERT_PATH = env('AFIPSDK_CERT_PATH', default='')
+AFIPSDK_KEY_PATH = env('AFIPSDK_KEY_PATH', default='')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

@@ -12,10 +12,23 @@ export type Brand = {
     name: string;
 };
 
+export type BrandChoice = {
+    readonly id: number;
+    name: string;
+    slug?: string;
+};
+
 export type Category = {
     readonly id: number;
     slug?: string;
     name: string;
+    description?: string | null;
+};
+
+export type CategoryChoice = {
+    readonly id: number;
+    name: string;
+    slug?: string;
     description?: string | null;
 };
 
@@ -216,6 +229,13 @@ export type Product = {
     readonly created_at: string;
 };
 
+export type ProductChoice = {
+    readonly id: number;
+    name: string;
+    slug?: string;
+    price?: number | null;
+};
+
 /**
  * * `draft` - Draft
  * * `active` - Active
@@ -268,9 +288,20 @@ export type BrandWritable = {
     name: string;
 };
 
+export type BrandChoiceWritable = {
+    name: string;
+    slug?: string;
+};
+
 export type CategoryWritable = {
     slug?: string;
     name: string;
+    description?: string | null;
+};
+
+export type CategoryChoiceWritable = {
+    name: string;
+    slug?: string;
     description?: string | null;
 };
 
@@ -391,6 +422,12 @@ export type ProductWritable = {
     featured?: boolean;
     price?: number | null;
     discount_price?: number | null;
+};
+
+export type ProductChoiceWritable = {
+    name: string;
+    slug?: string;
+    price?: number | null;
 };
 
 export type ProductSummaryWritable = {
@@ -621,7 +658,7 @@ export type BrandsUpdateResponses = {
 
 export type BrandsUpdateResponse = BrandsUpdateResponses[keyof BrandsUpdateResponses];
 
-export type BrandsListAllData = {
+export type BrandsListChoicesData = {
     body?: never;
     path?: never;
     query?: {
@@ -634,14 +671,14 @@ export type BrandsListAllData = {
          */
         search?: string;
     };
-    url: '/brands/all/';
+    url: '/brands/choices/';
 };
 
-export type BrandsListAllResponses = {
-    200: Array<Brand>;
+export type BrandsListChoicesResponses = {
+    200: Array<BrandChoice>;
 };
 
-export type BrandsListAllResponse = BrandsListAllResponses[keyof BrandsListAllResponses];
+export type BrandsListChoicesResponse = BrandsListChoicesResponses[keyof BrandsListChoicesResponses];
 
 export type CategoriesListData = {
     body?: never;
@@ -749,7 +786,7 @@ export type CategoriesUpdateResponses = {
 
 export type CategoriesUpdateResponse = CategoriesUpdateResponses[keyof CategoriesUpdateResponses];
 
-export type CategoriesListAllData = {
+export type CategoriesListChoicesData = {
     body?: never;
     path?: never;
     query?: {
@@ -762,14 +799,14 @@ export type CategoriesListAllData = {
          */
         search?: string;
     };
-    url: '/categories/all/';
+    url: '/categories/choices/';
 };
 
-export type CategoriesListAllResponses = {
-    200: Array<Category>;
+export type CategoriesListChoicesResponses = {
+    200: Array<CategoryChoice>;
 };
 
-export type CategoriesListAllResponse = CategoriesListAllResponses[keyof CategoriesListAllResponses];
+export type CategoriesListChoicesResponse = CategoriesListChoicesResponses[keyof CategoriesListChoicesResponses];
 
 export type CustomersListData = {
     body?: never;
@@ -889,7 +926,7 @@ export type CustomersUpdateResponses = {
 
 export type CustomersUpdateResponse = CustomersUpdateResponses[keyof CustomersUpdateResponses];
 
-export type CustomersListAllData = {
+export type CustomersListChoicesData = {
     body?: never;
     path?: never;
     query?: {
@@ -902,14 +939,14 @@ export type CustomersListAllData = {
          */
         search?: string;
     };
-    url: '/customers/all/';
+    url: '/customers/choices/';
 };
 
-export type CustomersListAllResponses = {
+export type CustomersListChoicesResponses = {
     200: Array<Customer>;
 };
 
-export type CustomersListAllResponse = CustomersListAllResponses[keyof CustomersListAllResponses];
+export type CustomersListChoicesResponse = CustomersListChoicesResponses[keyof CustomersListChoicesResponses];
 
 export type OrdersListData = {
     body?: never;
@@ -1190,7 +1227,7 @@ export type ProductsGenerateSkuCreateResponses = {
 
 export type ProductsGenerateSkuCreateResponse = ProductsGenerateSkuCreateResponses[keyof ProductsGenerateSkuCreateResponses];
 
-export type ProductsListAllData = {
+export type ProductsListChoicesData = {
     body?: never;
     path?: never;
     query?: {
@@ -1220,11 +1257,11 @@ export type ProductsListAllData = {
          */
         status?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
     };
-    url: '/products/all/';
+    url: '/products/choices/';
 };
 
-export type ProductsListAllResponses = {
-    200: Array<Product>;
+export type ProductsListChoicesResponses = {
+    200: Array<ProductChoice>;
 };
 
-export type ProductsListAllResponse = ProductsListAllResponses[keyof ProductsListAllResponses];
+export type ProductsListChoicesResponse = ProductsListChoicesResponses[keyof ProductsListChoicesResponses];

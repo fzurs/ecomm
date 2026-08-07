@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Category, Brand
-from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
+from .serializers import BrandChoiceSerializer, CategoryChoiceSerializer, ProductChoiceSerializer, ProductSerializer, CategorySerializer, BrandSerializer
 from .filters import ProductFilter, ProductOrdering
 from drf_spectacular.utils import extend_schema
 
@@ -21,7 +21,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "choices"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
 
@@ -43,9 +43,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @extend_schema(operation_id="products_list_all", responses=ProductSerializer(many=True))
+    def get_serializer_class(self):
+        if self.action == "choices":
+            return ProductChoiceSerializer
+        return super().get_serializer_class()
+
+    @extend_schema(operation_id="products_list_choices", responses=ProductChoiceSerializer(many=True))
     @action(detail=False, methods=["get"], pagination_class=None)
-    def all(self, request):
+    def choices(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
@@ -60,13 +65,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "all"]:
+        if self.action in ["list", "retrieve", "choices"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
 
-    @extend_schema(operation_id="categories_list_all", responses=CategorySerializer(many=True))
+    def get_serializer_class(self):
+        if self.action == "choices":
+            return CategoryChoiceSerializer
+        return super().get_serializer_class()
+
+    @extend_schema(operation_id="categories_list_choices", responses=CategoryChoiceSerializer(many=True))
     @action(detail=False, methods=["get"], pagination_class=None)
-    def all(self, request):
+    def choices(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
@@ -81,13 +91,18 @@ class BrandViewSet(viewsets.ModelViewSet):
     search_fields = ['name']
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "all"]:
+        if self.action in ["list", "retrieve", "choices"]:
             return [permissions.AllowAny()]
         return super().get_permissions()
 
-    @extend_schema(operation_id="brands_list_all", responses=BrandSerializer(many=True))
+    def get_serializer_class(self):
+        if self.action == "choices":
+            return BrandChoiceSerializer
+        return super().get_serializer_class()
+
+    @extend_schema(operation_id="brands_list_choices", responses=BrandChoiceSerializer(many=True))
     @action(detail=False, methods=["get"], pagination_class=None)
-    def all(self, request):
+    def choices(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

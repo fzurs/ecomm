@@ -10,11 +10,10 @@ import {
   Product,
 } from "@workspace/api-client"
 import {
-  customersListAllOptions,
+  customersListChoicesOptions,
   ordersCreateMutation,
   ordersListQueryKey,
-  productsListAllOptions,
-  productsListOptions,
+  productsListChoicesOptions,
 } from "@workspace/api-client/query"
 import { zOrderCreateWritable, zProductStatus } from "@workspace/api-client/zod"
 import { Badge } from "@workspace/ui/components/badge"
@@ -210,7 +209,7 @@ function CustomerSelect({
   value: number
   onValueChange: (value: number | null) => void
 }) {
-  const { data: customers } = useQuery(customersListAllOptions())
+  const { data: customers } = useQuery(customersListChoicesOptions())
 
   const selectedCustomer = customers?.find((customer) => customer.id === value)
 
@@ -250,16 +249,14 @@ function AddOrderItem({
   addOrderItem: (index: number, newItem: OrderItemWritable) => void
   replaceOrderItem: (index: number, updatedItem: OrderItemWritable) => void
 }) {
-  const { data } = useQuery(
-    productsListOptions({
+  const { data: products } = useQuery(
+    productsListChoicesOptions({
       query: {
-        limit: 10000,
         status: [zProductStatus.enum.active],
         price_min: 1,
       },
     })
   )
-  const products = data?.results
 
   const productItems = React.useMemo(
     () =>
@@ -332,7 +329,7 @@ function OrderItemsField({
   renderQuantity: (index: number) => React.ReactNode
   removeOrderItem: (index: number) => void
 }) {
-  const { data: products } = useQuery(productsListAllOptions())
+  const { data: products } = useQuery(productsListChoicesOptions())
 
   const rows = React.useMemo<OrderItem[]>(
     () =>

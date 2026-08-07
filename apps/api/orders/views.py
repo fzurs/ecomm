@@ -30,9 +30,9 @@ class CustomerViewSet(viewsets.ModelViewSet):
     ordering_fields = ['name', 'email']
     search_fields = ['name', 'email']
 
-    @extend_schema(operation_id="customers_list_all", responses=CustomerSerializer(many=True))
+    @extend_schema(operation_id="customers_list_choices", responses=CustomerSerializer(many=True))
     @action(detail=False, methods=["get"], pagination_class=None)
-    def all(self, request):
+    def choices(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

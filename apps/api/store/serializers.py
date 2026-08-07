@@ -8,10 +8,28 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = serializers.ALL_FIELDS
 
 
+class BrandChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ["id", "name", "slug"]
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = serializers.ALL_FIELDS
+
+
+class CategoryChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "name", "slug", "description"]
+
+
+class ProductChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "slug", "price"]
 
 
 class ProductSerializer(serializers.ModelSerializer):

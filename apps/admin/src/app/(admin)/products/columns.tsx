@@ -55,8 +55,8 @@ import {
   ProductStatus,
 } from "@workspace/api-client"
 import {
-  brandsListAllOptions,
-  categoriesListAllOptions,
+  brandsListChoicesOptions,
+  categoriesListChoicesOptions,
   productsDestroyMutation,
   productsListQueryKey,
 } from "@workspace/api-client/query"
@@ -130,7 +130,7 @@ export const columns = [
     meta: {
       thClassName: "pl-4",
       variant: "multi-select",
-      queryOptions: categoriesListAllOptions(),
+      queryOptions: categoriesListChoicesOptions(),
       itemToLabel: (item) => item.name,
       itemToValue: (item) => item.slug,
     },
@@ -140,7 +140,7 @@ export const columns = [
     cell: ({ row }) => row.original.brand?.name,
     meta: {
       variant: "multi-select",
-      queryOptions: brandsListAllOptions(),
+      queryOptions: brandsListChoicesOptions(),
       itemToLabel: (item) => item.name,
       itemToValue: (item) => item.slug,
     },

@@ -38,15 +38,15 @@ import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
 import { getFormFieldId } from "@/lib/utils"
 import {
-  Brand,
-  Category,
+  BrandChoice,
+  CategoryChoice,
   Product,
   ProductWritable,
 } from "@workspace/api-client"
 import { zProductWritable } from "@workspace/api-client/zod"
 import {
-  brandsListAllOptions,
-  categoriesListAllOptions,
+  brandsListChoicesOptions,
+  categoriesListChoicesOptions,
   productsCreateMutation,
   productsDetectAndAssignBrandCreateMutation,
   productsGenerateSkuCreateMutation,
@@ -253,13 +253,13 @@ export const ProductForm = withForm({
                 <field.Label htmlFor={fieldId}>Category</field.Label>
                 <field.ComboboxQueryOnOpenById
                   initialItem={product?.category}
-                  itemsQueryOptions={categoriesListAllOptions()}
+                  itemsQueryOptions={categoriesListChoicesOptions()}
                 >
                   <ComboboxInput placeholder="Assing a category" />
                   <ComboboxContent>
                     <ComboboxEmpty>No categories found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item: Category) => (
+                      {(item: CategoryChoice) => (
                         <ComboboxItem key={item.id} value={item}>
                           <Item size="sm" className="p-0">
                             <ItemContent>
@@ -290,7 +290,7 @@ export const ProductForm = withForm({
               <field.Field>
                 <field.Label htmlFor={fieldId}>Brand</field.Label>
                 <field.ComboboxQueryOnOpenById
-                  itemsQueryOptions={brandsListAllOptions()}
+                  itemsQueryOptions={brandsListChoicesOptions()}
                   initialItem={product?.brand}
                 >
                   <ComboboxInput placeholder="Assing a brand">
@@ -303,7 +303,7 @@ export const ProductForm = withForm({
                   <ComboboxContent>
                     <ComboboxEmpty>No brands found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item: Brand) => (
+                      {(item: BrandChoice) => (
                         <ComboboxItem key={item.id} value={item}>
                           {item.name}
                         </ComboboxItem>
