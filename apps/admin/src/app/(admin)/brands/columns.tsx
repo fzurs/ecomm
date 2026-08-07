@@ -11,7 +11,7 @@ import {
 } from "@workspace/ui/components/drawer"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import * as React from "react"
-import { BrandForm, useBrandForm } from "./form"
+import { BrandForm, invalidateBrands, useBrandForm } from "./form"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Brand, PaginatedBrandList } from "@workspace/api-client"
 import {
   brandsDestroyMutation,
-  brandsListChoicesQueryKey,
   brandsListQueryKey,
 } from "@workspace/api-client/query"
 import {
@@ -168,14 +167,7 @@ function useOptimisticBrandDestroy(item: Brand) {
     },
     onError: (err, _, onMutateResult) =>
       queryClient.setQueryData(queryKey, onMutateResult?.previousData),
-    onSettled: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey }),
-        queryClient.invalidateQueries({
-          queryKey: brandsListChoicesQueryKey(),
-        }),
-      ])
-    },
+    onSettled: () => invalidateBrands(queryClient),
   })
 
   return destroyMutation

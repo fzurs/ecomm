@@ -9,7 +9,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
-import { CategoryForm, useCategoryForm } from "./form"
+import { CategoryForm, invalidateCategories, useCategoryForm } from "./form"
 import * as React from "react"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import {
@@ -36,7 +36,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, PaginatedCategoryList } from "@workspace/api-client"
 import {
   categoriesDestroyMutation,
-  categoriesListChoicesQueryKey,
   categoriesListQueryKey,
 } from "@workspace/api-client/query"
 
@@ -183,14 +182,7 @@ function useOptimisticCategoryDestroy(item: Category) {
     onError: (err, _, onMutateResult) => {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
-    onSettled: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey }),
-        queryClient.invalidateQueries({
-          queryKey: categoriesListChoicesQueryKey(),
-        }),
-      ])
-    },
+    onSettled: () => invalidateCategories(queryClient),
   })
 
   return mutation

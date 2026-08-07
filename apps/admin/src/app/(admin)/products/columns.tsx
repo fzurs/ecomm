@@ -22,7 +22,7 @@ import {
   IconTrashX,
 } from "@tabler/icons-react"
 
-import { ProductForm, useProductForm } from "./form"
+import { invalidateProducts, ProductForm, useProductForm } from "./form"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,7 +58,6 @@ import {
   brandsListChoicesOptions,
   categoriesListChoicesOptions,
   productsDestroyMutation,
-  productsListChoicesQueryKey,
   productsListQueryKey,
 } from "@workspace/api-client/query"
 import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
@@ -326,12 +325,7 @@ function useOptimisticProductDestroy(item: Product) {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
     onSettled: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey }),
-        queryClient.invalidateQueries({
-          queryKey: productsListChoicesQueryKey(),
-        }),
-      ])
+      await invalidateProducts(queryClient)
     },
   })
 

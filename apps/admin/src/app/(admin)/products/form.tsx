@@ -70,13 +70,14 @@ const productFormOpts = formOptions({
   validators: { onSubmit: formSchema },
 })
 
-const invalidateQueries = (queryClient: QueryClient) =>
-  Promise.all([
+export const invalidateProducts = async (queryClient: QueryClient) => {
+  await Promise.all([
     queryClient.invalidateQueries({ queryKey: productsListQueryKey() }),
     queryClient.invalidateQueries({
       queryKey: productsListChoicesQueryKey(),
     }),
   ])
+}
 
 export function useProductForm({
   item,
@@ -89,7 +90,7 @@ export function useProductForm({
 
   const options = {
     onSuccess: async () => {
-      await invalidateQueries(queryClient)
+      await invalidateProducts(queryClient)
       setOpen?.(false)
     },
   }
@@ -440,7 +441,7 @@ function GenerateSKUButton({
   const { mutate, isPending } = useMutation({
     ...productsGenerateSkuCreateMutation(),
     onSuccess: async (data) => {
-      await invalidateQueries(queryClient)
+      await invalidateProducts(queryClient)
       form.reset(data)
     },
   })
@@ -468,7 +469,7 @@ function DetectAndAssignBrandButton({
   const { mutate, isPending } = useMutation({
     ...productsDetectAndAssignBrandCreateMutation(),
     onSuccess: async (data) => {
-      await invalidateQueries(queryClient)
+      await invalidateProducts(queryClient)
       form.reset(data)
     },
   })

@@ -1,6 +1,6 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { formOptions } from "@tanstack/react-form"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Customer, CustomerWritable } from "@workspace/api-client"
 import {
   customersCreateMutation,
@@ -24,6 +24,15 @@ const customerFormOpts = formOptions({
   validators: { onSubmit: zCustomerWritable },
 })
 
+async function invalidateCustomers(queryClient: QueryClient) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: customersListQueryKey() }),
+    queryClient.invalidateQueries({
+      queryKey: customersListChoicesQueryKey(),
+    }),
+  ])
+}
+
 export function useCustomerForm({
   customer,
   setOpen,
@@ -33,12 +42,7 @@ export function useCustomerForm({
 } = {}) {
   const queryClient = useQueryClient()
   const onSuccess = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: customersListQueryKey() }),
-      queryClient.invalidateQueries({
-        queryKey: customersListChoicesQueryKey(),
-      }),
-    ])
+    await invalidateCustomers(queryClient)
     setOpen?.(false)
   }
   const createMutation = useMutation({

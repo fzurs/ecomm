@@ -1,7 +1,7 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { getFormFieldId } from "@/lib/utils"
 import { formOptions } from "@tanstack/react-form"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Brand, BrandWritable } from "@workspace/api-client"
 import {
   brandsCreateMutation,
@@ -21,6 +21,13 @@ const brandFormOpts = formOptions({
   validators: { onSubmit: zBrandWritable },
 })
 
+export const invalidateBrands = async (queryClient: QueryClient) => {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: brandsListQueryKey() }),
+    queryClient.invalidateQueries({ queryKey: brandsListChoicesQueryKey() }),
+  ])
+}
+
 export function useBrandForm({
   item,
   setOpen,
@@ -31,10 +38,7 @@ export function useBrandForm({
   const queryClient = useQueryClient()
 
   const onSuccess = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: brandsListQueryKey() }),
-      queryClient.invalidateQueries({ queryKey: brandsListChoicesQueryKey() }),
-    ])
+    await invalidateBrands(queryClient)
     setOpen?.(false)
   }
 

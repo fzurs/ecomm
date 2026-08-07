@@ -1,7 +1,7 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { getFormFieldId } from "@/lib/utils"
 import { formOptions } from "@tanstack/react-form"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, CategoryWritable } from "@workspace/api-client"
 import {
   categoriesCreateMutation,
@@ -22,6 +22,15 @@ const categoryFormOpts = formOptions({
   validators: { onSubmit: zCategoryWritable },
 })
 
+export const invalidateCategories = async (queryClient: QueryClient) => {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: categoriesListQueryKey() }),
+    queryClient.invalidateQueries({
+      queryKey: categoriesListChoicesQueryKey(),
+    }),
+  ])
+}
+
 export function useCategoryForm({
   item,
   setOpen,
@@ -32,12 +41,7 @@ export function useCategoryForm({
   const queryClient = useQueryClient()
 
   const onSuccess = async () => {
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: categoriesListQueryKey() }),
-      queryClient.invalidateQueries({
-        queryKey: categoriesListChoicesQueryKey(),
-      }),
-    ])
+    await invalidateCategories(queryClient)
     setOpen?.(false)
   }
 
