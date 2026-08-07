@@ -25,7 +25,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import { ProductImagePreview, statusOptions } from "./columns"
 import {
@@ -70,6 +70,14 @@ const productFormOpts = formOptions({
   validators: { onSubmit: formSchema },
 })
 
+const invalidateQueries = (queryClient: QueryClient) =>
+  Promise.all([
+    queryClient.invalidateQueries({ queryKey: productsListQueryKey() }),
+    queryClient.invalidateQueries({
+      queryKey: productsListChoicesQueryKey(),
+    }),
+  ])
+
 export function useProductForm({
   item,
   setOpen,
@@ -81,12 +89,7 @@ export function useProductForm({
 
   const options = {
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: productsListQueryKey() }),
-        queryClient.invalidateQueries({
-          queryKey: productsListChoicesQueryKey(),
-        }),
-      ])
+      await invalidateQueries(queryClient)
       setOpen?.(false)
     },
   }
@@ -436,8 +439,8 @@ function GenerateSKUButton({
 
   const { mutate, isPending } = useMutation({
     ...productsGenerateSkuCreateMutation(),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+    onSuccess: async (data) => {
+      await invalidateQueries(queryClient)
       form.reset(data)
     },
   })
@@ -464,8 +467,8 @@ function DetectAndAssignBrandButton({
 
   const { mutate, isPending } = useMutation({
     ...productsDetectAndAssignBrandCreateMutation(),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+    onSuccess: async (data) => {
+      await invalidateQueries(queryClient)
       form.reset(data)
     },
   })
