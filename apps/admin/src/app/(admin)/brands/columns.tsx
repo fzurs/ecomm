@@ -29,6 +29,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Brand, PaginatedBrandList } from "@workspace/api-client"
 import {
   brandsDestroyMutation,
+  brandsListChoicesQueryKey,
   brandsListQueryKey,
 } from "@workspace/api-client/query"
 import {
@@ -167,7 +168,14 @@ function useOptimisticBrandDestroy(item: Brand) {
     },
     onError: (err, _, onMutateResult) =>
       queryClient.setQueryData(queryKey, onMutateResult?.previousData),
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: brandsListChoicesQueryKey(),
+        }),
+      ])
+    },
   })
 
   return destroyMutation

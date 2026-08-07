@@ -58,6 +58,7 @@ import {
   brandsListChoicesOptions,
   categoriesListChoicesOptions,
   productsDestroyMutation,
+  productsListChoicesQueryKey,
   productsListQueryKey,
 } from "@workspace/api-client/query"
 import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
@@ -324,7 +325,14 @@ function useOptimisticProductDestroy(item: Product) {
     onError: (err, _, onMutateResult) => {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: productsListChoicesQueryKey(),
+        }),
+      ])
+    },
   })
 
   const onDestroy = () =>

@@ -36,6 +36,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, PaginatedCategoryList } from "@workspace/api-client"
 import {
   categoriesDestroyMutation,
+  categoriesListChoicesQueryKey,
   categoriesListQueryKey,
 } from "@workspace/api-client/query"
 
@@ -182,7 +183,14 @@ function useOptimisticCategoryDestroy(item: Category) {
     onError: (err, _, onMutateResult) => {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: categoriesListChoicesQueryKey(),
+        }),
+      ])
+    },
   })
 
   return mutation
