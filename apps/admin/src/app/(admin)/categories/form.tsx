@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, CategoryWritable } from "@workspace/api-client"
 import {
   categoriesCreateMutation,
+  categoriesListChoicesQueryKey,
   categoriesListQueryKey,
   categoriesUpdateMutation,
 } from "@workspace/api-client/query"
@@ -30,8 +31,13 @@ export function useCategoryForm({
 }) {
   const queryClient = useQueryClient()
 
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: categoriesListQueryKey() })
+  const onSuccess = async () => {
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: categoriesListQueryKey() }),
+      queryClient.invalidateQueries({
+        queryKey: categoriesListChoicesQueryKey(),
+      }),
+    ])
     setOpen?.(false)
   }
 

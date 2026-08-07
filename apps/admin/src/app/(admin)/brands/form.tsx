@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Brand, BrandWritable } from "@workspace/api-client"
 import {
   brandsCreateMutation,
+  brandsListChoicesQueryKey,
   brandsListQueryKey,
   brandsUpdateMutation,
 } from "@workspace/api-client/query"
@@ -29,8 +30,11 @@ export function useBrandForm({
 }) {
   const queryClient = useQueryClient()
 
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: brandsListQueryKey() })
+  const onSuccess = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: brandsListQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: brandsListChoicesQueryKey() }),
+    ])
     setOpen?.(false)
   }
 

@@ -50,6 +50,7 @@ import {
   productsCreateMutation,
   productsDetectAndAssignBrandCreateMutation,
   productsGenerateSkuCreateMutation,
+  productsListChoicesQueryKey,
   productsListQueryKey,
   productsUpdateMutation,
 } from "@workspace/api-client/query"
@@ -79,8 +80,13 @@ export function useProductForm({
   const queryClient = useQueryClient()
 
   const options = {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productsListQueryKey() })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: productsListQueryKey() }),
+        queryClient.invalidateQueries({
+          queryKey: productsListChoicesQueryKey(),
+        }),
+      ])
       setOpen?.(false)
     },
   }

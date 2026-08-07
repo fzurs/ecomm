@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Customer, CustomerWritable } from "@workspace/api-client"
 import {
   customersCreateMutation,
+  customersListChoicesQueryKey,
   customersListQueryKey,
   customersUpdateMutation,
 } from "@workspace/api-client/query"
@@ -31,8 +32,13 @@ export function useCustomerForm({
   setOpen?: (open: boolean) => void
 } = {}) {
   const queryClient = useQueryClient()
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: customersListQueryKey() })
+  const onSuccess = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: customersListQueryKey() }),
+      queryClient.invalidateQueries({
+        queryKey: customersListChoicesQueryKey(),
+      }),
+    ])
     setOpen?.(false)
   }
   const createMutation = useMutation({
