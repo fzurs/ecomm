@@ -69,9 +69,9 @@ export function CreateOrderForm() {
 
   const { mutateAsync } = useMutation({
     ...ordersCreateMutation(),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersListQueryKey() })
-      router.push(`/orders/${data.id}`)
+      router.push(`/orders`)
     },
   })
 

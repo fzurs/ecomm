@@ -51,7 +51,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(operation_id="products_list_choices", responses=ProductChoiceSerializer(many=True))
     @action(detail=False, methods=["get"], pagination_class=None)
     def choices(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
