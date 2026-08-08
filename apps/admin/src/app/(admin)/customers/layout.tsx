@@ -16,6 +16,7 @@ import {
 } from "@workspace/ui/components/dialog"
 import { Button } from "@workspace/ui/components/button"
 import { UserPlusIcon } from "lucide-react"
+import { useState } from "react"
 
 export default function CustomersLayout({
   children,
@@ -34,17 +35,25 @@ export default function CustomersLayout({
 }
 
 function CreateCustomerDialog() {
-  const form = useCustomerForm()
+  const [open, setOpen] = useState(false)
+
+  const form = useCustomerForm({ setOpen })
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
           <UserPlusIcon />
           New
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        onAnimationEnd={(e) => {
+          if (!open && e.animationName === "exit") {
+            form.reset()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Create Customer</DialogTitle>
         </DialogHeader>

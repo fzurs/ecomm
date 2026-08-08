@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { Edit2, EllipsisVertical, Trash2Icon } from "lucide-react"
-import { useRowActions } from "./customers-provider"
+import { useRowActions } from "./customer-provider"
 
 export const customerColumns: ColumnDef<Customer>[] = [
   {

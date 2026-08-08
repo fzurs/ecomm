@@ -54,7 +54,7 @@ export function useCustomerForm({
 
 export const CustomerForm = withForm({
   ...customerFormOpts,
-  props: { variant: "required" } as { variant?: "required" | "full" },
+  props: { variant: "full" } as { variant?: "required" | "full" },
   render: function Render({ form, variant }) {
     const requiredFields = (
       <>

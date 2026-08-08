@@ -1,5 +1,5 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActions } from "./customers-provider"
+import { useRowActions } from "./customer-provider"
 import {
   Drawer,
   DrawerClose,
@@ -30,14 +30,25 @@ export function CustomerEditDrawer() {
           }
         }}
       >
-        {currentRow && <CustomerEditDrawerContent item={currentRow} />}
+        {currentRow && (
+          <CustomerEditDrawerContent
+            item={currentRow}
+            setOpen={(open) => setOpen(open ? "edit" : null)}
+          />
+        )}
       </DrawerContent>
     </Drawer>
   )
 }
 
-function CustomerEditDrawerContent({ item }: { item: Customer }) {
-  const form = useCustomerForm({ customer: item })
+function CustomerEditDrawerContent({
+  item,
+  setOpen,
+}: {
+  item: Customer
+  setOpen: (open: boolean) => void
+}) {
+  const form = useCustomerForm({ customer: item, setOpen })
 
   return (
     <>
