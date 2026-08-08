@@ -8,6 +8,23 @@ import { Select, SelectTrigger } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
 import * as React from "react"
 import { ComboboxQueryOnOpenById } from "./combobox"
+import { AnyFormApi } from "@tanstack/react-form"
+
+export function TanstackForm({
+  form,
+  ...props
+}: React.ComponentProps<"form"> & { form: AnyFormApi }) {
+  return (
+    <form
+      id={form.formId}
+      onSubmit={(e) => {
+        e.preventDefault()
+        form.handleSubmit()
+      }}
+      {...props}
+    />
+  )
+}
 
 function FormRoot({ ...props }: React.ComponentProps<"form">) {
   const form = useFormContext()
@@ -87,6 +104,10 @@ function FormNumberInput({ ...props }: React.ComponentProps<typeof FormInput>) {
       {...props}
     />
   )
+}
+
+function FormEmailInput({ ...props }: React.ComponentProps<typeof FormInput>) {
+  return <FormInput type="email" {...props} />
 }
 
 function FormInputGroupInput({
@@ -213,6 +234,7 @@ export {
   FormInput,
   FormImageInput,
   FormNumberInput,
+  FormEmailInput,
   FormInputGroupInput,
   FormTextarea,
   FormSelect,
