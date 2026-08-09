@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
   "devDependencies": {
+    "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
+    "eslint": "^9.39.5",
     "typescript": "^7.0.2"
   },
   "dependencies": {
@@ -21,6 +27,8 @@
     "react-dom": "^19.2.7"
   },
   "exports": {
-    "./components/*": "./src/components/*.tsx"
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./types/*": "./src/types/*.ts"
   }
 }

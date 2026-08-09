@@ -36,29 +36,19 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
-import { Option } from "../types.data-table"
+import { Option } from "../types/data-table"
 import { Column } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
-
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
-export function getColumnLabel<TData>(column: Column<TData>) {
-  if (typeof column.columnDef.header === "string") {
-    return column.columnDef.header
-  }
-  return capitalize(column.id.replaceAll("_", " "))
-}
+import { getColumnLabel } from "../lib/column"
 
 const onNumberChange = (setValue: (val: number) => void) => {
   return (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
     setValue(Number(e.target.value))
 }
 
-export function TextFilter({ column }: { column: Column<any> }) {
+export function TextFilter<TData>({ column }: { column: Column<TData> }) {
   return (
     <Input
       className="w-auto"
@@ -69,7 +59,7 @@ export function TextFilter({ column }: { column: Column<any> }) {
   )
 }
 
-export function NumberFilter({ column }: { column: Column<any> }) {
+export function NumberFilter<TData>({ column }: { column: Column<TData> }) {
   return (
     <Input
       type="number"
@@ -288,7 +278,10 @@ function MultiSelectFilterImpl<TData>({
   const anchor = useComboboxAnchor()
   const label = getColumnLabel(column)
 
-  const filterValue = (column.getFilterValue() as string[]) ?? []
+  const filterValue = useMemo(
+    () => (column.getFilterValue() as string[]) ?? [],
+    [column]
+  )
   const value = useMemo<Option[]>(
     () =>
       filterValue
@@ -360,7 +353,7 @@ export function AsyncMultiSelectFilter<TData>({
   queryOptions,
 }: {
   column: Column<TData>
-  queryOptions: UseQueryOptions<any, any, any[], any>
+  queryOptions: UseQueryOptions
 }) {
   const itemToLabel = column.columnDef.meta?.itemToLabel
   const itemToValue = column.columnDef.meta?.itemToValue
@@ -373,11 +366,14 @@ export function AsyncMultiSelectFilter<TData>({
     enabled: Boolean(filterValue) || open,
   })
 
-  const options: Option[] =
-    data?.map((item) => ({
+  const options: Option[] = useMemo<Option[]>(() => {
+    if (!Array.isArray(data)) return []
+
+    return data.map((item) => ({
       label: itemToLabel?.(item) || item.label,
       value: itemToValue?.(item) || item.value,
-    })) ?? []
+    }))
+  }, [data, itemToLabel, itemToValue])
 
   return (
     <MultiSelectFilterImpl

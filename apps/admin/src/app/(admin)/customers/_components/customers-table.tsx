@@ -1,4 +1,4 @@
-import { useDataTable, usePagination, useSorting } from "@workspace/data-table"
+import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { customerColumns } from "./customer-columns"
 import { parseAsString, useQueryState } from "nuqs"
 import { useMemo } from "react"
@@ -9,9 +9,11 @@ import { DataTable } from "@workspace/data-table/components/data-table"
 import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { SearchInput } from "@/components/search-input"
 import { CustomersListData } from "@workspace/api-client"
+import { useOrdering } from "@/hooks/use-ordering"
+import { usePagination } from "@/hooks/use-pagination"
 
 export function CustomersTable() {
-  const sorting = useSorting()
+  const ordering = useOrdering()
   const pagination = usePagination()
 
   const [search, setSearch] = useQueryState(
@@ -21,8 +23,8 @@ export function CustomersTable() {
   const debouncedSearch = useDebounce(search, 300)
 
   const queryFilters = useMemo<CustomersListData["query"]>(
-    () => ({ ...pagination, ...sorting, debouncedSearch }),
-    [pagination, sorting, debouncedSearch]
+    () => ({ ...pagination, ...ordering, debouncedSearch }),
+    [pagination, ordering, debouncedSearch]
   )
 
   const { data } = useQuery({

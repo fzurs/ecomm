@@ -13,7 +13,7 @@ import {
 import { DataTableToolbar } from "./data-table-toolbar"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
-import { getColumnLabel } from "./data-table-filter-variants"
+import { getColumnLabel } from "@workspace/data-table/lib/column"
 import { DataTableColumnHeader } from "./data-table-column-header"
 
 export function DataTable<TData>({

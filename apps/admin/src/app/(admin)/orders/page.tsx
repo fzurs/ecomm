@@ -12,12 +12,7 @@ import {
 import { zOrderStatus } from "@workspace/api-client/zod"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { columns } from "./columns"
-import {
-  useDataTable,
-  useFilters,
-  usePagination,
-  useSorting,
-} from "@workspace/data-table"
+import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import {
   AppHeader,
   AppHeaderActions,
@@ -30,6 +25,9 @@ import Link from "next/link"
 import { useMemo } from "react"
 import { OrdersListData } from "@workspace/api-client"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useFilters } from "@/hooks/use-filters"
+import { useOrdering } from "@/hooks/use-ordering"
+import { usePagination } from "@/hooks/use-pagination"
 
 const DEBOUNCE_DELAY = 300
 
@@ -37,14 +35,14 @@ export default function OrdersPage() {
   const queryClient = useQueryClient()
 
   const pagination = usePagination()
-  const sorting = useSorting()
+  const ordering = useOrdering()
   const columnFilters = useFilters(columns, {
     status: parseAsArrayOf(parseAsStringEnum(zOrderStatus.options)),
   })
 
   const queryFilters = useMemo<OrdersListData["query"]>(
-    () => ({ ...columnFilters, ...sorting, search: columnFilters.customer }),
-    [columnFilters, sorting]
+    () => ({ ...columnFilters, ...ordering, search: columnFilters.customer }),
+    [columnFilters, ordering]
   )
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)

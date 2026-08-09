@@ -36,14 +36,12 @@ import {
 } from "@/components/app-header"
 import { SectionGroup } from "@/components/section"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import {
-  useDataTable,
-  useFilters,
-  usePagination,
-  useSorting,
-} from "@workspace/data-table"
+import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { zProductStatus } from "@workspace/api-client/zod"
+import { useFilters } from "@/hooks/use-filters"
+import { useOrdering } from "@/hooks/use-ordering"
+import { usePagination } from "@/hooks/use-pagination"
 
 const DEBOUNCE_DELAY = 300
 
@@ -53,7 +51,7 @@ export default function Page() {
   const queryClient = useQueryClient()
 
   const pagination = usePagination()
-  const sorting = useSorting()
+  const ordering = useOrdering()
   const columnFilters = useFilters(columns, {
     status: parseAsArrayOf(parseAsStringEnum(zProductStatus.options)),
   })
@@ -75,7 +73,7 @@ export default function Page() {
       []
 
     return {
-      ...sorting,
+      ...ordering,
       ...rest,
       search,
       price_min,
@@ -85,7 +83,7 @@ export default function Page() {
       created_at_after,
       created_at_before,
     }
-  }, [sorting, columnFilters])
+  }, [ordering, columnFilters])
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
 

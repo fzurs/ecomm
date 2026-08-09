@@ -212,9 +212,15 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
     devDependencies:
+      '@workspace/eslint-config':
+        specifier: workspace:^
+        version: link:../eslint-config
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -360,8 +366,8 @@ importers:
         specifier: workspace:*
         version: link:../typescript-config
       eslint:
-        specifier: ^10.2.1
-        version: 10.2.1(jiti@2.7.0)
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)
       tailwindcss:
         specifier: ^4.2.4
         version: 4.2.4

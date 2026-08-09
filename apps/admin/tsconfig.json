@@ -4,10 +4,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
-      "@workspace/data-table": ["../../packages/data-table/src/index.ts"],
-      "@workspace/data-table/components/*": [
-        "../../packages/data-table/src/components/*"
-      ],
+      "@workspace/data-table/*": ["../../packages/data-table/src/*"],
       "@workspace/api-client": ["../../packages/api-client/src/index.ts"],
       "@workspace/api-client/client": [
         "../../packages/api-client/src/client.gen.ts"

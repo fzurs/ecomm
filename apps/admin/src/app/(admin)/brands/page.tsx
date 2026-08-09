@@ -21,7 +21,9 @@ import {
   AppHeaderNav,
 } from "@/components/app-header"
 import { SectionGroup } from "@/components/section"
-import { useDataTable, usePagination, useSorting } from "@workspace/data-table"
+import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
+import { useOrdering } from "@/hooks/use-ordering"
+import { usePagination } from "@/hooks/use-pagination"
 import { DataTable } from "@workspace/data-table/components/data-table"
 import { useMemo, useState } from "react"
 import { BrandsListData } from "@workspace/api-client"
@@ -31,7 +33,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { SearchInput } from "@/components/search-input"
 
 export default function BrandsPage() {
-  const sorting = useSorting()
+  const ordering = useOrdering()
   const pagination = usePagination()
   const [search, setSearch] = useQueryState(
     "search",
@@ -41,8 +43,12 @@ export default function BrandsPage() {
   const debouncedSearch = useDebounce(search, 300)
 
   const queryFilters = useMemo<BrandsListData["query"]>(
-    () => ({ ...pagination, ...sorting, search: debouncedSearch || undefined }),
-    [pagination, sorting, debouncedSearch]
+    () => ({
+      ...pagination,
+      ...ordering,
+      search: debouncedSearch || undefined,
+    }),
+    [pagination, ordering, debouncedSearch]
   )
 
   const { data } = useQuery({

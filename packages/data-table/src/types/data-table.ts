@@ -1,9 +1,13 @@
 import type { RowData } from "@tanstack/react-table"
-import { FilterVariant } from "./core/default-parsers"
-import React from "react"
 import { UseQueryOptions } from "@tanstack/react-query"
+import { dataTableConfig } from "../config/data-table"
 
-export type Option = Record<"label" | "value", string> & {
+export type FilterParsers = typeof dataTableConfig.filterParsers
+export type FilterVariant = keyof FilterParsers
+
+export type Option = {
+  label: string
+  value: string
   icon?: React.JSX.Element
 }
 

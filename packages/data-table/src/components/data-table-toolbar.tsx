@@ -16,7 +16,7 @@ import {
   TextFilter,
 } from "./data-table-filter-variants"
 import { useMemo } from "react"
-import { FilterVariant } from "../core/default-parsers"
+import { FilterVariant } from "../hooks/use-data-table"
 
 export function DataTableToolbar<TData>({
   table,
