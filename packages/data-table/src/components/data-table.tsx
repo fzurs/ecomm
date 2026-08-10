@@ -1,5 +1,4 @@
 import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
-import * as React from "react"
 
 import { DataTablePagination } from "./data-table-pagination"
 import {
@@ -10,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
-import { DataTableToolbar } from "./data-table-toolbar"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 import { getColumnLabel } from "@workspace/data-table/lib/column"
@@ -19,15 +17,13 @@ import { DataTableColumnHeader } from "./data-table-column-header"
 export function DataTable<TData>({
   table,
   children,
-  showToolbar = true,
 }: {
   table: TanstackTable<TData>
   children?: React.ReactNode
-  showToolbar?: boolean
 }) {
   return (
     <div className="flex w-full flex-col justify-start gap-6">
-      {children ?? (showToolbar && <DataTableToolbar table={table} />)}
+      {children}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>

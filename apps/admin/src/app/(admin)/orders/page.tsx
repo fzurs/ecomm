@@ -10,8 +10,13 @@ import {
   ordersListQueryKey,
 } from "@workspace/api-client/query"
 import { zOrderStatus } from "@workspace/api-client/zod"
-import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
-import { columns } from "./columns"
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryState,
+} from "nuqs"
+import { columns, statusOptions } from "./columns"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import {
   AppHeader,
@@ -28,6 +33,9 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
+import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
+import { SearchInput } from "@/components/search-input"
+import { DataTableFacetedFilter } from "@workspace/data-table/components/data-table-faceted-filter"
 
 const DEBOUNCE_DELAY = 300
 
@@ -40,9 +48,11 @@ export default function OrdersPage() {
     status: parseAsArrayOf(parseAsStringEnum(zOrderStatus.options)),
   })
 
+  const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
+
   const queryFilters = useMemo<OrdersListData["query"]>(
-    () => ({ ...columnFilters, ...ordering, search: columnFilters.customer }),
-    [columnFilters, ordering]
+    () => ({ ...columnFilters, ordering, search }),
+    [columnFilters, ordering, search]
   )
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
@@ -78,7 +88,10 @@ export default function OrdersPage() {
     placeholderData: keepPreviousData,
   })
 
-  const table = useDataTable({ data, columns })
+  const table = useDataTable({
+    data,
+    columns,
+  })
 
   return (
     <>
@@ -91,7 +104,23 @@ export default function OrdersPage() {
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <DataTable table={table} />
+        <DataTable table={table}>
+          <DataTableAdvancedToolbar table={table}>
+            <SearchInput
+              className="min-w-44 flex-1"
+              placeholder="Search orders..."
+              value={search}
+              onValueChange={setSearch}
+              count={data?.count}
+            />
+            <DataTableFacetedFilter
+              multiple
+              column={table.getColumn("status")}
+              options={statusOptions}
+              title="Filter by Status"
+            />
+          </DataTableAdvancedToolbar>
+        </DataTable>
       </SectionGroup>
     </>
   )

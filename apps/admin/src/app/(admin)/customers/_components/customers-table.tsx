@@ -6,11 +6,11 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { customersListOptions } from "@workspace/api-client/query"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { SearchInput } from "@/components/search-input"
 import { CustomersListData } from "@workspace/api-client"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
+import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 
 export function CustomersTable() {
   const ordering = useOrdering()
@@ -23,7 +23,7 @@ export function CustomersTable() {
   const debouncedSearch = useDebounce(search, 300)
 
   const queryFilters = useMemo<CustomersListData["query"]>(
-    () => ({ ...pagination, ...ordering, debouncedSearch }),
+    () => ({ ...pagination, ordering, debouncedSearch }),
     [pagination, ordering, debouncedSearch]
   )
 
@@ -36,14 +36,14 @@ export function CustomersTable() {
 
   return (
     <DataTable table={table}>
-      <DataTableToolbar table={table}>
+      <DataTableAdvancedToolbar table={table}>
         <SearchInput
           value={search}
           onValueChange={setSearch}
           count={data?.count}
           placeholder="Search for a customers..."
         />
-      </DataTableToolbar>
+      </DataTableAdvancedToolbar>
     </DataTable>
   )
 }

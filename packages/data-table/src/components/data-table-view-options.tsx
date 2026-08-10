@@ -18,8 +18,6 @@ export function DataTableViewOptions<TData>({
 }) {
   const columns = table.getAllColumns().filter((column) => column.getCanHide())
 
-  if (columns.length === 0) return null
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

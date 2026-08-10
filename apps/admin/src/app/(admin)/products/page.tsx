@@ -35,8 +35,9 @@ import {
   AppHeaderNav,
 } from "@/components/app-header"
 import { SectionGroup } from "@/components/section"
-import { DataTable } from "@workspace/data-table/components/data-table"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
+import { DataTable } from "@workspace/data-table/components/data-table"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { zProductStatus } from "@workspace/api-client/zod"
 import { useFilters } from "@/hooks/use-filters"
@@ -73,8 +74,8 @@ export default function Page() {
       []
 
     return {
-      ...ordering,
       ...rest,
+      ordering,
       search,
       price_min,
       price_max,
@@ -133,7 +134,9 @@ export default function Page() {
         </AppHeaderActions>
       </AppHeader>
       <SectionGroup>
-        <DataTable table={table} />
+        <DataTable table={table}>
+          <DataTableToolbar table={table} />
+        </DataTable>
       </SectionGroup>
     </>
   )

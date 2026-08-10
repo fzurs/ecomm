@@ -1,22 +1,20 @@
 "use client"
 
 import type { Column, Table } from "@tanstack/react-table"
-import * as React from "react"
 
 import { DataTableViewOptions } from "./data-table-view-options"
 
 import { cn } from "@workspace/ui/lib/utils"
+import { useCallback, useMemo } from "react"
+import { DataTableFacetedFilter } from "./data-table-faceted-filter"
+import { getColumnLabel } from "../lib/column"
+import { Input } from "@workspace/ui/components/input"
 import {
-  BooleanFilter,
-  DateRangeFilter,
-  MultiSelectFilter,
-  NumberFilter,
-  RangeFilter,
-  SelectFilter,
-  TextFilter,
-} from "./data-table-filter-variants"
-import { useMemo } from "react"
-import { FilterVariant } from "../hooks/use-data-table"
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@workspace/ui/components/toggle-group"
+import { DataTableDateFilter } from "./data-table-date-filter"
+import { DataTableRangeFilter } from "./data-table-range-filter"
 
 export function DataTableToolbar<TData>({
   table,
@@ -38,45 +36,96 @@ export function DataTableToolbar<TData>({
       className={cn("flex items-end justify-between gap-2", className)}
       {...props}
     >
-      {children ?? (
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          {columns.map((column) => (
-            <DataTableToolbarFilter
-              key={column.id}
-              column={column}
-              table={table}
-            />
-          ))}
-        </div>
-      )}
-      <DataTableViewOptions table={table} />
+      <div className="flex flex-1 flex-wrap items-center gap-2">
+        {columns.map((column) => (
+          <DataTableToolbarFilter key={column.id} column={column} />
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        {children}
+        <DataTableViewOptions table={table} />
+      </div>
     </div>
   )
 }
 
-function DataTableToolbarFilter<TData>({
-  column,
-}: {
-  column: Column<TData>
-  table: Table<TData>
-}) {
-  const variant = column.columnDef.meta?.variant
+function DataTableToolbarFilter<TData>({ column }: { column: Column<TData> }) {
+  const meta = column.columnDef.meta
 
-  const filterComponents = {
-    text: TextFilter,
-    number: NumberFilter,
-    select: SelectFilter,
-    "multi-select": MultiSelectFilter,
-    boolean: BooleanFilter,
-    range: RangeFilter,
-    "date-range": DateRangeFilter,
-    date: null,
-  } satisfies Record<
-    FilterVariant,
-    React.ComponentType<{ column: typeof column }> | null
-  >
+  const onFilterRender = useCallback(() => {
+    switch (meta?.variant) {
+      case "text":
+        return (
+          <Input
+            className="w-auto"
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(e) => column.setFilterValue(e.target.value)}
+            placeholder={getColumnLabel(column)}
+          />
+        )
+      case "number":
+        return (
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            className="w-full"
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(e) => {
+              column.setFilterValue(e.target.value)
+            }}
+            placeholder={getColumnLabel(column)}
+          />
+        )
+      case "boolean":
+        return (
+          <ToggleGroup
+            className="text-muted-foreground"
+            variant="outline"
+            type="single"
+            value={String(column.getFilterValue())}
+            onValueChange={(val) =>
+              column.setFilterValue(
+                val === "true" ? true : val === "false" ? false : null
+              )
+            }
+          >
+            {meta.options?.slice(0, 2).map((option) => (
+              <ToggleGroupItem
+                key={option.value}
+                value={option.value}
+                aria-label={`Toggle ${option.label}`}
+              >
+                {option.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        )
+      case "select":
+      case "multi-select":
+        return (
+          <DataTableFacetedFilter
+            column={column}
+            options={meta.options ?? []}
+            multiple={meta.variant === "multi-select"}
+            title={getColumnLabel(column)}
+          />
+        )
+      case "date-range":
+        return (
+          <DataTableDateFilter column={column} title={getColumnLabel(column)} />
+        )
+      case "range":
+        return (
+          <DataTableRangeFilter
+            column={column}
+            title={getColumnLabel(column)}
+          />
+        )
+      default:
+        return null
+    }
+  }, [column, meta])
 
-  const Filter = variant ? filterComponents[variant] : undefined
-
-  return Filter ? <Filter column={column} /> : null
+  return onFilterRender()
 }

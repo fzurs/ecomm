@@ -15,12 +15,12 @@ import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { useMemo } from "react"
 import { CategoriesListData } from "@workspace/api-client"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { parseAsString, useQueryState } from "nuqs"
 import { SearchInput } from "@/components/search-input"
 import { usePagination } from "@/hooks/use-pagination"
 import { useOrdering } from "@/hooks/use-ordering"
 import { useFilters } from "@/hooks/use-filters"
+import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 
 const DEBOUNCE_DELAY = 300
 
@@ -37,7 +37,7 @@ export default function CategoriesPage() {
   )
 
   const queryFilters = useMemo<CategoriesListData["query"]>(
-    () => ({ ...columnFilters, ...ordering, search }),
+    () => ({ ...columnFilters, ordering, search }),
     [columnFilters, search, ordering]
   )
 
@@ -79,14 +79,14 @@ export default function CategoriesPage() {
   return (
     <SectionGroup>
       <DataTable table={table}>
-        <DataTableToolbar table={table}>
+        <DataTableAdvancedToolbar table={table}>
           <SearchInput
             value={search}
             onValueChange={setSearch}
             count={data?.count}
             placeholder="Search for a categories..."
           />
-        </DataTableToolbar>
+        </DataTableAdvancedToolbar>
       </DataTable>
     </SectionGroup>
   )

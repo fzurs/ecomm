@@ -143,7 +143,6 @@ export const columns = [
         </div>
       )
     },
-    meta: { variant: "text" },
   },
   {
     accessorKey: "updated_at",

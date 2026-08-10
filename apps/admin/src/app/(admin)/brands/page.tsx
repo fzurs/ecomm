@@ -27,7 +27,6 @@ import { usePagination } from "@/hooks/use-pagination"
 import { DataTable } from "@workspace/data-table/components/data-table"
 import { useMemo, useState } from "react"
 import { BrandsListData } from "@workspace/api-client"
-import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { parseAsString, useQueryState } from "nuqs"
 import { useDebounce } from "@/hooks/use-debounce"
 import { SearchInput } from "@/components/search-input"
@@ -45,7 +44,7 @@ export default function BrandsPage() {
   const queryFilters = useMemo<BrandsListData["query"]>(
     () => ({
       ...pagination,
-      ...ordering,
+      ordering,
       search: debouncedSearch || undefined,
     }),
     [pagination, ordering, debouncedSearch]
@@ -68,14 +67,12 @@ export default function BrandsPage() {
       </AppHeader>
       <SectionGroup>
         <DataTable table={table}>
-          <DataTableToolbar table={table}>
-            <SearchInput
-              value={search}
-              onValueChange={setSearch}
-              count={data?.count}
-              placeholder="Search for a brands..."
-            />
-          </DataTableToolbar>
+          <SearchInput
+            value={search}
+            onValueChange={setSearch}
+            count={data?.count}
+            placeholder="Search for a brands..."
+          />
         </DataTable>
       </SectionGroup>
     </>

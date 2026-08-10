@@ -11,13 +11,14 @@ export function SearchInput({
   onValueChange,
   onChange,
   count,
+  className,
   ...props
 }: React.ComponentProps<typeof InputGroupInput> & {
   onValueChange?: (value: string) => void
   count?: number
 }) {
   return (
-    <InputGroup>
+    <InputGroup className={className}>
       <InputGroupInput
         type="search"
         inputMode="search"
