@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
 
-import { columns } from "./columns"
+import { useProductColumns } from "./columns"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatISO } from "date-fns"
 import { ProductForm, useProductForm } from "./form"
@@ -37,12 +37,12 @@ import {
 import { SectionGroup } from "@/components/section"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { zProductStatus } from "@workspace/api-client/zod"
 import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 
 const DEBOUNCE_DELAY = 300
 
@@ -50,6 +50,8 @@ const columnVisibility = { description: false }
 
 export default function Page() {
   const queryClient = useQueryClient()
+
+  const columns = useProductColumns()
 
   const pagination = usePagination()
   const ordering = useOrdering()

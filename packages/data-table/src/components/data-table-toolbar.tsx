@@ -5,7 +5,7 @@ import type { Column, Table } from "@tanstack/react-table"
 import { DataTableViewOptions } from "./data-table-view-options"
 
 import { cn } from "@workspace/ui/lib/utils"
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { getColumnLabel } from "../lib/column"
 import { Input } from "@workspace/ui/components/input"
@@ -24,10 +24,9 @@ export function DataTableToolbar<TData>({
 }: React.ComponentProps<"div"> & {
   table: Table<TData>
 }) {
-  const columns = useMemo(
-    () => table.getAllColumns().filter((column) => column.getCanFilter()),
-    [table]
-  )
+  const columns = table
+    .getAllColumns()
+    .filter((column) => column.getCanFilter())
 
   return (
     <div

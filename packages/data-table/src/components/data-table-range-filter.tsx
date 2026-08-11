@@ -60,7 +60,7 @@ export function DataTableRangeFilter<TData>({
         type="number"
         inputMode="numeric"
         placeholder="Min"
-        className="max-w-14"
+        className="max-w-16"
         value={selected.min ?? ""}
         onChange={(e) => onMinValueChange(Number(e.target.value))}
         min={0}
@@ -70,7 +70,7 @@ export function DataTableRangeFilter<TData>({
         type="number"
         inputMode="numeric"
         placeholder="Max"
-        className="max-w-14"
+        className="max-w-16"
         value={selected.max ?? ""}
         onChange={(e) => onMaxValueChange(Number(e.target.value))}
         min={0}

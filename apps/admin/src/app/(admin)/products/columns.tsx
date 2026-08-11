@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -61,7 +61,7 @@ import {
   productsListQueryKey,
 } from "@workspace/api-client/query"
 import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { zProductStatus } from "@workspace/api-client/zod"
 import { capitalize } from "@/lib/utils"
 
@@ -95,117 +95,136 @@ export function ProductImagePreview({ product }: { product?: Product }) {
   )
 }
 
-export const columns = [
-  {
-    accessorKey: "Image",
-    cell: ({ row }) => <ProductImagePreview product={row.original} />,
-    meta: { thClassName: "text-center" },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "sku",
-    meta: { className: "text-muted-foreground font-medium" },
-  },
-  {
-    accessorKey: "name",
-    cell: ({ row }) => <TableCellViewer original={row.original} />,
-    enableHiding: false,
-    meta: { variant: "text", thClassName: "px-5" },
-  },
-  {
-    accessorKey: "description",
-    cell: ({ row }) => (
-      <div className="min-w-sm text-pretty text-muted-foreground">
-        {row.original.description}
-      </div>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: "category",
-    cell: ({ row }) =>
-      row.original.category && (
-        <Badge variant="secondary">{row.original.category.name}</Badge>
-      ),
-    meta: {
-      thClassName: "pl-4",
-      variant: "multi-select",
-      queryOptions: categoriesListChoicesOptions(),
-      itemToLabel: (item) => item.name,
-      itemToValue: (item) => item.slug,
-    },
-  },
-  {
-    accessorKey: "brand",
-    cell: ({ row }) => row.original.brand?.name,
-    meta: {
-      variant: "multi-select",
-      queryOptions: brandsListChoicesOptions(),
-      itemToLabel: (item) => item.name,
-      itemToValue: (item) => item.slug,
-    },
-  },
-  {
-    accessorKey: "status",
-    cell: ({ row }) =>
-      row.original.status && (
-        <Badge variant="outline" className="capitalize">
-          {statusIcons[row.original.status]}{" "}
-          {row.original.status.replaceAll("_", " ")}
-        </Badge>
-      ),
-    meta: {
-      thClassName: "pl-4",
-      variant: "multi-select",
-      options: statusOptions,
-    },
-  },
-  {
-    accessorKey: "featured",
-    cell: ({ row }) => featuredIcons[row.original.featured ? "true" : "false"],
-    meta: {
-      thClassName: "text-center",
-      className: "[&>svg]:size-4 [&>svg]:mx-auto",
-      variant: "boolean",
-      options: [
-        { label: "Featured", value: "true" },
-        { label: "Not Featured", value: "false" },
-      ],
-    },
-  },
-  {
-    accessorKey: "price",
-    meta: {
-      thClassName: "text-right",
-      className: "text-right text-green-500",
-      variant: "range",
-    },
-  },
-  {
-    accessorKey: "discount_price",
-    header: "Discount",
-    meta: {
-      thClassName: "text-left",
-      className: "text-amber-500",
-      variant: "range",
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: "Created",
-    cell: ({ row }) => format(row.original.created_at, "LLL dd, y"),
-    meta: {
-      className: "text-muted-foreground",
-      variant: "date-range",
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <TableCellActions item={row.original} />,
-    enableHiding: false,
-    meta: { className: "text-right" },
-  },
-] as const satisfies ColumnDef<Product>[]
+function selectAsOption(data: { name: string; slug?: string }[]) {
+  return data.map((item) => ({ label: item.name, value: String(item.slug) }))
+}
+
+export function useProductColumns() {
+  const { data: categoryChoices } = useQuery({
+    ...categoriesListChoicesOptions(),
+    select: selectAsOption,
+  })
+
+  const { data: brandChoices } = useQuery({
+    ...brandsListChoicesOptions(),
+    select: selectAsOption,
+  })
+
+  const columns = useMemo(
+    () =>
+      [
+        {
+          accessorKey: "Image",
+          cell: ({ row }) => <ProductImagePreview product={row.original} />,
+          meta: { thClassName: "text-center" },
+          enableSorting: false,
+        },
+        {
+          accessorKey: "sku",
+          meta: { className: "text-muted-foreground font-medium" },
+        },
+        {
+          accessorKey: "name",
+          cell: ({ row }) => <TableCellViewer original={row.original} />,
+          enableHiding: false,
+          meta: { variant: "text", thClassName: "px-5" },
+        },
+        {
+          accessorKey: "description",
+          cell: ({ row }) => (
+            <div className="min-w-sm text-pretty text-muted-foreground">
+              {row.original.description}
+            </div>
+          ),
+          enableSorting: false,
+        },
+        {
+          accessorKey: "category",
+          cell: ({ row }) =>
+            row.original.category && (
+              <Badge variant="secondary">{row.original.category.name}</Badge>
+            ),
+          meta: {
+            thClassName: "pl-4",
+            variant: "multi-select",
+            options: categoryChoices,
+          },
+        },
+        {
+          accessorKey: "brand",
+          cell: ({ row }) => row.original.brand?.name,
+          meta: {
+            variant: "multi-select",
+            options: brandChoices,
+          },
+        },
+        {
+          accessorKey: "status",
+          cell: ({ row }) =>
+            row.original.status && (
+              <Badge variant="outline" className="capitalize">
+                {statusIcons[row.original.status]}{" "}
+                {row.original.status.replaceAll("_", " ")}
+              </Badge>
+            ),
+          meta: {
+            thClassName: "pl-4",
+            variant: "multi-select",
+            options: statusOptions,
+          },
+        },
+        {
+          accessorKey: "featured",
+          cell: ({ row }) =>
+            featuredIcons[row.original.featured ? "true" : "false"],
+          meta: {
+            thClassName: "text-center",
+            className: "[&>svg]:size-4 [&>svg]:mx-auto",
+            variant: "boolean",
+            options: [
+              { label: "Featured", value: "true" },
+              { label: "Not Featured", value: "false" },
+            ],
+          },
+        },
+        {
+          accessorKey: "price",
+          meta: {
+            thClassName: "text-right",
+            className: "text-right text-green-500",
+            variant: "range",
+          },
+        },
+        {
+          accessorKey: "discount_price",
+          header: "Discount",
+          meta: {
+            thClassName: "text-left",
+            className: "text-amber-500",
+            variant: "range",
+          },
+        },
+        {
+          accessorKey: "created_at",
+          header: "Created",
+          cell: ({ row }) => format(row.original.created_at, "LLL dd, y"),
+          meta: {
+            className: "text-muted-foreground",
+            variant: "date-range",
+          },
+        },
+        {
+          id: "actions",
+          cell: ({ row }) => <TableCellActions item={row.original} />,
+          enableHiding: false,
+          meta: { className: "text-right" },
+        },
+      ] as const satisfies ColumnDef<Product>[],
+    [brandChoices, categoryChoices]
+  )
+
+  return columns
+}
 
 function TableCellViewer({ original: item }: { original: Product }) {
   const isMobile = useIsMobile()

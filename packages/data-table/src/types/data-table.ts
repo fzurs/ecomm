@@ -1,5 +1,4 @@
 import type { RowData } from "@tanstack/react-table"
-import { UseQueryOptions } from "@tanstack/react-query"
 import { dataTableConfig } from "../config/data-table"
 
 export type FilterParsers = typeof dataTableConfig.filterParsers
@@ -21,8 +20,5 @@ declare module "@tanstack/react-table" {
     className?: string
     variant?: FilterVariant
     options?: Option[]
-    queryOptions?: UseQueryOptions<any, any, any, any>
-    itemToLabel?: (item: any) => string
-    itemToValue?: (item: any) => string
   }
 }

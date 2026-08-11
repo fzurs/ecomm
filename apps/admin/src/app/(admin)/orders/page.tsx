@@ -107,7 +107,6 @@ export default function OrdersPage() {
         <DataTable table={table}>
           <DataTableAdvancedToolbar table={table}>
             <SearchInput
-              className="min-w-44 flex-1"
               placeholder="Search orders..."
               value={search}
               onValueChange={setSearch}
