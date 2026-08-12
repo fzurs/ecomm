@@ -48,7 +48,11 @@ export function DataTableToolbar<TData>({
   )
 }
 
-function DataTableToolbarFilter<TData>({ column }: { column: Column<TData> }) {
+export function DataTableToolbarFilter<TData>({
+  column,
+}: {
+  column: Column<TData>
+}) {
   const meta = column.columnDef.meta
 
   const onFilterRender = useCallback(() => {

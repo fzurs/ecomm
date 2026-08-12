@@ -43,6 +43,9 @@ import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
 import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
+import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
+import { DataTableFilterMenu } from "@workspace/data-table/components/data-table-filter-menu"
+import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 
 const DEBOUNCE_DELAY = 300
 
@@ -50,6 +53,7 @@ const columnVisibility = { description: false }
 
 export default function Page() {
   const queryClient = useQueryClient()
+  const isMobile = useIsMobile()
 
   const columns = useProductColumns()
 
@@ -137,7 +141,13 @@ export default function Page() {
       </AppHeader>
       <SectionGroup>
         <DataTable table={table}>
-          <DataTableToolbar table={table} />
+          {isMobile ? (
+            <DataTableAdvancedToolbar table={table}>
+              <DataTableFilterMenu table={table} />
+            </DataTableAdvancedToolbar>
+          ) : (
+            <DataTableToolbar table={table} />
+          )}
         </DataTable>
       </SectionGroup>
     </>
