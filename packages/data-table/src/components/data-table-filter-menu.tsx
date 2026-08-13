@@ -1,6 +1,6 @@
 import { Column, Table } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
-import { CheckIcon, ListFilter, XIcon } from "lucide-react"
+import { CheckIcon, ListFilterIcon, XIcon } from "lucide-react"
 import { getColumnLabel } from "../lib/column"
 import { useCallback, useState } from "react"
 import { DataTableToolbarFilter } from "./data-table-toolbar"
@@ -62,7 +62,7 @@ export function DataTableFilterMenu<TData>({ table }: { table: Table<TData> }) {
             size={filters.size === 0 ? "default" : "icon"}
             variant="outline"
           >
-            <ListFilter />
+            <ListFilterIcon />
             {filters.size === 0 && <span>Filters</span>}
           </Button>
         </DropdownMenuTrigger>
