@@ -23,7 +23,7 @@ export function CustomersTable() {
   const debouncedSearch = useDebounce(search, 300)
 
   const queryFilters = useMemo<CustomersListData["query"]>(
-    () => ({ ...pagination, ordering, debouncedSearch }),
+    () => ({ ...pagination, ordering, search: debouncedSearch }),
     [pagination, ordering, debouncedSearch]
   )
 
@@ -39,8 +39,7 @@ export function CustomersTable() {
       <DataTableAdvancedToolbar table={table}>
         <SearchInput
           value={search}
-          onValueChange={setSearch}
-          count={data?.count}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search for a customers..."
         />
       </DataTableAdvancedToolbar>

@@ -82,8 +82,7 @@ export default function CategoriesPage() {
         <DataTableAdvancedToolbar table={table}>
           <SearchInput
             value={search}
-            onValueChange={setSearch}
-            count={data?.count}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search for a categories..."
           />
         </DataTableAdvancedToolbar>

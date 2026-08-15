@@ -107,10 +107,10 @@ export default function OrdersPage() {
         <DataTable table={table}>
           <DataTableAdvancedToolbar table={table}>
             <SearchInput
-              placeholder="Search orders..."
+              className="flex flex-1 min-w-64"
               value={search}
-              onValueChange={setSearch}
-              count={data?.count}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search orders..."
             />
             <DataTableFacetedFilter
               multiple

@@ -1,11 +1,11 @@
 "use client"
 
 import {
-  ClipboardList,
+  BadgeIcon,
+  ClipboardListIcon,
   PackageIcon,
-  StarsIcon,
   TagsIcon,
-  UsersIcon,
+  UsersRoundIcon,
 } from "lucide-react"
 
 import {
@@ -29,6 +29,16 @@ import { usePathname } from "next/navigation"
 
 const items = [
   {
+    title: "Customers",
+    url: "/customers",
+    icon: UsersRoundIcon,
+  },
+  {
+    title: "Orders",
+    url: "/orders",
+    icon: ClipboardListIcon,
+  },
+  {
     title: "Products",
     url: "/products",
     icon: PackageIcon,
@@ -41,17 +51,7 @@ const items = [
   {
     title: "Brands",
     url: "/brands",
-    icon: StarsIcon,
-  },
-  {
-    title: "Orders",
-    url: "/orders",
-    icon: ClipboardList,
-  },
-  {
-    title: "Customers",
-    url: "/customers",
-    icon: UsersIcon,
+    icon: BadgeIcon,
   },
 ]
 

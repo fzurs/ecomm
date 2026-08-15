@@ -69,8 +69,7 @@ export default function BrandsPage() {
         <DataTable table={table}>
           <SearchInput
             value={search}
-            onValueChange={setSearch}
-            count={data?.count}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search for a brands..."
           />
         </DataTable>

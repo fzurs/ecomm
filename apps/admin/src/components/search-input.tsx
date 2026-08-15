@@ -3,36 +3,21 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  InputGroupText,
 } from "@workspace/ui/components/input-group"
 import { SearchIcon } from "lucide-react"
 
 export function SearchInput({
-  onValueChange,
-  onChange,
-  count,
+  className,
+  children,
   ...props
-}: React.ComponentProps<typeof InputGroupInput> & {
-  onValueChange?: (value: string) => void
-  count?: number
-}) {
+}: React.ComponentProps<typeof InputGroupInput>) {
   return (
-    <InputGroup className="flex-1 min-w-64">
-      <InputGroupInput
-        type="search"
-        inputMode="search"
-        onChange={(e) => {
-          onChange?.(e)
-          onValueChange?.(e.target.value)
-        }}
-        {...props}
-      />
+    <InputGroup className={className}>
+      <InputGroupInput type="search" inputMode="search" {...props} />
       <InputGroupAddon>
         <SearchIcon />
       </InputGroupAddon>
-      <InputGroupAddon align="inline-end">
-        <InputGroupText>{count} results</InputGroupText>
-      </InputGroupAddon>
+      {children}
     </InputGroup>
   )
 }

@@ -36,7 +36,11 @@ export const customerColumns: ColumnDef<Customer>[] = [
     enableHiding: false,
   },
   { accessorKey: "email", meta: { className: "text-muted-foreground" } },
-  { accessorKey: "phone", enableSorting: false },
+  {
+    accessorKey: "phone",
+    meta: { className: "text-muted-foreground font-medium" },
+    enableSorting: false,
+  },
   {
     id: "actions",
     cell: ({ row }) => <TableCellActions item={row.original} />,
