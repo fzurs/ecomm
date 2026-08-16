@@ -5,7 +5,7 @@ import type { Column, Table } from "@tanstack/react-table"
 import { DataTableViewOptions } from "./data-table-view-options"
 
 import { cn } from "@workspace/ui/lib/utils"
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback } from "react"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { getColumnLabel } from "../lib/column"
 import { Input } from "@workspace/ui/components/input"

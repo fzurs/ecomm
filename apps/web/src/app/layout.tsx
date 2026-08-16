@@ -14,11 +14,7 @@ export const metadata = {
   description: "Sitio web oficial para el eccomerce de la empresa",
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   const categoriesPromise = getAllCategories()
   const brandsPromise = getAllBrands()
 

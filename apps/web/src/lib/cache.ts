@@ -1,7 +1,7 @@
 import {
-  brandsListAll,
+  brandsListChoices,
   brandsRetrieve,
-  categoriesListAll,
+  categoriesListChoices,
   categoriesRetrieve,
   productsList,
   ProductsListData,
@@ -70,11 +70,11 @@ export async function getProduct(slug: string) {
 export async function getAllCategories() {
   "use cache"
   cacheLife("days")
-  return categoriesListAll(defaultConfig).then((res) => res.data)
+  return categoriesListChoices(defaultConfig).then((res) => res.data)
 }
 
 export async function getAllBrands() {
   "use cache"
   cacheLife("days")
-  return brandsListAll(defaultConfig).then((res) => res.data)
+  return brandsListChoices(defaultConfig).then((res) => res.data)
 }
