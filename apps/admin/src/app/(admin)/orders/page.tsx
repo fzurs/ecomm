@@ -36,6 +36,7 @@ import { usePagination } from "@/hooks/use-pagination"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { SearchInput } from "@/components/search-input"
 import { DataTableFacetedFilter } from "@workspace/data-table/components/data-table-faceted-filter"
+import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 
 const DEBOUNCE_DELAY = 300
 
@@ -107,7 +108,7 @@ export default function OrdersPage() {
         <DataTable table={table}>
           <DataTableAdvancedToolbar table={table}>
             <SearchInput
-              className="flex flex-1 min-w-64"
+              className="flex min-w-64 flex-1"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search orders..."
@@ -118,6 +119,7 @@ export default function OrdersPage() {
               options={statusOptions}
               title="Filter by Status"
             />
+            <DataTableSortMenu table={table} />
           </DataTableAdvancedToolbar>
         </DataTable>
       </SectionGroup>
