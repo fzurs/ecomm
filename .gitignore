@@ -57,8 +57,4 @@ media/
 schema.yml
 
 ### ARCA ###
-# arca /
-#      - certificate-request.pem
-#      - certificate.pem
-#      - private-key.pem
 /arca-test

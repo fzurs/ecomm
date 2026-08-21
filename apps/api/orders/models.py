@@ -4,9 +4,23 @@ from store.models import Product
 
 
 class Customer(models.Model):
+    class DocumentTypes(models.IntegerChoices):
+        CUIT = 80, _("CUIT")
+        CUIL = 86, _("CUIL")
+        CDI = 87, _("CDI")
+        LE = 89, _("LE")
+        LC = 90, _("LC")
+        DNI = 96, _("DNI")
+        PASAPORT = 94, _("Pasaporte")
+        CI_FOREIGN = 91, _("CI Extranjera")
+        CI_FEDERAL_POLICE = 00, _("CI Policía Federal")
+        MIGRATION_CERTIFICATE = 30, _("Certificado de Migración")
+
     name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
+    document_type = models.PositiveSmallIntegerField(choices=DocumentTypes.choices)
+    document_number = models.CharField(max_length=20)
 
     def __str__(self): return self.name
 

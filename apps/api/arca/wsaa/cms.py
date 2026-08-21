@@ -2,10 +2,13 @@ import base64
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.serialization import pkcs7
+from pathlib import Path
 
-def create_cms(data: bytes, certificate_path: str, private_key_path: str):
-    certificate = x509.load_pem_x509_certificate(open(certificate_path, "rb").read())
-    private_key = serialization.load_pem_private_key(open(private_key_path, "rb").read(), password=None)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+def create_cms(data: bytes):
+    certificate = x509.load_pem_x509_certificate(open(BASE_DIR / "certificate.pem", "rb").read())
+    private_key = serialization.load_pem_private_key(open(BASE_DIR / "private-key.pem", "rb").read(), password=None)
 
     cms = (
         pkcs7.PKCS7SignatureBuilder()
