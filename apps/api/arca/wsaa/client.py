@@ -1,55 +1,55 @@
-import xml.etree.ElementTree as ET
 import httpx
+from pathlib import Path
+from datetime import datetime, timezone, timedelta
 
-from .ticket import create_login_ticket_request, parse_ticket
-from .cms import create_cms
-
-WSAA_URL = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms"
-
-SOAP_ENV = "http://www.w3.org/2003/05/soap-envelope"
-WSAA_ENV = "http://wsaa.view.sua.dvadac.desein.afip.gov" 
-
-ET.register_namespace("soapenv", SOAP_ENV)
-ET.register_namespace("wsaa", WSAA_ENV)
+from .credentials import load_certificate, load_private_key
+from .requests import create_login_ticket_request, create_login_request
+from .signing import sign_login_ticket_request
+from .responses import parse_access_ticket_response
 
 
 class WSAAClient:
-    def __init__(self):
-        self.url = WSAA_URL
+    url = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms"
 
-    def _create_login_cms_request(self, cms: str):
-        envelope = ET.Element(f"{{{SOAP_ENV}}}Envelope")
-        body = ET.SubElement(envelope, f"{{{SOAP_ENV}}}Body")
+    def __init__(self, certificate_path: Path, private_key_path: Path):
+        self.certificate = load_certificate(certificate_path)
+        self.private_key = load_private_key(private_key_path)
 
-        loginCms = ET.SubElement(body, f"{{{WSAA_ENV}}}loginCms")
-        ET.SubElement(loginCms, f"{{{WSAA_ENV}}}In0").text = cms
+    def _build_login_ticket_request(self, service: str):
+        now = datetime.now(timezone.utc).replace(microsecond=0)
 
-        return ET.tostring(envelope, encoding="UTF-8", xml_declaration=True)
+        return create_login_ticket_request(
+            service,
+            unique_id=str(int(now.timestamp())),
+            generation_time=now - timedelta(minutes=1),
+            expiration_time=now + timedelta(minutes=10),
+        )
 
-    def _login_cms(self, cms: str):
-        xml = self._create_login_cms_request(cms)
-
+    def _send_login_request(self, xml: str) -> str:
         response = httpx.post(
-            self.url, 
-            content=xml, 
+            self.url,
+            content=xml,
             headers={
                 "Content-Type": "application/soap+xml",
-                "SOAPAction": "urn:LoginCms"
+                "SOAPAction": "urn:LoginCms",
             },
             verify=False,
-            timeout=None
+            timeout=None,
         )
+
+        print(response.status_code, response.text)
 
         response.raise_for_status()
 
         return response.text
 
-    def get_ticket(self, service: str):
-        tra = create_login_ticket_request(service)
+    def get_access_ticket(self, service: str):
+        tra = self._build_login_ticket_request(service)
 
-        cms = create_cms(tra)
+        cms = sign_login_ticket_request(tra, self.certificate, self.private_key)
 
-        response = self._login_cms(cms)
+        xml = create_login_request(cms)
 
-        return parse_ticket(response)
+        response = self._send_login_request(xml)
 
+        return parse_access_ticket_response(response)
