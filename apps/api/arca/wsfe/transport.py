@@ -1,5 +1,6 @@
 import httpx
 
+from ..soap import WSFE_ENV
 from .operations import Operation
 
 
@@ -11,11 +12,21 @@ class WSFETransport:
 
     def send(self, operation: Operation, content: str):
         url = self._url(operation)
+        headers = {
+            "Content-Type": (
+                "application/soap+xml; "
+                f'charset=utf-8; action="{WSFE_ENV}{operation}"'
+            ),
+        }
 
-        return httpx.post(
+        response = httpx.post(
             url,
-            content,
-            headers={"Content-Type": "application/soap+xml; charset=utf-8"},
+            content=content,
+            headers=headers,
             verify=False,
             timeout=None,
         )
+
+        response.raise_for_status()
+
+        return response.text

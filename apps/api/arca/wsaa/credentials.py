@@ -10,4 +10,4 @@ def load_certificate(path: Path) -> x509.Certificate:
 
 
 def load_private_key(path: Path) -> PrivateKeyTypes:
-    return serialization.load_pem_private_key(path.read_bytes())
+    return serialization.load_pem_private_key(path.read_bytes(), password=None)

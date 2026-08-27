@@ -28,20 +28,18 @@ class WSFEClient:
         access_ticket = self._get_access_ticket()
         xml = build_create_voucher_request(data, self.cuit, access_ticket)
         response = self._transport.send(OP.CREATE_VOUCHER, xml)
-
-        print(response.status_code)
-        print(response.text)
+        return response
 
     def get_currency_types(self):
         operation = OP.GET_CURRENCY_TYPES
         access_ticket = self._get_access_ticket()
         xml = create_operation_request(operation, self.cuit, access_ticket)
         response = self._transport.send(operation, xml)
-        return parse_currency_types_response(response.text)
+        return parse_currency_types_response(response)
 
     def get_vat_receptor_condition(self):
         operation = OP.GET_VAT_RECEPTOR_CONDITION
         access_ticket = self._get_access_ticket()
         xml = create_operation_request(operation, self.cuit, access_ticket)
         response = self._transport.send(operation, xml)
-        return parse_vat_receptor_condition_response(response.text)
+        return parse_vat_receptor_condition_response(response)

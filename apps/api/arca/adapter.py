@@ -4,8 +4,8 @@ from wsfe.types import CreateVoucherRequest
 
 
 class ARCAElectronicInvoicingAdapter:
-    def __init__(self):
-        self.client = ARCAClient()
+    def __init__(self, client: ARCAClient):
+        self.client = client
 
     def create_voucher(self, invoice: Invoice):
         data = CreateVoucherRequest(

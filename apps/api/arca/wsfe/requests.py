@@ -19,7 +19,7 @@ def _create_authenticated_operation_request(
 
     body = ET.SubElement(envelope, soap_tag("Body"))
 
-    param = ET.SubElement(body, soap_tag(operation))
+    param = ET.SubElement(body, wsfe_tag(operation))
 
     auth = ET.SubElement(param, wsfe_tag("Auth"))
     ET.SubElement(auth, wsfe_tag("Token")).text = access_ticket.token
@@ -32,7 +32,7 @@ def _create_authenticated_operation_request(
 def create_operation_request(
     operation: Operation, cuit: str, access_ticket: AccessTicket
 ):
-    (envelope,) = _create_authenticated_operation_request(
+    envelope, _ = _create_authenticated_operation_request(
         operation, cuit, access_ticket
     )
 
