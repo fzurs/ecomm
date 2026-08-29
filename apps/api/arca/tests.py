@@ -1,8 +1,9 @@
+from datetime import datetime
+
 from django.test import SimpleTestCase
 from django.conf import settings
+
 from arca.wsaa.types import AccessTicket
-from datetime import datetime
-from arca.wsaa.client import WSAAClient
 from arca.client import ARCAClient
 
 
@@ -21,6 +22,11 @@ class ARCAClientTests(SimpleTestCase):
 
     def test_get_currency_types(self):
         currencies = self.arca_client.electronic_billing.get_currency_types()
-
         self.assertIsInstance(currencies, list)
         self.assertGreater(len(currencies), 0)
+
+    def test_get_vat_receptor_condition(self):
+        conditions = self.arca_client.electronic_billing.get_vat_receptor_condition()
+
+        self.assertIsInstance(conditions, list)
+        self.assertGreater(len(conditions), 0)
