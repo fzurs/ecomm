@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
 
 from ..namespaces import SOAP_ENV, WSFE_ENV
 from ..soap import soap_tag, wsfe_tag
@@ -48,6 +49,11 @@ def build_create_voucher_request(
         Operation.CREATE_VOUCHER, cuit, access_ticket
     )
 
+    ET.SubElement(param, wsfe_tag("Periodo")).text = datetime(
+        year=2026, month=9, day=1
+    ).strftime("%Y%m")
+    ET.SubElement(param, wsfe_tag("Orden")).text = "1"
+
     fecae_req = ET.SubElement(param, wsfe_tag("FeCAEReq"))
 
     fecab_req = ET.SubElement(fecae_req, wsfe_tag("FeCabReq"))
@@ -68,7 +74,13 @@ def build_create_voucher_request(
         "DocTipo": request.doc_tipo,
         "CbteDesde": str(request.cbte_desde),
         "CbteHasta": str(request.cbte_hasta),
-        "CbteFch": request.cbte_fch.strftime("%Y%m%d"),
+        "CbteFch": (
+            (
+                request.cbte_fch
+                if request.cbte_fch is not None
+                else datetime.now(timezone.utc)
+            ).strftime("%Y%m%d")
+        ),
         "ImpTotal": format(request.imp_total, ".2f"),
         "ImpTotConc": format(request.imp_tot_conc, ".2f"),
         "ImpNeto": format(request.imp_neto, ".2f"),

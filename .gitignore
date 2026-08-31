@@ -56,5 +56,4 @@ media/
 ### API SCHEMA ###
 schema.yml
 
-### ARCA ###
-/arca-test
+dump.rdb

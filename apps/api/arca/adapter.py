@@ -1,6 +1,6 @@
 from billing.models import Invoice
 from .client import ARCAClient
-from wsfe.types import CreateVoucherRequest
+from .wsfe.types import CreateVoucherRequest
 
 
 class ARCAElectronicInvoicingAdapter:

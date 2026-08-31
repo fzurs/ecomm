@@ -13,7 +13,7 @@ class CreateVoucherRequest:
     doc_nro: int
     cbte_desde: int
     cbte_hasta: int
-    cbte_fch: datetime
+    cbte_fch: datetime | None
     imp_total: Decimal
     imp_tot_conc: Decimal
     imp_neto: Decimal
@@ -35,3 +35,9 @@ class VatReceptorCondition:
     id: int
     description: str
     voucher_class: str
+
+
+@dataclass(frozen=True)
+class WSFEMessage:
+    code: int
+    message: str

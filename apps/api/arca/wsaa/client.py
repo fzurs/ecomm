@@ -6,15 +6,18 @@ from .credentials import load_certificate, load_private_key
 from .requests import create_login_ticket_request, create_login_request
 from .signing import sign_login_ticket_request
 from .responses import parse_access_ticket_response
+from .cache import AccessTicketCache
 
 
 class WSAAClient:
     url = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms"
-    access_ticket = None
 
-    def __init__(self, certificate_path: Path, private_key_path: Path):
+    def __init__(
+        self, certificate_path: Path, private_key_path: Path, cache: AccessTicketCache
+    ):
         self.certificate = load_certificate(certificate_path)
         self.private_key = load_private_key(private_key_path)
+        self.cache = cache
 
     def _build_login_ticket_request(self, service: str):
         now = datetime.now(timezone.utc).replace(microsecond=0)
@@ -40,13 +43,21 @@ class WSAAClient:
         response.raise_for_status()
         return response.text
 
-    def get_access_ticket(self, service: str):
-        if self.access_ticket is not None:
-            return self.access_ticket
-
+    def _request_access_ticket(self, service: str):
         tra = self._build_login_ticket_request(service)
         cms = sign_login_ticket_request(tra, self.certificate, self.private_key)
         xml = create_login_request(cms)
         response = self._send_login_request(xml)
-        self.access_ticket = parse_access_ticket_response(response)
-        return self.access_ticket
+        return parse_access_ticket_response(response)
+
+    def get_access_ticket(self, service: str):
+        access_ticket = self.cache.get(service)
+
+        if access_ticket is not None and not access_ticket.is_expired:
+            return access_ticket
+
+        access_ticket = self._request_access_ticket(service)
+
+        self.cache.set(service, access_ticket)
+
+        return access_ticket

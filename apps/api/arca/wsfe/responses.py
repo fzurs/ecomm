@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from ..namespaces import WSFE_ENV
 from ..soap import wsfe_tag
 
-from .types import CurrencyType, VatReceptorCondition
+from .types import CurrencyType, VatReceptorCondition, WSFEMessage
 
 ET.register_namespace("wsfe", WSFE_ENV)
 
@@ -34,4 +34,18 @@ def parse_vat_receptor_condition_response(response: str) -> list[VatReceptorCond
             voucher_class=value.findtext(wsfe_tag("Cmp_Clase")),
         )
         for value in conditions
+    ]
+
+
+def parse_errors(response: str) -> list[WSFEMessage]:
+    root = ET.fromstring(response)
+
+    errors = root.findall(f".//{wsfe_tag("Err")}")
+
+    return [
+        WSFEMessage(
+            code=int(error.findtext(wsfe_tag("Code"))),
+            message=error.findtext(wsfe_tag("Msg")),
+        )
+        for error in errors
     ]

@@ -1,4 +1,5 @@
 from .types import AccessTicket
+from datetime import datetime
 
 import xml.etree.ElementTree as ET
 
@@ -12,6 +13,8 @@ def parse_access_ticket_response(success_response: str) -> AccessTicket:
 
     token = access_ticket.findtext(".//token")
     sign = access_ticket.findtext(".//sign")
-    expiration_time = access_ticket.findtext(".//expirationTime")
+    expiration_time = datetime.fromisoformat(
+        access_ticket.findtext(".//expirationTime")
+    )
 
     return AccessTicket(token=token, sign=sign, expiration_time=expiration_time)

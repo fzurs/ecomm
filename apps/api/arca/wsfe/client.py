@@ -7,11 +7,14 @@ from .operations import Operation as OP
 from .responses import (
     parse_currency_types_response,
     parse_vat_receptor_condition_response,
+    parse_errors,
 )
+
+from .exceptions import WSFEError
 
 
 class WSFEClient:
-    service = "wsfe"
+    _service = "wsfe"
 
     def __init__(self, cuit: str, wsaa_client: WSAAClient):
         self.cuit = cuit
@@ -19,15 +22,18 @@ class WSFEClient:
         self._transport = WSFETransport()
 
     def _get_access_ticket(self):
-        return self._wsaa_client.get_access_ticket(self.service)
+        return self._wsaa_client.get_access_ticket(self._service)
 
-    def last_voucher(self, pto_vta: str, cbte_tipo: str) -> int:
+    def get_last_voucher(self, pto_vta: str, cbte_tipo: str) -> int:
         return 1
 
     def create_voucher(self, data: CreateVoucherRequest):
         access_ticket = self._get_access_ticket()
         xml = build_create_voucher_request(data, self.cuit, access_ticket)
         response = self._transport.send(OP.CREATE_VOUCHER, xml)
+        errors = parse_errors(response)
+        if errors:
+            raise WSFEError(errors)
         return response
 
     def get_currency_types(self):
