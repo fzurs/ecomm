@@ -1,7 +1,7 @@
 from django.test import SimpleTestCase
-from arca.wsaa.cache import DjangoAccessTicketCache
-from arca.client import ARCAClient
-from arca.wsfe.types import CreateVoucherRequest
+from .wsaa.cache import DjangoAccessTicketCache
+from .wsfe.types import CreateVoucherRequest
+from .client import ARCAClient
 
 
 class ARCAClientTests(SimpleTestCase):
