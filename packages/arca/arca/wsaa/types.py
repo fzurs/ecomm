@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 
@@ -14,3 +14,10 @@ class AccessTicket:
         return datetime.now(timezone.utc) >= (
             self.expiration_time - timedelta(seconds=30)
         )
+
+
+@dataclass(frozen=True)
+class ARCACredentials:
+    cuit: str
+    certificate_path: Path
+    private_key_path: Path

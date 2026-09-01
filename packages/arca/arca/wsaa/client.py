@@ -1,5 +1,4 @@
 import httpx
-from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 from .credentials import load_certificate, load_private_key
@@ -7,7 +6,7 @@ from .requests import create_login_ticket_request, create_login_request
 from .signing import sign_login_ticket_request
 from .responses import parse_access_ticket_response
 from .cache import AccessTicketCache
-from ..types import ARCACredentials
+from .types import ARCACredentials
 
 
 class WSAAClient:

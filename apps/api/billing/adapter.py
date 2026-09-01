@@ -27,4 +27,4 @@ class ARCAElectronicInvoicingAdapter:
             condicion_iva_receptor_id="1",
         )
 
-        return self.client.electronic_billing.create_voucher(data)
+        return self.client.wsfe.create_voucher(data)

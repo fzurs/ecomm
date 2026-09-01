@@ -1,8 +1,10 @@
 import logging
-from arca.client import ARCAClient
-from apps.api.billing.adapter import ARCAElectronicInvoicingAdapter
+
 from django.db import transaction
 
+from arca.client import ARCAClient
+
+from .adapter import ARCAElectronicInvoicingAdapter
 from .models import Invoice, InvoiceSequenceLock
 
 logger = logging.getLogger(__name__)
@@ -19,12 +21,13 @@ def emit_invoice(invoice: Invoice):
         InvoiceSequenceLock.objects.select_for_update().get_or_create(**invoice)
 
         try:
-            last = arca.electronic_billing.get_last_voucher(
-                invoice.point_of_sale, invoice.invoice_type
+            last_voucher = arca.wsfe.get_last_voucher(
+                pto_vta=invoice.point_of_sale, cbte_tipo=invoice.invoice_type
             )
-            invoice.invoice_number = last + 1
+            invoice.invoice_number = last_voucher + 1
 
             result = invoicing_adapter.create_voucher(invoice)
+
         except Exception as e:
             invoice.status = Invoice.Status.ERROR
             invoice.error_message = str(e)

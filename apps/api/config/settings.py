@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     "store",
     "orders",
     "billing",
-    "arca",
 ]
 
 REST_FRAMEWORK = {
