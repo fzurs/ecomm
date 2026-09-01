@@ -7,16 +7,15 @@ from .requests import create_login_ticket_request, create_login_request
 from .signing import sign_login_ticket_request
 from .responses import parse_access_ticket_response
 from .cache import AccessTicketCache
+from ..types import ARCACredentials
 
 
 class WSAAClient:
     url = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms"
 
-    def __init__(
-        self, certificate_path: Path, private_key_path: Path, cache: AccessTicketCache
-    ):
-        self.certificate = load_certificate(certificate_path)
-        self.private_key = load_private_key(private_key_path)
+    def __init__(self, credentials: ARCACredentials, cache: AccessTicketCache):
+        self.certificate = load_certificate(credentials.certificate_path)
+        self.private_key = load_private_key(credentials.private_key_path)
         self.cache = cache
 
     def _build_login_ticket_request(self, service: str):

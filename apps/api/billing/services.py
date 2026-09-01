@@ -1,6 +1,6 @@
 import logging
 from arca.client import ARCAClient
-from arca.adapter import ARCAElectronicInvoicingAdapter
+from apps.api.billing.adapter import ARCAElectronicInvoicingAdapter
 from django.db import transaction
 
 from .models import Invoice, InvoiceSequenceLock

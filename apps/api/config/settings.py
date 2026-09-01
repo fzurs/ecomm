@@ -23,10 +23,9 @@ WORKDIR = BASE_DIR.parent.parent
 environ.Env.read_env(os.path.join(WORKDIR, "db.env"))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-ARCA_ACCESS_TICKET_TOKEN = env("ARCA_ACCESS_TICKET_TOKEN", default="")
-ARCA_ACCESS_TICKET_SIGN = env("ARCA_ACCESS_TICKET_SIGN", default="")
-ARCA_ACCESS_TICKET_EXPIRATION_TIME = env("ARCA_ACCESS_TICKET_EXPIRATION_TIME", default="")
-ARCA_CUIT = env("ARCA_CUIT", default="")
+ARCA_CUIT = env("ARCA_CUIT")
+ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH")
+ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH")
 
 
 # Quick-start development settings - unsuitable for production
@@ -145,7 +144,7 @@ CACHES = {
     "arca_test": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379",
-    }
+    },
 }
 
 

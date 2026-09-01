@@ -1,12 +1,20 @@
+from django.conf import settings
 from django.test import SimpleTestCase
 from .wsaa.cache import DjangoAccessTicketCache
 from .wsfe.types import CreateVoucherRequest
 from .client import ARCAClient
+from .types import ARCACredentials
 
 
 class ARCAClientTests(SimpleTestCase):
     def setUp(self):
-        self.arca = ARCAClient(wsaa_cache=DjangoAccessTicketCache("arca_test"))
+        credentials = ARCACredentials(
+            cuit=settings.ARCA_CUIT,
+            certificate_path=settings.ARCA_CERTIFICATE_PATH,
+            private_key_path=settings.ARCA_PRIVATE_KEY_PATH,
+        )
+        cache = DjangoAccessTicketCache("arca_test")
+        self.arca = ARCAClient(credentials=credentials, cache=cache)
 
     def test_get_currency_types(self):
         currencies = self.arca.electronic_billing.get_currency_types()

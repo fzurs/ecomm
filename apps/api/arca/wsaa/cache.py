@@ -1,17 +1,15 @@
-from abc import ABC, abstractmethod
+from typing import Protocol
 from .types import AccessTicket
 from datetime import datetime, timezone
 
 
-class AccessTicketCache(ABC):
-    @abstractmethod
+class AccessTicketCache(Protocol):
     def get(self, service: str) -> AccessTicket | None: ...
 
-    @abstractmethod
     def set(self, service: str, access_ticket: AccessTicket) -> None: ...
 
 
-class DjangoAccessTicketCache(AccessTicketCache):
+class DjangoAccessTicketCache:
     PREFIX = "arca:access_ticket"
 
     def __init__(self, cache_alias="default"):
@@ -22,10 +20,10 @@ class DjangoAccessTicketCache(AccessTicketCache):
     def _key(self, service: str):
         return f"{self.PREFIX}:{service}"
 
-    def get(self, service: str):
+    def get(self, service: str) -> AccessTicket:
         return self.cache.get(self._key(service))
 
-    def set(self, service: str, access_ticket: AccessTicket):
+    def set(self, service: str, access_ticket: AccessTicket) -> None:
         timeout = int(
             (access_ticket.expiration_time - datetime.now(timezone.utc)).total_seconds()
         )
