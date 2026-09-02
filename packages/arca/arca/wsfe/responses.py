@@ -49,3 +49,11 @@ def parse_errors(response: str) -> list[WSFEMessage]:
         )
         for error in errors
     ]
+
+
+def parse_get_last_voucher_response(response: str) -> int:
+    root = ET.fromstring(response)
+
+    result = root.find(f".//{wsfe_tag('FECompUltimoAutorizadoResult')}")
+
+    return int(result.findtext(wsfe_tag("CbteNro")))

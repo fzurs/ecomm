@@ -6,8 +6,8 @@ from decimal import Decimal
 @dataclass(frozen=True)
 class CreateVoucherRequest:
     cant_reg: str
-    cbte_tipo: str
-    pto_vta: str
+    cbte_tipo: int
+    pto_vta: int
     concepto: str
     doc_tipo: str
     doc_nro: int
@@ -41,3 +41,9 @@ class VatReceptorCondition:
 class WSFEMessage:
     code: int
     message: str
+
+
+@dataclass
+class CAEA:
+    period: datetime
+    order: int

@@ -7,7 +7,7 @@ from ..soap import soap_tag, wsfe_tag
 from ..wsaa.types import AccessTicket
 
 from .operations import Operation
-from .types import CreateVoucherRequest
+from .types import CreateVoucherRequest, CAEA
 
 ET.register_namespace("soap", SOAP_ENV)
 ET.register_namespace("wsfe", WSFE_ENV)
@@ -40,8 +40,22 @@ def create_operation_request(
     return ET.tostring(envelope, encoding="utf-8", xml_declaration=True)
 
 
+def create_get_last_voucher_request(
+    pto_vta: int, cbte_tipo: int, cuit: str, access_ticket: AccessTicket
+):
+    envelope, param = _create_authenticated_operation_request(
+        Operation.GET_LAST_VOUCHER, cuit=cuit, access_ticket=access_ticket
+    )
+
+    ET.SubElement(param, wsfe_tag("PtoVta")).text = str(pto_vta)
+    ET.SubElement(param, wsfe_tag("CbteTipo")).text = str(cbte_tipo)
+
+    return ET.tostring(envelope, encoding="utf-8", xml_declaration=True)
+
+
 def build_create_voucher_request(
     request: CreateVoucherRequest,
+    caea: CAEA,
     cuit: str,
     access_ticket: AccessTicket,
 ):
@@ -49,10 +63,8 @@ def build_create_voucher_request(
         Operation.CREATE_VOUCHER, cuit, access_ticket
     )
 
-    ET.SubElement(param, wsfe_tag("Periodo")).text = datetime(
-        year=2026, month=9, day=1
-    ).strftime("%Y%m")
-    ET.SubElement(param, wsfe_tag("Orden")).text = "1"
+    ET.SubElement(param, wsfe_tag("Periodo")).text = caea.period.strftime("%Y%m")
+    ET.SubElement(param, wsfe_tag("Orden")).text = str(caea.order)
 
     fecae_req = ET.SubElement(param, wsfe_tag("FeCAEReq"))
 
@@ -60,8 +72,8 @@ def build_create_voucher_request(
 
     fecab_req_data = {
         "CantReg": request.cant_reg,
-        "CbteTipo": request.cbte_tipo,
-        "PtoVta": request.pto_vta,
+        "CbteTipo": str(request.cbte_tipo),
+        "PtoVta": str(request.pto_vta),
     }
     for tag, value in fecab_req_data.items():
         ET.SubElement(fecab_req, wsfe_tag(tag)).text = value

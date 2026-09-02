@@ -10,8 +10,8 @@ class ARCAElectronicInvoicingAdapter:
     def create_voucher(self, invoice: Invoice):
         data = CreateVoucherRequest(
             cant_reg="1",
-            cbte_tipo=str(invoice.invoice_type),
-            pto_vta=str(invoice.point_of_sale),
+            cbte_tipo=invoice.invoice_type,
+            pto_vta=invoice.point_of_sale,
             concepto="1",
             doc_tipo=str(invoice.order.customer.document_type),
             doc_nro=invoice.order.customer.document_number,
