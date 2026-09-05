@@ -34,7 +34,7 @@ def create_operation_request(
     operation: Operation, cuit: str, access_ticket: AccessTicket
 ):
     envelope, _ = _create_authenticated_operation_request(
-        operation, cuit, access_ticket
+        operation, cuit=cuit, access_ticket=access_ticket
     )
 
     return ET.tostring(envelope, encoding="utf-8", xml_declaration=True)
@@ -60,7 +60,7 @@ def build_create_voucher_request(
     access_ticket: AccessTicket,
 ):
     envelope, param = _create_authenticated_operation_request(
-        Operation.CREATE_VOUCHER, cuit, access_ticket
+        Operation.CREATE_VOUCHER, cuit=cuit, access_ticket=access_ticket
     )
 
     ET.SubElement(param, wsfe_tag("Periodo")).text = caea.period.strftime("%Y%m")

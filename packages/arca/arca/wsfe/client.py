@@ -19,54 +19,68 @@ from .exceptions import WSFEError
 
 
 class WSFEClient:
-    _service = "wsfe"
+    SERVICE = "wsfe"
 
     def __init__(self, cuit: str, wsaa_client: WSAAClient):
-        self.cuit = cuit
+        self._cuit = cuit
         self._wsaa_client = wsaa_client
         self._transport = WSFETransport()
 
-    def _get_access_ticket(self):
-        return self._wsaa_client.get_access_ticket(service=self._service)
-
     def get_last_voucher(self, pto_vta: int, cbte_tipo: int) -> int:
+        access_ticket = self._wsaa_client.get_access_ticket(service=self.SERVICE)
+
         xml = create_get_last_voucher_request(
             pto_vta=pto_vta,
             cbte_tipo=cbte_tipo,
-            cuit=self.cuit,
-            access_ticket=self._get_access_ticket(),
+            cuit=self._cuit,
+            access_ticket=access_ticket,
         )
+
         response = self._transport.send(OP.GET_LAST_VOUCHER, xml)
+
         errors = parse_errors(response)
         if errors:
             raise WSFEError(errors)
+
         return parse_get_last_voucher_response(response)
 
-    def create_voucher(self, data: CreateVoucherRequest, caea: CAEA):
-        access_ticket = self._get_access_ticket()
+    def create_voucher(self, request: CreateVoucherRequest, caea: CAEA):
+        access_ticket = self._wsaa_client.get_access_ticket(service=self.SERVICE)
+
         xml = build_create_voucher_request(
-            request=data, cuit=self.cuit, access_ticket=access_ticket, caea=caea
+            request=request, cuit=self._cuit, access_ticket=access_ticket, caea=caea
         )
+
         response = self._transport.send(OP.CREATE_VOUCHER, xml)
+
         errors = parse_errors(response)
         if errors:
             raise WSFEError(errors)
+
         return response
 
     def get_currency_types(self):
-        operation = OP.GET_CURRENCY_TYPES
-        access_ticket = self._get_access_ticket()
+        access_ticket = self._wsaa_client.get_access_ticket(service=self.SERVICE)
+
         xml = create_operation_request(
-            operation=operation, cuit=self.cuit, access_ticket=access_ticket
+            operation=OP.GET_CURRENCY_TYPES,
+            cuit=self._cuit,
+            access_ticket=access_ticket,
         )
-        response = self._transport.send(operation, xml)
+
+        response = self._transport.send(OP.GET_CURRENCY_TYPES, xml)
+
         return parse_currency_types_response(response)
 
     def get_vat_receptor_condition(self):
-        operation = OP.GET_VAT_RECEPTOR_CONDITION
-        access_ticket = self._get_access_ticket()
+        access_ticket = self._wsaa_client.get_access_ticket(service=self.SERVICE)
+
         xml = create_operation_request(
-            operation=operation, cuit=self.cuit, access_ticket=access_ticket
+            operation=OP.GET_VAT_RECEPTOR_CONDITION,
+            cuit=self._cuit,
+            access_ticket=access_ticket,
         )
-        response = self._transport.send(operation, xml)
+
+        response = self._transport.send(OP.GET_VAT_RECEPTOR_CONDITION, xml)
+
         return parse_vat_receptor_condition_response(response)
