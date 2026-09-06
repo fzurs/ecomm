@@ -1,27 +1,37 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 
 
 @dataclass(frozen=True)
+class VoucherBatch:
+    quantity: int
+    voucher_type: int
+    point_of_sale: int
+
+
+@dataclass(frozen=True)
+class Voucher:
+    concept: int
+    document_type: int
+    document_number: int
+    voucher_from: int
+    voucher_to: int
+    voucher_date: date | None
+    total_amount: Decimal
+    non_taxable_amount: Decimal
+    net_amount: Decimal
+    exempt_amount: Decimal
+    iva_amount: Decimal
+    tax_amount: Decimal
+    currency_code: str
+    recipient_vat_condition_code: int
+
+
+@dataclass(frozen=True)
 class CreateVoucherRequest:
-    cant_reg: str
-    cbte_tipo: int
-    pto_vta: int
-    concepto: str
-    doc_tipo: str
-    doc_nro: int
-    cbte_desde: int
-    cbte_hasta: int
-    cbte_fch: datetime | None
-    imp_total: Decimal
-    imp_tot_conc: Decimal
-    imp_neto: Decimal
-    imp_op_ex: Decimal
-    imp_iva: Decimal
-    imp_trib: Decimal
-    mon_id: str
-    condicion_iva_receptor_id: str
+    header: VoucherBatch
+    details: list[Voucher]
 
 
 @dataclass(frozen=True)
