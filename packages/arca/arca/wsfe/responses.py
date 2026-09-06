@@ -40,14 +40,16 @@ def parse_vat_receptor_condition_response(response: str) -> list[VatReceptorCond
 def parse_errors(response: str) -> list[WSFEMessage]:
     root = ET.fromstring(response)
 
-    errors = root.findall(f".//{wsfe_tag("Err")}")
+    errors = root.find(f".//{wsfe_tag("Errors")}")
+    if errors is None:
+        return []
 
     return [
         WSFEMessage(
             code=int(error.findtext(wsfe_tag("Code"))),
             message=error.findtext(wsfe_tag("Msg")),
         )
-        for error in errors
+        for error in errors.findall(wsfe_tag("Err"))
     ]
 
 
