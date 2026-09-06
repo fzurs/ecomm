@@ -14,16 +14,13 @@ def emit_invoice(invoice: Invoice):
     if invoice.status == Invoice.Status.SUCCESS:
         raise ValueError("Este comprobante ya fue emitido.")
 
-    arca = ARCAClient()
-    invoicing_adapter = ARCAElectronicInvoicingAdapter(client=arca)
+    invoicing_adapter = ARCAElectronicInvoicingAdapter(client=ARCAClient())
 
     with transaction.atomic():
         InvoiceSequenceLock.objects.select_for_update().get_or_create(**invoice)
 
         try:
-            last_voucher = arca.wsfe.get_last_voucher(
-                invoice.point_of_sale, invoice.invoice_type
-            )
+            last_voucher = invoicing_adapter.get_last_voucher(invoice)
             invoice.invoice_number = last_voucher + 1
 
             result = invoicing_adapter.create_voucher(invoice)

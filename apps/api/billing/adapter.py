@@ -7,6 +7,11 @@ class ARCAElectronicInvoicingAdapter:
     def __init__(self, client: ARCAClient):
         self.client = client
 
+    def get_last_voucher(self, invoice: Invoice):
+        return self.client.wsfe.get_last_voucher(
+            point_of_sale=invoice.point_of_sale, voucher_type=invoice.invoice_type
+        )
+
     def create_voucher(self, invoice: Invoice):
         request = CreateVoucherRequest(
             header=VoucherBatch(
