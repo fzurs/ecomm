@@ -22,7 +22,7 @@ def emit_invoice(invoice: Invoice):
 
         try:
             last_voucher = arca.wsfe.get_last_voucher(
-                pto_vta=invoice.point_of_sale, cbte_tipo=invoice.invoice_type
+                invoice.point_of_sale, invoice.invoice_type
             )
             invoice.invoice_number = last_voucher + 1
 

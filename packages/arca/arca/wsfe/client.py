@@ -26,12 +26,12 @@ class WSFEClient:
         self._wsaa_client = wsaa_client
         self._transport = WSFETransport()
 
-    def get_last_voucher(self, pto_vta: int, cbte_tipo: int) -> int:
+    def get_last_voucher(self, point_of_sale: int, voucher_type: int) -> int:
         access_ticket = self._wsaa_client.get_access_ticket(service=self.SERVICE)
 
         xml = create_get_last_voucher_request(
-            pto_vta=pto_vta,
-            cbte_tipo=cbte_tipo,
+            point_of_sale,
+            voucher_type,
             cuit=self._cuit,
             access_ticket=access_ticket,
         )

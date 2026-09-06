@@ -50,13 +50,13 @@ def create_operation_request(operation: OP, cuit: str, access_ticket: AccessTick
 
 
 def create_get_last_voucher_request(
-    pto_vta: int, cbte_tipo: int, cuit: str, access_ticket: AccessTicket
+    point_of_sale: int, voucher_type: int, cuit: str, access_ticket: AccessTicket
 ):
     envelope, param = _create_authenticated_operation(
         OP.GET_LAST_VOUCHER, cuit=cuit, access_ticket=access_ticket
     )
 
-    request = {"PtoVta": pto_vta, "CbteTipo": cbte_tipo}
+    request = {"PtoVta": point_of_sale, "CbteTipo": voucher_type}
     for tag, value in request.items():
         ET.SubElement(param, wsfe_tag(tag)).text = str(value)
 
@@ -95,7 +95,7 @@ def _create_voucher_detail(fedet_req: ET.Element, voucher: Voucher):
         "ImpTotConc": voucher.non_taxable_amount,
         "ImpNeto": voucher.net_amount,
         "ImpOpEx": voucher.tax_amount,
-        "ImpIVA": voucher.iva_amount,
+        "ImpIVA": voucher.vat_amount,
         "ImpTrib": voucher.tax_amount,
         "MonId": voucher.currency_code,
         "CondicionIVAReceptorId": voucher.recipient_vat_condition_code,

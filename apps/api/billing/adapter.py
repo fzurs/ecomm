@@ -1,6 +1,6 @@
 from billing.models import Invoice
 from arca.client import ARCAClient
-from arca.wsfe.types import CreateVoucherRequest
+from arca.wsfe.types import CreateVoucherRequest, VoucherBatch, Voucher
 
 
 class ARCAElectronicInvoicingAdapter:
@@ -8,23 +8,29 @@ class ARCAElectronicInvoicingAdapter:
         self.client = client
 
     def create_voucher(self, invoice: Invoice):
-        data = CreateVoucherRequest(
-            cant_reg="1",
-            cbte_tipo=invoice.invoice_type,
-            pto_vta=invoice.point_of_sale,
-            concepto="1",
-            doc_tipo=str(invoice.order.customer.document_type),
-            doc_nro=invoice.order.customer.document_number,
-            cbte_desde=invoice.invoice_number,
-            cbte_hasta=invoice.invoice_number,
-            imp_total=invoice.total_amount,
-            imp_tot_conc=0,
-            imp_neto=invoice.net_amount,
-            imp_op_ex=0,
-            imp_iva=invoice.vat_amount,
-            imp_trib=0,
-            mon_id="PES",
-            condicion_iva_receptor_id="1",
+        request = CreateVoucherRequest(
+            header=VoucherBatch(
+                quantity=1,
+                voucher_type=invoice.invoice_type,
+                point_of_sale=invoice.point_of_sale,
+            ),
+            details=[
+                Voucher(
+                    concept=1,
+                    document_type=invoice.order.customer.document_type,
+                    document_number=invoice.order.customer.document_number,
+                    voucher_from=invoice.invoice_number,
+                    voucher_to=invoice.invoice_number,
+                    total_amount=invoice.total_amount,
+                    net_amount=invoice.net_amount,
+                    vat_amount=invoice.vat_amount,
+                    non_taxable_amount=0,
+                    tax_amount=0,
+                    exempt_amount=0,
+                    currency_code="PES",
+                    recipient_vat_condition_code=1,
+                )
+            ],
         )
 
-        return self.client.wsfe.create_voucher(data)
+        return self.client.wsfe.create_voucher(request)

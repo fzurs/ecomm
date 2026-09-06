@@ -22,7 +22,7 @@ class Voucher:
     non_taxable_amount: Decimal
     net_amount: Decimal
     exempt_amount: Decimal
-    iva_amount: Decimal
+    vat_amount: Decimal
     tax_amount: Decimal
     currency_code: str
     recipient_vat_condition_code: int
