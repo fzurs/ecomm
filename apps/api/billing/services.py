@@ -2,19 +2,18 @@ import logging
 
 from django.db import transaction
 
-from arca.client import ARCAClient
-
 from .adapter import ARCAElectronicInvoicingAdapter
 from .models import Invoice, InvoiceSequenceLock
+from .arca import arca_client
 
 logger = logging.getLogger(__name__)
+
+invoicing_adapter = ARCAElectronicInvoicingAdapter(client=arca_client)
 
 
 def emit_invoice(invoice: Invoice):
     if invoice.status == Invoice.Status.SUCCESS:
         raise ValueError("Este comprobante ya fue emitido.")
-
-    invoicing_adapter = ARCAElectronicInvoicingAdapter(client=ARCAClient())
 
     with transaction.atomic():
         InvoiceSequenceLock.objects.select_for_update().get_or_create(**invoice)

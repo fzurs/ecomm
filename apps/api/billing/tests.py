@@ -1,21 +1,12 @@
-from django.conf import settings
 from django.test import SimpleTestCase
 from django.utils import timezone
-from arca.wsaa.cache import DjangoAccessTicketCache
 from arca.wsfe.types import CreateVoucherRequest, CAEA
-from arca.client import ARCAClient
-from arca.wsaa.types import ARCACredentials
+from .arca import get_arca_client
 
 
 class ARCAClientTests(SimpleTestCase):
     def setUp(self):
-        credentials = ARCACredentials(
-            cuit=settings.ARCA_CUIT,
-            certificate_path=settings.ARCA_CERTIFICATE_PATH,
-            private_key_path=settings.ARCA_PRIVATE_KEY_PATH,
-        )
-        cache = DjangoAccessTicketCache("arca_test")
-        self.arca = ARCAClient(credentials=credentials, cache=cache)
+        self.arca = get_arca_client("arca_test")
 
     def test_get_currency_types(self):
         currencies = self.arca.wsfe.get_currency_types()
