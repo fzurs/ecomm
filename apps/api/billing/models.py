@@ -13,8 +13,7 @@ class Invoice(models.Model):
     order = models.ForeignKey(Order, models.PROTECT, related_name='invoices')
 
     # Tax information
-    point_of_sale = models.PositiveIntegerField(
-        verbose_name=_('Point of Sale'))
+    point_of_sale = models.PositiveIntegerField(verbose_name=_('Point of Sale'))
     invoice_type = models.PositiveIntegerField(verbose_name=_('Invoice Type'))
     invoice_number = models.PositiveIntegerField(
         null=True, blank=True, verbose_name=_('Invoice Number'))

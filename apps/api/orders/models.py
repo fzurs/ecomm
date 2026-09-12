@@ -19,7 +19,7 @@ class Customer(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
-    document_type = models.PositiveSmallIntegerField(choices=DocumentTypes.choices)
+    document_type = models.PositiveSmallIntegerField(choices=DocumentTypes.choices, default=DocumentTypes.DNI)
     document_number = models.CharField(max_length=20)
 
     def __str__(self): return self.name
