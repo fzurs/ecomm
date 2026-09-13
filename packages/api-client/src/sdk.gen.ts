@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponses, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponses, AuthPasswordResetCreateData, AuthPasswordResetCreateResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, AuthUserUpdateData, AuthUserUpdateResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsDetectAndAssignBrandCreateData, ProductsDetectAndAssignBrandCreateResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
+import type { AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponses, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponses, AuthPasswordResetCreateData, AuthPasswordResetCreateResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, AuthUserUpdateData, AuthUserUpdateResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesListData, InvoicesListResponses, InvoicesPartialUpdateData, InvoicesPartialUpdateResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesUpdateData, InvoicesUpdateResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsDetectAndAssignBrandCreateData, ProductsDetectAndAssignBrandCreateResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -457,6 +457,83 @@ export const customersListChoices = <ThrowOnError extends boolean = false>(optio
         }],
     url: '/customers/choices/',
     ...options
+});
+
+export const invoicesList = <ThrowOnError extends boolean = false>(options?: Options<InvoicesListData, ThrowOnError>): RequestResult<InvoicesListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<InvoicesListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/',
+    ...options
+});
+
+export const invoicesCreate = <ThrowOnError extends boolean = false>(options: Options<InvoicesCreateData, ThrowOnError>): RequestResult<InvoicesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const invoicesDestroy = <ThrowOnError extends boolean = false>(options: Options<InvoicesDestroyData, ThrowOnError>): RequestResult<InvoicesDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<InvoicesDestroyResponses, unknown, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/',
+    ...options
+});
+
+export const invoicesRetrieve = <ThrowOnError extends boolean = false>(options: Options<InvoicesRetrieveData, ThrowOnError>): RequestResult<InvoicesRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<InvoicesRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/',
+    ...options
+});
+
+export const invoicesPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<InvoicesPartialUpdateData, ThrowOnError>): RequestResult<InvoicesPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<InvoicesPartialUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const invoicesUpdate = <ThrowOnError extends boolean = false>(options: Options<InvoicesUpdateData, ThrowOnError>): RequestResult<InvoicesUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<InvoicesUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 export const ordersList = <ThrowOnError extends boolean = false>(options?: Options<OrdersListData, ThrowOnError>): RequestResult<OrdersListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<OrdersListResponses, unknown, ThrowOnError>({

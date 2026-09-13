@@ -1,4 +1,4 @@
-import { capitalize } from "@/lib/utils"
+import { capitalize, formatPrice } from "@/lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import {
@@ -8,6 +8,7 @@ import {
   PaginatedOrderList,
 } from "@workspace/api-client"
 import {
+  invoicesCreateMutation,
   ordersDestroyMutation,
   ordersListQueryKey,
   ordersPartialUpdateMutation,
@@ -50,13 +51,22 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 import { format } from "date-fns"
-import { EllipsisIcon, RefreshCw, Trash2Icon, ViewIcon } from "lucide-react"
+import {
+  EllipsisIcon,
+  FileTextIcon,
+  RefreshCw,
+  Trash2Icon,
+  ViewIcon,
+} from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 
 const statusClasses: Record<OrderStatus, string> = {
@@ -75,7 +85,7 @@ export const statusOptions = zOrderStatus.options.map((status) => ({
 export const columns = [
   {
     accessorKey: "total",
-    cell: ({ row }) => `$${row.original.total}`,
+    cell: ({ row }) => formatPrice(row.original.total),
     meta: {
       thClassName: "text-right",
       className: "text-right font-semibold",
@@ -84,7 +94,7 @@ export const columns = [
   },
   {
     id: "currency",
-    cell: "USD",
+    cell: "PES",
     meta: { className: "text-muted-foreground font-medium" },
     enableHiding: false,
   },
@@ -167,15 +177,17 @@ export function OrderItemsTable({
   orderItems,
   renderActions,
   renderQuantity,
-  children,
+  showTotal = false,
   className,
 }: {
   orderItems: OrderItem[]
   renderActions?: (index: number) => React.ReactNode
   renderQuantity?: (index: number) => React.ReactNode
-  children?: React.ReactNode
+  showTotal?: boolean
   className?: string
 }) {
+  const total = orderItems.reduce((sum, row) => sum + row.subtotal, 0)
+
   return (
     <Table className={className}>
       <TableHeader>
@@ -208,7 +220,17 @@ export function OrderItemsTable({
           )
         )}
       </TableBody>
-      {children}
+      {showTotal && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={3}>Total</TableCell>
+            <TableCell className="text-right">
+              {total > 0 && formatPrice(total)}
+            </TableCell>
+            {renderActions && <TableCell />}
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   )
 }
@@ -293,6 +315,14 @@ function TableCellActions({ item: order }: { item: Order }) {
     [order.id, status, updateMutation]
   )
 
+  const router = useRouter()
+  const createInvoiceMutation = useMutation({
+    ...invoicesCreateMutation(),
+    onSuccess: () => router.push("/invoices"),
+  })
+  const createInvoice = () =>
+    createInvoiceMutation.mutate({ body: { order: order.id } })
+
   return (
     <AlertDialog>
       <DropdownMenu>
@@ -303,10 +333,18 @@ function TableCellActions({ item: order }: { item: Order }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <ViewIcon />
-              View details
-            </DropdownMenuItem>
+            {/* <DropdownMenuItem asChild>
+              <Link href={`/orders/${order.id}`}>
+                <ViewIcon />
+                View details
+              </Link>
+            </DropdownMenuItem> */}
+            {order.status === "paid" && (
+              <DropdownMenuItem onClick={createInvoice}>
+                <FileTextIcon />
+                Create invoice
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <RefreshCw />

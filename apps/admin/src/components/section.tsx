@@ -26,9 +26,9 @@ function SectionHeader({ ...props }: React.ComponentProps<"header">) {
 
 function SectionTitle({ className, ...props }: React.ComponentProps<"h1">) {
   return (
-    <h1
+    <h2
       className={cn(
-        "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl",
+        "scroll-m-20 text-xl font-extrabold tracking-tight lg:text-5xl",
         className
       )}
       {...props}

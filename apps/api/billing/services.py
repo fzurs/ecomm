@@ -16,7 +16,9 @@ def emit_invoice(invoice: Invoice):
         raise ValueError("Este comprobante ya fue emitido.")
 
     with transaction.atomic():
-        InvoiceSequenceLock.objects.select_for_update().get_or_create(**invoice)
+        InvoiceSequenceLock.objects.select_for_update().get_or_create(
+            point_of_sale=invoice.point_of_sale, invoice_type=invoice.invoice_type
+        )
 
         try:
             last_voucher = invoicing_adapter.get_last_voucher(invoice)

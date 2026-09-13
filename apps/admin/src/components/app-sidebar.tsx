@@ -3,6 +3,7 @@
 import {
   BadgeIcon,
   ClipboardListIcon,
+  FileTextIcon,
   PackageIcon,
   TagsIcon,
   UsersRoundIcon,
@@ -37,6 +38,11 @@ const items = [
     title: "Orders",
     url: "/orders",
     icon: ClipboardListIcon,
+  },
+  {
+    title: "Invoices",
+    url: "/invoices",
+    icon: FileTextIcon,
   },
   {
     title: "Products",

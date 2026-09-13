@@ -50,11 +50,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@workspace/ui/components/popover"
-import {
-  TableCell,
-  TableFooter,
-  TableRow,
-} from "@workspace/ui/components/table"
 import { PlusIcon, XIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -354,8 +349,6 @@ function OrderItemsField({
     [orderItems, products]
   )
 
-  const total = rows.reduce((sum, row) => sum + row.subtotal, 0)
-
   return (
     <OrderItemsTable
       orderItems={rows}
@@ -371,16 +364,7 @@ function OrderItemsField({
           <XIcon />
         </Button>
       )}
-    >
-      <TableFooter>
-        <TableRow>
-          <TableCell>Total</TableCell>
-          <TableCell colSpan={3} className="text-right">
-            ${total || ""}
-          </TableCell>
-          <TableCell />
-        </TableRow>
-      </TableFooter>
-    </OrderItemsTable>
+      showTotal
+    />
   )
 }

@@ -8,6 +8,6 @@ class InvoiceViewSet(ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
 
-    def perform_create(self, serializer):
-        invoice = serializer.save()
-        emit_invoice(invoice)
+    # def perform_create(self, serializer):
+    #     invoice = serializer.save()
+    #     emit_invoice(invoice)

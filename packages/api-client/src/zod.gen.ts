@@ -30,11 +30,60 @@ export const zCategoryChoice = z.object({
     description: z.string().nullish()
 });
 
+/**
+ * * `80` - CUIT
+ * * `86` - CUIL
+ * * `87` - CDI
+ * * `89` - LE
+ * * `90` - LC
+ * * `96` - DNI
+ * * `94` - Pasaporte
+ * * `91` - CI Extranjera
+ * * `0` - CI Policía Federal
+ * * `30` - Certificado de Migración
+ */
+export const zDocumentTypeEnum = z.union([
+    z.literal(80),
+    z.literal(86),
+    z.literal(87),
+    z.literal(89),
+    z.literal(90),
+    z.literal(96),
+    z.literal(94),
+    z.literal(91),
+    z.literal(0),
+    z.literal(30)
+]);
+
 export const zCustomer = z.object({
     id: z.int().readonly(),
     name: z.string().max(255),
     email: z.email().max(254).optional(),
-    phone: z.string().max(20).optional()
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20)
+});
+
+/**
+ * * `pending` - Pending
+ * * `success` - Success
+ * * `error` - Error
+ */
+export const zInvoiceStatus = z.enum([
+    'pending',
+    'success',
+    'error'
+]);
+
+export const zInvoice = z.object({
+    id: z.int().readonly(),
+    order: z.int(),
+    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    document_name: z.string().readonly(),
+    created_at: z.iso.datetime().readonly(),
+    status: zInvoiceStatus
 });
 
 export const zLogin = z.object({
@@ -79,6 +128,13 @@ export const zPaginatedCustomerList = z.object({
     results: z.array(zCustomer)
 });
 
+export const zPaginatedInvoiceList = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(zInvoice)
+});
+
 export const zPasswordChange = z.object({
     new_password1: z.string().max(128),
     new_password2: z.string().max(128)
@@ -118,7 +174,20 @@ export const zPatchedCustomer = z.object({
     id: z.int().readonly().optional(),
     name: z.string().max(255).optional(),
     email: z.email().max(254).optional(),
-    phone: z.string().max(20).optional()
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20).optional()
+});
+
+export const zPatchedInvoice = z.object({
+    id: z.int().readonly().optional(),
+    order: z.int().optional(),
+    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly().optional(),
+    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly().optional(),
+    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly().optional(),
+    document_name: z.string().readonly().optional(),
+    created_at: z.iso.datetime().readonly().optional(),
+    status: zInvoiceStatus.optional()
 });
 
 /**
@@ -309,7 +378,13 @@ export const zCategoryChoiceWritable = z.object({
 export const zCustomerWritable = z.object({
     name: z.string().max(255),
     email: z.email().max(254).optional(),
-    phone: z.string().max(20).optional()
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20)
+});
+
+export const zInvoiceWritable = z.object({
+    order: z.int()
 });
 
 export const zOrderWritable = z.object({
@@ -355,6 +430,13 @@ export const zPaginatedCustomerListWritable = z.object({
     results: z.array(zCustomerWritable)
 });
 
+export const zPaginatedInvoiceListWritable = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(zInvoiceWritable)
+});
+
 export const zPaginatedOrderListWritable = z.object({
     count: z.int(),
     next: z.url().nullish(),
@@ -376,7 +458,13 @@ export const zPatchedCategoryWritable = z.object({
 export const zPatchedCustomerWritable = z.object({
     name: z.string().max(255).optional(),
     email: z.email().max(254).optional(),
-    phone: z.string().max(20).optional()
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20).optional()
+});
+
+export const zPatchedInvoiceWritable = z.object({
+    order: z.int().optional()
 });
 
 export const zPatchedOrderWritable = z.object({
@@ -632,6 +720,48 @@ export const zCustomersListChoicesQuery = z.object({
 });
 
 export const zCustomersListChoicesResponse = z.array(zCustomer);
+
+export const zInvoicesListQuery = z.object({
+    limit: z.int().optional(),
+    offset: z.int().optional()
+});
+
+export const zInvoicesListResponse = zPaginatedInvoiceList;
+
+export const zInvoicesCreateBody = zInvoiceWritable;
+
+export const zInvoicesCreateResponse = zInvoice;
+
+export const zInvoicesDestroyPath = z.object({
+    id: z.int()
+});
+
+/**
+ * No response body
+ */
+export const zInvoicesDestroyResponse = z.void();
+
+export const zInvoicesRetrievePath = z.object({
+    id: z.int()
+});
+
+export const zInvoicesRetrieveResponse = zInvoice;
+
+export const zInvoicesPartialUpdateBody = zPatchedInvoiceWritable;
+
+export const zInvoicesPartialUpdatePath = z.object({
+    id: z.int()
+});
+
+export const zInvoicesPartialUpdateResponse = zInvoice;
+
+export const zInvoicesUpdateBody = zInvoiceWritable;
+
+export const zInvoicesUpdatePath = z.object({
+    id: z.int()
+});
+
+export const zInvoicesUpdateResponse = zInvoice;
 
 export const zOrdersListQuery = z.object({
     limit: z.int().optional(),

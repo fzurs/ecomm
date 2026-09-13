@@ -37,7 +37,41 @@ export type Customer = {
     name: string;
     email?: string;
     phone?: string;
+    document_type?: DocumentTypeEnum;
+    document_number: string;
 };
+
+/**
+ * * `80` - CUIT
+ * * `86` - CUIL
+ * * `87` - CDI
+ * * `89` - LE
+ * * `90` - LC
+ * * `96` - DNI
+ * * `94` - Pasaporte
+ * * `91` - CI Extranjera
+ * * `0` - CI Policía Federal
+ * * `30` - Certificado de Migración
+ */
+export type DocumentTypeEnum = 80 | 86 | 87 | 89 | 90 | 96 | 94 | 91 | 0 | 30;
+
+export type Invoice = {
+    readonly id: number;
+    order: number;
+    readonly total_amount: string;
+    readonly net_amount: string;
+    readonly vat_amount: string;
+    readonly document_name: string;
+    readonly created_at: string;
+    status: InvoiceStatus;
+};
+
+/**
+ * * `pending` - Pending
+ * * `success` - Success
+ * * `error` - Error
+ */
+export type InvoiceStatus = 'pending' | 'success' | 'error';
 
 export type Login = {
     username?: string;
@@ -106,6 +140,13 @@ export type PaginatedCustomerList = {
     results: Array<Customer>;
 };
 
+export type PaginatedInvoiceList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<Invoice>;
+};
+
 export type PaginatedOrderList = {
     count: number;
     next?: string | null;
@@ -160,6 +201,19 @@ export type PatchedCustomer = {
     name?: string;
     email?: string;
     phone?: string;
+    document_type?: DocumentTypeEnum;
+    document_number?: string;
+};
+
+export type PatchedInvoice = {
+    readonly id?: number;
+    order?: number;
+    readonly total_amount?: string;
+    readonly net_amount?: string;
+    readonly vat_amount?: string;
+    readonly document_name?: string;
+    readonly created_at?: string;
+    status?: InvoiceStatus;
 };
 
 export type PatchedOrder = {
@@ -309,6 +363,12 @@ export type CustomerWritable = {
     name: string;
     email?: string;
     phone?: string;
+    document_type?: DocumentTypeEnum;
+    document_number: string;
+};
+
+export type InvoiceWritable = {
+    order: number;
 };
 
 export type OrderWritable = {
@@ -348,6 +408,13 @@ export type PaginatedCustomerListWritable = {
     results: Array<CustomerWritable>;
 };
 
+export type PaginatedInvoiceListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<InvoiceWritable>;
+};
+
 export type PaginatedOrderListWritable = {
     count: number;
     next?: string | null;
@@ -377,6 +444,12 @@ export type PatchedCustomerWritable = {
     name?: string;
     email?: string;
     phone?: string;
+    document_type?: DocumentTypeEnum;
+    document_number?: string;
+};
+
+export type PatchedInvoiceWritable = {
+    order?: number;
 };
 
 export type PatchedOrderWritable = {
@@ -947,6 +1020,116 @@ export type CustomersListChoicesResponses = {
 };
 
 export type CustomersListChoicesResponse = CustomersListChoicesResponses[keyof CustomersListChoicesResponses];
+
+export type InvoicesListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Number of results to return per page.
+         */
+        limit?: number;
+        /**
+         * The initial index from which to return the results.
+         */
+        offset?: number;
+    };
+    url: '/invoices/';
+};
+
+export type InvoicesListResponses = {
+    200: PaginatedInvoiceList;
+};
+
+export type InvoicesListResponse = InvoicesListResponses[keyof InvoicesListResponses];
+
+export type InvoicesCreateData = {
+    body: InvoiceWritable;
+    path?: never;
+    query?: never;
+    url: '/invoices/';
+};
+
+export type InvoicesCreateResponses = {
+    201: Invoice;
+};
+
+export type InvoicesCreateResponse = InvoicesCreateResponses[keyof InvoicesCreateResponses];
+
+export type InvoicesDestroyData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/';
+};
+
+export type InvoicesDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type InvoicesDestroyResponse = InvoicesDestroyResponses[keyof InvoicesDestroyResponses];
+
+export type InvoicesRetrieveData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/';
+};
+
+export type InvoicesRetrieveResponses = {
+    200: Invoice;
+};
+
+export type InvoicesRetrieveResponse = InvoicesRetrieveResponses[keyof InvoicesRetrieveResponses];
+
+export type InvoicesPartialUpdateData = {
+    body?: PatchedInvoiceWritable;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/';
+};
+
+export type InvoicesPartialUpdateResponses = {
+    200: Invoice;
+};
+
+export type InvoicesPartialUpdateResponse = InvoicesPartialUpdateResponses[keyof InvoicesPartialUpdateResponses];
+
+export type InvoicesUpdateData = {
+    body: InvoiceWritable;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/';
+};
+
+export type InvoicesUpdateResponses = {
+    200: Invoice;
+};
+
+export type InvoicesUpdateResponse = InvoicesUpdateResponses[keyof InvoicesUpdateResponses];
 
 export type OrdersListData = {
     body?: never;
