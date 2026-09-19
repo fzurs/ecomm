@@ -61,7 +61,8 @@ export const zCustomer = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20)
+    document_number: z.string().max(20),
+    image: z.url().nullish()
 });
 
 /**
@@ -176,7 +177,8 @@ export const zPatchedCustomer = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20).optional()
+    document_number: z.string().max(20).optional(),
+    image: z.url().nullish()
 });
 
 export const zPatchedInvoice = z.object({
@@ -287,6 +289,7 @@ export const zOrder = z.object({
     items: z.array(zOrderItem).readonly(),
     total: z.int().readonly(),
     customer_detail: zCustomer,
+    number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
         zBlankEnum
@@ -301,6 +304,7 @@ export const zOrderCreate = z.object({
     items: z.array(zOrderItem),
     total: z.int().readonly(),
     customer_detail: zCustomer,
+    number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
         zBlankEnum
@@ -322,6 +326,7 @@ export const zPatchedOrder = z.object({
     items: z.array(zOrderItem).readonly().optional(),
     total: z.int().readonly().optional(),
     customer_detail: zCustomer.optional(),
+    number: z.string().readonly().optional(),
     status: z.union([
         zOrderStatus,
         zBlankEnum
@@ -380,7 +385,8 @@ export const zCustomerWritable = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20)
+    document_number: z.string().max(20),
+    image: z.url().nullish()
 });
 
 export const zInvoiceWritable = z.object({
@@ -460,7 +466,8 @@ export const zPatchedCustomerWritable = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20).optional()
+    document_number: z.string().max(20).optional(),
+    image: z.url().nullish()
 });
 
 export const zPatchedInvoiceWritable = z.object({
@@ -784,7 +791,7 @@ export const zOrdersCreateBody = zOrderCreateWritable;
 export const zOrdersCreateResponse = zOrderCreate;
 
 export const zOrdersDestroyPath = z.object({
-    id: z.int()
+    number: z.string()
 });
 
 /**
@@ -793,7 +800,7 @@ export const zOrdersDestroyPath = z.object({
 export const zOrdersDestroyResponse = z.void();
 
 export const zOrdersRetrievePath = z.object({
-    id: z.int()
+    number: z.string()
 });
 
 export const zOrdersRetrieveResponse = zOrder;
@@ -801,7 +808,7 @@ export const zOrdersRetrieveResponse = zOrder;
 export const zOrdersPartialUpdateBody = zPatchedOrderWritable;
 
 export const zOrdersPartialUpdatePath = z.object({
-    id: z.int()
+    number: z.string()
 });
 
 export const zOrdersPartialUpdateResponse = zOrder;
@@ -809,7 +816,7 @@ export const zOrdersPartialUpdateResponse = zOrder;
 export const zOrdersUpdateBody = zOrderWritable;
 
 export const zOrdersUpdatePath = z.object({
-    id: z.int()
+    number: z.string()
 });
 
 export const zOrdersUpdateResponse = zOrder;

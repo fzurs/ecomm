@@ -23,7 +23,6 @@ import {
   AppHeaderActions,
   AppHeaderNav,
 } from "@/components/app-header"
-import { SectionGroup } from "@/components/section"
 import { DataTable } from "@workspace/data-table/components/data-table"
 import { Button } from "@workspace/ui/components/button"
 import Link from "next/link"
@@ -104,7 +103,7 @@ export default function OrdersPage() {
           </Button>
         </AppHeaderActions>
       </AppHeader>
-      <SectionGroup>
+      <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
         <DataTable table={table}>
           <DataTableAdvancedToolbar table={table}>
             <SearchInput
@@ -122,7 +121,7 @@ export default function OrdersPage() {
             <DataTableSortMenu table={table} />
           </DataTableAdvancedToolbar>
         </DataTable>
-      </SectionGroup>
+      </main>
     </>
   )
 }

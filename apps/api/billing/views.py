@@ -5,7 +5,7 @@ from .services import emit_invoice
 
 
 class InvoiceViewSet(ModelViewSet):
-    queryset = Invoice.objects.all()
+    queryset = Invoice.objects.order_by("-created_at")
     serializer_class = InvoiceSerializer
 
     # def perform_create(self, serializer):

@@ -39,6 +39,7 @@ export type Customer = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number: string;
+    image?: string | null;
 };
 
 /**
@@ -84,6 +85,7 @@ export type Order = {
     readonly items: Array<OrderItem>;
     readonly total: number;
     customer_detail: Customer;
+    readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
     readonly updated_at: string;
@@ -95,6 +97,7 @@ export type OrderCreate = {
     items: Array<OrderItem>;
     readonly total: number;
     customer_detail: Customer;
+    readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
     readonly updated_at: string;
@@ -203,6 +206,7 @@ export type PatchedCustomer = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string;
+    image?: string | null;
 };
 
 export type PatchedInvoice = {
@@ -221,6 +225,7 @@ export type PatchedOrder = {
     readonly items?: Array<OrderItem>;
     readonly total?: number;
     customer_detail?: Customer;
+    readonly number?: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at?: string;
     readonly updated_at?: string;
@@ -365,6 +370,7 @@ export type CustomerWritable = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number: string;
+    image?: string | null;
 };
 
 export type InvoiceWritable = {
@@ -446,6 +452,7 @@ export type PatchedCustomerWritable = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string;
+    image?: string | null;
 };
 
 export type PatchedInvoiceWritable = {
@@ -1185,13 +1192,10 @@ export type OrdersCreateResponse = OrdersCreateResponses[keyof OrdersCreateRespo
 export type OrdersDestroyData = {
     body?: never;
     path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
+        number: string;
     };
     query?: never;
-    url: '/orders/{id}/';
+    url: '/orders/{number}/';
 };
 
 export type OrdersDestroyResponses = {
@@ -1206,13 +1210,10 @@ export type OrdersDestroyResponse = OrdersDestroyResponses[keyof OrdersDestroyRe
 export type OrdersRetrieveData = {
     body?: never;
     path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
+        number: string;
     };
     query?: never;
-    url: '/orders/{id}/';
+    url: '/orders/{number}/';
 };
 
 export type OrdersRetrieveResponses = {
@@ -1224,13 +1225,10 @@ export type OrdersRetrieveResponse = OrdersRetrieveResponses[keyof OrdersRetriev
 export type OrdersPartialUpdateData = {
     body?: PatchedOrderWritable;
     path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
+        number: string;
     };
     query?: never;
-    url: '/orders/{id}/';
+    url: '/orders/{number}/';
 };
 
 export type OrdersPartialUpdateResponses = {
@@ -1242,13 +1240,10 @@ export type OrdersPartialUpdateResponse = OrdersPartialUpdateResponses[keyof Ord
 export type OrdersUpdateData = {
     body: OrderWritable;
     path: {
-        /**
-         * A unique integer value identifying this order.
-         */
-        id: number;
+        number: string;
     };
     query?: never;
-    url: '/orders/{id}/';
+    url: '/orders/{number}/';
 };
 
 export type OrdersUpdateResponses = {

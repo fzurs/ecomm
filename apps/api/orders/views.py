@@ -16,6 +16,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     # Customer are ordered by customer__name in OrderFilter
     ordering_fields = ['status', 'total', 'customer', 'updated_at', 'created_at']
     search_fields = ['customer__name', 'customer__email']
+    lookup_field = "number"
 
     def get_serializer_class(self):
         if self.action == 'create':

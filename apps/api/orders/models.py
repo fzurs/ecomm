@@ -1,6 +1,10 @@
+import io
+from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 from django.db import models, transaction
 from store.models import Product
+from .utils import generate_gradient
 
 
 class Customer(models.Model):
@@ -21,6 +25,19 @@ class Customer(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     document_type = models.PositiveSmallIntegerField(choices=DocumentTypes.choices, default=DocumentTypes.DNI)
     document_number = models.CharField(max_length=20)
+    image = models.ImageField(upload_to="customers/", blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.image:
+            image = generate_gradient(self.name)
+
+            buffer = io.BytesIO()
+            image.save(buffer, format="PNG")
+
+            filename = f"{slugify(self.name)}.png"
+            self.image.save(filename, ContentFile(buffer.getvalue()), save=False)
+
+        super().save(*args, **kwargs)
 
     def __str__(self): return self.name
 
@@ -42,6 +59,8 @@ class Order(models.Model):
         DELIVERED = 'delivered', _('Delivered')
         CANCELLED = 'cancelled', _('Cancelled')
 
+    number = models.CharField(max_length=20, unique=True, editable=False)
+
     customer = models.ForeignKey(
         Customer, on_delete=models.PROTECT, related_name='orders')
 
@@ -56,6 +75,15 @@ class Order(models.Model):
     @property
     def total(self):
         return sum(item.subtotal for item in self.items.all())
+
+    def save(self, *args, **kwargs):
+        if not self.number:
+            super().save(*args, **kwargs)
+            self.number = f"ORD-{self.pk:06d}"
+            super().save(update_fields=["number"])
+            return
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Order #{self.pk} - {self.customer} ({self.get_status_display()})"

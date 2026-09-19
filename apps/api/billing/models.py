@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -9,6 +10,8 @@ class Invoice(models.Model):
         PENDING = 'pending', _('Pending')
         SUCCESS = 'success', _('Success')
         ERROR = 'error', _('Error')
+
+    public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     order = models.ForeignKey(Order, models.PROTECT, related_name='invoices')
 

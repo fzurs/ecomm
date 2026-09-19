@@ -2,6 +2,7 @@ import { capitalize, formatPrice } from "@/lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import {
+  Customer,
   Order,
   OrderItem,
   OrderStatus,
@@ -9,6 +10,7 @@ import {
 } from "@workspace/api-client"
 import {
   invoicesCreateMutation,
+  invoicesListQueryKey,
   ordersDestroyMutation,
   ordersListQueryKey,
   ordersPartialUpdateMutation,
@@ -26,6 +28,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -42,6 +49,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import {
+  Item,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+} from "@workspace/ui/components/item"
 import {
   Popover,
   PopoverContent,
@@ -69,7 +82,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 
-const statusClasses: Record<OrderStatus, string> = {
+export const statusClasses: Record<OrderStatus, string> = {
   pending: "bg-yellow-500/15 text-yellow-900 dark:text-yellow-400",
   paid: "bg-green-500/15 text-green-900 dark:text-green-400",
   shipped: "bg-blue-500/15 text-blue-900 dark:text-blue-400",
@@ -101,21 +114,15 @@ export const columns = [
   {
     accessorKey: "status",
     cell: ({ row }) => {
-      const status = row.original.status || "pending"
-      return (
-        <Badge
-          className={cn("h-6 rounded-md capitalize", statusClasses[status])}
-        >
-          {status}
-        </Badge>
-      )
+      const status = row.original.status
+      if (!status) return null
+      return <OrderStatusBadge status={status} />
     },
     meta: { variant: "multi-select", options: statusOptions },
   },
   {
-    accessorKey: "id",
+    accessorKey: "number",
     header: "Order Number",
-    cell: ({ row }) => `C654523-00${row.original.id}`,
     enableSorting: false,
     meta: { className: "text-muted-foreground font-medium" },
   },
@@ -131,7 +138,7 @@ export const columns = [
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-1">
-            <OrderItemsTable orderItems={orderItems} className="[&_th]:h-6" />
+            <OrderItemsTable variant="compact" orderItems={orderItems} />
           </PopoverContent>
         </Popover>
       )
@@ -147,23 +154,21 @@ export const columns = [
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
-        <div>
-          <div className="font-medium">{customer.name}</div>
-          <div className="text-muted-foreground">{customer.email}</div>
-        </div>
+        <Item size="sm" className="p-0 flex-nowrap">
+          <ItemMedia>
+            <CustomerAvatar customer={customer} size="sm" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>{customer.name}</ItemTitle>
+          </ItemContent>
+        </Item>
       )
     },
   },
   {
-    accessorKey: "updated_at",
-    header: "Updated",
-    cell: ({ row }) => format(row.original.updated_at, "MMM dd"),
-    meta: { className: "text-muted-foreground" },
-  },
-  {
     accessorKey: "created_at",
     header: "Created",
-    cell: ({ row }) => format(row.original.created_at, "MMM dd, p"),
+    cell: ({ row }) => format(row.original.created_at, "MMM dd"),
     meta: { className: "text-muted-foreground" },
   },
   {
@@ -173,23 +178,52 @@ export const columns = [
   },
 ] as const satisfies ColumnDef<Order>[]
 
+export function OrderStatusBadge({
+  status,
+  className,
+  ...props
+}: React.ComponentProps<typeof Badge> & { status: OrderStatus }) {
+  const statusOption = statusOptions.find((option) => option.value === status)
+  if (!statusOption) return null
+  return (
+    <Badge
+      className={cn("rounded-md py-1", statusClasses[status], className)}
+      {...props}
+    >
+      {statusOption.label}
+    </Badge>
+  )
+}
+
+export function CustomerAvatar({
+  customer,
+  ...props
+}: React.ComponentProps<typeof Avatar> & { customer: Customer }) {
+  return (
+    <Avatar {...props}>
+      {customer.image && <AvatarImage src={customer.image} />}
+      <AvatarFallback />
+    </Avatar>
+  )
+}
+
 export function OrderItemsTable({
   orderItems,
   renderActions,
   renderQuantity,
   showTotal = false,
-  className,
+  variant = "default",
+  total,
 }: {
   orderItems: OrderItem[]
   renderActions?: (index: number) => React.ReactNode
   renderQuantity?: (index: number) => React.ReactNode
   showTotal?: boolean
-  className?: string
+  variant?: "default" | "compact"
+  total?: number
 }) {
-  const total = orderItems.reduce((sum, row) => sum + row.subtotal, 0)
-
   return (
-    <Table className={className}>
+    <Table className={cn(variant === "compact" && "[&_th]:h-6")}>
       <TableHeader>
         <TableRow>
           <TableHead>Product</TableHead>
@@ -207,9 +241,11 @@ export function OrderItemsTable({
               <TableCell className="text-center">
                 {renderQuantity?.(index) ?? quantity}
               </TableCell>
-              <TableCell className="text-center">${product.price}</TableCell>
+              <TableCell className="text-center">
+                {product.price && formatPrice(product.price)}
+              </TableCell>
               <TableCell className="text-right font-semibold">
-                ${subtotal}
+                {formatPrice(subtotal)}
               </TableCell>
               {renderActions && (
                 <TableCell className="text-right">
@@ -225,7 +261,7 @@ export function OrderItemsTable({
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell className="text-right">
-              {total > 0 && formatPrice(total)}
+              {total && formatPrice(total)}
             </TableCell>
             {renderActions && <TableCell />}
           </TableRow>
@@ -290,7 +326,8 @@ function useOptimisticOrderDestroy(order: Order) {
 
 function TableCellActions({ item: order }: { item: Order }) {
   const destroyMutation = useOptimisticOrderDestroy(order)
-  const onDestroy = () => destroyMutation.mutate({ path: { id: order.id } })
+  const onDestroy = () =>
+    destroyMutation.mutate({ path: { number: order.number } })
 
   const updateMutation = useOptimisticOrderUpdate(order)
   const [status, setStatus] = useState<OrderStatus>(order.status || "pending")
@@ -304,7 +341,7 @@ function TableCellActions({ item: order }: { item: Order }) {
 
       updateMutation.mutate(
         {
-          path: { id: order.id },
+          path: { number: order.number },
           body: { status: value },
         },
         {
@@ -312,13 +349,17 @@ function TableCellActions({ item: order }: { item: Order }) {
         }
       )
     },
-    [order.id, status, updateMutation]
+    [order.number, status, updateMutation]
   )
 
+  const queryClient = useQueryClient()
   const router = useRouter()
   const createInvoiceMutation = useMutation({
     ...invoicesCreateMutation(),
-    onSuccess: () => router.push("/invoices"),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: invoicesListQueryKey() })
+      router.push("/invoices")
+    },
   })
   const createInvoice = () =>
     createInvoiceMutation.mutate({ body: { order: order.id } })
@@ -333,12 +374,12 @@ function TableCellActions({ item: order }: { item: Order }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
-            {/* <DropdownMenuItem asChild>
-              <Link href={`/orders/${order.id}`}>
+            <DropdownMenuItem asChild>
+              <Link href={`/orders/${order.number}`}>
                 <ViewIcon />
                 View details
               </Link>
-            </DropdownMenuItem> */}
+            </DropdownMenuItem>
             {order.status === "paid" && (
               <DropdownMenuItem onClick={createInvoice}>
                 <FileTextIcon />

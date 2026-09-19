@@ -55,6 +55,17 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { OrderItemsTable } from "./columns"
+import {
+  Item,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+} from "@workspace/ui/components/item"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 
 const defaultValues: OrderCreateWritable = { customer: -1, items: [] }
 
@@ -226,7 +237,17 @@ function CustomerSelect({
         <ComboboxList>
           {(customer: Customer) => (
             <ComboboxItem key={customer.id} value={customer}>
-              {customer.name}
+              <Item className="p-0" size="sm">
+                <ItemMedia>
+                  <Avatar size="sm">
+                    {customer.image && <AvatarImage src={customer.image} />}
+                    <AvatarFallback />
+                  </Avatar>
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>{customer.name}</ItemTitle>
+                </ItemContent>
+              </Item>
             </ComboboxItem>
           )}
         </ComboboxList>
@@ -349,6 +370,8 @@ function OrderItemsField({
     [orderItems, products]
   )
 
+  const total = rows.reduce((sum, row) => sum + row.subtotal, 0)
+
   return (
     <OrderItemsTable
       orderItems={rows}
@@ -365,6 +388,7 @@ function OrderItemsField({
         </Button>
       )}
       showTotal
+      total={total}
     />
   )
 }

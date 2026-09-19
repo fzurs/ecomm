@@ -1,9 +1,7 @@
 from decimal import Decimal
-
+from django.utils.text import slugify
 from rest_framework import serializers
-
 from orders.models import Order
-
 from .models import Invoice
 
 
@@ -38,7 +36,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         )
 
     def get_document_name(self, obj: Invoice):
-        return f"{obj.order.customer.name}-{obj.invoice_number}"
+        return f"{slugify(obj.order.customer.name)}_{obj.public_id}.pdf"
 
     def validate_order(self, order):
         if order.status != Order.Status.PAID:

@@ -12,32 +12,28 @@ function SectionGroup({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function Section({ ...props }: React.ComponentProps<"section">) {
-  return <section {...props} />
+function Section({ ...props }: React.ComponentProps<"div">) {
+  return <div {...props} />
 }
 
-function SectionContent({ ...props }: React.ComponentProps<"div">) {
-  return <div className="mt-10 first:mt-0" {...props} />
+function SectionHeader({ ...props }: React.ComponentProps<"div">) {
+  return <div {...props} />
 }
 
-function SectionHeader({ ...props }: React.ComponentProps<"header">) {
-  return <header {...props} />
-}
-
-function SectionTitle({ className, ...props }: React.ComponentProps<"h1">) {
-  return (
-    <h2
-      className={cn(
-        "scroll-m-20 text-xl font-extrabold tracking-tight lg:text-5xl",
-        className
-      )}
-      {...props}
-    />
-  )
+function SectionTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return <div className={cn("", className)} {...props} />
 }
 
 function SectionDescription({ ...props }: React.ComponentProps<"p">) {
   return <p className="leading-7 not-first:mt-6" {...props} />
+}
+
+function SectionContent({ ...props }: React.ComponentProps<"div">) {
+  return <div {...props} />
+}
+
+function SectionAction({ ...props }: React.ComponentProps<"div">) {
+  return <div {...props} />
 }
 
 export {
@@ -46,5 +42,6 @@ export {
   SectionHeader,
   SectionTitle,
   SectionDescription,
+  SectionAction,
   SectionContent,
 }

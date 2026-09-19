@@ -12,6 +12,7 @@ import {
 } from "@workspace/ui/components/drawer"
 import { cn } from "@workspace/ui/lib/utils"
 import { FileTextIcon } from "lucide-react"
+import { useState } from "react"
 
 const statusClasses: Record<InvoiceStatus, string> = {
   pending: "bg-yellow-500/15 text-yellow-900 dark:text-yellow-400",
@@ -25,6 +26,9 @@ export const columns: ColumnDef<Invoice>[] = [
     header: "Document",
     cell: ({ row }) => <TableCellViewer invoice={row.original} />,
     enableSorting: false,
+    meta: {
+      thClassName: "pl-5"
+    }
   },
   {
     accessorKey: "total_amount",
@@ -56,11 +60,22 @@ export const columns: ColumnDef<Invoice>[] = [
 ]
 
 function TableCellViewer({ invoice }: { invoice: Invoice }) {
+  const [now] = useState(Date.now)
+  const createdAt = new Date(invoice.created_at)
+  const isRecent = createdAt > new Date(now - 5 * 60 * 1000)
+
   return (
     <Drawer direction="right">
-      <DrawerTrigger asChild>
-        <Button variant="link">{invoice.document_name}</Button>
-      </DrawerTrigger>
+      <div className="flex items-center">
+        <DrawerTrigger asChild>
+          <Button variant="link">{invoice.document_name}</Button>
+        </DrawerTrigger>
+        {isRecent && (
+          <Badge className="bg-blue-500/15 text-blue-900 dark:text-blue-400">
+            New
+          </Badge>
+        )}
+      </div>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>{invoice.document_name}</DrawerTitle>

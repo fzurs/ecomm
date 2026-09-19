@@ -568,7 +568,7 @@ export const ordersDestroy = <ThrowOnError extends boolean = false>(options: Opt
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/orders/{id}/',
+    url: '/orders/{number}/',
     ...options
 });
 
@@ -579,7 +579,7 @@ export const ordersRetrieve = <ThrowOnError extends boolean = false>(options: Op
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/orders/{id}/',
+    url: '/orders/{number}/',
     ...options
 });
 
@@ -590,7 +590,7 @@ export const ordersPartialUpdate = <ThrowOnError extends boolean = false>(option
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/orders/{id}/',
+    url: '/orders/{number}/',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -605,7 +605,7 @@ export const ordersUpdate = <ThrowOnError extends boolean = false>(options: Opti
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/orders/{id}/',
+    url: '/orders/{number}/',
     ...options,
     headers: {
         'Content-Type': 'application/json',

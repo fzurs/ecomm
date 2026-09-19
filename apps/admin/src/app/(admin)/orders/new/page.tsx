@@ -1,12 +1,6 @@
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
-import {
-  Section,
-  SectionContent,
-  SectionGroup,
-  SectionHeader,
-  SectionTitle,
-} from "@/components/section"
 import { CreateOrderForm } from "../form"
+import React from "react"
 
 export default function OrdersCreatePage() {
   return (
@@ -19,16 +13,12 @@ export default function OrdersCreatePage() {
           ]}
         />
       </AppHeader>
-      <SectionGroup className="mx-auto w-full max-w-2xl">
-        <Section>
-          <SectionHeader>
-            <SectionTitle>Create Order</SectionTitle>
-          </SectionHeader>
-          <SectionContent>
-            <CreateOrderForm />
-          </SectionContent>
-        </Section>
-      </SectionGroup>
+      <main className="@container/main flex flex-1 flex-col">
+        <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
+          <h1 className="text-xl font-semibold tracking-tight">Create Order</h1>
+          <CreateOrderForm />
+        </div>
+      </main>
     </>
   )
 }
