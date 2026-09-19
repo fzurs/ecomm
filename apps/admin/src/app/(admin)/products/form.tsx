@@ -157,11 +157,9 @@ export const ProductForm = withForm({
   ...productFormOpts,
   props: { variant: "full" } as { variant?: "full" | "required" },
   render: function Render({ form, variant }) {
-    const defValues = form.state.values
-    const product = "id" in defValues ? (defValues as Product) : undefined
+    const product =
+      "id" in form.state.values ? (form.state.values as Product) : undefined
     const getFieldId = getFormFieldId.bind(null, form)
-
-    React.useEffect(() => {console.log(defValues)}, [defValues])
 
     const nameField = (
       <form.AppField
