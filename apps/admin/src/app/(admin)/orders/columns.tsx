@@ -154,9 +154,12 @@ export const columns = [
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
-        <Item size="sm" className="p-0 flex-nowrap">
+        <Item size="sm" className="flex-nowrap p-0">
           <ItemMedia>
-            <CustomerAvatar customer={customer} size="sm" />
+            <Avatar size="sm">
+              {customer.image && <AvatarImage src={customer.image} />}
+              <AvatarFallback />
+            </Avatar>
           </ItemMedia>
           <ItemContent>
             <ItemTitle>{customer.name}</ItemTitle>
@@ -192,18 +195,6 @@ export function OrderStatusBadge({
     >
       {statusOption.label}
     </Badge>
-  )
-}
-
-export function CustomerAvatar({
-  customer,
-  ...props
-}: React.ComponentProps<typeof Avatar> & { customer: Customer }) {
-  return (
-    <Avatar {...props}>
-      {customer.image && <AvatarImage src={customer.image} />}
-      <AvatarFallback />
-    </Avatar>
   )
 }
 

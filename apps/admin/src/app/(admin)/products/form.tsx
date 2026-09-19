@@ -27,7 +27,7 @@ import {
 } from "@workspace/ui/components/select"
 import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
-import { ProductImagePreview, statusOptions } from "./columns"
+import { statusOptions } from "./columns"
 import {
   InputGroup,
   InputGroupAddon,
@@ -55,6 +55,11 @@ import {
   productsUpdateMutation,
 } from "@workspace/api-client/query"
 import z from "zod"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 
 const formSchema = zProductWritable.extend({
   imageFile: z.instanceof(File).nullish(),
@@ -152,9 +157,11 @@ export const ProductForm = withForm({
   ...productFormOpts,
   props: { variant: "full" } as { variant?: "full" | "required" },
   render: function Render({ form, variant }) {
-    const defValues = form.options.defaultValues ?? {}
+    const defValues = form.state.values
     const product = "id" in defValues ? (defValues as Product) : undefined
     const getFieldId = getFormFieldId.bind(null, form)
+
+    React.useEffect(() => {console.log(defValues)}, [defValues])
 
     const nameField = (
       <form.AppField
@@ -218,7 +225,12 @@ export const ProductForm = withForm({
         <FieldGroup>
           <Field>
             <FieldLabel id={`${form.formId}-image`}>Image</FieldLabel>
-            <ProductImagePreview product={product} />
+            <Avatar className="aspect-square size-full rounded-md">
+              {product?.image && <AvatarImage src={product.image} />}
+              <AvatarFallback className="rounded-none">
+                {product?.image ? "Fail to load image" : "No image"}
+              </AvatarFallback>
+            </Avatar>
           </Field>
           <form.AppField
             name="clearImage"

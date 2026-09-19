@@ -84,17 +84,6 @@ export const statusOptions = zProductStatus.options.map((status) => ({
   icon: statusIcons[status],
 }))
 
-export function ProductImagePreview({ product }: { product?: Product }) {
-  return (
-    <Avatar className="aspect-square size-full max-w-92 min-w-44 rounded-md">
-      <AvatarImage src={product?.image ?? undefined} />
-      <AvatarFallback className="rounded-md">
-        {product?.image ? "Fail to load" : "No image"}
-      </AvatarFallback>
-    </Avatar>
-  )
-}
-
 function selectAsOption(data: { name: string; slug?: string }[]) {
   return data.map((item) => ({ label: item.name, value: String(item.slug) }))
 }
@@ -115,7 +104,15 @@ export function useProductColumns() {
       [
         {
           accessorKey: "Image",
-          cell: ({ row }) => <ProductImagePreview product={row.original} />,
+          cell: ({ row }) => {
+            const product = row.original
+            return (
+              <Avatar className="rounded-md">
+                <AvatarImage src={product.image ?? undefined} />
+                <AvatarFallback className="rounded-none" />
+              </Avatar>
+            )
+          },
           meta: { thClassName: "text-center" },
           enableSorting: false,
         },
@@ -245,6 +242,7 @@ function TableCellViewer({ original: item }: { original: Product }) {
         </Button>
       </DrawerTrigger>
       <DrawerContent
+        className="data-[vaul-drawer-direction=right]:sm:max-w-lg"
         onAnimationEnd={(e) => {
           if (!open && e.animationName === "slideToRight") {
             form.reset()

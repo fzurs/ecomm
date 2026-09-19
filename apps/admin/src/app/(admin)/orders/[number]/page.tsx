@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { ordersRetrieveOptions } from "@workspace/api-client/query"
 import { format } from "date-fns"
 import { useParams } from "next/navigation"
-import { OrderItemsTable, CustomerAvatar, OrderStatusBadge } from "../columns"
+import { OrderItemsTable, OrderStatusBadge } from "../columns"
 import {
   Item,
   ItemContent,
@@ -13,6 +13,11 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/item"
 import { CalendarIcon } from "lucide-react"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 
 export default function OrdersDetailsPage() {
   const params = useParams<{ number: string }>()
@@ -61,7 +66,10 @@ export default function OrdersDetailsPage() {
             <h2>Customer details</h2>
             <Item className="not-typeset p-0">
               <ItemMedia variant="image">
-                <CustomerAvatar customer={customer} />
+                <Avatar size="lg">
+                  {customer.image && <AvatarImage src={customer.image} />}
+                  <AvatarFallback />
+                </Avatar>
               </ItemMedia>
               <ItemContent>
                 <ItemTitle>{customer.name}</ItemTitle>
