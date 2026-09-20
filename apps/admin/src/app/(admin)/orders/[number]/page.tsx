@@ -18,6 +18,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
+import { Separator } from "@workspace/ui/components/separator"
 
 export default function OrdersDetailsPage() {
   const params = useParams<{ number: string }>()
@@ -36,8 +37,50 @@ export default function OrdersDetailsPage() {
         />
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col">
-        <div className="typeset flex flex-col px-4 py-6 lg:px-6">
-          <div className="typeset flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="typeset">
+              <h1>{order.number}</h1>
+              <p className="flex items-center gap-2.5 text-muted-foreground">
+                <CalendarIcon className="size-4" />
+                {format(order.created_at, "MMMM dd, yyyy - p")}
+              </p>
+            </div>
+            <OrderStatusBadge
+              status="pending"
+              className="px-2.5 py-1.5 text-sm"
+            />
+          </div>
+          <Separator />
+          <section className="flex flex-col gap-4">
+            <div className="typeset">
+              <h2>Order items</h2>
+            </div>
+            <OrderItemsTable
+              orderItems={order.items}
+              total={order.total}
+              showTotal
+            />
+          </section>
+          <Separator />
+          <section>
+            <div className="typeset">
+              <h2>Customer details</h2>
+            </div>
+            <Item>
+              <ItemMedia variant="image">
+                <Avatar size="lg">
+                  {customer.image && <AvatarImage src={customer.image} />}
+                  <AvatarFallback />
+                </Avatar>
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>{customer.name}</ItemTitle>
+                <ItemDescription>{customer.email}</ItemDescription>
+              </ItemContent>
+            </Item>
+          </section>
+          {/* <div className="flex items-start justify-between gap-4">
             <div>
               <h1>{order.number}</h1>
               <div className="flex items-center gap-2.5 text-sm text-muted-foreground [&>svg]:size-3.5">
@@ -54,13 +97,11 @@ export default function OrdersDetailsPage() {
           </div>
           <section className="flex flex-col gap-4">
             <h2>Order items</h2>
-            <div className="not-typeset">
-              <OrderItemsTable
-                orderItems={order.items}
-                showTotal
-                total={order.total}
-              />
-            </div>
+            <OrderItemsTable
+              orderItems={order.items}
+              showTotal
+              total={order.total}
+            />
           </section>
           <section className="flex flex-col gap-4">
             <h2>Customer details</h2>
@@ -76,7 +117,7 @@ export default function OrdersDetailsPage() {
                 <ItemDescription>{customer.email}</ItemDescription>
               </ItemContent>
             </Item>
-          </section>
+          </section> */}
         </div>
       </main>
     </>

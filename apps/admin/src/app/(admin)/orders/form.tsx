@@ -98,7 +98,7 @@ export function CreateOrderForm() {
     >
       <FieldGroup>
         <FieldSet>
-          <FieldLegend>Customer Details</FieldLegend>
+          <FieldLegend>Customer details</FieldLegend>
           <FieldDescription>
             Select the customer for this order and provide any additional order
             information.
@@ -149,7 +149,7 @@ export function CreateOrderForm() {
               <FieldSet>
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <FieldLegend>Order Items</FieldLegend>
+                    <FieldLegend>Order items</FieldLegend>
                     <FieldDescription>
                       Search for products, add them to the order, and adjust
                       quantities as needed.
