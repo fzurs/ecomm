@@ -12,8 +12,30 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { Edit2, EllipsisVertical, Trash2Icon } from "lucide-react"
 import { useRowActions } from "./customer-provider"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 
 export const customerColumns: ColumnDef<Customer>[] = [
+  {
+    accessorKey: "image",
+    cell: ({ row }) => {
+      const customer = row.original
+      return (
+        <Avatar>
+          {customer.image && <AvatarImage src={customer.image} />}
+          <AvatarFallback />
+        </Avatar>
+      )
+    },
+    enableSorting: false,
+    meta: {
+      thClassName: "text-center",
+      className: "flex justify-center"
+    }
+  },
   {
     accessorKey: "name",
     cell: function RenderCell({ row }) {

@@ -46,10 +46,12 @@ export default function OrdersDetailsPage() {
                 {format(order.created_at, "MMMM dd, yyyy - p")}
               </p>
             </div>
-            <OrderStatusBadge
-              status="pending"
-              className="px-2.5 py-1.5 text-sm"
-            />
+            {order.status && (
+              <OrderStatusBadge
+                status={order.status}
+                className="px-2.5 py-1.5 text-sm"
+              />
+            )}
           </div>
           <Separator />
           <section className="flex flex-col gap-4">
@@ -80,44 +82,6 @@ export default function OrdersDetailsPage() {
               </ItemContent>
             </Item>
           </section>
-          {/* <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1>{order.number}</h1>
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground [&>svg]:size-3.5">
-                <CalendarIcon />
-                <span>{format(order.created_at, "MMMM dd, yyyy - p")}</span>
-              </div>
-            </div>
-            {order.status && (
-              <OrderStatusBadge
-                status={order.status}
-                className="px-2.5 py-1.5 text-sm"
-              />
-            )}
-          </div>
-          <section className="flex flex-col gap-4">
-            <h2>Order items</h2>
-            <OrderItemsTable
-              orderItems={order.items}
-              showTotal
-              total={order.total}
-            />
-          </section>
-          <section className="flex flex-col gap-4">
-            <h2>Customer details</h2>
-            <Item className="not-typeset p-0">
-              <ItemMedia variant="image">
-                <Avatar size="lg">
-                  {customer.image && <AvatarImage src={customer.image} />}
-                  <AvatarFallback />
-                </Avatar>
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>{customer.name}</ItemTitle>
-                <ItemDescription>{customer.email}</ItemDescription>
-              </ItemContent>
-            </Item>
-          </section> */}
         </div>
       </main>
     </>

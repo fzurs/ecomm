@@ -59,12 +59,12 @@ function CustomerEditDrawerContent({
         <CustomerForm form={form} />
       </div>
       <DrawerFooter>
-        <DrawerClose asChild>
-          <Button variant="outline">Close</Button>
-        </DrawerClose>
         <form.AppForm>
           <form.Submit>Save</form.Submit>
         </form.AppForm>
+        <DrawerClose asChild>
+          <Button variant="outline">Close</Button>
+        </DrawerClose>
       </DrawerFooter>
     </>
   )
