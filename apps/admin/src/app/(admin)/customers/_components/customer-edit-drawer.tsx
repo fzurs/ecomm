@@ -63,7 +63,7 @@ function CustomerEditDrawerContent({
           <form.Submit>Save</form.Submit>
         </form.AppForm>
         <DrawerClose asChild>
-          <Button variant="outline">Close</Button>
+          <Button variant="secondary">Close</Button>
         </DrawerClose>
       </DrawerFooter>
     </>

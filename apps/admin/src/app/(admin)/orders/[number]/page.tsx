@@ -41,10 +41,10 @@ export default function OrdersDetailsPage() {
           <div className="flex items-start justify-between gap-4">
             <div className="typeset">
               <h1>{order.number}</h1>
-              <p className="flex items-center gap-2.5 text-muted-foreground">
+              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <CalendarIcon className="size-4" />
-                {format(order.created_at, "MMMM dd, yyyy - p")}
-              </p>
+                <span>{format(order.created_at, "MMMM dd, yyyy - p")}</span>
+              </div>
             </div>
             {order.status && (
               <OrderStatusBadge
