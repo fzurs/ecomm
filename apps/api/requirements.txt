@@ -1,4 +1,5 @@
 anyio==4.14.2
+-e git+https://github.com/fzurs/ecomm.git@94af8334fa84f197e1b65ae1861e79854abc3437#egg=arca&subdirectory=packages/arca
 asgiref==3.10.0
 attrs==25.4.0
 certifi==2026.7.22
