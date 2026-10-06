@@ -2,7 +2,6 @@ import { capitalize, formatPrice } from "@/lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import {
-  Customer,
   Order,
   OrderItem,
   OrderStatus,

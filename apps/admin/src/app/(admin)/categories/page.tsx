@@ -10,7 +10,6 @@ import {
   categoriesListOptions,
   categoriesListQueryKey,
 } from "@workspace/api-client/query"
-import { SectionGroup } from "@/components/section"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { useMemo } from "react"
 import { CategoriesListData } from "@workspace/api-client"
@@ -77,16 +76,14 @@ export default function CategoriesPage() {
   const table = useDataTable({ data, columns })
 
   return (
-    <SectionGroup>
-      <DataTable table={table}>
-        <DataTableAdvancedToolbar table={table}>
-          <SearchInput
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search for a categories..."
-          />
-        </DataTableAdvancedToolbar>
-      </DataTable>
-    </SectionGroup>
+    <DataTable table={table}>
+      <DataTableAdvancedToolbar table={table}>
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search for a categories..."
+        />
+      </DataTableAdvancedToolbar>
+    </DataTable>
   )
 }

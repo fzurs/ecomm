@@ -38,7 +38,7 @@ export type Customer = {
     email?: string;
     phone?: string;
     document_type?: DocumentTypeEnum;
-    document_number: string;
+    document_number?: string | null;
     image?: string | null;
 };
 
@@ -205,7 +205,7 @@ export type PatchedCustomer = {
     email?: string;
     phone?: string;
     document_type?: DocumentTypeEnum;
-    document_number?: string;
+    document_number?: string | null;
     image?: string | null;
 };
 
@@ -369,7 +369,7 @@ export type CustomerWritable = {
     email?: string;
     phone?: string;
     document_type?: DocumentTypeEnum;
-    document_number: string;
+    document_number?: string | null;
     image?: string | null;
 };
 
@@ -451,7 +451,7 @@ export type PatchedCustomerWritable = {
     email?: string;
     phone?: string;
     document_type?: DocumentTypeEnum;
-    document_number?: string;
+    document_number?: string | null;
     image?: string | null;
 };
 

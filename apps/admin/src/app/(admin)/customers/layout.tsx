@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -29,7 +30,9 @@ export default function CustomersLayout({
           <CreateCustomerDialog />
         </AppHeaderActions>
       </AppHeader>
-      {children}
+      <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
+        {children}
+      </main>
     </>
   )
 }
@@ -55,7 +58,10 @@ function CreateCustomerDialog() {
         }}
       >
         <DialogHeader>
-          <DialogTitle>Create Customer</DialogTitle>
+          <DialogTitle>Create customer</DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new customer.
+          </DialogDescription>
         </DialogHeader>
         <CustomerForm form={form} variant="required" />
         <DialogFooter>
@@ -63,7 +69,7 @@ function CreateCustomerDialog() {
             <Button variant="outline">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.Submit>Save</form.Submit>
+            <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

@@ -30,7 +30,9 @@ export default function CategoriesLayout({
           <QuickCreateCategoryDialog />
         </AppHeaderActions>
       </AppHeader>
-      {children}
+      <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
+        {children}
+      </main>
     </>
   )
 }
@@ -66,7 +68,7 @@ function QuickCreateCategoryDialog() {
             <Button variant="secondary">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.Submit>Create</form.Submit>
+            <form.SubmitButton>Create</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

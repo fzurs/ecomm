@@ -34,7 +34,6 @@ import {
   AppHeaderActions,
   AppHeaderNav,
 } from "@/components/app-header"
-import { SectionGroup } from "@/components/section"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { DataTable } from "@workspace/data-table/components/data-table"
 import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
@@ -139,7 +138,7 @@ export default function Page() {
           <QuickCreateProductDialog />
         </AppHeaderActions>
       </AppHeader>
-      <SectionGroup>
+      <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
         <DataTable table={table}>
           {isMobile ? (
             <DataTableAdvancedToolbar table={table}>
@@ -149,7 +148,7 @@ export default function Page() {
             <DataTableToolbar table={table} />
           )}
         </DataTable>
-      </SectionGroup>
+      </main>
     </>
   )
 }
@@ -185,7 +184,7 @@ function QuickCreateProductDialog() {
             <Button variant="secondary">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.Submit>Create</form.Submit>
+            <form.SubmitButton>Create</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

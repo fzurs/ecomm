@@ -1,4 +1,3 @@
-import { TanstackForm } from "@/components/form"
 import { useAppForm, withForm } from "@/hooks/form"
 import { formOptions } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -8,8 +7,8 @@ import {
   customersUpdateMutation,
 } from "@workspace/api-client/query"
 import { zCustomerWritable } from "@workspace/api-client/zod"
-import { FieldGroup } from "@workspace/ui/components/field"
 import { invalidateCustomers } from "../_lib/invalidate-customers"
+import { FieldGroup } from "@workspace/ui/components/field"
 
 const defaultValues: CustomerWritable = { name: "" }
 
@@ -45,10 +44,18 @@ export function useCustomerForm({
       ? `update-customer-form-${customer.id}`
       : "create-customer-form",
     defaultValues: { ...defaultValues, ...(customer ?? {}) },
-    onSubmit: ({ value: body }) =>
-      customer
-        ? updateMutation.mutateAsync({ path: { id: customer.id }, body })
-        : createMutation.mutateAsync({ body }),
+    onSubmit: ({ value }) => {
+      const body: CustomerWritable = { ...value, image: undefined }
+      const headers = { "Content-Type": "multipart/form-data" }
+
+      return customer
+        ? updateMutation.mutateAsync({
+            path: { id: customer.id },
+            body,
+            headers,
+          })
+        : createMutation.mutateAsync({ body, headers })
+    },
   })
 }
 
@@ -60,13 +67,7 @@ export const CustomerForm = withForm({
       <>
         <form.AppField
           name="name"
-          children={(field) => (
-            <field.Field>
-              <field.FieldLabel>Name</field.FieldLabel>
-              <field.Input />
-              <field.FieldError />
-            </field.Field>
-          )}
+          children={(field) => <field.TextField label="Name" />}
         />
       </>
     )
@@ -76,33 +77,27 @@ export const CustomerForm = withForm({
         {requiredFields}
         <form.AppField
           name="email"
-          children={(field) => (
-            <field.Field>
-              <field.FieldLabel>Email</field.FieldLabel>
-              <field.Input type="email" />
-              <field.FieldError />
-            </field.Field>
-          )}
+          children={(field) => <field.EmailField />}
         />
         <form.AppField
           name="phone"
-          children={(field) => (
-            <field.Field>
-              <field.FieldLabel>Phone</field.FieldLabel>
-              <field.Input />
-              <field.FieldError />
-            </field.Field>
-          )}
+          children={(field) => <field.TextField label="Phone" />}
+        />
+        <form.AppField
+          name="document_number"
+          children={(field) => <field.TextField label="CUIT" />}
         />
       </>
     )
 
     return (
-      <TanstackForm form={form}>
-        <FieldGroup>
-          {variant === "required" ? requiredFields : fullFields}
-        </FieldGroup>
-      </TanstackForm>
+      <form.AppForm>
+        <form.Form>
+          <FieldGroup>
+            {variant === "required" ? requiredFields : fullFields}
+          </FieldGroup>
+        </form.Form>
+      </form.AppForm>
     )
   },
 })

@@ -61,7 +61,7 @@ export const zCustomer = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20),
+    document_number: z.string().max(20).nullish(),
     image: z.url().nullish()
 });
 
@@ -177,7 +177,7 @@ export const zPatchedCustomer = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20).optional(),
+    document_number: z.string().max(20).nullish(),
     image: z.url().nullish()
 });
 
@@ -385,7 +385,7 @@ export const zCustomerWritable = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20),
+    document_number: z.string().max(20).nullish(),
     image: z.url().nullish()
 });
 
@@ -466,7 +466,7 @@ export const zPatchedCustomerWritable = z.object({
     email: z.email().max(254).optional(),
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20).optional(),
+    document_number: z.string().max(20).nullish(),
     image: z.url().nullish()
 });
 

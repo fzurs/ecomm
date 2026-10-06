@@ -1,198 +1,280 @@
 import { useFieldContext, useFormContext } from "@/hooks/form-context"
 import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
-import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
-import { InputGroupInput } from "@workspace/ui/components/input-group"
-import { Select, SelectTrigger } from "@workspace/ui/components/select"
+import {
+  InputGroup,
+  InputGroupInput,
+} from "@workspace/ui/components/input-group"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
 import * as React from "react"
-import { ComboboxQueryOnOpenById } from "./combobox"
-import { AnyFormApi } from "@tanstack/react-form"
 
-export function TanstackForm({
-  form,
-  ...props
-}: React.ComponentProps<"form"> & { form: AnyFormApi }) {
-  return (
-    <form
-      id={form.formId}
-      onSubmit={(e) => {
-        e.preventDefault()
-        form.handleSubmit()
-      }}
-      {...props}
-    />
-  )
-}
-
-function FormRoot({ ...props }: React.ComponentProps<"form">) {
+export function Form({ onSubmit, ...props }: React.ComponentProps<"form">) {
   const form = useFormContext()
 
   return (
     <form
+      {...props}
       id={form.formId}
       onSubmit={(e) => {
         e.preventDefault()
-        form.handleSubmit()
+        e.stopPropagation()
+        onSubmit?.(e)
+        void form.handleSubmit()
       }}
-      {...props}
     />
   )
 }
 
-function FormField({ ...props }: React.ComponentProps<typeof Field>) {
-  const field = useFieldContext()
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-
-  return <Field data-invalid={isInvalid} {...props} />
-}
-
-function FormLabel({ ...props }: React.ComponentProps<typeof FieldLabel>) {
-  const field = useFieldContext()
-
-  return <FieldLabel htmlFor={field.name} {...props} />
-}
-
-function FormInput({ ...props }: React.ComponentProps<typeof Input>) {
-  const field = useFieldContext()
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-
-  return (
-    <Input
-      id={field.name}
-      name={field.name}
-      value={(field.state.value as string) ?? ""}
-      onBlur={field.handleBlur}
-      onChange={(e) => field.handleChange(e.target.value)}
-      aria-invalid={isInvalid}
-      {...props}
-    />
-  )
-}
-
-function FormImageInput({
-  type = "file",
+export function TextField({
+  label,
+  description,
   ...props
-}: React.ComponentProps<typeof Input>) {
+}: React.ComponentProps<typeof Input> & {
+  label: string
+  description?: string
+}) {
   const field = useFieldContext()
+  const fieldId = React.useId()
+
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
   return (
-    <Input
-      id={field.name}
-      type={type}
-      name={field.name}
-      onBlur={field.handleBlur}
-      onChange={(e) => field.handleChange(e.target.files?.item(0) ?? null)}
-      aria-invalid={isInvalid}
-      {...props}
-    />
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+      <Input
+        id={fieldId}
+        name={field.name}
+        value={(field.state.value as string) ?? ""}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+        aria-invalid={isInvalid}
+        {...props}
+      />
+      {description && <FieldDescription>{description}</FieldDescription>}
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
   )
 }
 
-function FormNumberInput({ ...props }: React.ComponentProps<typeof FormInput>) {
+export function NumberField({
+  ...props
+}: React.ComponentProps<typeof TextField>) {
   const field = useFieldContext()
 
   return (
-    <FormInput
+    <TextField
       type="number"
+      inputMode="decimal"
       onChange={(e) => {
-        const value = e.target.value
-        field.handleChange(value ? Number(e.target.value) : null)
+        const raw = e.target.value
+        const next = raw === "" ? null : e.target.valueAsNumber
+        field.handleChange(Number.isNaN(next) ? null : next)
       }}
       {...props}
     />
   )
 }
 
-function FormEmailInput({ ...props }: React.ComponentProps<typeof FormInput>) {
-  return <FormInput type="email" {...props} />
-}
-
-function FormInputGroupInput({
+export function EmailField({
+  label = "Email",
   ...props
-}: React.ComponentProps<typeof InputGroupInput>) {
-  const field = useFieldContext()
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-
+}: Omit<React.ComponentProps<typeof TextField>, "label" | "type"> & {
+  label?: string
+}) {
   return (
-    <InputGroupInput
-      id={field.name}
-      name={field.name}
-      value={(field.state.value as string) ?? ""}
-      onBlur={field.handleBlur}
-      onChange={(e) => field.handleChange(e.target.value)}
-      aria-invalid={isInvalid}
+    <TextField
+      inputMode="email"
+      autoComplete="email"
+      type="email"
+      label={label}
       {...props}
     />
   )
 }
 
-function FormTextarea({ ...props }: React.ComponentProps<typeof Textarea>) {
-  const field = useFieldContext()
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-
-  return (
-    <Textarea
-      id={field.name}
-      name={field.name}
-      value={(field.state.value as string) ?? ""}
-      onBlur={field.handleBlur}
-      onChange={(e) => field.handleChange(e.target.value)}
-      aria-invalid={isInvalid}
-      {...props}
-    />
-  )
-}
-
-function FormSelect({ ...props }: React.ComponentProps<typeof Select>) {
-  const field = useFieldContext()
-
-  return (
-    <Select
-      value={field.state.value as string}
-      onValueChange={field.handleChange}
-      {...props}
-    />
-  )
-}
-
-function FormSelectTrigger({
+export function TextareaField({
+  label,
+  description,
   ...props
-}: React.ComponentProps<typeof SelectTrigger>) {
+}: React.ComponentProps<typeof Textarea> & {
+  label: string
+  description?: string
+}) {
   const field = useFieldContext()
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+  const fieldId = React.useId()
 
-  return <SelectTrigger id={field.name} aria-invalid={isInvalid} {...props} />
-}
-
-function FormCheckbox({ ...props }: React.ComponentProps<typeof Checkbox>) {
-  const field = useFieldContext()
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
   return (
-    <Checkbox
-      id={field.name}
-      aria-invalid={isInvalid}
-      checked={(field.state.value as never) ?? false}
-      onBlur={field.handleBlur}
-      onCheckedChange={field.handleChange}
-      {...props}
-    />
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+      <Textarea
+        id={fieldId}
+        name={field.name}
+        value={(field.state.value as string) ?? ""}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+        aria-invalid={isInvalid}
+        {...props}
+      />
+      {description && <FieldDescription>{description}</FieldDescription>}
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
   )
 }
 
-function FormMessage({ ...props }: React.ComponentProps<typeof FieldError>) {
+export function InputGroupField({
+  label,
+  description,
+  children,
+  ...props
+}: React.ComponentProps<typeof InputGroupInput> & {
+  label: string
+  description?: React.ReactNode
+}) {
   const field = useFieldContext()
+  const fieldId = React.useId()
+
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
-  if (!isInvalid) return null
-
-  return <FieldError errors={field.state.meta.errors} {...props} />
+  return (
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+      <InputGroup>
+        <InputGroupInput
+          id={fieldId}
+          name={field.name}
+          value={(field.state.value as string) ?? ""}
+          onBlur={field.handleBlur}
+          onChange={(e) => field.handleChange(e.target.value)}
+          aria-invalid={isInvalid}
+          {...props}
+        />
+        {children}
+      </InputGroup>
+      {description && <FieldDescription>{description}</FieldDescription>}
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  )
 }
 
-function FormSubmit({ ...props }: React.ComponentProps<typeof Button>) {
+export function CheckboxField({
+  label,
+  ...props
+}: React.ComponentProps<typeof Checkbox> & {
+  label: string
+}) {
+  const field = useFieldContext()
+  const fieldId = React.useId()
+
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+
+  return (
+    <Field data-invalid={isInvalid} orientation="horizontal">
+      <Checkbox
+        id={fieldId}
+        name={field.name}
+        aria-invalid={isInvalid}
+        checked={field.state.value as boolean}
+        onBlur={field.handleBlur}
+        onCheckedChange={(checked) => field.handleChange(checked === true)}
+        {...props}
+      />
+      <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+    </Field>
+  )
+}
+
+export function FileField({ ...props }: React.ComponentProps<typeof Input>) {
+  const field = useFieldContext()
+  const fieldId = React.useId()
+
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+
+  return (
+    <Field data-invalid={isInvalid}>
+      <Input
+        type="file"
+        id={fieldId}
+        name={field.name}
+        // value={(field.state.value as string) ?? ""}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.files?.item(0) ?? null)}
+        aria-invalid={isInvalid}
+        {...props}
+      />
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  )
+}
+
+export function SelectField({
+  label,
+  description,
+  options,
+  placeholder,
+  ...props
+}: React.ComponentProps<typeof SelectTrigger> & {
+  label: string
+  description?: string
+  options: { label: string; value: string; icon?: React.JSX.Element }[]
+  placeholder?: string
+}) {
+  const field = useFieldContext()
+  const fieldId = React.useId()
+
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+
+  return (
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+      <Select
+        name={field.name}
+        value={field.state.value as string}
+        onValueChange={field.handleChange}
+      >
+        <SelectTrigger
+          id={fieldId}
+          aria-invalid={isInvalid}
+          className="w-full"
+          {...props}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {options.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.icon} {opt.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {description && <FieldDescription>{description}</FieldDescription>}
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  )
+}
+
+export function SubmitButton({
+  ...props
+}: React.ComponentProps<typeof Button>) {
   const form = useFormContext()
 
   return (
@@ -208,39 +290,4 @@ function FormSubmit({ ...props }: React.ComponentProps<typeof Button>) {
       )}
     />
   )
-}
-
-function FormComboboxQueryOnOpenById({
-  ...props
-}: Omit<
-  React.ComponentProps<typeof ComboboxQueryOnOpenById>,
-  "value" | "onValueChange"
->) {
-  const field = useFieldContext()
-
-  return (
-    <ComboboxQueryOnOpenById
-      value={field.state.value as number}
-      onValueChange={field.handleChange}
-      {...props}
-    />
-  )
-}
-
-export {
-  FormRoot,
-  FormField,
-  FormLabel,
-  FormInput,
-  FormImageInput,
-  FormNumberInput,
-  FormEmailInput,
-  FormInputGroupInput,
-  FormTextarea,
-  FormSelect,
-  FormSelectTrigger,
-  FormCheckbox,
-  FormMessage,
-  FormSubmit,
-  FormComboboxQueryOnOpenById,
 }

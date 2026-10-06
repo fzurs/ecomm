@@ -258,7 +258,7 @@ function TableCellViewer({ original: item }: { original: Product }) {
         </div>
         <DrawerFooter>
           <form.AppForm>
-            <form.Submit>Save changes</form.Submit>
+            <form.SubmitButton>Save changes</form.SubmitButton>
           </form.AppForm>
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>

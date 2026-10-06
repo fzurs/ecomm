@@ -96,7 +96,7 @@ function TableCellViewer({ item }: { item: Category }) {
         </div>
         <DrawerFooter>
           <form.AppForm>
-            <form.Submit>Save changes</form.Submit>
+            <form.SubmitButton>Save changes</form.SubmitButton>
           </form.AppForm>
           <DrawerClose asChild>
             <Button variant="secondary">Close</Button>

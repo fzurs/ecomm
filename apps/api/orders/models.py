@@ -23,8 +23,9 @@ class Customer(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
-    document_type = models.PositiveSmallIntegerField(choices=DocumentTypes.choices, default=DocumentTypes.DNI)
-    document_number = models.CharField(max_length=20)
+    document_type = models.PositiveSmallIntegerField(
+        choices=DocumentTypes.choices, default=DocumentTypes.CUIT)
+    document_number = models.CharField(max_length=20, blank=True, null=True)
     image = models.ImageField(upload_to="customers/", blank=True, null=True)
 
     def save(self, *args, **kwargs):

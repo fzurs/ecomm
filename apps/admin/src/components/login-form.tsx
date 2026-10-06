@@ -63,36 +63,20 @@ export function LoginForm({
               <FieldGroup>
                 <form.AppField
                   name="username"
-                  children={(field) => (
-                    <field.Field>
-                      <field.Label>Username</field.Label>
-                      <field.Input placeholder="@admin" />
-                      <field.Message />
-                    </field.Field>
-                  )}
+                  children={(field) => <field.TextField label="Username" />}
                 />
                 <form.AppField
                   name="email"
-                  children={(field) => (
-                    <field.Field>
-                      <field.Label>Email</field.Label>
-                      <field.Input type="email" placeholder="m@example.com" />
-                      <field.Message />
-                    </field.Field>
-                  )}
+                  children={(field) => <field.EmailField />}
                 />
                 <form.AppField
                   name="password"
-                  children={(field) => (
-                    <field.Field>
-                      <field.Label>Password</field.Label>
-                      <field.Input type="password" />
-                      <field.Message />
-                    </field.Field>
-                  )}
+                  children={(field) => <field.PasswordField label="Password" />}
                 />
                 <Field>
-                  <form.Submit className="w-full">Login</form.Submit>
+                  <form.SubmitButton className="w-full">
+                    Login
+                  </form.SubmitButton>
                 </Field>
               </FieldGroup>
             </form.Form>

@@ -2,6 +2,7 @@ import {
   Field,
   FieldContent,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldTitle,
@@ -19,17 +20,10 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@workspace/ui/components/item"
-import {
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectValue,
-} from "@workspace/ui/components/select"
 import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import { statusOptions } from "./columns"
 import {
-  InputGroup,
   InputGroupAddon,
   InputGroupButton,
 } from "@workspace/ui/components/input-group"
@@ -60,6 +54,8 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
+import { ComboboxQueryOnOpenById } from "@/components/combobox"
+import { Checkbox } from "@workspace/ui/components/checkbox"
 
 const formSchema = zProductWritable.extend({
   imageFile: z.instanceof(File).nullish(),
@@ -164,16 +160,7 @@ export const ProductForm = withForm({
     const nameField = (
       <form.AppField
         name="name"
-        children={(field) => {
-          const fieldId = getFieldId(field)
-          return (
-            <field.Field>
-              <field.Label htmlFor={fieldId}>Name</field.Label>
-              <field.Input id={fieldId} required />
-              <field.Message />
-            </field.Field>
-          )
-        }}
+        children={(field) => <field.TextField label="Name" />}
       />
     )
 
@@ -181,44 +168,28 @@ export const ProductForm = withForm({
       <>
         <form.AppField
           name="sku"
-          children={(field) => {
-            const fieldId = getFieldId(field)
-            return (
-              <field.Field>
-                <field.Label htmlFor={fieldId}>SKU</field.Label>
-                <InputGroup>
-                  <field.InputGroupInput id={fieldId} />
-                  {product && (
-                    <InputGroupAddon align="inline-end">
-                      <GenerateSKUButton product={product} />
-                    </InputGroupAddon>
-                  )}
-                </InputGroup>
-                <FieldDescription>
-                  Unique identifier code used to track and manage this product
-                  in your inventory.
-                </FieldDescription>
-                <field.Message />
-              </field.Field>
-            )
-          }}
+          children={(field) => (
+            <field.InputGroupField
+              label="SKU"
+              description="Unique identifier code used to track and manage this product in your inventory."
+            >
+              {product && (
+                <InputGroupAddon align="inline-end">
+                  <GenerateSKUButton product={product} />
+                </InputGroupAddon>
+              )}
+            </field.InputGroupField>
+          )}
         />
         {nameField}
         <form.AppField
           name="description"
-          children={(field) => {
-            const fieldId = getFieldId(field)
-            return (
-              <field.Field>
-                <field.Label htmlFor={fieldId}>Description</field.Label>
-                <field.Textarea
-                  id={fieldId}
-                  placeholder="Describe your product in detail: features, materials, dimensions, and any other relevant information..."
-                />
-                <field.Message />
-              </field.Field>
-            )
-          }}
+          children={(field) => (
+            <field.TextareaField
+              label="Description"
+              placeholder="Describe your product in detail."
+            />
+          )}
         />
         <FieldGroup>
           <Field>
@@ -232,34 +203,17 @@ export const ProductForm = withForm({
           </Field>
           <form.AppField
             name="clearImage"
-            children={(field) => {
-              const fieldId = getFieldId(field)
-              return (
-                <field.Field orientation="horizontal">
-                  <field.Checkbox id={fieldId} />
-                  <field.Label htmlFor={fieldId} className="font-normal">
-                    Clear product image
-                  </field.Label>
-                </field.Field>
-              )
-            }}
+            children={(field) => (
+              <field.CheckboxField label="Clear product image" />
+            )}
           />
           <form.Subscribe selector={(state) => state.values.clearImage}>
             {(clearImage) => (
               <form.AppField
                 name="imageFile"
-                children={(field) => {
-                  const fieldId = getFieldId(field)
-                  return (
-                    <field.Field>
-                      <field.ImageInput
-                        id={fieldId}
-                        disabled={clearImage ?? false}
-                      />
-                      <field.Message />
-                    </field.Field>
-                  )
-                }}
+                children={(field) => (
+                  <field.FileField disabled={clearImage ?? false} />
+                )}
               />
             )}
           </form.Subscribe>
@@ -268,12 +222,17 @@ export const ProductForm = withForm({
           name="category_id"
           children={(field) => {
             const fieldId = getFieldId(field)
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+
             return (
-              <field.Field>
-                <field.Label htmlFor={fieldId}>Category</field.Label>
-                <field.ComboboxQueryOnOpenById
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={fieldId}>Category</FieldLabel>
+                <ComboboxQueryOnOpenById
                   initialItem={product?.category}
                   itemsQueryOptions={categoriesListChoicesOptions()}
+                  value={field.state.value ?? null}
+                  onValueChange={field.handleChange}
                 >
                   <ComboboxInput placeholder="Assing a category" />
                   <ComboboxContent>
@@ -293,12 +252,12 @@ export const ProductForm = withForm({
                       )}
                     </ComboboxList>
                   </ComboboxContent>
-                </field.ComboboxQueryOnOpenById>
+                </ComboboxQueryOnOpenById>
                 <FieldDescription>
                   The category allows you to group products.
                 </FieldDescription>
-                <field.Message />
-              </field.Field>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
             )
           }}
         />
@@ -306,12 +265,17 @@ export const ProductForm = withForm({
           name="brand_id"
           children={(field) => {
             const fieldId = getFieldId(field)
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
+
             return (
-              <field.Field>
-                <field.Label htmlFor={fieldId}>Brand</field.Label>
-                <field.ComboboxQueryOnOpenById
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={fieldId}>Brand</FieldLabel>
+                <ComboboxQueryOnOpenById
                   itemsQueryOptions={brandsListChoicesOptions()}
                   initialItem={product?.brand}
+                  value={field.state.value ?? null}
+                  onValueChange={field.handleChange}
                 >
                   <ComboboxInput placeholder="Assing a brand">
                     {product && (
@@ -330,52 +294,44 @@ export const ProductForm = withForm({
                       )}
                     </ComboboxList>
                   </ComboboxContent>
-                </field.ComboboxQueryOnOpenById>
+                </ComboboxQueryOnOpenById>
                 <FieldDescription>
                   The product&apos;s brand can be inferred from its name.
                 </FieldDescription>
-                <field.Message />
-              </field.Field>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
             )
           }}
         />
         <form.AppField
           name="status"
-          children={(field) => {
-            const fieldId = getFieldId(field)
-            return (
-              <field.Field>
-                <field.Label htmlFor={fieldId}>Status</field.Label>
-                <field.Select>
-                  <field.SelectTrigger id={fieldId} className="w-full">
-                    <SelectValue />
-                  </field.SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {statusOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.icon} {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </field.Select>
-                <FieldDescription>
-                  By default, the product status is &quot;draft&quot;.
-                </FieldDescription>
-                <field.Message />
-              </field.Field>
-            )
-          }}
+          children={(field) => (
+            <field.SelectField
+              label="Status"
+              description='By default, the product status is "draft".'
+              options={statusOptions}
+            />
+          )}
         />
         <form.AppField
           name="featured"
           children={(field) => {
             const fieldId = getFieldId(field)
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid
             return (
-              <field.Label htmlFor={fieldId}>
-                <field.Field orientation="horizontal">
-                  <field.Checkbox id={fieldId} />
+              <FieldLabel htmlFor={fieldId}>
+                <Field data-invalid={isInvalid} orientation="horizontal">
+                  <Checkbox
+                    id={fieldId}
+                    name={field.name}
+                    aria-invalid={isInvalid}
+                    checked={field.state.value as boolean}
+                    onBlur={field.handleBlur}
+                    onCheckedChange={(checked) =>
+                      field.handleChange(checked === true)
+                    }
+                  />
                   <FieldContent>
                     <FieldTitle>Featured product</FieldTitle>
                     <FieldDescription>
@@ -383,44 +339,29 @@ export const ProductForm = withForm({
                       priority search results.
                     </FieldDescription>
                   </FieldContent>
-                </field.Field>
-              </field.Label>
+                </Field>
+              </FieldLabel>
             )
           }}
         />
         <div className="grid grid-cols-2 gap-4">
           <form.AppField
             name="price"
-            children={(field) => {
-              const fieldId = getFieldId(field)
-              return (
-                <field.Field>
-                  <field.Label htmlFor={fieldId}>Price</field.Label>
-                  <field.NumberInput id={fieldId} />
-                  <FieldDescription>
-                    The actual price of product.
-                  </FieldDescription>
-                  <field.Message />
-                </field.Field>
-              )
-            }}
+            children={(field) => (
+              <field.NumberField
+                label="Price"
+                description="The actual price of product."
+              />
+            )}
           />
           <form.AppField
             name="discount_price"
-            children={(field) => {
-              const fieldId = getFieldId(field)
-              return (
-                <field.Field>
-                  <field.Label htmlFor={fieldId}>Discount Price</field.Label>
-                  <field.NumberInput id={fieldId} />
-                  <FieldDescription>
-                    Discounted price after applying any promotions or coupon
-                    codes.
-                  </FieldDescription>
-                  <field.Message />
-                </field.Field>
-              )
-            }}
+            children={(field) => (
+              <field.NumberField
+                label="Discount"
+                description="Discounted price after applying any promotions or coupon codes."
+              />
+            )}
           />
         </div>
       </>

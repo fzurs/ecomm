@@ -20,7 +20,6 @@ import {
   AppHeaderActions,
   AppHeaderNav,
 } from "@/components/app-header"
-import { SectionGroup } from "@/components/section"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
@@ -65,7 +64,7 @@ export default function BrandsPage() {
           <QuickCreateBrandDialog />
         </AppHeaderActions>
       </AppHeader>
-      <SectionGroup>
+      <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
         <DataTable table={table}>
           <SearchInput
             value={search}
@@ -73,7 +72,7 @@ export default function BrandsPage() {
             placeholder="Search for a brands..."
           />
         </DataTable>
-      </SectionGroup>
+      </main>
     </>
   )
 }
@@ -101,7 +100,7 @@ function QuickCreateBrandDialog() {
             <Button variant="outline">Close</Button>
           </DialogClose>
           <form.AppForm>
-            <form.Submit>Create</form.Submit>
+            <form.SubmitButton>Create</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>
