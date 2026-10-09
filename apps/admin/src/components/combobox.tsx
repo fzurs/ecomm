@@ -2,7 +2,7 @@
 "use client"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { Combobox } from "@workspace/ui/components/combobox"
-import React from "react"
+import * as React from "react"
 
 export function ComboboxQueryOnOpenById({
   itemsQueryOptions,

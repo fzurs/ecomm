@@ -1,6 +1,5 @@
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
 import { CreateOrderForm } from "../form"
-import React from "react"
 
 export default function OrdersCreatePage() {
   return (

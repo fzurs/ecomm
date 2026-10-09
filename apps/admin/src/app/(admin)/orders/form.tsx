@@ -91,6 +91,7 @@ export function CreateOrderForm() {
 
   return (
     <form
+      id={form.formId}
       onSubmit={(e) => {
         e.preventDefault()
         form.handleSubmit()
@@ -198,7 +199,9 @@ export function CreateOrderForm() {
           }}
         />
         <Field orientation="horizontal">
-          <Button type="submit">Save</Button>
+          <form.AppForm>
+            <form.SubmitButton>Save</form.SubmitButton>
+          </form.AppForm>
           <Button variant="outline" type="button" asChild>
             <Link href="/orders">Cancel</Link>
           </Button>
