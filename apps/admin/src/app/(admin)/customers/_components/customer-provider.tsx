@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react"
 
-type RowActionsOpenType = "edit" | "delete"
+type RowActionsOpenType = "edit" | "delete" | "view"
 
 type RowActionsType<T> = {
   open: RowActionsOpenType | null

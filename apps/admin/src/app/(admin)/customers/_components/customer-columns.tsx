@@ -10,13 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { Edit2, EllipsisVertical, Trash2Icon } from "lucide-react"
+import { EditIcon, EllipsisVertical, Trash2Icon, ViewIcon } from "lucide-react"
 import { useRowActions } from "./customer-provider"
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
+import Link from "next/link"
 
 export const customerColumns: ColumnDef<Customer>[] = [
   {
@@ -33,24 +34,17 @@ export const customerColumns: ColumnDef<Customer>[] = [
     enableSorting: false,
     meta: {
       thClassName: "text-center",
-      className: "flex justify-center"
-    }
+      className: "flex justify-center",
+    },
   },
   {
     accessorKey: "name",
     cell: function RenderCell({ row }) {
-      const { setOpen, setCurrentRow } = useRowActions()
+      const customer = row.original
 
       return (
-        <Button
-          size="sm"
-          variant="link"
-          onClick={() => {
-            setOpen("edit")
-            setCurrentRow(row.original)
-          }}
-        >
-          {row.original.name}
+        <Button size="sm" variant="link" asChild>
+          <Link href={`/customers/${customer.id}`}>{row.original.name}</Link>
         </Button>
       )
     },
@@ -88,11 +82,20 @@ function TableCellActions({ item }: { item: Customer }) {
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {
+              setOpen("view")
+              setCurrentRow(item)
+            }}
+          >
+            <ViewIcon />
+            Customer details
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
               setOpen("edit")
               setCurrentRow(item)
             }}
           >
-            <Edit2 />
+            <EditIcon />
             Edit customer
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -4,6 +4,7 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -53,9 +54,12 @@ function CustomerEditDrawerContent({
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle>{item.name}</DrawerTitle>
+        <DrawerTitle>Edit customer</DrawerTitle>
+        <DrawerDescription>
+          Changes are saved to the customer&apos;s profile.
+        </DrawerDescription>
       </DrawerHeader>
-      <div className="overflow-auto px-4 pb-4">
+      <div className="overflow-auto px-4 pt-2 pb-4">
         <CustomerForm form={form} />
       </div>
       <DrawerFooter>
