@@ -50,7 +50,9 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import {
   Item,
+  ItemActions,
   ItemContent,
+  ItemDescription,
   ItemMedia,
   ItemTitle,
 } from "@workspace/ui/components/item"
@@ -73,6 +75,7 @@ import { format } from "date-fns"
 import {
   EllipsisIcon,
   FileTextIcon,
+  MailIcon,
   RefreshCw,
   Trash2Icon,
   ViewIcon,
@@ -153,17 +156,42 @@ export const columns = [
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
-        <Item size="sm" className="flex-nowrap p-0">
-          <ItemMedia>
-            <Avatar size="sm">
-              {customer.image && <AvatarImage src={customer.image} />}
-              <AvatarFallback />
-            </Avatar>
-          </ItemMedia>
-          <ItemContent>
-            <ItemTitle>{customer.name}</ItemTitle>
-          </ItemContent>
-        </Item>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="link" size="sm">
+              <Avatar size="sm">
+                {customer.image && <AvatarImage src={customer.image} />}
+                <AvatarFallback />
+              </Avatar>
+              {customer.name}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Item className="flex-nowrap">
+              <ItemMedia variant="image">
+                <Avatar size="lg">
+                  {customer.image && <AvatarImage src={customer.image} />}
+                  <AvatarFallback />
+                </Avatar>
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>{customer.name}</ItemTitle>
+                <ItemDescription className="flex items-center gap-2">
+                  <MailIcon className="size-4" />
+                  {customer.email}
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Button size="icon" variant="ghost" asChild>
+                  <Link href={`/customers/${customer.id}`}>
+                    <ViewIcon />
+                    <span className="sr-only">View details</span>
+                  </Link>
+                </Button>
+              </ItemActions>
+            </Item>
+          </PopoverContent>
+        </Popover>
       )
     },
   },

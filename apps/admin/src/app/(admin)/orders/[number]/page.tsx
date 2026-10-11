@@ -7,18 +7,20 @@ import { useParams } from "next/navigation"
 import { OrderItemsTable, OrderStatusBadge } from "../columns"
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemDescription,
   ItemMedia,
   ItemTitle,
 } from "@workspace/ui/components/item"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, EditIcon, MailIcon, ViewIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-import { Separator } from "@workspace/ui/components/separator"
+import { Button } from "@workspace/ui/components/button"
+import Link from "next/link"
 
 export default function OrdersDetailsPage() {
   const params = useParams<{ number: string }>()
@@ -38,22 +40,28 @@ export default function OrdersDetailsPage() {
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col">
         <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
-          <div className="flex items-start justify-between gap-4">
+          {/* Header */}
+          <div className="flex flex-col gap-4">
             <div className="typeset">
               <h1>{order.number}</h1>
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+              <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <CalendarIcon className="size-4" />
-                <span>{format(order.created_at, "MMMM dd, yyyy - p")}</span>
-              </div>
+                {format(order.created_at, "MMMM dd, yyyy - p")}
+              </p>
             </div>
             {order.status && (
               <OrderStatusBadge
                 status={order.status}
-                className="px-2.5 py-1.5 text-sm"
+                // className="px-2.5 py-1.5 text-sm"
               />
             )}
           </div>
-          <Separator />
+          <div>
+            <Button variant="outline">
+              <EditIcon />
+              Change status
+            </Button>
+          </div>
           <section className="flex flex-col gap-4">
             <div className="typeset">
               <h2>Order items</h2>
@@ -64,12 +72,11 @@ export default function OrdersDetailsPage() {
               showTotal
             />
           </section>
-          <Separator />
-          <section>
+          <section className="flex flex-col gap-4">
             <div className="typeset">
               <h2>Customer details</h2>
             </div>
-            <Item>
+            <Item variant="muted">
               <ItemMedia variant="image">
                 <Avatar size="lg">
                   {customer.image && <AvatarImage src={customer.image} />}
@@ -78,8 +85,19 @@ export default function OrdersDetailsPage() {
               </ItemMedia>
               <ItemContent>
                 <ItemTitle>{customer.name}</ItemTitle>
-                <ItemDescription>{customer.email}</ItemDescription>
+                <ItemDescription className="flex items-center gap-2">
+                  <MailIcon className="size-4" />
+                  {customer.email}
+                </ItemDescription>
               </ItemContent>
+              <ItemActions>
+                <Button variant="ghost" asChild>
+                  <Link href={`/customers/${customer.id}`}>
+                    <ViewIcon />
+                    <span>View details</span>
+                  </Link>
+                </Button>
+              </ItemActions>
             </Item>
           </section>
         </div>
