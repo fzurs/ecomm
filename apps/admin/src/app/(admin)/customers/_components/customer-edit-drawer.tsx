@@ -27,7 +27,11 @@ export function CustomerEditDrawer() {
       onOpenChange={handleOpenChange}
     >
       <DrawerContent
-        onAnimationEnd={() => open === null && setCurrentRow(null)}
+        onAnimationEnd={() => {
+          if (open === null) {
+            setCurrentRow(null)
+          }
+        }}
       >
         {currentRow && (
           <CustomerEditDrawerContent

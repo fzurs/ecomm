@@ -44,7 +44,11 @@ export function CustomerViewDrawer() {
     >
       <DrawerContent
         className="data-[vaul-drawer-direction=right]:sm:max-w-lg"
-        onAnimationEnd={() => open === null && setCurrentRow(null)}
+        onAnimationEnd={() => {
+          if (open === null) {
+            setCurrentRow(null)
+          }
+        }}
       >
         {currentRow && <CustomerViewDrawerContent item={currentRow} />}
       </DrawerContent>
