@@ -111,7 +111,7 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           <div className="typeset">
             <h3>Customer details</h3>
           </div>
-          <CustomerDetails customer={item} />
+          <CustomerDetails customer={item} className="text-sm" />
         </div>
       </div>
     </>
