@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { EditIcon, EllipsisVertical, Trash2Icon, ViewIcon } from "lucide-react"
-import { useRowActions } from "./customer-provider"
+import { useRowActions } from "../_context/row-actions-provider"
 import {
   Avatar,
   AvatarFallback,

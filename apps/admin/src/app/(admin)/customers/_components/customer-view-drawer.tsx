@@ -1,5 +1,5 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActions } from "./customer-provider"
+import { useRowActions } from "../_context/row-actions-provider"
 import {
   Drawer,
   DrawerContent,
@@ -44,11 +44,7 @@ export function CustomerViewDrawer() {
     >
       <DrawerContent
         className="data-[vaul-drawer-direction=right]:sm:max-w-lg"
-        onAnimationEnd={() => {
-          if (open === null) {
-            setCurrentRow(null)
-          }
-        }}
+        onAnimationEnd={() => open === null && setCurrentRow(null)}
       >
         {currentRow && <CustomerViewDrawerContent item={currentRow} />}
       </DrawerContent>

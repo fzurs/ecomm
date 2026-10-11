@@ -1,5 +1,5 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActions } from "./customer-provider"
+import { useRowActions } from "../_context/row-actions-provider"
 import {
   Drawer,
   DrawerClose,
@@ -18,23 +18,21 @@ export function CustomerEditDrawer() {
 
   const { open, setOpen, currentRow, setCurrentRow } = useRowActions<Customer>()
 
+  const handleOpenChange = (open: boolean) => setOpen(open ? "edit" : null)
+
   return (
     <Drawer
       direction={isMobile ? "bottom" : "right"}
       open={open === "edit"}
-      onOpenChange={(open) => setOpen(open ? "edit" : null)}
+      onOpenChange={handleOpenChange}
     >
       <DrawerContent
-        onAnimationEnd={() => {
-          if (open === null) {
-            setCurrentRow(null)
-          }
-        }}
+        onAnimationEnd={() => open === null && setCurrentRow(null)}
       >
         {currentRow && (
           <CustomerEditDrawerContent
             item={currentRow}
-            setOpen={(open) => setOpen(open ? "edit" : null)}
+            setOpen={handleOpenChange}
           />
         )}
       </DrawerContent>

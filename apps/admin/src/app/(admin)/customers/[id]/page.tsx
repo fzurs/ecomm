@@ -13,6 +13,7 @@ import { MailIcon } from "lucide-react"
 import { CustomerEditDrawer } from "../_components/customer-edit-drawer"
 import { CustomerDetails } from "../_components/customer-details"
 import { CustomerEditButton } from "../_components/customer-buttons"
+import { RowActionsProvider } from "../_context/row-actions-provider"
 
 export default function CustomerDetailsPage() {
   const params = useParams<{ id: string }>()
@@ -22,7 +23,7 @@ export default function CustomerDetailsPage() {
   )
 
   return (
-    <>
+    <RowActionsProvider>
       <AppHeader>
         <AppHeaderNav
           items={[
@@ -61,6 +62,6 @@ export default function CustomerDetailsPage() {
         </div>
       </main>
       <CustomerEditDrawer />
-    </>
+    </RowActionsProvider>
   )
 }
