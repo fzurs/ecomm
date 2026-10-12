@@ -39,15 +39,7 @@ export const customerColumns: ColumnDef<Customer>[] = [
   },
   {
     accessorKey: "name",
-    cell: function RenderCell({ row }) {
-      const customer = row.original
-
-      return (
-        <Button size="sm" variant="link" asChild>
-          <Link href={`/customers/${customer.id}`}>{row.original.name}</Link>
-        </Button>
-      )
-    },
+    cell: ({ row }) => <TableCellViewer customer={row.original} />,
     meta: { thClassName: "pl-5" },
     enableHiding: false,
   },
@@ -63,6 +55,23 @@ export const customerColumns: ColumnDef<Customer>[] = [
     enableHiding: false,
   },
 ]
+
+function TableCellViewer({ customer }: { customer: Customer }) {
+  const { setOpen, setCurrentRow } = useRowActions()
+
+  return (
+    <Button
+      size="sm"
+      variant="link"
+      onClick={() => {
+        setOpen("view")
+        setCurrentRow(customer)
+      }}
+    >
+      {customer.name}
+    </Button>
+  )
+}
 
 function TableCellActions({ item }: { item: Customer }) {
   const { setOpen, setCurrentRow } = useRowActions()
