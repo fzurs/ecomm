@@ -11,8 +11,6 @@ class Invoice(models.Model):
         SUCCESS = 'success', _('Success')
         ERROR = 'error', _('Error')
 
-    public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-
     order = models.ForeignKey(Order, models.PROTECT, related_name='invoices')
 
     # Tax information

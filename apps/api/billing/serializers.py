@@ -36,7 +36,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         )
 
     def get_document_name(self, obj: Invoice):
-        return f"{slugify(obj.order.customer.name)}_{obj.public_id}.pdf"
+        return f"{slugify(obj.order.customer.name)}_{obj.id}.pdf"
 
     def validate_order(self, order):
         if order.status != Order.Status.PAID:
