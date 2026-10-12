@@ -17,7 +17,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-import Link from "next/link"
 
 export const customerColumns: ColumnDef<Customer>[] = [
   {
