@@ -8,11 +8,13 @@ import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import { ModeToggle } from "@workspace/ui/components/mode-toggle"
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -59,9 +61,12 @@ export function NavUser({ user }: { user: UserDetails }) {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
-              {user.email || user.username}
-            </DropdownMenuLabel>
+            <DropdownMenuGroup className="flex items-center gap-2">
+              <DropdownMenuLabel className="text-muted-foreground">
+                {user.email || user.username}
+              </DropdownMenuLabel>
+              <ModeToggle size="icon-sm" className="ml-auto" />
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} variant="destructive">
               <LogOutIcon />
