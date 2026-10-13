@@ -382,18 +382,20 @@ function TableCellActions({ item: order }: { item: Order }) {
                     onValueChange={(value) =>
                       onStatusChange(value as OrderStatus)
                     }
+                    className="space-y-0.5"
                   >
                     {statusOptions.map((opt) => {
                       return (
                         <DropdownMenuRadioItem
                           key={opt.value}
                           value={opt.value}
-                          className={cn(
-                            statusClasses[opt.value],
-                            "bg-transparent"
-                          )}
+                          // className={cn(
+                          //   statusClasses[opt.value],
+                          //   "bg-transparent"
+                          // )}
+                          className="py-1"
                         >
-                          {opt.label}
+                          <OrderStatusBadge status={opt.value} />
                         </DropdownMenuRadioItem>
                       )
                     })}
