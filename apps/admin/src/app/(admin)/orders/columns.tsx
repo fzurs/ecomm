@@ -76,11 +76,13 @@ import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 
 export const statusClasses: Record<OrderStatus, string> = {
-  pending: "bg-yellow-500/15 text-yellow-900 dark:text-yellow-400",
-  paid: "bg-green-500/15 text-green-900 dark:text-green-400",
-  shipped: "bg-blue-500/15 text-blue-900 dark:text-blue-400",
-  delivered: "bg-emerald-500/15 text-emerald-900 dark:text-emerald-400",
-  cancelled: "bg-red-500/15 text-red-900 dark:text-red-400",
+  pending:
+    "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+  paid: "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
+  shipped: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  delivered:
+    "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  cancelled: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
 }
 
 export const statusOptions = zOrderStatus.options.map((status) => ({
