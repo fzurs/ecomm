@@ -77,12 +77,14 @@ import React, { useState } from "react"
 
 export const statusClasses: Record<OrderStatus, string> = {
   pending:
-    "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
-  paid: "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
-  shipped: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+    "bg-yellow-50 text-yellow-700 focus:text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300 focus:bg-yellow-50 dark:focus:bg-yellow-950",
+  paid: "bg-green-50 text-green-700 focus:text-green-700 dark:bg-green-950 dark:text-green-300 focus:bg-green-50 dark:focus:bg-green-950",
+  shipped:
+    "bg-blue-50 text-blue-700 focus:text-blue-700 dark:bg-blue-950 dark:text-blue-300 focus:bg-blue-50 dark:focus:bg-blue-950",
   delivered:
-    "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  cancelled: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
+    "bg-emerald-50 text-emerald-700 focus:text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 focus:bg-emerald-50 dark:focus:bg-emerald-950",
+  cancelled:
+    "bg-red-50 text-red-700 focus:text-red-700 dark:bg-red-950 dark:text-red-300 focus:bg-red-50 dark:focus:bg-red-950",
 }
 
 export const statusOptions = zOrderStatus.options.map((status) => ({
@@ -382,23 +384,19 @@ function TableCellActions({ item: order }: { item: Order }) {
                     onValueChange={(value) =>
                       onStatusChange(value as OrderStatus)
                     }
-                    className="space-y-0.5"
                   >
-                    {statusOptions.map((opt) => {
-                      return (
-                        <DropdownMenuRadioItem
-                          key={opt.value}
-                          value={opt.value}
-                          // className={cn(
-                          //   statusClasses[opt.value],
-                          //   "bg-transparent"
-                          // )}
-                          className="py-1"
-                        >
-                          <OrderStatusBadge status={opt.value} />
-                        </DropdownMenuRadioItem>
-                      )
-                    })}
+                    {statusOptions.map((opt) => (
+                      <DropdownMenuRadioItem
+                        key={opt.value}
+                        value={opt.value}
+                        className={cn(
+                          statusClasses[opt.value],
+                          "bg-transparent dark:bg-transparent"
+                        )}
+                      >
+                        {opt.label}
+                      </DropdownMenuRadioItem>
+                    ))}
                   </DropdownMenuRadioGroup>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
