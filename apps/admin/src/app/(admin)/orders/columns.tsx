@@ -75,16 +75,38 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 
-export const statusClasses: Record<OrderStatus, string> = {
-  pending:
-    "bg-yellow-50 text-yellow-700 focus:text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300 focus:bg-yellow-50 dark:focus:bg-yellow-950",
-  paid: "bg-green-50 text-green-700 focus:text-green-700 dark:bg-green-950 dark:text-green-300 focus:bg-green-50 dark:focus:bg-green-950",
-  shipped:
-    "bg-blue-50 text-blue-700 focus:text-blue-700 dark:bg-blue-950 dark:text-blue-300 focus:bg-blue-50 dark:focus:bg-blue-950",
-  delivered:
-    "bg-emerald-50 text-emerald-700 focus:text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 focus:bg-emerald-50 dark:focus:bg-emerald-950",
-  cancelled:
-    "bg-red-50 text-red-700 focus:text-red-700 dark:bg-red-950 dark:text-red-300 focus:bg-red-50 dark:focus:bg-red-950",
+const orderStatusClasses: Record<
+  OrderStatus,
+  { badge: string; focus: string }
+> = {
+  pending: {
+    badge:
+      "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400",
+    focus:
+      "focus:bg-amber-100 focus:text-amber-800 dark:focus:bg-amber-500/25 dark:focus:text-amber-400",
+  },
+  paid: {
+    badge: "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-400",
+    focus:
+      "focus:bg-blue-100 focus:text-blue-800 dark:focus:bg-blue-500/25 dark:focus:text-blue-400",
+  },
+  shipped: {
+    badge:
+      "bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-400",
+    focus:
+      "focus:bg-violet-100 focus:text-violet-800 dark:focus:bg-violet-500/25 dark:focus:text-violet-400",
+  },
+  delivered: {
+    badge:
+      "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400",
+    focus:
+      "focus:bg-green-100 focus:text-green-800 dark:focus:bg-green-500/25 dark:focus:text-green-400",
+  },
+  cancelled: {
+    badge: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400",
+    focus:
+      "focus:bg-red-100 focus:text-red-800 dark:focus:bg-red-500/25 dark:focus:text-red-400",
+  },
 }
 
 export const statusOptions = zOrderStatus.options.map((status) => ({
@@ -185,7 +207,11 @@ export function OrderStatusBadge({
   if (!statusOption) return null
   return (
     <Badge
-      className={cn("rounded-md py-1", statusClasses[status], className)}
+      className={cn(
+        "rounded-md py-1",
+        orderStatusClasses[status].badge,
+        className
+      )}
       {...props}
     >
       {statusOption.label}
@@ -390,7 +416,8 @@ function TableCellActions({ item: order }: { item: Order }) {
                         key={opt.value}
                         value={opt.value}
                         className={cn(
-                          statusClasses[opt.value],
+                          orderStatusClasses[opt.value].badge,
+                          orderStatusClasses[opt.value].focus,
                           "bg-transparent dark:bg-transparent"
                         )}
                       >
