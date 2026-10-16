@@ -17,7 +17,7 @@ import {
   useQueryState,
 } from "nuqs"
 import { orderStatusOptions } from "./_lib/order-status"
-import { columns } from "./columns"
+import { orderColumns } from "./_components/order-columns"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import {
   AppHeader,
@@ -45,7 +45,7 @@ export default function OrdersPage() {
 
   const pagination = usePagination()
   const ordering = useOrdering()
-  const columnFilters = useFilters(columns, {
+  const columnFilters = useFilters(orderColumns, {
     status: parseAsArrayOf(parseAsStringEnum(zOrderStatus.options)),
   })
 
@@ -91,7 +91,7 @@ export default function OrdersPage() {
 
   const table = useDataTable({
     data,
-    columns,
+    columns: orderColumns,
   })
 
   return (

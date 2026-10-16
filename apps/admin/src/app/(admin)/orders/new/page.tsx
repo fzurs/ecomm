@@ -1,5 +1,5 @@
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
-import { CreateOrderForm } from "../form"
+import { CreateOrderForm } from "../_components/order-form"
 
 export default function OrdersCreatePage() {
   return (

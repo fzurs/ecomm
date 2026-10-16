@@ -4,7 +4,8 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { ordersRetrieveOptions } from "@workspace/api-client/query"
 import { format } from "date-fns"
 import { useParams } from "next/navigation"
-import { OrderItemsTable, OrderStatusBadge } from "../columns"
+import { OrderItemsTable } from "../_components/order-items-table"
+import { OrderStatusBadge } from "../_components/order-status-badge"
 import {
   Item,
   ItemActions,
