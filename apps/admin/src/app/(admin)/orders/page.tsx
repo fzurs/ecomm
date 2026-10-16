@@ -16,7 +16,8 @@ import {
   parseAsStringEnum,
   useQueryState,
 } from "nuqs"
-import { columns, statusOptions } from "./columns"
+import { orderStatusOptions } from "./_lib/order-status"
+import { columns } from "./columns"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import {
   AppHeader,
@@ -115,7 +116,7 @@ export default function OrdersPage() {
             <DataTableFacetedFilter
               multiple
               column={table.getColumn("status")}
-              options={statusOptions}
+              options={orderStatusOptions}
               title="Filter by Status"
             />
             <DataTableSortMenu table={table} />
