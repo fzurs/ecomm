@@ -4,6 +4,7 @@ import { Order, OrderStatus } from "@workspace/api-client"
 import {
   invoicesCreateMutation,
   invoicesListQueryKey,
+  ordersRetrieveOptions,
 } from "@workspace/api-client/query"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -73,8 +74,17 @@ export function OrderRowActions({ item: order }: { item: Order }) {
   const createInvoice = () =>
     createInvoiceMutation.mutate({ body: { order: order.id } })
 
+  const detailsHref = `/orders/${order.number}`
+  const prefetchDetails = (open: boolean) => {
+    if (!open) return
+    router.prefetch(detailsHref)
+    queryClient.prefetchQuery(
+      ordersRetrieveOptions({ path: { number: order.number } })
+    )
+  }
+
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={prefetchDetails}>
       <DropdownMenuTrigger asChild>
         <Button size="icon-sm" variant="ghost" aria-label="Open actions">
           <EllipsisIcon />
@@ -83,7 +93,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href={`/orders/${order.number}`}>
+            <Link href={detailsHref}>
               <ViewIcon />
               View details
             </Link>
