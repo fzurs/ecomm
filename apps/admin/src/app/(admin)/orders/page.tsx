@@ -37,6 +37,8 @@ import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-
 import { SearchInput } from "@/components/search-input"
 import { DataTableFacetedFilter } from "@workspace/data-table/components/data-table-faceted-filter"
 import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
+import { RowActionsProvider } from "@/context/row-actions-provider"
+import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
 
 const DEBOUNCE_DELAY = 300
 
@@ -95,7 +97,7 @@ export default function OrdersPage() {
   })
 
   return (
-    <>
+    <RowActionsProvider>
       <AppHeader>
         <AppHeaderNav items={[{ type: "page", label: "Orders" }]} />
         <AppHeaderActions>
@@ -122,7 +124,8 @@ export default function OrdersPage() {
             <DataTableSortMenu table={table} />
           </DataTableAdvancedToolbar>
         </DataTable>
+        <OrderDeleteAlertDialog />
       </main>
-    </>
+    </RowActionsProvider>
   )
 }
