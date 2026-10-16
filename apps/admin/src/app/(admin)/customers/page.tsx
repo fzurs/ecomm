@@ -23,7 +23,7 @@ import { CustomersTable } from "./_components/customers-table"
 import { CustomerEditDrawer } from "./_components/customer-edit-drawer"
 import { CustomerDeleteAlertDialog } from "./_components/customer-delete-alert-dialog"
 import { CustomerViewDrawer } from "./_components/customer-view-drawer"
-import { RowActionsProvider } from "./_context/row-actions-provider"
+import { RowActionsProvider } from "@/context/row-actions-provider"
 
 export default function CustomersPage() {
   return (

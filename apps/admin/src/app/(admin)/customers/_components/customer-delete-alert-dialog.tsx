@@ -9,7 +9,7 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
-import { useRowActions } from "../_context/row-actions-provider"
+import { useRowActions } from "@/context/row-actions-provider"
 import { Customer } from "@workspace/api-client"
 import { Trash2 } from "lucide-react"
 import { useOptimisticCustomerDestroy } from "../_hooks/use-optimistic-destroy"

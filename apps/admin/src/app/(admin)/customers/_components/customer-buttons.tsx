@@ -1,6 +1,6 @@
 import { Customer } from "@workspace/api-client"
 import { EditIcon } from "lucide-react"
-import { useRowActions } from "../_context/row-actions-provider"
+import { useRowActions } from "@/context/row-actions-provider"
 import { Button } from "@workspace/ui/components/button"
 
 export function CustomerEditButton({

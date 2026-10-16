@@ -1,5 +1,5 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActions } from "../_context/row-actions-provider"
+import { useRowActions } from "@/context/row-actions-provider"
 import {
   Drawer,
   DrawerContent,

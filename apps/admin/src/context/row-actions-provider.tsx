@@ -1,8 +1,10 @@
+"use client"
+
 import { createContext, useContext, useMemo, useState } from "react"
 
-type RowActionsOpenType = "edit" | "delete" | "view"
+export type RowActionsOpenType = "edit" | "delete" | "view"
 
-type RowActionsType<T> = {
+export type RowActionsType<T> = {
   open: RowActionsOpenType | null
   setOpen: (value: RowActionsOpenType | null) => void
   currentRow: T | null
