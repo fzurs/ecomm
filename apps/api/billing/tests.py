@@ -1,4 +1,6 @@
-from django.test import SimpleTestCase
+import tempfile
+
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from orders.models import Order, Customer
 
@@ -23,6 +25,14 @@ class ARCAElectronicInvoicingAdapterTests(SimpleTestCase):
         self.assertIsInstance(conditions, list)
         self.assertGreater(len(conditions), 0)
 
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class ARCACreateVoucherTests(TestCase):
+    def setUp(self):
+        self.arca = get_arca_client()
+        self.invoicing_adapter = ARCAElectronicInvoicingAdapter(client=self.arca)
+
     def test_create_voucher(self):
         customer = Customer.objects.create(
             name="Jerry", email="jerry@example.com", document_number="20440237577"
@@ -37,6 +47,7 @@ class ARCAElectronicInvoicingAdapterTests(SimpleTestCase):
             vat_amount=21,
             total_amount=121,
         )
+        invoice.invoice_number = self.invoicing_adapter.get_last_voucher(invoice) + 1
 
         response = self.invoicing_adapter.create_voucher(invoice)
 

@@ -26,6 +26,7 @@ class ARCAElectronicInvoicingAdapter:
                     document_number=invoice.order.customer.document_number,
                     voucher_from=invoice.invoice_number,
                     voucher_to=invoice.invoice_number,
+                    voucher_date=None,
                     total_amount=invoice.total_amount,
                     net_amount=invoice.net_amount,
                     vat_amount=invoice.vat_amount,
