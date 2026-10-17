@@ -4,11 +4,11 @@ from django.db import transaction
 
 from .adapter import ARCAElectronicInvoicingAdapter
 from .models import Invoice, InvoiceSequenceLock
-from .arca import arca_client
+from .arca import get_arca_client
 
 logger = logging.getLogger(__name__)
 
-invoicing_adapter = ARCAElectronicInvoicingAdapter(client=arca_client)
+invoicing_adapter = ARCAElectronicInvoicingAdapter(client=get_arca_client())
 
 
 def emit_invoice(invoice: Invoice):

@@ -3,13 +3,13 @@ from django.test import SimpleTestCase
 from orders.models import Order, Customer
 
 from .adapter import ARCAElectronicInvoicingAdapter
-from .arca import get_arca_client
 from .models import Invoice
+from .arca import get_arca_client
 
 
 class ARCAElectronicInvoicingAdapterTests(SimpleTestCase):
     def setUp(self):
-        self.arca = get_arca_client("arca_test")
+        self.arca = get_arca_client()
         self.invoicing_adapter = ARCAElectronicInvoicingAdapter(client=self.arca)
 
     def test_get_currency_types(self):

@@ -24,8 +24,8 @@ environ.Env.read_env(os.path.join(WORKDIR, "db.env"))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 ARCA_CUIT = env("ARCA_CUIT")
-ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH")
-ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH")
+ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH", default="certificate.pem")
+ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH", default="private-key.pem")
 
 
 # Quick-start development settings - unsuitable for production
@@ -140,9 +140,9 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     },
-    "arca_test": {
+    "arca": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": env("REDIS_URL", default="redis://127.0.0.1:6379"),
     },
 }
 
