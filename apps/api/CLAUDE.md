@@ -28,7 +28,9 @@
   `Decimal`, nunca `float`.
 
 ## Tests
-- `python manage.py test <app>`; los tests están en el `tests.py` de cada app.
+- `python manage.py test <app>`; los tests están en el `tests.py` de cada app. Sin `<app>` hay que
+  correrlo desde `apps/api`: desde la raíz no descubre ningún test ("Ran 0 tests"). `--keepdb` reutiliza la base de tests entre corridas; si cambian las
+  migraciones y algo falla raro, correr una vez sin `--keepdb`.
 - `SimpleTestCase` cuando no hace falta base de datos, `TestCase` si no.
 - Usar `@override_settings(MEDIA_ROOT=tempfile.mkdtemp())` cuando un test escribe archivos (PDFs, imágenes).
 - Usar un WSFE falso en vez de llamar a ARCA (ver `billing/tests.py`). `ARCAHomologacionTests` solo
