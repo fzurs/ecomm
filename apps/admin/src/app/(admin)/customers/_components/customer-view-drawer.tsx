@@ -59,10 +59,7 @@ export function CustomerViewDrawer() {
 function CustomerViewDrawerContent({ item }: { item: Customer }) {
   return (
     <>
-      <div
-        className="flex items-center justify-between gap-4 border-b px-4"
-        style={{ height: "calc(var(--spacing) * 12)" }}
-      >
+      <div className="flex h-(--header-height) items-center justify-between gap-4 border-b px-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>Customers</BreadcrumbItem>
