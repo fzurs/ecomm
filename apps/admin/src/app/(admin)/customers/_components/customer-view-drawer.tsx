@@ -36,7 +36,7 @@ export function CustomerViewDrawer() {
 
   return (
     <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
-      <DrawerContent className="data-[swipe-axis=x]:sm:[--drawer-content-width:36rem]">
+      <DrawerContent size="md">
         {row && <CustomerViewDrawerContent item={row} />}
       </DrawerContent>
     </Drawer>

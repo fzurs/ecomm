@@ -240,7 +240,7 @@ function TableCellViewer({ original: item }: { original: Product }) {
         {item.name}
       </DrawerTrigger>
       <DrawerContent
-        className="data-[swipe-axis=x]:sm:[--drawer-content-width:36rem]"
+        size="lg"
         onAnimationEnd={(e) => {
           if (!open && e.animationName === "slideToRight") {
             form.reset()
