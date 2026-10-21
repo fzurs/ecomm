@@ -29,7 +29,9 @@ export function CustomerDetails({
             <row.icon className="size-4" />
             {row.label}
           </dt>
-          <dd className="py-2">{row.value}</dd>
+          <dd className="py-2">
+            {row.value || <span className="text-muted-foreground">—</span>}
+          </dd>
         </div>
       ))}
     </dl>

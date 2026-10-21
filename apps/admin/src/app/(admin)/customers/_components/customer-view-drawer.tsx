@@ -78,10 +78,12 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
             </Avatar>
             <div className="flex flex-col gap-1">
               <DrawerTitle className="text-base">{item.name}</DrawerTitle>
-              <DrawerDescription className="flex items-center gap-2">
-                <MailIcon className="size-4" />
-                {item.email}
-              </DrawerDescription>
+              {item.email && (
+                <DrawerDescription className="flex items-center gap-2">
+                  <MailIcon className="size-4" />
+                  {item.email}
+                </DrawerDescription>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">

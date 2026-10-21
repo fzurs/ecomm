@@ -42,10 +42,12 @@ export default function CustomerDetailsPage() {
             </Avatar>
             <div className="typeset">
               <h1>{customer.name}</h1>
-              <p className="mt-2 flex items-center gap-2 text-muted-foreground">
-                <MailIcon className="size-4" />
-                {customer.email}
-              </p>
+              {customer.email && (
+                <p className="mt-2 flex items-center gap-2 text-muted-foreground">
+                  <MailIcon className="size-4" />
+                  {customer.email}
+                </p>
+              )}
             </div>
           </div>
           {/* Actions */}
