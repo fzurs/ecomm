@@ -94,11 +94,11 @@ function TableCellActions({ item }: { item: Customer }) {
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => openAction("view", item)}>
             <PanelRightIcon />
-            Customer details
+            View details
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => openAction("edit", item)}>
             <EditIcon />
-            Edit customer
+            Edit
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

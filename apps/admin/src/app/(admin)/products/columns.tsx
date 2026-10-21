@@ -292,7 +292,7 @@ function TableCellActions({ item }: { item: Product }) {
               nativeButton={false}
             >
               <Trash2Icon />
-              Delete product
+              Delete
             </AlertDialogTrigger>
           </DropdownMenuGroup>
         </DropdownMenuContent>

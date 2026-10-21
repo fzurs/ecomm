@@ -107,7 +107,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <CircleDashedIcon />
-              Change Status
+              Change status
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
@@ -142,7 +142,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
             onClick={() => openAction("delete", order)}
           >
             <Trash2Icon />
-            Delete order
+            Delete
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
