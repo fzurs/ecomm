@@ -1,4 +1,4 @@
-import { Button } from "@workspace/ui/components/button"
+import { buttonVariants } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { cn } from "@workspace/ui/lib/utils"
@@ -61,19 +61,18 @@ function AppHeaderActions({
 }
 
 function AppHeaderBackLink({
+  className,
   children,
   ...props
 }: React.ComponentProps<typeof Link>) {
   return (
-    <Button
-      size="sm"
-      variant="ghost"
-      render={<Link {...props} />}
-      nativeButton={false}
+    <Link
+      className={buttonVariants({ size: "sm", variant: "ghost", className })}
+      {...props}
     >
       <ChevronLeftIcon />
       {children}
-    </Button>
+    </Link>
   )
 }
 

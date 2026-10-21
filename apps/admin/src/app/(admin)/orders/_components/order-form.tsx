@@ -8,7 +8,7 @@ import {
   ordersListQueryKey,
 } from "@workspace/api-client/query"
 import { zOrderCreateWritable } from "@workspace/api-client/zod"
-import { Button } from "@workspace/ui/components/button"
+import { buttonVariants } from "@workspace/ui/components/button"
 import {
   FieldDescription,
   FieldGroup,
@@ -161,14 +161,12 @@ export function CreateOrderForm() {
           <form.AppForm>
             <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>
-          <Button
-            variant="outline"
-            type="button"
-            render={<Link href="/orders" />}
-            nativeButton={false}
+          <Link
+            href="/orders"
+            className={buttonVariants({ variant: "outline" })}
           >
             Cancel
-          </Button>
+          </Link>
         </Field>
       </FieldGroup>
     </form>

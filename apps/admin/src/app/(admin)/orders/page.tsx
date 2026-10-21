@@ -25,7 +25,7 @@ import {
   AppHeaderNav,
 } from "@/components/app-header"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { Button } from "@workspace/ui/components/button"
+import { buttonVariants } from "@workspace/ui/components/button"
 import Link from "next/link"
 import { useMemo } from "react"
 import { OrdersListData } from "@workspace/api-client"
@@ -101,13 +101,9 @@ export default function OrdersPage() {
       <AppHeader>
         <AppHeaderNav items={[{ type: "page", label: "Orders" }]} />
         <AppHeaderActions>
-          <Button
-            size="sm"
-            render={<Link href="/orders/new" />}
-            nativeButton={false}
-          >
+          <Link href="/orders/new" className={buttonVariants({ size: "sm" })}>
             New Order
-          </Button>
+          </Link>
         </AppHeaderActions>
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">

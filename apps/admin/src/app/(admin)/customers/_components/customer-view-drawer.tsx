@@ -8,7 +8,7 @@ import {
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Customer } from "@workspace/api-client"
-import { Button } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
 import { FullscreenIcon, MailIcon, XIcon } from "lucide-react"
 import {
   Avatar,
@@ -68,15 +68,13 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex h-4 items-center gap-2 text-muted-foreground">
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            render={<Link href={`/customers/${item.id}`} />}
-            nativeButton={false}
+          <Link
+            href={`/customers/${item.id}`}
+            className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
           >
             <FullscreenIcon />
             <span className="sr-only">Go to customer details page</span>
-          </Button>
+          </Link>
           <Separator orientation="vertical" />
           <DialogClose render={<Button size="icon-sm" variant="ghost" />}>
             <XIcon />

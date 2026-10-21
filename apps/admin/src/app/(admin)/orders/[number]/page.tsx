@@ -20,7 +20,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-import { Button } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
 import Link from "next/link"
 
 export default function OrdersDetailsPage() {
@@ -92,14 +92,13 @@ export default function OrdersDetailsPage() {
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
-                <Button
-                  variant="ghost"
-                  render={<Link href={`/customers/${customer.id}`} />}
-                  nativeButton={false}
+                <Link
+                  href={`/customers/${customer.id}`}
+                  className={buttonVariants({ variant: "ghost" })}
                 >
                   <ViewIcon />
                   <span>View details</span>
-                </Button>
+                </Link>
               </ItemActions>
             </Item>
           </section>
