@@ -17,7 +17,6 @@ import { zAuthLoginCreateBody } from "@workspace/api-client/zod"
 
 const defaultValues: Login = {
   username: "",
-  email: "",
   password: "",
 }
 
@@ -54,7 +53,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -64,10 +63,6 @@ export function LoginForm({
                 <form.AppField
                   name="username"
                   children={(field) => <field.TextField label="Username" />}
-                />
-                <form.AppField
-                  name="email"
-                  children={(field) => <field.EmailField />}
                 />
                 <form.AppField
                   name="password"
