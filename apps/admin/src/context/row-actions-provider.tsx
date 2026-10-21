@@ -43,8 +43,8 @@ export function useRowActionDialog<T>(action: RowAction) {
         if (!open) closeAction()
       },
       onOpenChangeComplete: (open: boolean) => {
-        // Switching to another action (e.g. view -> edit) keeps the row.
-        if (!open && current === null) clearRow()
+        // clearRow keeps the row if another action (e.g. view -> edit) is open.
+        if (!open) clearRow()
       },
     },
   }
@@ -55,21 +55,24 @@ export function RowActionsProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [action, setAction] = useState<RowAction | null>(null)
-  const [row, setRow] = useState<unknown>(null)
+  const [state, setState] = useState<{
+    action: RowAction | null
+    row: unknown
+  }>({ action: null, row: null })
 
   const value = useMemo<RowActionsContextType<unknown>>(
     () => ({
-      action,
-      row,
-      openAction: (action, row) => {
-        setAction(action)
-        setRow(row)
-      },
-      closeAction: () => setAction(null),
-      clearRow: () => setRow(null),
+      ...state,
+      openAction: (action, row) => setState({ action, row }),
+      closeAction: () => setState((prev) => ({ ...prev, action: null })),
+      // Decide on the latest state: a stale callback must not clear a row
+      // that another action opened in the meantime.
+      clearRow: () =>
+        setState((prev) =>
+          prev.action === null ? { ...prev, row: null } : prev
+        ),
     }),
-    [action, row]
+    [state]
   )
 
   return <RowActionsContext value={value}>{children}</RowActionsContext>
