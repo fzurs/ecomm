@@ -60,3 +60,6 @@ dump.rdb
 
 ### PNPM ###
 .pnpm-store/
+
+### Claude Code ###
+.claude/settings.local.json
