@@ -7,7 +7,10 @@ services:
       dockerfile: .devcontainer/Dockerfile
 
     volumes:
-      - ../..:/workspace:cached
+      - ..:/workspace/ecomm
+      - ../../arca-client:/workspace/arca-client:ro
+      # Persists VS Code extensions across rebuilds.
+      - vscode-extensions:/home/vscode/.vscode-server/extensions
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -19,8 +22,11 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
   db:
-    image: postgres:latest
+    # Pinned to the major the postgres-data volume was initialized with.
+    image: postgres:18
     restart: unless-stopped
+    # Dev only: trades crash durability for speed (test DB setup, migrations). A hard crash can lose data.
+    command: postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off
     volumes:
       - postgres-data:/var/lib/postgresql
     environment:
@@ -43,3 +49,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  vscode-extensions:

@@ -57,3 +57,6 @@ media/
 schema.yml
 
 dump.rdb
+
+### PNPM ###
+.pnpm-store/

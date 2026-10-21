@@ -4,12 +4,16 @@
     "**/node_modules/**": true,
     "**/.next/**": true,
     "**/.turbo/**": true,
-    "**/dist/**": true
+    "**/dist/**": true,
+    "**/.pnpm-store/**": true,
+    "**/__pycache__/**": true,
+    "apps/api/media/**": true
   },
   "search.exclude": {
     "**/node_modules": true,
     "**/.next": true,
     "**/.turbo": true,
     "**/dist": true
-  }
+  },
+  "python.analysis.exclude": ["**/node_modules", "**/.next", "apps/api/media"]
 }
