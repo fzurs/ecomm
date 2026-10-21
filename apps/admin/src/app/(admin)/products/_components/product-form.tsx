@@ -28,7 +28,8 @@ import {
   InputGroupAddon,
   InputGroupButton,
 } from "@workspace/ui/components/input-group"
-import { IconLoader, IconSparkles, IconTextScan2 } from "@tabler/icons-react"
+import { ScanTextIcon, SparklesIcon } from "lucide-react"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
 import { getFormFieldId } from "@/lib/utils"
@@ -390,7 +391,7 @@ function GenerateSKUButton({
 
   return (
     <InputGroupButton onClick={onClick} size={size} {...props}>
-      {isPending ? <IconLoader className="animate-spin" /> : <IconSparkles />}
+      {isPending ? <Spinner /> : <SparklesIcon />}
     </InputGroupButton>
   )
 }
@@ -418,7 +419,7 @@ function DetectAndAssignBrandButton({
 
   return (
     <InputGroupButton onClick={onClick} size={size} {...props}>
-      {isPending ? <IconLoader className="animate-spin" /> : <IconTextScan2 />}
+      {isPending ? <Spinner /> : <ScanTextIcon />}
     </InputGroupButton>
   )
 }

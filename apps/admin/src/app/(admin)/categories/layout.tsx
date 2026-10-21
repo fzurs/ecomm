@@ -17,7 +17,7 @@ import {
 import { useState } from "react"
 import { CategoryForm, useCategoryForm } from "./form"
 import { Button } from "@workspace/ui/components/button"
-import { IconTagPlus } from "@tabler/icons-react"
+import { PlusIcon } from "lucide-react"
 
 export default function CategoriesLayout({
   children,
@@ -45,7 +45,7 @@ function QuickCreateCategoryDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
-        <IconTagPlus />
+        <PlusIcon />
         Quick Create
       </DialogTrigger>
       <DialogContent

@@ -31,8 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { IconTrash } from "@tabler/icons-react"
-import { EllipsisVerticalIcon } from "lucide-react"
+import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, PaginatedCategoryList } from "@workspace/api-client"
 import {
@@ -124,7 +123,7 @@ function TableCellActions({ item }: { item: Category }) {
               render={<DropdownMenuItem variant="destructive" />}
               nativeButton={false}
             >
-              <IconTrash />
+              <Trash2Icon />
               Delete
             </AlertDialogTrigger>
           </DropdownMenuGroup>
@@ -133,7 +132,7 @@ function TableCellActions({ item }: { item: Category }) {
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-            <IconTrash />
+            <Trash2Icon />
           </AlertDialogMedia>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>

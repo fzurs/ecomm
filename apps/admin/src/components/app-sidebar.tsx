@@ -1,11 +1,12 @@
 "use client"
 
 import {
-  BadgeIcon,
-  ClipboardListIcon,
-  FileTextIcon,
+  GalleryVerticalEndIcon,
+  LayoutGridIcon,
   PackageIcon,
-  TagsIcon,
+  ReceiptTextIcon,
+  ShoppingCartIcon,
+  TagIcon,
   UsersRoundIcon,
 } from "lucide-react"
 
@@ -21,7 +22,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
-import { IconInnerShadowTop } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useQuery } from "@tanstack/react-query"
@@ -37,12 +37,12 @@ const items = [
   {
     title: "Orders",
     url: "/orders",
-    icon: ClipboardListIcon,
+    icon: ShoppingCartIcon,
   },
   {
     title: "Invoices",
     url: "/invoices",
-    icon: FileTextIcon,
+    icon: ReceiptTextIcon,
   },
   {
     title: "Products",
@@ -52,12 +52,12 @@ const items = [
   {
     title: "Categories",
     url: "/categories",
-    icon: TagsIcon,
+    icon: LayoutGridIcon,
   },
   {
     title: "Brands",
     url: "/brands",
-    icon: BadgeIcon,
+    icon: TagIcon,
   },
 ]
 
@@ -72,7 +72,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link href="/" />}>
-              <IconInnerShadowTop />
+              <GalleryVerticalEndIcon />
               <span className="text-base font-semibold">Acme Inc.</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

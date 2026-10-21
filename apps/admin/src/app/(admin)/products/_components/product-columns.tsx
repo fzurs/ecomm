@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
-import { IconStar } from "@tabler/icons-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +21,12 @@ import {
   brandsListChoicesOptions,
   categoriesListChoicesOptions,
 } from "@workspace/api-client/query"
-import { EditIcon, EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
+import {
+  EditIcon,
+  EllipsisVerticalIcon,
+  StarIcon,
+  Trash2Icon,
+} from "lucide-react"
 import { useMemo } from "react"
 import { formatPrice } from "@/lib/utils"
 import { useRowActions } from "@/context/row-actions-provider"
@@ -32,8 +36,8 @@ import {
 } from "../_lib/product-status"
 
 const featuredIcons = {
-  true: <IconStar className="fill-yellow-500 text-yellow-500" />,
-  false: <IconStar className="text-muted-foreground" />,
+  true: <StarIcon className="fill-yellow-500 text-yellow-500" />,
+  false: <StarIcon className="text-muted-foreground" />,
 } as const
 
 function selectAsOption(data: { name: string; slug?: string }[]) {
