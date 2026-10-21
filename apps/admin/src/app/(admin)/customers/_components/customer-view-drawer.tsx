@@ -76,9 +76,9 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
               {item.image && <AvatarImage src={item.image} />}
               <AvatarFallback />
             </Avatar>
-            <div className="flex flex-col gap-2">
-              <DrawerTitle>{item.name}</DrawerTitle>
-              <DrawerDescription className="flex items-center gap-1.5">
+            <div className="flex flex-col gap-1">
+              <DrawerTitle className="text-base">{item.name}</DrawerTitle>
+              <DrawerDescription className="flex items-center gap-2">
                 <MailIcon className="size-4" />
                 {item.email}
               </DrawerDescription>
@@ -89,7 +89,7 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           </div>
         </div>
       </DrawerHeader>
-      <div className="overflow-auto p-4 pt-6">
+      <div className="overflow-auto p-4 pt-8">
         <div className="flex flex-col gap-2">
           <div className="typeset">
             <h3>Customer details</h3>
