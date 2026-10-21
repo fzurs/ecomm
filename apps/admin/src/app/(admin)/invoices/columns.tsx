@@ -27,8 +27,8 @@ export const columns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => <TableCellViewer invoice={row.original} />,
     enableSorting: false,
     meta: {
-      thClassName: "pl-5"
-    }
+      thClassName: "pl-5",
+    },
   },
   {
     accessorKey: "total_amount",
@@ -65,10 +65,10 @@ function TableCellViewer({ invoice }: { invoice: Invoice }) {
   const isRecent = createdAt > new Date(now - 5 * 60 * 1000)
 
   return (
-    <Drawer direction="right">
+    <Drawer swipeDirection="right">
       <div className="flex items-center">
-        <DrawerTrigger asChild>
-          <Button variant="link">{invoice.document_name}</Button>
+        <DrawerTrigger render={<Button variant="link" />}>
+          {invoice.document_name}
         </DrawerTrigger>
         {isRecent && (
           <Badge className="bg-blue-500/15 text-blue-900 dark:text-blue-400">

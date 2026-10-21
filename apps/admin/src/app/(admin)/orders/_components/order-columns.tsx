@@ -56,10 +56,12 @@ export const orderColumns = [
       const orderItems = row.original.items
       return (
         <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="font-normal">
-              {orderItems.length} item{orderItems.length > 1 && "s"}
-            </Button>
+          <PopoverTrigger
+            render={
+              <Button variant="ghost" size="sm" className="font-normal" />
+            }
+          >
+            {orderItems.length} item{orderItems.length > 1 && "s"}
           </PopoverTrigger>
           <PopoverContent className="w-auto p-1">
             <OrderItemsTable variant="compact" orderItems={orderItems} />
@@ -78,14 +80,18 @@ export const orderColumns = [
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
-        <Button variant="link" size="sm" className="gap-2" asChild>
-          <Link href={`/customers/${customer.id}`}>
-            <Avatar size="sm">
-              {customer.image && <AvatarImage src={customer.image} />}
-              <AvatarFallback />
-            </Avatar>
-            <span>{customer.name}</span>
-          </Link>
+        <Button
+          variant="link"
+          size="sm"
+          className="gap-2"
+          render={<Link href={`/customers/${customer.id}`} />}
+          nativeButton={false}
+        >
+          <Avatar size="sm">
+            {customer.image && <AvatarImage src={customer.image} />}
+            <AvatarFallback />
+          </Avatar>
+          <span>{customer.name}</span>
         </Button>
       )
     },

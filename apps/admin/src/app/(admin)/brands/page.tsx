@@ -84,11 +84,9 @@ function QuickCreateBrandDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <PlusIcon />
-          Add New
-        </Button>
+      <DialogTrigger render={<Button size="sm" />}>
+        <PlusIcon />
+        Add New
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -96,9 +94,7 @@ function QuickCreateBrandDialog() {
         </DialogHeader>
         <BrandForm form={form} />
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
+          <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
           <form.AppForm>
             <form.SubmitButton>Create</form.SubmitButton>
           </form.AppForm>

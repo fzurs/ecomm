@@ -51,11 +51,9 @@ function CreateCustomerDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <UserPlusIcon />
-          New
-        </Button>
+      <DialogTrigger render={<Button size="sm" />}>
+        <UserPlusIcon />
+        New
       </DialogTrigger>
       <DialogContent
         onAnimationEnd={(e) => {
@@ -72,9 +70,7 @@ function CreateCustomerDialog() {
         </DialogHeader>
         <CustomerForm form={form} variant="required" />
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
+          <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
           <form.AppForm>
             <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>

@@ -15,8 +15,8 @@ const renderNavItem = (item: NavItem) => {
   switch (item.type) {
     case "link":
       return (
-        <BreadcrumbLink asChild>
-          <Link href={item.href ?? "#"}>{item.label}</Link>
+        <BreadcrumbLink render={<Link href={item.href ?? "#"} />}>
+          {item.label}
         </BreadcrumbLink>
       )
     case "page":

@@ -38,12 +38,12 @@ export function CustomerViewDrawer() {
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       open={open === "view"}
       onOpenChange={handleOpenChange}
     >
       <DrawerContent
-        className="data-[vaul-drawer-direction=right]:sm:max-w-lg"
+        className="data-[swipe-direction=right]:sm:max-w-lg"
         onAnimationEnd={() => {
           if (open === null) {
             setCurrentRow(null)
@@ -71,18 +71,19 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex h-4 items-center gap-2 text-muted-foreground">
-          <Button size="icon-sm" variant="ghost" asChild>
-            <Link href={`/customers/${item.id}`}>
-              <FullscreenIcon />
-              <span className="sr-only">Go to customer details page</span>
-            </Link>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            render={<Link href={`/customers/${item.id}`} />}
+            nativeButton={false}
+          >
+            <FullscreenIcon />
+            <span className="sr-only">Go to customer details page</span>
           </Button>
           <Separator orientation="vertical" />
-          <DialogClose asChild>
-            <Button size="icon-sm" variant="ghost">
-              <XIcon />
-              <span className="sr-only">Close</span>
-            </Button>
+          <DialogClose render={<Button size="icon-sm" variant="ghost" />}>
+            <XIcon />
+            <span className="sr-only">Close</span>
           </DialogClose>
         </div>
       </div>

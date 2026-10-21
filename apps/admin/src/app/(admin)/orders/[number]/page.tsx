@@ -92,11 +92,13 @@ export default function OrdersDetailsPage() {
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
-                <Button variant="ghost" asChild>
-                  <Link href={`/customers/${customer.id}`}>
-                    <ViewIcon />
-                    <span>View details</span>
-                  </Link>
+                <Button
+                  variant="ghost"
+                  render={<Link href={`/customers/${customer.id}`} />}
+                  nativeButton={false}
+                >
+                  <ViewIcon />
+                  <span>View details</span>
                 </Button>
               </ItemActions>
             </Item>

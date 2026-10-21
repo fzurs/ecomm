@@ -22,7 +22,7 @@ export function CustomerEditDrawer() {
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       open={open === "edit"}
       onOpenChange={handleOpenChange}
     >
@@ -68,9 +68,7 @@ function CustomerEditDrawerContent({
         <form.AppForm>
           <form.SubmitButton>Save</form.SubmitButton>
         </form.AppForm>
-        <DrawerClose asChild>
-          <Button variant="secondary">Close</Button>
-        </DrawerClose>
+        <DrawerClose render={<Button variant="secondary" />}>Close</DrawerClose>
       </DrawerFooter>
     </>
   )

@@ -39,24 +39,26 @@ export function NavUser({ user }: { user: UserDetails }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarFallback className="rounded-lg">
-                  {user.first_name?.[0] || "?"}
-                </AvatarFallback>
-              </Avatar>
-              <span className="flex-1 truncate text-left text-sm leading-tight font-medium">
-                {user.first_name || user.email || user.username}
-              </span>
-              <EllipsisVerticalIcon className="ml-auto size-4" />
-            </SidebarMenuButton>
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
+              />
+            }
+          >
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarFallback className="rounded-lg">
+                {user.first_name?.[0] || "?"}
+              </AvatarFallback>
+            </Avatar>
+            <span className="flex-1 truncate text-left text-sm leading-tight font-medium">
+              {user.first_name || user.email || user.username}
+            </span>
+            <EllipsisVerticalIcon className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-(--anchor-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}

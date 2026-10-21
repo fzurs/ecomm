@@ -71,11 +71,9 @@ export function AppSidebar() {
       <SidebarHeader className="h-(--header-height) border-b">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/">
-                <IconInnerShadowTop />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </Link>
+            <SidebarMenuButton render={<Link href="/" />}>
+              <IconInnerShadowTop />
+              <span className="text-base font-semibold">Acme Inc.</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -89,11 +87,12 @@ export function AppSidebar() {
                 const isActive = item.url === pathname.slice(0, item.url.length)
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton isActive={isActive} asChild>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      render={<Link href={item.url} />}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )

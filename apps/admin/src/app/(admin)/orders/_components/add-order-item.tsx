@@ -68,11 +68,11 @@ export function AddOrderItem({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button type="button" size="sm" variant="secondary">
-          <PlusIcon />
-          Add Item
-        </Button>
+      <PopoverTrigger
+        render={<Button type="button" size="sm" variant="secondary" />}
+      >
+        <PlusIcon />
+        Add Item
       </PopoverTrigger>
       <PopoverContent className="p-0" align="end">
         <Command>

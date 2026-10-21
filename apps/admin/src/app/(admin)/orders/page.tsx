@@ -101,8 +101,12 @@ export default function OrdersPage() {
       <AppHeader>
         <AppHeaderNav items={[{ type: "page", label: "Orders" }]} />
         <AppHeaderActions>
-          <Button size="sm" asChild>
-            <Link href="/orders/new">New Order</Link>
+          <Button
+            size="sm"
+            render={<Link href="/orders/new" />}
+            nativeButton={false}
+          >
+            New Order
           </Button>
         </AppHeaderActions>
       </AppHeader>

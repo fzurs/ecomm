@@ -77,14 +77,16 @@ function TableCellActions({ item }: { item: Customer }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label={`${item.name} actions`}
-        >
-          <EllipsisVertical />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={`${item.name} actions`}
+          />
+        }
+      >
+        <EllipsisVertical />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>

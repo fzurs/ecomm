@@ -233,16 +233,14 @@ function TableCellViewer({ original: item }: { original: Product }) {
     <Drawer
       open={open}
       onOpenChange={setOpen}
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       modal={false}
     >
-      <DrawerTrigger asChild>
-        <Button size="sm" variant="link">
-          {item.name}
-        </Button>
+      <DrawerTrigger render={<Button size="sm" variant="link" />}>
+        {item.name}
       </DrawerTrigger>
       <DrawerContent
-        className="data-[vaul-drawer-direction=right]:sm:max-w-lg"
+        className="data-[swipe-direction=right]:sm:max-w-lg"
         onAnimationEnd={(e) => {
           if (!open && e.animationName === "slideToRight") {
             form.reset()
@@ -260,8 +258,8 @@ function TableCellViewer({ original: item }: { original: Product }) {
           <form.AppForm>
             <form.SubmitButton>Save changes</form.SubmitButton>
           </form.AppForm>
-          <DrawerClose asChild>
-            <Button variant="secondary">Close</Button>
+          <DrawerClose render={<Button variant="secondary" />}>
+            Close
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -275,18 +273,21 @@ function TableCellActions({ item }: { item: Product }) {
   return (
     <AlertDialog>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="ghost" aria-label="Open actions">
-            <EllipsisVerticalIcon />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-sm" variant="ghost" aria-label="Open actions" />
+          }
+        >
+          <EllipsisVerticalIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem variant="destructive">
-                <Trash2Icon />
-                Delete product
-              </DropdownMenuItem>
+            <AlertDialogTrigger
+              render={<DropdownMenuItem variant="destructive" />}
+              nativeButton={false}
+            >
+              <Trash2Icon />
+              Delete product
             </AlertDialogTrigger>
           </DropdownMenuGroup>
         </DropdownMenuContent>

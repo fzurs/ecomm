@@ -85,18 +85,18 @@ export function OrderRowActions({ item: order }: { item: Order }) {
 
   return (
     <DropdownMenu onOpenChange={prefetchDetails}>
-      <DropdownMenuTrigger asChild>
-        <Button size="icon-sm" variant="ghost" aria-label="Open actions">
-          <EllipsisIcon />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button size="icon-sm" variant="ghost" aria-label="Open actions" />
+        }
+      >
+        <EllipsisIcon />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href={detailsHref}>
-              <ViewIcon />
-              View details
-            </Link>
+          <DropdownMenuItem render={<Link href={detailsHref} />}>
+            <ViewIcon />
+            View details
           </DropdownMenuItem>
           {order.status === "paid" && (
             <DropdownMenuItem onClick={createInvoice}>

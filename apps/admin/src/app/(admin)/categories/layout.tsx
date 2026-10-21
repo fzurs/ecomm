@@ -44,11 +44,9 @@ function QuickCreateCategoryDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <IconTagPlus />
-          Quick Create
-        </Button>
+      <DialogTrigger render={<Button size="sm" />}>
+        <IconTagPlus />
+        Quick Create
       </DialogTrigger>
       <DialogContent
         onAnimationEnd={(e) => {
@@ -64,8 +62,8 @@ function QuickCreateCategoryDialog() {
         </DialogHeader>
         <CategoryForm form={form} variant="required" />
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
+          <DialogClose render={<Button variant="secondary" />}>
+            Close
           </DialogClose>
           <form.AppForm>
             <form.SubmitButton>Create</form.SubmitButton>

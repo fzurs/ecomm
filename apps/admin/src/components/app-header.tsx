@@ -65,11 +65,14 @@ function AppHeaderBackLink({
   ...props
 }: React.ComponentProps<typeof Link>) {
   return (
-    <Button size="sm" variant="ghost" asChild>
-      <Link {...props}>
-        <ChevronLeftIcon />
-        {children}
-      </Link>
+    <Button
+      size="sm"
+      variant="ghost"
+      render={<Link {...props} />}
+      nativeButton={false}
+    >
+      <ChevronLeftIcon />
+      {children}
     </Button>
   )
 }

@@ -161,8 +161,13 @@ export function CreateOrderForm() {
           <form.AppForm>
             <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>
-          <Button variant="outline" type="button" asChild>
-            <Link href="/orders">Cancel</Link>
+          <Button
+            variant="outline"
+            type="button"
+            render={<Link href="/orders" />}
+            nativeButton={false}
+          >
+            Cancel
           </Button>
         </Field>
       </FieldGroup>

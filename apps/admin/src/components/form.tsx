@@ -245,6 +245,7 @@ export function SelectField({
       <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
       <Select
         name={field.name}
+        items={options}
         value={field.state.value as string}
         onValueChange={field.handleChange}
       >

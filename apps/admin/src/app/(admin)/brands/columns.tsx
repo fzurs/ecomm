@@ -63,14 +63,12 @@ function TableCellViewer({ item }: { item: Brand }) {
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       open={open}
       onOpenChange={setOpen}
     >
-      <DrawerTrigger asChild>
-        <Button size="sm" variant="link">
-          {item.name}
-        </Button>
+      <DrawerTrigger render={<Button size="sm" variant="link" />}>
+        {item.name}
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -83,9 +81,7 @@ function TableCellViewer({ item }: { item: Brand }) {
           <form.AppForm>
             <form.SubmitButton>Save Changes</form.SubmitButton>
           </form.AppForm>
-          <DrawerClose asChild>
-            <Button variant="outline">Close</Button>
-          </DrawerClose>
+          <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
@@ -101,18 +97,17 @@ function TableCellActions({ item }: { item: Brand }) {
   return (
     <AlertDialog>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="ghost">
-            <EllipsisIcon />
-          </Button>
+        <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>
+          <EllipsisIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem variant="destructive">
-                <Trash2Icon />
-                Delete
-              </DropdownMenuItem>
+            <AlertDialogTrigger
+              render={<DropdownMenuItem variant="destructive" />}
+              nativeButton={false}
+            >
+              <Trash2Icon />
+              Delete
             </AlertDialogTrigger>
           </DropdownMenuGroup>
         </DropdownMenuContent>
