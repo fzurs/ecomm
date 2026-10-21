@@ -20,9 +20,10 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@workspace/ui/components/item"
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
-import { statusOptions } from "./columns"
+import { productStatusOptions } from "../_lib/product-status"
+import { invalidateProducts } from "../_lib/invalidate-products"
 import {
   InputGroupAddon,
   InputGroupButton,
@@ -44,8 +45,6 @@ import {
   productsCreateMutation,
   productsDetectAndAssignBrandCreateMutation,
   productsGenerateSkuCreateMutation,
-  productsListChoicesQueryKey,
-  productsListQueryKey,
   productsUpdateMutation,
 } from "@workspace/api-client/query"
 import z from "zod"
@@ -71,22 +70,13 @@ const productFormOpts = formOptions({
   validators: { onSubmit: formSchema },
 })
 
-export const invalidateProducts = async (queryClient: QueryClient) => {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: productsListQueryKey() }),
-    queryClient.invalidateQueries({
-      queryKey: productsListChoicesQueryKey(),
-    }),
-  ])
-}
-
 export function useProductForm({
-  item,
+  product,
   setOpen,
 }: {
-  item?: Product
+  product?: Product
   setOpen?: (open: boolean) => void
-}) {
+} = {}) {
   const queryClient = useQueryClient()
 
   const options = {
@@ -115,13 +105,13 @@ export function useProductForm({
     ...productsCreateMutation(),
   })
 
-  const formId = item
-    ? `update-product-form-${item.slug ?? item.id}`
+  const formId = product
+    ? `update-product-form-${product.slug ?? product.id}`
     : "create-product-form"
 
   const form = useAppForm({
     ...productFormOpts,
-    defaultValues: { ...defaultValues, ...(item ?? {}) },
+    defaultValues: { ...defaultValues, ...(product ?? {}) },
     formId,
     onSubmit: ({
       value: { imageFile = null, clearImage = false, discount_price, ...value },
@@ -134,9 +124,9 @@ export function useProductForm({
       const headers = {
         "Content-Type": "multipart/form-data",
       }
-      return item
+      return product
         ? updateMutation.mutateAsync({
-            path: { slug: item.slug as string },
+            path: { slug: product.slug as string },
             body,
             headers,
           })
@@ -307,7 +297,7 @@ export const ProductForm = withForm({
             <field.SelectField
               label="Status"
               description='By default, the product status is "draft".'
-              options={statusOptions}
+              options={productStatusOptions}
             />
           )}
         />

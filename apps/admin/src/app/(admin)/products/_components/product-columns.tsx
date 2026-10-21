@@ -1,88 +1,40 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@workspace/ui/components/drawer"
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { Badge } from "@workspace/ui/components/badge"
-import {
-  IconCircleDashedCheck,
-  IconCircleDashedX,
-  IconLoader,
-  IconPackageOff,
-  IconStar,
-  IconTrashX,
-} from "@tabler/icons-react"
-
-import { invalidateProducts, ProductForm, useProductForm } from "./form"
+import { IconStar } from "@tabler/icons-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog"
 import { format } from "date-fns"
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-
-import {
-  PaginatedProductList,
-  Product,
-  ProductStatus,
-} from "@workspace/api-client"
+import { Product } from "@workspace/api-client"
 import {
   brandsListChoicesOptions,
   categoriesListChoicesOptions,
-  productsDestroyMutation,
-  productsListQueryKey,
 } from "@workspace/api-client/query"
-import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
-import { useMemo, useState } from "react"
-import { zProductStatus } from "@workspace/api-client/zod"
-import { capitalize, formatPrice } from "@/lib/utils"
+import { EditIcon, EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
+import { useMemo } from "react"
+import { formatPrice } from "@/lib/utils"
+import { useRowActions } from "@/context/row-actions-provider"
+import {
+  productStatusIcons,
+  productStatusOptions,
+} from "../_lib/product-status"
 
 const featuredIcons = {
   true: <IconStar className="fill-yellow-500 text-yellow-500" />,
   false: <IconStar className="text-muted-foreground" />,
 } as const
-
-export const statusIcons: Record<ProductStatus, React.JSX.Element> = {
-  active: <IconCircleDashedCheck className="text-green-500" />,
-  inactive: <IconCircleDashedX className="text-red-500" />,
-  draft: <IconLoader />,
-  out_of_stock: <IconPackageOff className="text-orange-500" />,
-  discontinued: <IconTrashX className="text-red-500" />,
-}
-
-export const statusOptions = zProductStatus.options.map((status) => ({
-  label: capitalize(status.replaceAll("_", " ")),
-  value: status,
-  icon: statusIcons[status],
-}))
 
 function selectAsOption(data: { name: string; slug?: string }[]) {
   return data.map((item) => ({ label: item.name, value: String(item.slug) }))
@@ -122,7 +74,7 @@ export function useProductColumns() {
         },
         {
           accessorKey: "name",
-          cell: ({ row }) => <TableCellViewer original={row.original} />,
+          cell: ({ row }) => <TableCellViewer product={row.original} />,
           enableHiding: false,
           meta: { variant: "text", thClassName: "px-5" },
         },
@@ -160,14 +112,14 @@ export function useProductColumns() {
           cell: ({ row }) =>
             row.original.status && (
               <Badge variant="outline" className="capitalize">
-                {statusIcons[row.original.status]}{" "}
+                {productStatusIcons[row.original.status]}{" "}
                 {row.original.status.replaceAll("_", " ")}
               </Badge>
             ),
           meta: {
             thClassName: "pl-4",
             variant: "multi-select",
-            options: statusOptions,
+            options: productStatusOptions,
           },
         },
         {
@@ -228,132 +180,54 @@ export function useProductColumns() {
   return columns
 }
 
-function TableCellViewer({ original: item }: { original: Product }) {
-  const isMobile = useIsMobile()
-  const [open, setOpen] = useState(false)
-
-  const form = useProductForm({ item, setOpen })
+function TableCellViewer({ product }: { product: Product }) {
+  const { openAction } = useRowActions<Product>()
 
   return (
-    <Drawer
-      open={open}
-      onOpenChange={setOpen}
-      swipeDirection={isMobile ? "down" : "right"}
-      modal={false}
+    <Button
+      size="sm"
+      variant="link"
+      onClick={() => openAction("edit", product)}
     >
-      <DrawerTrigger render={<Button size="sm" variant="link" />}>
-        {item.name}
-      </DrawerTrigger>
-      <DrawerContent
-        size="lg"
-        onAnimationEnd={(e) => {
-          if (!open && e.animationName === "slideToRight") {
-            form.reset()
-          }
-        }}
-      >
-        <DrawerHeader>
-          <DrawerTitle>{item.name}</DrawerTitle>
-          <DrawerDescription />
-        </DrawerHeader>
-        <div className="overflow-auto p-4">
-          <ProductForm form={form} />
-        </div>
-        <DrawerFooter>
-          <form.AppForm>
-            <form.SubmitButton>Save changes</form.SubmitButton>
-          </form.AppForm>
-          <DrawerClose render={<Button variant="secondary" />}>
-            Close
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+      {product.name}
+    </Button>
   )
 }
 
 function TableCellActions({ item }: { item: Product }) {
-  const { onDestroy } = useOptimisticProductDestroy(item)
+  const { openAction } = useRowActions<Product>()
 
   return (
-    <AlertDialog>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button size="icon-sm" variant="ghost" aria-label="Open actions" />
-          }
-        >
-          <EllipsisVerticalIcon />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuGroup>
-            <AlertDialogTrigger
-              render={<DropdownMenuItem variant="destructive" />}
-              nativeButton={false}
-            >
-              <Trash2Icon />
-              Delete
-            </AlertDialogTrigger>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-destructive/10 text-destructive">
-            <Trash2Icon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>Delete product?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            product and remove all associated data.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onDestroy}>
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
-
-function useOptimisticProductDestroy(item: Product) {
-  const queryClient = useQueryClient()
-
-  const queryKey = productsListQueryKey()
-
-  const mutation = useMutation({
-    ...productsDestroyMutation(),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey })
-
-      const previousData = queryClient.getQueryData(queryKey)
-
-      queryClient.setQueriesData(
-        { queryKey },
-        (old: PaginatedProductList | undefined) => {
-          if (!old) return old
-          return {
-            ...old,
-            results: old.results.filter((product) => product.id !== item.id),
-          }
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={`${item.name} actions`}
+          />
         }
-      )
-
-      return { previousData }
-    },
-    onError: (err, _, onMutateResult) => {
-      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
-    },
-    onSettled: async () => {
-      await invalidateProducts(queryClient)
-    },
-  })
-
-  const onDestroy = () =>
-    mutation.mutate({ path: { slug: item.slug as string } })
-
-  return { mutation, onDestroy }
+      >
+        <EllipsisVerticalIcon />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => openAction("edit", item)}>
+            <EditIcon />
+            Edit
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => openAction("delete", item)}
+          >
+            <Trash2Icon />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
