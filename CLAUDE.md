@@ -12,7 +12,10 @@ Responder en español. Código e identificadores en inglés, como el resto del r
 - `apps/web` — tienda en Next.js 16, puerto 3000. Fetch del lado del servidor con `"use cache"` en `src/lib/cache.ts`.
 - `packages/api-client` — generado con `@hey-api/openapi-ts` (cliente axios + zod + TanStack Query).
   Exports: `@workspace/api-client` (sdk/tipos), `/query` (query options), `/zod` (schemas).
-- `packages/ui` — shadcn/ui (new-york, lucide). `packages/data-table` — componentes y hooks compartidos de TanStack Table.
+- `packages/ui` — shadcn/ui (new-york, base radix, lucide). `packages/data-table` — componentes y hooks compartidos de TanStack Table.
+  La skill `shadcn` (`.claude/skills/shadcn`, copia oficial de shadcn-ui/ui) usa el CLI: correrlo con
+  `pnpm dlx shadcn@latest <cmd> -c apps/admin` (o `apps/web`); desde la raíz falla por ser monorepo.
+  `add` escribe los componentes de UI en `packages/ui` según los aliases del `components.json`.
 - `packages/{eslint,prettier,typescript}-config` — configuración compartida de herramientas.
 
 ## Comandos (desde la raíz)
