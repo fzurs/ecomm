@@ -38,7 +38,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { EllipsisIcon, Trash2Icon } from "lucide-react"
+import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 
 export const columns: ColumnDef<Brand>[] = [
   {
@@ -98,7 +98,7 @@ function TableCellActions({ item }: { item: Brand }) {
     <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>
-          <EllipsisIcon />
+          <EllipsisVerticalIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>

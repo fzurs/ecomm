@@ -9,7 +9,7 @@ import {
 } from "@workspace/ui/components/drawer"
 import { Customer } from "@workspace/api-client"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
-import { FullscreenIcon, MailIcon, XIcon } from "lucide-react"
+import { Maximize2Icon, MailIcon, XIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
@@ -59,8 +59,8 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
             href={`/customers/${item.id}`}
             className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
           >
-            <FullscreenIcon />
-            <span className="sr-only">Go to customer details page</span>
+            <Maximize2Icon />
+            <span className="sr-only">Open customer page</span>
           </Link>
           <Separator orientation="vertical" />
           <DialogClose render={<Button size="icon-sm" variant="ghost" />}>

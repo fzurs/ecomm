@@ -23,11 +23,11 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { cn } from "@workspace/ui/lib/utils"
 import {
-  EllipsisIcon,
+  CircleDashedIcon,
+  EllipsisVerticalIcon,
+  EyeIcon,
   FileTextIcon,
-  RefreshCw,
   Trash2Icon,
-  ViewIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -90,12 +90,12 @@ export function OrderRowActions({ item: order }: { item: Order }) {
           <Button size="icon-sm" variant="ghost" aria-label="Open actions" />
         }
       >
-        <EllipsisIcon />
+        <EllipsisVerticalIcon />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link href={detailsHref} />}>
-            <ViewIcon />
+            <EyeIcon />
             View details
           </DropdownMenuItem>
           {order.status === "paid" && (
@@ -106,7 +106,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
           )}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <RefreshCw />
+              <CircleDashedIcon />
               Change Status
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>

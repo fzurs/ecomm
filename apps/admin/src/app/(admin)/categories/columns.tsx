@@ -31,7 +31,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { IconDots, IconTrash } from "@tabler/icons-react"
+import { IconTrash } from "@tabler/icons-react"
+import { EllipsisVerticalIcon } from "lucide-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, PaginatedCategoryList } from "@workspace/api-client"
 import {
@@ -115,7 +116,7 @@ function TableCellActions({ item }: { item: Category }) {
     <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
-          <IconDots />
+          <EllipsisVerticalIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>

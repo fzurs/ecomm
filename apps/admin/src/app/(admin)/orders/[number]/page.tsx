@@ -14,7 +14,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@workspace/ui/components/item"
-import { CalendarIcon, EditIcon, MailIcon, ViewIcon } from "lucide-react"
+import { CalendarIcon, EditIcon, EyeIcon, MailIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
@@ -96,7 +96,7 @@ export default function OrdersDetailsPage() {
                   href={`/customers/${customer.id}`}
                   className={buttonVariants({ variant: "ghost" })}
                 >
-                  <ViewIcon />
+                  <EyeIcon />
                   <span>View details</span>
                 </Link>
               </ItemActions>

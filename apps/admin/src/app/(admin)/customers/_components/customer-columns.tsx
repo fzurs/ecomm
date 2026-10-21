@@ -10,7 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { EditIcon, EllipsisVertical, Trash2Icon, ViewIcon } from "lucide-react"
+import {
+  EditIcon,
+  EllipsisVerticalIcon,
+  PanelRightIcon,
+  Trash2Icon,
+} from "lucide-react"
 import { useRowActions } from "@/context/row-actions-provider"
 import {
   Avatar,
@@ -83,12 +88,12 @@ function TableCellActions({ item }: { item: Customer }) {
           />
         }
       >
-        <EllipsisVertical />
+        <EllipsisVerticalIcon />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => openAction("view", item)}>
-            <ViewIcon />
+            <PanelRightIcon />
             Customer details
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => openAction("edit", item)}>
