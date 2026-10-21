@@ -16,7 +16,7 @@ export function CustomerEditButton({
       {...props}
     >
       <EditIcon />
-      Edit customer
+      Edit
     </Button>
   )
 }
