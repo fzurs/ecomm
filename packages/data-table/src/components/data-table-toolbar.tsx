@@ -85,9 +85,8 @@ export function DataTableToolbarFilter<TData>({
           <ToggleGroup
             className="text-muted-foreground"
             variant="outline"
-            type="single"
-            value={String(column.getFilterValue())}
-            onValueChange={(val) =>
+            value={[String(column.getFilterValue())]}
+            onValueChange={([val]) =>
               column.setFilterValue(
                 val === "true" ? true : val === "false" ? false : null
               )

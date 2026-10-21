@@ -17,11 +17,9 @@ import { getColumnLabel } from "../lib/column"
 export function DataTableSortMenu<TData>({ table }: { table: Table<TData> }) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">
-          <ArrowUpDown />
-          Sort
-        </Button>
+      <PopoverTrigger render={<Button variant="outline" />}>
+        <ArrowUpDown />
+        Sort
       </PopoverTrigger>
       <PopoverContent className="w-44 p-0" align="start">
         <Command>

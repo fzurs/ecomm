@@ -20,11 +20,13 @@ export function DataTableViewOptions<TData>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" aria-label="Toggle columns visibility">
-          <Columns />
-          Columns
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="outline" aria-label="Toggle columns visibility" />
+        }
+      >
+        <Columns />
+        Columns
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-44">
         <DropdownMenuGroup>

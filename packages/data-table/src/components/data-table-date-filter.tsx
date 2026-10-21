@@ -43,25 +43,23 @@ export function DataTableDateFilter<TData>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            id="date-picker-range"
-            className={cn(
-              "justify-start px-2.5 font-normal",
-              !selected.from && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon />
-            {onRender()}
-          </Button>
-          {selected.from && (
-            <Button variant="outline" size="icon" onClick={onClear}>
-              <XIcon />
-            </Button>
+      <PopoverTrigger render={<ButtonGroup />} nativeButton={false}>
+        <Button
+          variant="outline"
+          id="date-picker-range"
+          className={cn(
+            "justify-start px-2.5 font-normal",
+            !selected.from && "text-muted-foreground"
           )}
-        </ButtonGroup>
+        >
+          <CalendarIcon />
+          {onRender()}
+        </Button>
+        {selected.from && (
+          <Button variant="outline" size="icon" onClick={onClear}>
+            <XIcon />
+          </Button>
+        )}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar

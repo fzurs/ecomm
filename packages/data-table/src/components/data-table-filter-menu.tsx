@@ -57,14 +57,16 @@ export function DataTableFilterMenu<TData>({ table }: { table: Table<TData> }) {
         </Button>
       )}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            size={filters.size === 0 ? "default" : "icon"}
-            variant="outline"
-          >
-            <ListFilterIcon />
-            {filters.size === 0 && <span>Filters</span>}
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              size={filters.size === 0 ? "default" : "icon"}
+              variant="outline"
+            />
+          }
+        >
+          <ListFilterIcon />
+          {filters.size === 0 && <span>Filters</span>}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44" align="start">
           {columns.map((column) => (
