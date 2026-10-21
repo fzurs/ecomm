@@ -61,7 +61,7 @@ function CustomerEditDrawerContent({
           Changes are saved to the customer&apos;s profile.
         </DrawerDescription>
       </DrawerHeader>
-      <div className="overflow-auto px-4 pt-2 pb-4">
+      <div className="overflow-auto px-4 pt-2">
         <CustomerForm form={form} />
       </div>
       <DrawerFooter>

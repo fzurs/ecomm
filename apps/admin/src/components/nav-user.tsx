@@ -47,8 +47,8 @@ export function NavUser({ user }: { user: UserDetails }) {
               />
             }
           >
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarFallback className="rounded-lg">
+            <Avatar shape="rounded">
+              <AvatarFallback>
                 {user.first_name?.[0] || "?"}
               </AvatarFallback>
             </Avatar>

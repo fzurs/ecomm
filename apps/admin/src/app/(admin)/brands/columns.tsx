@@ -74,7 +74,7 @@ function TableCellViewer({ item }: { item: Brand }) {
         <DrawerHeader>
           <DrawerTitle>{item.name}</DrawerTitle>
         </DrawerHeader>
-        <div className="overflow-auto px-4 pb-4">
+        <div className="overflow-auto px-4">
           <BrandForm form={form} />
         </div>
         <DrawerFooter>

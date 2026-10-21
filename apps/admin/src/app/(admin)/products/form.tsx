@@ -134,15 +134,13 @@ export function useProductForm({
       const headers = {
         "Content-Type": "multipart/form-data",
       }
-      if (item) {
-        updateMutation.mutateAsync({
-          path: { slug: item.slug as string },
-          body,
-          headers,
-        })
-      } else {
-        createMutation.mutateAsync({ body, headers })
-      }
+      return item
+        ? updateMutation.mutateAsync({
+            path: { slug: item.slug as string },
+            body,
+            headers,
+          })
+        : createMutation.mutateAsync({ body, headers })
     },
   })
 
@@ -194,9 +192,9 @@ export const ProductForm = withForm({
         <FieldGroup>
           <Field>
             <FieldLabel id={`${form.formId}-image`}>Image</FieldLabel>
-            <Avatar className="aspect-square size-full rounded-md">
+            <Avatar shape="square" className="aspect-square size-full">
               {product?.image && <AvatarImage src={product.image} />}
-              <AvatarFallback className="rounded-none">
+              <AvatarFallback>
                 {product?.image ? "Fail to load image" : "No image"}
               </AvatarFallback>
             </Avatar>

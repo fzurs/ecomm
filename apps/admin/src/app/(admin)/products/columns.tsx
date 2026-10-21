@@ -107,9 +107,9 @@ export function useProductColumns() {
           cell: ({ row }) => {
             const product = row.original
             return (
-              <Avatar className="rounded-md">
+              <Avatar shape="square">
                 <AvatarImage src={product.image ?? undefined} />
-                <AvatarFallback className="rounded-none" />
+                <AvatarFallback />
               </Avatar>
             )
           },
@@ -240,7 +240,7 @@ function TableCellViewer({ original: item }: { original: Product }) {
         {item.name}
       </DrawerTrigger>
       <DrawerContent
-        className="data-[swipe-direction=right]:sm:max-w-lg"
+        className="data-[swipe-axis=x]:sm:[--drawer-content-width:36rem]"
         onAnimationEnd={(e) => {
           if (!open && e.animationName === "slideToRight") {
             form.reset()
@@ -251,7 +251,7 @@ function TableCellViewer({ original: item }: { original: Product }) {
           <DrawerTitle>{item.name}</DrawerTitle>
           <DrawerDescription />
         </DrawerHeader>
-        <div className="overflow-auto px-4 pb-4">
+        <div className="overflow-auto p-4">
           <ProductForm form={form} />
         </div>
         <DrawerFooter>

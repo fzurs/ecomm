@@ -43,7 +43,7 @@ export function CustomerViewDrawer() {
       onOpenChange={handleOpenChange}
     >
       <DrawerContent
-        className="data-[swipe-direction=right]:sm:max-w-lg"
+        className="data-[swipe-axis=x]:sm:[--drawer-content-width:36rem]"
         onAnimationEnd={() => {
           if (open === null) {
             setCurrentRow(null)
@@ -107,7 +107,7 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           </div>
         </div>
       </DrawerHeader>
-      <div className="overflow-auto px-4 pt-2 pb-4">
+      <div className="overflow-auto p-4 pt-6">
         <div className="flex flex-col gap-2">
           <div className="typeset">
             <h3>Customer details</h3>

@@ -30,14 +30,28 @@ export function Form({ onSubmit, ...props }: React.ComponentProps<"form">) {
     <form
       {...props}
       id={form.formId}
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault()
         e.stopPropagation()
         onSubmit?.(e)
-        void form.handleSubmit()
+        const formElement = e.currentTarget
+        try {
+          await form.handleSubmit()
+        } finally {
+          scrollToFirstInvalidField(formElement)
+        }
       }}
     />
   )
+}
+
+function scrollToFirstInvalidField(formElement: HTMLFormElement) {
+  // Wait for React to render the field errors before measuring.
+  requestAnimationFrame(() => {
+    formElement
+      .querySelector('[data-slot="field"][data-invalid="true"]')
+      ?.scrollIntoView({ block: "nearest", behavior: "smooth" })
+  })
 }
 
 export function TextField({

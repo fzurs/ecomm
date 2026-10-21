@@ -6,7 +6,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-import { Button } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
 import {
   Popover,
   PopoverContent,
@@ -80,19 +80,20 @@ export const orderColumns = [
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
-        <Button
-          variant="link"
-          size="sm"
-          className="gap-2"
-          render={<Link href={`/customers/${customer.id}`} />}
-          nativeButton={false}
+        <Link
+          href={`/customers/${customer.id}`}
+          className={buttonVariants({
+            variant: "link",
+            size: "sm",
+            className: "gap-2",
+          })}
         >
           <Avatar size="sm">
             {customer.image && <AvatarImage src={customer.image} />}
             <AvatarFallback />
           </Avatar>
           <span>{customer.name}</span>
-        </Button>
+        </Link>
       )
     },
   },

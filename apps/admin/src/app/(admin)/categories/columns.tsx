@@ -89,7 +89,7 @@ function TableCellViewer({ item }: { item: Category }) {
         <DrawerHeader>
           <DrawerTitle>{item.name}</DrawerTitle>
         </DrawerHeader>
-        <div className="overflow-auto px-4 pb-4">
+        <div className="overflow-auto px-4">
           <CategoryForm form={form} />
         </div>
         <DrawerFooter>

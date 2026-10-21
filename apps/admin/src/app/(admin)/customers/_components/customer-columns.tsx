@@ -88,10 +88,10 @@ function TableCellActions({ item }: { item: Customer }) {
       >
         <EllipsisVertical />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onSelect={() => {
+            onClick={() => {
               setOpen("view")
               setCurrentRow(item)
             }}
@@ -100,7 +100,7 @@ function TableCellActions({ item }: { item: Customer }) {
             Customer details
           </DropdownMenuItem>
           <DropdownMenuItem
-            onSelect={() => {
+            onClick={() => {
               setOpen("edit")
               setCurrentRow(item)
             }}
@@ -113,7 +113,7 @@ function TableCellActions({ item }: { item: Customer }) {
         <DropdownMenuGroup>
           <DropdownMenuItem
             variant="destructive"
-            onSelect={() => {
+            onClick={() => {
               setOpen("delete")
               setCurrentRow(item)
             }}
