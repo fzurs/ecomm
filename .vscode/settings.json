@@ -11,6 +11,5 @@
     "**/.next": true,
     "**/.turbo": true,
     "**/dist": true
-  },
-  "python.analysis.extraPaths": ["${workspaceFolder}/packages/arca"]
+  }
 }

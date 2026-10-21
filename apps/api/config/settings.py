@@ -26,6 +26,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 ARCA_CUIT = env("ARCA_CUIT")
 ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH", default="certificate.pem")
 ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH", default="private-key.pem")
+ARCA_ENVIRONMENT = env("ARCA_ENVIRONMENT", default="homologacion")
 
 
 # Quick-start development settings - unsuitable for production

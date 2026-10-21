@@ -1,14 +1,15 @@
+import json
 import logging
+from dataclasses import asdict
 
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 
 from .adapter import ARCAElectronicInvoicingAdapter
 from .models import Invoice, InvoiceSequenceLock
-from .arca import get_arca_client
+from .arca import get_wsfe
 
 logger = logging.getLogger(__name__)
-
-invoicing_adapter = ARCAElectronicInvoicingAdapter(client=get_arca_client())
 
 
 def emit_invoice(invoice: Invoice):
@@ -21,9 +22,7 @@ def emit_invoice(invoice: Invoice):
         )
 
         try:
-            last_voucher = invoicing_adapter.get_last_voucher(invoice)
-            invoice.invoice_number = last_voucher + 1
-
+            invoicing_adapter = ARCAElectronicInvoicingAdapter(wsfe=get_wsfe())
             result = invoicing_adapter.create_voucher(invoice)
 
         except Exception as e:
@@ -32,8 +31,11 @@ def emit_invoice(invoice: Invoice):
             invoice.save(update_fields=["status", "error_message", "updated_at"])
             return invoice
 
-        invoice.afip_response = result
-        print(result)
+        invoice.invoice_number = result.numero
+        invoice.cae = result.cae
+        invoice.cae_expiration_date = result.cae_vencimiento.strftime("%Y%m%d")
+        invoice.afip_response = json.loads(json.dumps(asdict(result), cls=DjangoJSONEncoder))
+        invoice.status = Invoice.Status.SUCCESS
 
         try:
             invoice.save(
@@ -41,14 +43,14 @@ def emit_invoice(invoice: Invoice):
                     "invoice_number",
                     "afip_response",
                     "cae",
-                    "cae_expiration_time",
+                    "cae_expiration_date",
                     "status",
                     "updated_at",
                 ]
             )
         except Exception as e:
             logger.critical(
-                "Factura emitida pero error al guardar en local.",
+                "Factura emitida pero error al guardar en local. CAE %s, invoice %s: %s",
                 invoice.cae,
                 invoice.pk,
                 e,

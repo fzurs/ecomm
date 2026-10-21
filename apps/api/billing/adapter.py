@@ -1,42 +1,33 @@
+from arca_client import WSFE, CbteTipo, ComprobanteAutorizado, CondicionIVAReceptor, DocTipo
+
 from billing.models import Invoice
-from arca.client import ARCAClient
-from arca.wsfe.types import CreateVoucherRequest, VoucherBatch, Voucher
 
 
 class ARCAElectronicInvoicingAdapter:
-    def __init__(self, client: ARCAClient):
-        self.client = client
+    def __init__(self, wsfe: WSFE):
+        self.wsfe = wsfe
 
-    def get_last_voucher(self, invoice: Invoice):
-        return self.client.wsfe.get_last_voucher(
-            point_of_sale=invoice.point_of_sale, voucher_type=invoice.invoice_type
+    def create_voucher(self, invoice: Invoice) -> ComprobanteAutorizado:
+        """Emite la factura C y devuelve el comprobante autorizado.
+
+        ARCA asigna el número (último autorizado + 1); viene en ``numero``.
+        """
+        if invoice.invoice_type != CbteTipo.FACTURA_C:
+            raise ValueError(f"Tipo de comprobante no soportado: {invoice.invoice_type}")
+
+        customer = invoice.order.customer
+        if customer.document_number:
+            doc_tipo = DocTipo(customer.document_type)
+            doc_nro = int(customer.document_number)
+        else:
+            doc_tipo = DocTipo.CONSUMIDOR_FINAL
+            doc_nro = 0
+
+        return self.wsfe.create_invoice_c(
+            punto_venta=invoice.point_of_sale,
+            importe_total=invoice.total_amount,
+            doc_tipo=doc_tipo,
+            doc_nro=doc_nro,
+            # TODO: tomar la condición frente al IVA del cliente cuando el modelo la tenga.
+            condicion_iva_receptor=CondicionIVAReceptor.CONSUMIDOR_FINAL,
         )
-
-    def create_voucher(self, invoice: Invoice):
-        request = CreateVoucherRequest(
-            header=VoucherBatch(
-                quantity=1,
-                voucher_type=invoice.invoice_type,
-                point_of_sale=invoice.point_of_sale,
-            ),
-            details=[
-                Voucher(
-                    concept=1,
-                    document_type=invoice.order.customer.document_type,
-                    document_number=invoice.order.customer.document_number,
-                    voucher_from=invoice.invoice_number,
-                    voucher_to=invoice.invoice_number,
-                    voucher_date=None,
-                    total_amount=invoice.total_amount,
-                    net_amount=invoice.net_amount,
-                    vat_amount=invoice.vat_amount,
-                    non_taxable_amount=0,
-                    tax_amount=0,
-                    exempt_amount=0,
-                    currency_code="PES",
-                    recipient_vat_condition_code=1,
-                )
-            ],
-        )
-
-        return self.client.wsfe.create_voucher(request)
