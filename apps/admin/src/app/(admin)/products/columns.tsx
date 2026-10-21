@@ -63,7 +63,7 @@ import {
 import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { zProductStatus } from "@workspace/api-client/zod"
-import { capitalize } from "@/lib/utils"
+import { capitalize, formatPrice } from "@/lib/utils"
 
 const featuredIcons = {
   true: <IconStar className="fill-yellow-500 text-yellow-500" />,
@@ -186,6 +186,8 @@ export function useProductColumns() {
         },
         {
           accessorKey: "price",
+          cell: ({ row }) =>
+            row.original.price != null && formatPrice(row.original.price),
           meta: {
             thClassName: "text-right",
             className: "text-right text-green-500",
@@ -195,6 +197,9 @@ export function useProductColumns() {
         {
           accessorKey: "discount_price",
           header: "Discount",
+          cell: ({ row }) =>
+            row.original.discount_price != null &&
+            formatPrice(row.original.discount_price),
           meta: {
             thClassName: "text-left",
             className: "text-amber-500",
