@@ -29,13 +29,11 @@ export function NavBrands() {
     <Collapsible title="brands" className="group/collapsible">
       <SidebarGroup>
         <SidebarGroupLabel
-          asChild
           className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          render={<CollapsibleTrigger />}
         >
-          <CollapsibleTrigger>
-            Brands{" "}
-            <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-          </CollapsibleTrigger>
+          Brands{" "}
+          <ChevronRight className="ml-auto transition-transform group-data-open/collapsible:rotate-90" />
         </SidebarGroupLabel>
         <CollapsibleContent>
           <SidebarGroupContent>
@@ -66,8 +64,11 @@ function NavBrandsItems() {
     const href = `/brands/${brand.slug}`
     return (
       <SidebarMenuItem key={brand.id}>
-        <SidebarMenuButton isActive={pathname === href} asChild>
-          <Link href={href}>{brand.name}</Link>
+        <SidebarMenuButton
+          isActive={pathname === href}
+          render={<Link href={href} />}
+        >
+          {brand.name}
         </SidebarMenuButton>
       </SidebarMenuItem>
     )

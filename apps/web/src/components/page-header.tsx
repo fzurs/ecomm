@@ -39,8 +39,8 @@ export function PageHeader({
             {breadcrumbs?.items?.map(({ title, href }, index) => (
               <React.Fragment key={index}>
                 <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href={href}>{title}</Link>
+                  <BreadcrumbLink render={<Link href={href} />}>
+                    {title}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

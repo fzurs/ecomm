@@ -48,8 +48,11 @@ function NavCategoriesItems() {
     const href = `/${category.slug}`
     return (
       <SidebarMenuItem key={category.id}>
-        <SidebarMenuButton isActive={pathname === href} asChild>
-          <Link href={href}>{category.name}</Link>
+        <SidebarMenuButton
+          isActive={pathname === href}
+          render={<Link href={href} />}
+        >
+          {category.name}
         </SidebarMenuButton>
       </SidebarMenuItem>
     )
