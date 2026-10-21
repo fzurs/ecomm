@@ -33,29 +33,31 @@ export default function CustomerDetailsPage() {
         />
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col">
-        <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
-          {/* Header */}
+        <div className="flex flex-col gap-8 px-4 py-6 lg:px-6">
           <div className="flex flex-col gap-4">
-            <Avatar className="size-24">
-              {customer.image && <AvatarImage src={customer.image} />}
-              <AvatarFallback />
-            </Avatar>
-            <div className="typeset">
-              <h1>{customer.name}</h1>
-              {customer.email && (
-                <p className="mt-2 flex items-center gap-2 text-muted-foreground">
-                  <MailIcon className="size-4" />
-                  {customer.email}
-                </p>
-              )}
+            {/* Header */}
+            <div className="flex items-center gap-4">
+              <Avatar className="size-16">
+                {customer.image && <AvatarImage src={customer.image} />}
+                <AvatarFallback />
+              </Avatar>
+              <div className="typeset">
+                <h1>{customer.name}</h1>
+                {customer.email && (
+                  <p className="mt-1 flex items-center gap-2 text-muted-foreground">
+                    <MailIcon className="size-4" />
+                    {customer.email}
+                  </p>
+                )}
+              </div>
+            </div>
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <CustomerEditButton customer={customer} />
             </div>
           </div>
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            <CustomerEditButton customer={customer} />
-          </div>
           {/* Details */}
-          <section className="flex flex-col gap-4">
+          <section className="flex flex-col gap-2">
             <div className="typeset">
               <h2>Customer details</h2>
             </div>
