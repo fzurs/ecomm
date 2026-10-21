@@ -1,80 +1,80 @@
 # Ecommerce Demo
 
-Dockerized monorepo for development, built with Django and Next.js.
+Monorepo dockerizado para desarrollo, hecho con Django y Next.js.
 
-## Monorepo Structure
+## Estructura del monorepo
 
 ```
-|-  .devcontainer/  # Docker Dev Config
+|-  .devcontainer/  # Configuración de Docker para desarrollo
 |
 |-  apps/
 |   |-  api/    # Django
-|   |-  admin/  # Admin Dashboard
-|   |-  web/    # Ecommerce Web
+|   |-  admin/  # Dashboard de administración
+|   |-  web/    # Tienda web
 |
 |-  packages/
 |   |-  api-client/ # openapi-ts@hey-api 
 |   |-  ui/         # shadcn/ui
-|   |-  other packages...
+|   |-  otros paquetes...
 ```
 
-## Monorepo Setup (WSL + DevContainers)
+## Puesta en marcha del monorepo (WSL + DevContainers)
 
-### Requirements
+### Requisitos
 
-Before getting started, make sure you have the following installed:
+Antes de empezar, asegurate de tener instalado:
 
-- WSL2 (Linux on Windows)
-- Docker Desktop (with WSL integration enabled)
-- VSCode + Dev Containers extension
+- WSL2 (Linux en Windows)
+- Docker Desktop (con la integración con WSL habilitada)
+- VSCode + la extensión Dev Containers
 
-### WSL Setup (Critical)
+### Configuración de WSL (crítico)
 
-#### DO NOT USE THE WINDOWS FILE SYSTEM!!!
+#### ¡¡¡NO USAR EL SISTEMA DE ARCHIVOS DE WINDOWS!!!
 
-Do **not** develop under:
+**No** desarrolles dentro de:
 
 ```
 /mnt/c/Users/...
 ```
 
-This causes:
+Esto provoca:
 
-- Slow TypeScript
-- Broken hot reload
-- High CPU usage
+- TypeScript lento
+- Hot reload roto
+- Uso alto de CPU
 
-#### Use the Linux File System
+#### Usar el sistema de archivos de Linux
 
-Always work under:
+Trabajá siempre dentro de:
 
 ```
-/home/<username>/<repository-name>
+/home/<usuario>/<nombre-del-repositorio>
 ```
 
-#### Clone the Repo
+#### Clonar el repo
 
 ```bash
 git clone <repo-url>
 ```
 
-### Open VSCode from Linux
+### Abrir VSCode desde Linux
 
 ```bash
-code ./repo-name
+code ./nombre-del-repo
 ```
 
 ### Dev Containers
 
-Once the project is open:
+Con el proyecto abierto:
 
-1. Press `Ctrl + Shift + P`
-2. Run: **Reopen in Container**
+1. Presioná `Ctrl + Shift + P`
+2. Ejecutá: **Reopen in Container**
 
-### First Run
+### Primer arranque
 
-The container only handles Python requirements on startup. After that:
+El contenedor solo instala los requirements de Python al iniciar. Después de eso:
 
-1. Run migrations
-2. Install pnpm packages — run `pnpm install` from the root
-3. Start all apps with `pnpm run dev`
+1. Correr las migraciones
+2. Instalar los paquetes de pnpm: correr `pnpm install` desde la raíz
+3. Levantar todas las apps con `pnpm run dev`
