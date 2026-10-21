@@ -90,7 +90,7 @@ function TableCellActions({ item }: { item: Customer }) {
       >
         <EllipsisVerticalIcon />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40">
+      <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => openAction("view", item)}>
             <PanelRightIcon />
