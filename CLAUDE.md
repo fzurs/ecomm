@@ -18,6 +18,8 @@ Responder en español. Código e identificadores en inglés, como el resto del r
   `add` escribe los componentes de UI en `packages/ui` según los aliases del `components.json`.
   Después de `add`, reemplazar `import { cn } from "cn"` por `@workspace/ui/lib/utils` y quitar la
   dependencia `cn` que agrega el CLI. Composición con `render={<Button />}`, no `asChild`.
+  Links con estilo de botón: `<Link className={buttonVariants({...})}>`, no `<Button render={<Link />}>`
+  (el `Button` de Base UI fuerza `role="button"`; así lo indica la doc de shadcn).
 - `packages/{eslint,prettier,typescript}-config` — configuración compartida de herramientas.
 
 ## Comandos (desde la raíz)
