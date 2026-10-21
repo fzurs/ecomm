@@ -56,16 +56,13 @@ export const customerColumns: ColumnDef<Customer>[] = [
 ]
 
 function TableCellViewer({ customer }: { customer: Customer }) {
-  const { setOpen, setCurrentRow } = useRowActions()
+  const { openAction } = useRowActions<Customer>()
 
   return (
     <Button
       size="sm"
       variant="link"
-      onClick={() => {
-        setOpen("view")
-        setCurrentRow(customer)
-      }}
+      onClick={() => openAction("view", customer)}
     >
       {customer.name}
     </Button>
@@ -73,7 +70,7 @@ function TableCellViewer({ customer }: { customer: Customer }) {
 }
 
 function TableCellActions({ item }: { item: Customer }) {
-  const { setOpen, setCurrentRow } = useRowActions()
+  const { openAction } = useRowActions<Customer>()
 
   return (
     <DropdownMenu>
@@ -90,21 +87,11 @@ function TableCellActions({ item }: { item: Customer }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            onClick={() => {
-              setOpen("view")
-              setCurrentRow(item)
-            }}
-          >
+          <DropdownMenuItem onClick={() => openAction("view", item)}>
             <ViewIcon />
             Customer details
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              setOpen("edit")
-              setCurrentRow(item)
-            }}
-          >
+          <DropdownMenuItem onClick={() => openAction("edit", item)}>
             <EditIcon />
             Edit customer
           </DropdownMenuItem>
@@ -113,10 +100,7 @@ function TableCellActions({ item }: { item: Customer }) {
         <DropdownMenuGroup>
           <DropdownMenuItem
             variant="destructive"
-            onClick={() => {
-              setOpen("delete")
-              setCurrentRow(item)
-            }}
+            onClick={() => openAction("delete", item)}
           >
             <Trash2Icon />
             Delete

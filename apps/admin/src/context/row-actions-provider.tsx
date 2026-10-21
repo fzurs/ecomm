@@ -2,16 +2,19 @@
 
 import { createContext, useContext, useMemo, useState } from "react"
 
-export type RowActionsOpenType = "edit" | "delete" | "view"
+export type RowAction = "edit" | "delete" | "view"
 
-export type RowActionsType<T> = {
-  open: RowActionsOpenType | null
-  setOpen: (value: RowActionsOpenType | null) => void
-  currentRow: T | null
-  setCurrentRow: (item: T | null) => void
+type RowActionsContextType<T> = {
+  action: RowAction | null
+  row: T | null
+  openAction: (action: RowAction, row: T) => void
+  closeAction: () => void
+  clearRow: () => void
 }
 
-const RowActionsContext = createContext<RowActionsType<unknown> | null>(null)
+const RowActionsContext = createContext<RowActionsContextType<unknown> | null>(
+  null
+)
 
 export function useRowActions<T>() {
   const context = useContext(RowActionsContext)
@@ -20,30 +23,54 @@ export function useRowActions<T>() {
     throw new Error("useRowActions must be used within RowActionsProvider")
   }
 
-  return context as RowActionsType<T>
+  return context as RowActionsContextType<T>
 }
 
-export function RowActionsProvider<T>({
+/**
+ * Binds a Dialog/AlertDialog/Drawer to one row action. Spread `rootProps` on
+ * the root; the row is kept until the close animation finishes so the content
+ * doesn't disappear mid-transition.
+ */
+export function useRowActionDialog<T>(action: RowAction) {
+  const { action: current, row, closeAction, clearRow } = useRowActions<T>()
+
+  return {
+    row,
+    closeAction,
+    rootProps: {
+      open: current === action,
+      onOpenChange: (open: boolean) => {
+        if (!open) closeAction()
+      },
+      onOpenChangeComplete: (open: boolean) => {
+        // Switching to another action (e.g. view -> edit) keeps the row.
+        if (!open && current === null) clearRow()
+      },
+    },
+  }
+}
+
+export function RowActionsProvider({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [open, setOpen] = useState<RowActionsOpenType | null>(null)
-  const [currentRow, setCurrentRow] = useState<T | null>(null)
+  const [action, setAction] = useState<RowAction | null>(null)
+  const [row, setRow] = useState<unknown>(null)
 
-  const value = useMemo<RowActionsType<T>>(
+  const value = useMemo<RowActionsContextType<unknown>>(
     () => ({
-      open,
-      setOpen,
-      currentRow,
-      setCurrentRow,
+      action,
+      row,
+      openAction: (action, row) => {
+        setAction(action)
+        setRow(row)
+      },
+      closeAction: () => setAction(null),
+      clearRow: () => setRow(null),
     }),
-    [currentRow, open]
+    [action, row]
   )
 
-  return (
-    <RowActionsContext value={value as RowActionsType<unknown>}>
-      {children}
-    </RowActionsContext>
-  )
+  return <RowActionsContext value={value}>{children}</RowActionsContext>
 }

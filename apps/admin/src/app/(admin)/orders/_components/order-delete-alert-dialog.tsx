@@ -9,27 +9,18 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
-import { useRowActions } from "@/context/row-actions-provider"
+import { useRowActionDialog } from "@/context/row-actions-provider"
 import { Order } from "@workspace/api-client"
 import { Trash2Icon } from "lucide-react"
 import { useOptimisticOrderDestroy } from "../_hooks/use-optimistic-order"
 
 export function OrderDeleteAlertDialog() {
-  const { open, setOpen, currentRow, setCurrentRow } = useRowActions<Order>()
+  const { row, rootProps } = useRowActionDialog<Order>("delete")
 
   return (
-    <AlertDialog
-      open={open === "delete"}
-      onOpenChange={(open) => setOpen(open ? "delete" : null)}
-    >
-      <AlertDialogContent
-        onAnimationEnd={() => {
-          if (open === null) {
-            setCurrentRow(null)
-          }
-        }}
-      >
-        {currentRow && <OrderDeleteAlertDialogContent item={currentRow} />}
+    <AlertDialog {...rootProps}>
+      <AlertDialogContent>
+        {row && <OrderDeleteAlertDialogContent item={row} />}
       </AlertDialogContent>
     </AlertDialog>
   )

@@ -7,15 +7,12 @@ export function CustomerEditButton({
   customer,
   ...props
 }: { customer: Customer } & React.ComponentProps<typeof Button>) {
-  const { setOpen, setCurrentRow } = useRowActions()
+  const { openAction } = useRowActions<Customer>()
 
   return (
     <Button
       variant="outline"
-      onClick={() => {
-        setOpen("edit")
-        setCurrentRow(customer)
-      }}
+      onClick={() => openAction("edit", customer)}
       {...props}
     >
       <EditIcon />

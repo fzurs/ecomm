@@ -1,5 +1,5 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActions } from "@/context/row-actions-provider"
+import { useRowActionDialog } from "@/context/row-actions-provider"
 import {
   Drawer,
   DrawerContent,
@@ -32,25 +32,12 @@ import Link from "next/link"
 export function CustomerViewDrawer() {
   const isMobile = useIsMobile()
 
-  const { open, setOpen, currentRow, setCurrentRow } = useRowActions<Customer>()
-
-  const handleOpenChange = (open: boolean) => setOpen(open ? "view" : null)
+  const { row, rootProps } = useRowActionDialog<Customer>("view")
 
   return (
-    <Drawer
-      swipeDirection={isMobile ? "down" : "right"}
-      open={open === "view"}
-      onOpenChange={handleOpenChange}
-    >
-      <DrawerContent
-        className="data-[swipe-axis=x]:sm:[--drawer-content-width:36rem]"
-        onAnimationEnd={() => {
-          if (open === null) {
-            setCurrentRow(null)
-          }
-        }}
-      >
-        {currentRow && <CustomerViewDrawerContent item={currentRow} />}
+    <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
+      <DrawerContent className="data-[swipe-axis=x]:sm:[--drawer-content-width:36rem]">
+        {row && <CustomerViewDrawerContent item={row} />}
       </DrawerContent>
     </Drawer>
   )
@@ -82,7 +69,7 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           </DialogClose>
         </div>
       </div>
-      <DrawerHeader>
+      <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-start">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <Avatar className="size-12">

@@ -9,27 +9,18 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
-import { useRowActions } from "@/context/row-actions-provider"
+import { useRowActionDialog } from "@/context/row-actions-provider"
 import { Customer } from "@workspace/api-client"
 import { Trash2 } from "lucide-react"
 import { useOptimisticCustomerDestroy } from "../_hooks/use-optimistic-destroy"
 
 export function CustomerDeleteAlertDialog() {
-  const { open, setOpen, currentRow, setCurrentRow } = useRowActions<Customer>()
+  const { row, rootProps } = useRowActionDialog<Customer>("delete")
 
   return (
-    <AlertDialog
-      open={open === "delete"}
-      onOpenChange={(open) => setOpen(open ? "delete" : null)}
-    >
-      <AlertDialogContent
-        onAnimationEnd={() => {
-          if (open === null) {
-            setCurrentRow(null)
-          }
-        }}
-      >
-        {currentRow && <CustomerDeleteAlertDialogContent item={currentRow} />}
+    <AlertDialog {...rootProps}>
+      <AlertDialogContent>
+        {row && <CustomerDeleteAlertDialogContent item={row} />}
       </AlertDialogContent>
     </AlertDialog>
   )

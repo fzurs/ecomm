@@ -37,7 +37,7 @@ import { useOptimisticOrderUpdate } from "../_hooks/use-optimistic-order"
 import { orderStatusClasses, orderStatusOptions } from "../_lib/order-status"
 
 export function OrderRowActions({ item: order }: { item: Order }) {
-  const { setOpen, setCurrentRow } = useRowActions<Order>()
+  const { openAction } = useRowActions<Order>()
 
   const updateMutation = useOptimisticOrderUpdate(order)
   const [status, setStatus] = useState<OrderStatus>(order.status || "pending")
@@ -139,10 +139,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
         <DropdownMenuGroup>
           <DropdownMenuItem
             variant="destructive"
-            onSelect={() => {
-              setOpen("delete")
-              setCurrentRow(order)
-            }}
+            onClick={() => openAction("delete", order)}
           >
             <Trash2Icon />
             Delete order

@@ -1,5 +1,5 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActions } from "@/context/row-actions-provider"
+import { useRowActionDialog } from "@/context/row-actions-provider"
 import {
   Drawer,
   DrawerClose,
@@ -16,27 +16,15 @@ import { Button } from "@workspace/ui/components/button"
 export function CustomerEditDrawer() {
   const isMobile = useIsMobile()
 
-  const { open, setOpen, currentRow, setCurrentRow } = useRowActions<Customer>()
-
-  const handleOpenChange = (open: boolean) => setOpen(open ? "edit" : null)
+  const { row, rootProps } = useRowActionDialog<Customer>("edit")
 
   return (
-    <Drawer
-      swipeDirection={isMobile ? "down" : "right"}
-      open={open === "edit"}
-      onOpenChange={handleOpenChange}
-    >
-      <DrawerContent
-        onAnimationEnd={() => {
-          if (open === null) {
-            setCurrentRow(null)
-          }
-        }}
-      >
-        {currentRow && (
+    <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
+      <DrawerContent>
+        {row && (
           <CustomerEditDrawerContent
-            item={currentRow}
-            setOpen={handleOpenChange}
+            customer={row}
+            setOpen={rootProps.onOpenChange}
           />
         )}
       </DrawerContent>
@@ -45,13 +33,13 @@ export function CustomerEditDrawer() {
 }
 
 function CustomerEditDrawerContent({
-  item,
+  customer,
   setOpen,
 }: {
-  item: Customer
+  customer: Customer
   setOpen: (open: boolean) => void
 }) {
-  const form = useCustomerForm({ customer: item, setOpen })
+  const form = useCustomerForm({ customer, setOpen })
 
   return (
     <>
