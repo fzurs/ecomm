@@ -8,6 +8,10 @@ import CategoriesProvider from "@/components/categories-provider"
 import BrandsProvider from "@/components/brands-provider"
 import { Suspense } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
+import { Inter } from "next/font/google"
+import { cn } from "@workspace/ui/lib/utils"
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 export const metadata = {
   title: "Sitio web eccomerce",
@@ -19,7 +23,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   const brandsPromise = getAllBrands()
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", inter.variable)}
+    >
       <body>
         <ThemeProvider>
           <NuqsAdapter>
