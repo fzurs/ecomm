@@ -83,14 +83,22 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [
+# The frontends (web, admin). With credentials allowed, CORS must list them
+# explicitly: allowing every origin would let any site read the API with the
+# admin's session cookie.
+FRONTEND_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
 ]
+
+CORS_ALLOWED_ORIGINS = FRONTEND_ORIGINS
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
+
+# Session auth only: don't create (and return) a DRF token on every login.
+REST_AUTH = {"TOKEN_MODEL": None}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
