@@ -19,7 +19,7 @@ class Customer(models.Model):
         CI_FEDERAL_POLICE = 00, _("CI Policía Federal")
         MIGRATION_CERTIFICATE = 30, _("Certificado de Migración")
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     document_type = models.PositiveSmallIntegerField(
@@ -30,9 +30,7 @@ class Customer(models.Model):
     def save(self, *args, **kwargs):
         if not self.image:
             image = generate_customer_image(self.name)
-            filename = f"{slugify(self.name)}.png"
-            self.image.save(filename, ContentFile(to_png(image)), save=False)
-
+            self.image.save(f"{slugify(self.name)}.png", ContentFile(to_png(image)), save=False)
         super().save(*args, **kwargs)
 
     def __str__(self): return self.name

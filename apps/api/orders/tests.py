@@ -5,10 +5,26 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.db import IntegrityError, transaction
 from store.models import Product
-from .models import Order, OrderItem
+from .models import Customer, Order, OrderItem
 
 User = get_user_model()
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CustomerNameTests(APITestCase):
+    def test_name_is_unique(self):
+        Customer.objects.create(name='Juan Pérez')
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Customer.objects.create(name='Juan Pérez')
+
+    def test_api_rejects_duplicate_name(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        Customer.objects.create(name='Juan Pérez')
+        response = self.client.post(reverse('customer-list'), {'name': 'Juan Pérez'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.json())
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
