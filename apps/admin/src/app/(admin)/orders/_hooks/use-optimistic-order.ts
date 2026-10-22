@@ -4,6 +4,7 @@ import {
   ordersDestroyMutation,
   ordersListQueryKey,
   ordersPartialUpdateMutation,
+  ordersRetrieveQueryKey,
 } from "@workspace/api-client/query"
 
 export function useOptimisticOrderUpdate(order: Order) {
@@ -29,6 +30,32 @@ export function useOptimisticOrderUpdate(order: Order) {
     onError: (err, _, onMutateResult) =>
       queryClient.setQueryData(queryKey, onMutateResult?.previousData),
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  })
+}
+
+/** Same as useOptimisticOrderUpdate, for the order detail query. */
+export function useOptimisticOrderDetailUpdate(order: Order) {
+  const queryClient = useQueryClient()
+  const queryKey = ordersRetrieveQueryKey({ path: { number: order.number } })
+
+  return useMutation({
+    ...ordersPartialUpdateMutation(),
+    onMutate: async ({ body }) => {
+      await queryClient.cancelQueries({ queryKey })
+      const previousData = queryClient.getQueryData<Order>(queryKey)
+      queryClient.setQueryData<Order>(
+        queryKey,
+        (old) => old && { ...old, ...body }
+      )
+      return { previousData }
+    },
+    onError: (err, _, onMutateResult) =>
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData),
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({ queryKey: ordersListQueryKey() }),
+      ]),
   })
 }
 

@@ -6,6 +6,7 @@ import { format } from "date-fns"
 import { useParams } from "next/navigation"
 import { OrderItemsTable } from "../_components/order-items-table"
 import { OrderStatusBadge } from "../_components/order-status-badge"
+import { OrderStatusMenu } from "../_components/order-status-menu"
 import {
   Item,
   ItemActions,
@@ -14,13 +15,13 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@workspace/ui/components/item"
-import { CalendarIcon, EditIcon, EyeIcon, MailIcon } from "lucide-react"
+import { CalendarIcon, EyeIcon, MailIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { buttonVariants } from "@workspace/ui/components/button"
 import Link from "next/link"
 
 export default function OrdersDetailsPage() {
@@ -50,19 +51,13 @@ export default function OrdersDetailsPage() {
                 {format(order.created_at, "MMMM dd, yyyy - p")}
               </p>
             </div>
-            {order.status && (
-              <OrderStatusBadge
-                status={order.status}
-                // className="px-2.5 py-1.5 text-sm"
-              />
-            )}
+            {order.status && <OrderStatusBadge status={order.status} />}
           </div>
+
           <div>
-            <Button variant="outline">
-              <EditIcon />
-              Change status
-            </Button>
+            <OrderStatusMenu order={order} />
           </div>
+
           <section className="flex flex-col gap-4">
             <div className="typeset">
               <h2>Order items</h2>
