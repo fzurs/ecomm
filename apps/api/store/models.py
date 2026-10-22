@@ -5,38 +5,34 @@ from django.utils.text import slugify
 from .images import generate_product_image, to_png
 
 
-class Brand(models.Model):
+class NamedSlugModel(models.Model):
+    """Unique `name`, with a `slug` filled from it on the first save unless one is given."""
     slug = models.SlugField(max_length=255, blank=True, unique=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        abstract = True
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.name
+    def __str__(self): return self.name
 
 
-class Category(models.Model):
-    slug = models.SlugField(max_length=255, blank=True, unique=True)
+class Brand(NamedSlugModel):
+    pass
 
-    name = models.CharField(max_length=255)
+
+class Category(NamedSlugModel):
     description = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
-        return self.name
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-
-class Product(models.Model):
+class Product(NamedSlugModel):
     class Status(models.TextChoices):
         DRAFT = ('draft', 'Draft')
         ACTIVE = ('active', 'Active')
@@ -44,10 +40,8 @@ class Product(models.Model):
         OUT_OF_STOCK = ('out_of_stock', 'Out of stock')
         DISCONTINUED = ('discontinued', 'Discontinued')
 
-    slug = models.SlugField(max_length=255, blank=True, unique=True)
     sku = models.CharField('SKU', max_length=255, blank=True, null=True)
 
-    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
 
     image = models.ImageField(upload_to='products', blank=True, null=True)
@@ -75,15 +69,10 @@ class Product(models.Model):
         self.save()
         return True
 
-    def __str__(self):
-        return self.name
-
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
         if not self.image:
             image = generate_product_image(self.name)
-            self.image.save(f'{self.slug}.png', ContentFile(to_png(image)), save=False)
+            self.image.save(f'{slugify(self.name)}.png', ContentFile(to_png(image)), save=False)
         super().save(*args, **kwargs)
 
     @property

@@ -2,6 +2,7 @@ import tempfile
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError, transaction
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -10,7 +11,53 @@ from rest_framework.test import APITestCase
 from orders.models import Customer, Order, OrderItem
 
 from .images import generate_customer_image, generate_product_image
-from .models import Product
+from .models import Brand, Category, Product
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class SlugTests(TestCase):
+    models = (Brand, Category, Product)
+
+    def test_generates_slug_from_name(self):
+        for model in self.models:
+            with self.subTest(model=model.__name__):
+                obj = model.objects.create(name='ACME  Hammer & Saw!')
+                self.assertEqual(obj.slug, 'acme-hammer-saw')
+
+    def test_strips_accents(self):
+        for model in self.models:
+            with self.subTest(model=model.__name__):
+                obj = model.objects.create(name='Ñandú Café')
+                self.assertEqual(obj.slug, 'nandu-cafe')
+
+    def test_keeps_explicit_slug(self):
+        for model in self.models:
+            with self.subTest(model=model.__name__):
+                obj = model.objects.create(name='ACME Hammer', slug='custom-slug')
+                self.assertEqual(obj.slug, 'custom-slug')
+
+    def test_keeps_slug_when_name_changes(self):
+        for model in self.models:
+            with self.subTest(model=model.__name__):
+                obj = model.objects.create(name='ACME Hammer')
+                obj.name = 'ACME Saw'
+                obj.save()
+                obj.refresh_from_db()
+                self.assertEqual(obj.slug, 'acme-hammer')
+
+    def test_name_is_unique(self):
+        for model in self.models:
+            with self.subTest(model=model.__name__):
+                model.objects.create(name='ACME Saw')
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    model.objects.create(name='ACME Saw', slug='another-slug')
+
+    def test_names_with_the_same_slug_collide(self):
+        for model in self.models:
+            with self.subTest(model=model.__name__):
+                model.objects.create(name='ACME Hammer')
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    model.objects.create(name='acme hammer!')
 
 
 class ImageGenerationTests(SimpleTestCase):
