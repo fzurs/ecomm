@@ -18,6 +18,7 @@ import { orderStatusOptions } from "../_lib/order-status"
 import { OrderItemsTable } from "./order-items-table"
 import { OrderRowActions } from "./order-row-actions"
 import { OrderStatusBadge } from "./order-status-badge"
+import { cn } from "@workspace/ui/lib/utils"
 
 export const orderColumns = [
   {
@@ -80,20 +81,24 @@ export const orderColumns = [
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
-        <Link
-          href={`/customers/${customer.id}`}
-          className={buttonVariants({
-            variant: "link",
-            size: "sm",
-            className: "gap-2",
-          })}
-        >
+        <div className="flex items-center gap-2">
           <Avatar size="sm">
             {customer.image && <AvatarImage src={customer.image} />}
             <AvatarFallback />
           </Avatar>
-          <span>{customer.name}</span>
-        </Link>
+          <Link
+            href={`/customers/${customer.id}`}
+            className={cn(
+              buttonVariants({
+                variant: "link",
+                size: "sm",
+              }),
+              "px-0"
+            )}
+          >
+            {customer.name}
+          </Link>
+        </div>
       )
     },
   },
