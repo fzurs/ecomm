@@ -1,54 +1,49 @@
 import { Table } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@workspace/ui/components/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@workspace/ui/components/popover"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react"
 import { getColumnLabel } from "../lib/column"
 
+// Only the sorted column shows its direction. Items keep the menu open, so the order can be
+// flipped and seen without reopening it.
 export function DataTableSortMenu<TData>({ table }: { table: Table<TData> }) {
+  const columns = table.getAllColumns().filter((column) => column.getCanSort())
+
   return (
-    <Popover>
-      <PopoverTrigger render={<Button variant="outline" />}>
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
         <ArrowUpDown />
         Sort
-      </PopoverTrigger>
-      <PopoverContent className="w-44 p-0" align="start">
-        <Command>
-          <CommandList>
-            <CommandGroup heading="Sort by">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanSort())
-                .map((column) => (
-                  <CommandItem
-                    key={column.id}
-                    value={column.id}
-                    onSelect={() => {
-                      column.toggleSorting()
-                    }}
-                    className="justify-between"
-                  >
-                    {getColumnLabel(column)}
-                    {column.getIsSorted() === "desc" ? (
-                      <ArrowDown />
-                    ) : column.getIsSorted() === "asc" ? (
-                      <ArrowUp />
-                    ) : null}
-                  </CommandItem>
-                ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-44" align="start">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+          {columns.map((column) => {
+            const sorted = column.getIsSorted()
+            const SortIcon = sorted === "asc" ? ArrowUp : ArrowDown
+            return (
+              <DropdownMenuItem
+                key={column.id}
+                closeOnClick={false}
+                onClick={() => column.toggleSorting()}
+              >
+                {getColumnLabel(column)}
+                {sorted && (
+                  // `!` beats the item's focus:**:text-accent-foreground.
+                  <SortIcon className="ml-auto text-muted-foreground!" />
+                )}
+              </DropdownMenuItem>
+            )
+          })}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
