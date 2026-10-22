@@ -239,8 +239,8 @@ export type PatchedProduct = {
     category?: Category | null;
     category_id?: number | null;
     slug?: string;
-    sku?: string | null;
     name?: string;
+    sku?: string | null;
     description?: string | null;
     image?: string | null;
     status?: ProductStatus;
@@ -277,8 +277,8 @@ export type Product = {
     category: Category | null;
     category_id?: number | null;
     slug?: string;
-    sku?: string | null;
     name: string;
+    sku?: string | null;
     description?: string | null;
     image?: string | null;
     status?: ProductStatus;
@@ -461,8 +461,8 @@ export type PatchedProductWritable = {
     brand_id?: number | null;
     category_id?: number | null;
     slug?: string;
-    sku?: string | null;
     name?: string;
+    sku?: string | null;
     description?: string | null;
     image?: string | null;
     status?: ProductStatus;
@@ -487,8 +487,8 @@ export type ProductWritable = {
     brand_id?: number | null;
     category_id?: number | null;
     slug?: string;
-    sku?: string | null;
     name: string;
+    sku?: string | null;
     description?: string | null;
     image?: string | null;
     status?: ProductStatus;
