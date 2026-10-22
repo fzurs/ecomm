@@ -195,6 +195,19 @@ class OrderListTests(OrderTestCase):
         self.assertEqual(
             [o['customer_detail']['name'] for o in response.data['results']], ['Wile E. Coyote'])
 
+    def test_orders_by_total(self):
+        product = self.create_product(price=100)
+        for quantity in (2, 3, 1):
+            order = Order.objects.create(customer=self.customer)
+            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+        empty = Order.objects.create(customer=self.customer)
+        for ordering, expected in (('total', [0, 100, 200, 300]), ('-total', [300, 200, 100, 0])):
+            with self.subTest(ordering=ordering):
+                response = self.client.get(reverse('order-list'), {'ordering': ordering})
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual([o['total'] for o in response.data['results']], expected)
+        self.assertEqual(empty.total, 0)
+
     def test_requires_a_session(self):
         self.client.logout()
         response = self.client.get(reverse('order-list'))

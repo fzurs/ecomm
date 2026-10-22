@@ -12,9 +12,12 @@ class OrderFilter(django_filters.FilterSet):
 
 
 class OrderOrdering(OrderingFilter):
-    # Ordering by customer means by its name, not its id. The fields are validated against
-    # ordering_fields by OrderingFilter first.
-    mapping = {'customer': 'customer__name', '-customer': '-customer__name'}
+    # Ordering by customer means by its name, not its id; by total, by the items_total that
+    # OrderViewSet annotates. The fields are validated against ordering_fields first.
+    mapping = {
+        'customer': 'customer__name', '-customer': '-customer__name',
+        'total': 'items_total', '-total': '-items_total',
+    }
 
     def get_ordering(self, request, queryset, view):
         ordering = super().get_ordering(request, queryset, view)

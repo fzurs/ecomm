@@ -1,3 +1,5 @@
+from django.db.models import F, Sum
+from django.db.models.functions import Coalesce
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,10 +10,14 @@ from .serializers import OrderSerializer, OrderCreateSerializer, CustomerChoiceS
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.order_by("-created_at")
+    # Order.total is a Python property, so the database can't order by it: items_total is the
+    # same sum computed in SQL.
+    queryset = Order.objects.annotate(
+        items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0),
+    ).order_by("-created_at")
     filter_backends = [DjangoFilterBackend, OrderOrdering, SearchFilter]
     filterset_class = OrderFilter
-    # Customer is ordered by customer__name, in OrderOrdering
+    # Customer and total are mapped to customer__name and items_total, in OrderOrdering
     ordering_fields = ['status', 'total', 'customer', 'updated_at', 'created_at']
     search_fields = ['customer__name', 'customer__email']
     lookup_field = "number"
