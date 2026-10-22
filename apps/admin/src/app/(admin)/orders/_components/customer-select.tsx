@@ -15,6 +15,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@workspace/ui/components/combobox"
+import { InputGroupAddon } from "@workspace/ui/components/input-group"
 import {
   Item,
   ItemContent,
@@ -45,7 +46,19 @@ export function CustomerSelect({
         placeholder="Select a customer"
         className="w-full max-w-xs"
         showClear
-      />
+      >
+        {/* inline-start addons go first (order-first), before the input text. */}
+        {selectedCustomer && (
+          <InputGroupAddon align="inline-start">
+            <Avatar size="sm">
+              {selectedCustomer.image && (
+                <AvatarImage src={selectedCustomer.image} />
+              )}
+              <AvatarFallback />
+            </Avatar>
+          </InputGroupAddon>
+        )}
+      </ComboboxInput>
       <ComboboxContent>
         <ComboboxEmpty>No customers result.</ComboboxEmpty>
         <ComboboxList>
