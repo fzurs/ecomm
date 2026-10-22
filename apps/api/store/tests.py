@@ -49,6 +49,12 @@ class GenerateSkuTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json()['sku'], build_sku('ACME Hammer', response.json()['id']))
 
+    def test_api_create_with_empty_sku_generates_it(self):
+        self.client.force_login(get_user_model().objects.create(username='admin'))
+        response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer', 'sku': ''})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()['sku'], build_sku('ACME Hammer', response.json()['id']))
+
     def test_api_create_keeps_given_sku(self):
         self.client.force_login(get_user_model().objects.create(username='admin'))
         response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer', 'sku': 'MY-SKU'})
