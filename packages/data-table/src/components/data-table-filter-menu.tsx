@@ -2,6 +2,7 @@ import { Column, Table } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import { CheckIcon, ListFilterIcon, XIcon } from "lucide-react"
 import { getColumnLabel } from "../lib/column"
+import { filterVariantIcons } from "../lib/filter-icons"
 import { useCallback, useState } from "react"
 import { DataTableToolbarFilter } from "./data-table-toolbar"
 import {
@@ -69,12 +70,20 @@ export function DataTableFilterMenu<TData>({ table }: { table: Table<TData> }) {
           {filters.size === 0 && <span>Filters</span>}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44" align="start">
-          {columns.map((column) => (
-            <DropdownMenuItem key={column.id} onClick={() => onSelect(column)}>
-              {getColumnLabel(column)}
-              {filters.has(column.id) && <CheckIcon className="ml-auto" />}
-            </DropdownMenuItem>
-          ))}
+          {columns.map((column) => {
+            const variant = column.columnDef.meta?.variant
+            const VariantIcon = variant && filterVariantIcons[variant]
+            return (
+              <DropdownMenuItem
+                key={column.id}
+                onClick={() => onSelect(column)}
+              >
+                {VariantIcon && <VariantIcon />}
+                {getColumnLabel(column)}
+                {filters.has(column.id) && <CheckIcon className="ml-auto" />}
+              </DropdownMenuItem>
+            )
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

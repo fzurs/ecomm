@@ -9,9 +9,12 @@ import {
 } from "@workspace/ui/components/popover"
 import { cn } from "@workspace/ui/lib/utils"
 import { format } from "date-fns"
-import { CalendarIcon, XIcon } from "lucide-react"
+import { XIcon } from "lucide-react"
 import { useCallback, useMemo } from "react"
 import { DateRange } from "react-day-picker"
+import { filterVariantIcons } from "../lib/filter-icons"
+
+const DateRangeIcon = filterVariantIcons["date-range"]
 
 function formatDate(date: Date) {
   return format(date, "LLL dd, y")
@@ -52,7 +55,7 @@ export function DataTableDateFilter<TData>({
             !selected.from && "text-muted-foreground"
           )}
         >
-          <CalendarIcon />
+          <DateRangeIcon />
           {onRender()}
         </Button>
         {selected.from && (
