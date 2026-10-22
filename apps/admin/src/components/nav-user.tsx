@@ -42,9 +42,7 @@ export function NavUser({ user }: { user: UserDetails }) {
             }
           >
             <Avatar shape="rounded">
-              <AvatarFallback>
-                {user.first_name?.[0] || "?"}
-              </AvatarFallback>
+              <AvatarFallback>{user.first_name?.[0] || "?"}</AvatarFallback>
             </Avatar>
             <span className="flex-1 truncate text-left text-sm leading-tight font-medium">
               {user.first_name || user.email || user.username}
@@ -58,10 +56,10 @@ export function NavUser({ user }: { user: UserDetails }) {
             sideOffset={4}
           >
             <DropdownMenuGroup className="flex items-center gap-2">
-              <DropdownMenuLabel className="text-muted-foreground">
+              <DropdownMenuLabel className="min-w-0 flex-1 truncate text-muted-foreground">
                 {user.email || user.username}
               </DropdownMenuLabel>
-              <ModeToggle size="icon-sm" className="ml-auto" />
+              <ModeToggle className="shrink-0" />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} variant="destructive">
