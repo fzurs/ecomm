@@ -125,8 +125,8 @@ export function getProductColumns({
         className: "[&>svg]:size-4 [&>svg]:mx-auto",
         variant: "boolean",
         options: [
-          { label: "Featured", value: "true" },
-          { label: "Not Featured", value: "false" },
+          { label: "Featured", value: "true", icon: featuredIcons.true },
+          { label: "Not Featured", value: "false", icon: featuredIcons.false },
         ],
       },
     },

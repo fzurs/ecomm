@@ -93,13 +93,16 @@ export function DataTableToolbarFilter<TData>({
               )
             }
           >
+            {/* An option with an icon shows only the icon; the label stays as
+                its accessible name and tooltip. */}
             {meta.options?.slice(0, 2).map((option) => (
               <ToggleGroupItem
                 key={option.value}
                 value={option.value}
                 aria-label={`Toggle ${option.label}`}
+                title={option.icon ? option.label : undefined}
               >
-                {option.label}
+                {option.icon ?? option.label}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
