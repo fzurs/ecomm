@@ -2,16 +2,16 @@ from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from config.viewsets import ChoicesMixin, choices_schema
-from .filters import OrderFilter
+from .filters import OrderFilter, OrderOrdering
 from .models import Order, Customer
 from .serializers import OrderSerializer, OrderCreateSerializer, CustomerChoiceSerializer, CustomerSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.order_by("-created_at")
-    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filter_backends = [DjangoFilterBackend, OrderOrdering, SearchFilter]
     filterset_class = OrderFilter
-    # Customer are ordered by customer__name in OrderFilter
+    # Customer is ordered by customer__name, in OrderOrdering
     ordering_fields = ['status', 'total', 'customer', 'updated_at', 'created_at']
     search_fields = ['customer__name', 'customer__email']
     lookup_field = "number"
