@@ -27,7 +27,7 @@ export function DataTable<TData>({
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
