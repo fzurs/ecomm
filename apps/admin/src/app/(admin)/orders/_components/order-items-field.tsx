@@ -35,6 +35,7 @@ export function OrderItemsField({
           subtotal,
           product: product?.id ?? 0,
           product_detail: product as Product,
+          quantity: orderItem.quantity,
           unit_price: product?.price ?? 0,
         }
       }),

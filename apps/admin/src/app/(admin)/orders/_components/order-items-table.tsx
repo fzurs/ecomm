@@ -1,6 +1,11 @@
 import { formatPrice } from "@/lib/utils"
 import { OrderItem } from "@workspace/api-client"
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
+import {
   Table,
   TableBody,
   TableCell,
@@ -42,7 +47,15 @@ export function OrderItemsTable({
         {orderItems.map(
           ({ product_detail: product, quantity, subtotal }, index) => (
             <TableRow key={index}>
-              <TableCell>{product.name}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Avatar shape="square" size="sm">
+                    {product.image && <AvatarImage src={product.image} />}
+                    <AvatarFallback />
+                  </Avatar>
+                  {product.name}
+                </div>
+              </TableCell>
               <TableCell className="text-center">
                 {renderQuantity?.(index) ?? quantity}
               </TableCell>
@@ -64,7 +77,11 @@ export function OrderItemsTable({
       {showTotal && (
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
+            <TableCell>Total</TableCell>
+            <TableCell className="text-center">
+              {orderItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0)}
+            </TableCell>
+            <TableCell />
             <TableCell className="text-right">{formatPrice(total)}</TableCell>
             {renderActions && <TableCell />}
           </TableRow>
