@@ -24,8 +24,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
-import { useQuery } from "@tanstack/react-query"
-import { authUserRetrieveOptions } from "@workspace/api-client/query"
+import { useSession } from "@/hooks/use-auth"
 import { usePathname } from "next/navigation"
 
 const items = [
@@ -64,7 +63,7 @@ const items = [
 export function AppSidebar() {
   const pathname = usePathname()
 
-  const { data: session } = useQuery(authUserRetrieveOptions())
+  const { user: session } = useSession()
 
   return (
     <Sidebar>

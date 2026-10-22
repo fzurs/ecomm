@@ -1,8 +1,7 @@
 "use client"
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useLogout } from "@/hooks/use-auth"
 import { UserDetails } from "@workspace/api-client"
-import { authLogoutCreateMutation } from "@workspace/api-client/query"
 
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
@@ -26,12 +25,7 @@ import { EllipsisVerticalIcon, LogOutIcon } from "lucide-react"
 export function NavUser({ user }: { user: UserDetails }) {
   const { isMobile } = useSidebar()
 
-  const queryClient = useQueryClient()
-
-  const { mutate } = useMutation({
-    ...authLogoutCreateMutation(),
-    onSuccess: () => queryClient.invalidateQueries(),
-  })
+  const { mutate } = useLogout()
 
   const handleLogout = () => mutate({})
 

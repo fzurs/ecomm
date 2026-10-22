@@ -8,11 +8,10 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import { Field, FieldGroup } from "@workspace/ui/components/field"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
 import { useAppForm } from "@/hooks/form"
+import { useLogin } from "@/hooks/use-auth"
+import { applyServerErrors } from "@/lib/utils"
 import { Login } from "@workspace/api-client"
-import { authLoginCreateMutation } from "@workspace/api-client/query"
 import { zAuthLoginCreateBody } from "@workspace/api-client/zod"
 
 const defaultValues: Login = {
@@ -21,24 +20,21 @@ const defaultValues: Login = {
 }
 
 function useLoginForm() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
+  const { mutateAsync } = useLogin()
 
-  const { mutate } = useMutation({
-    ...authLoginCreateMutation(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries()
-      router.push("/")
-    },
-  })
-
-  const form = useAppForm({
+  return useAppForm({
     defaultValues,
     validators: { onSubmit: zAuthLoginCreateBody },
-    onSubmit: ({ value }) => mutate({ body: value }),
+    // Awaited so the button shows the pending state; wrong credentials come
+    // back as non_field_errors and are shown as a form error.
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        await mutateAsync({ body: value })
+      } catch (error) {
+        applyServerErrors(formApi, error)
+      }
+    },
   })
-
-  return form
 }
 
 export function LoginForm({

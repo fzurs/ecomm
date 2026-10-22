@@ -3,8 +3,19 @@
 ## Datos
 - Usar los helpers de TanStack Query generados en `@workspace/api-client/query`
   (`ordersListOptions`, `ordersListQueryKey`, mutations...). No escribir llamadas axios a mano.
-- El cliente se configura en `src/lib/api-setup.ts` (`baseURL`, `withCredentials`, header CSRF
-  tomado de la cookie `csrftoken`).
+- El cliente se configura en `src/lib/api-setup.ts` (`baseURL` desde `NEXT_PUBLIC_API_URL`, con
+  `http://localhost:8000` por defecto; `withCredentials`; header CSRF tomado de la cookie `csrftoken`).
+
+## Autenticación
+- Sesión de Django vía dj-rest-auth. Todo pasa por `src/hooks/use-auth.ts`: `useSession()`
+  (`loading` / `authenticated` / `unauthenticated` / `error`), `useLogin()` y `useLogout()`. No
+  usar `authUserRetrieveOptions` ni las mutations de auth directamente.
+- `(admin)/layout.tsx` envuelve todo en `AuthGuard` (`src/components/auth-guard.tsx`), que redirige
+  a `/login` solo ante 401/403; otros errores muestran un estado de error con reintento.
+- Login y logout hacen `queryClient.clear()` para no mostrar datos de otra sesión, y redirigen
+  con `router.replace`.
+- El `QueryClient` (`src/components/react-query-provider.tsx`) vuelve a pedir la sesión ante
+  cualquier 401/403, así una sesión vencida termina en `/login`.
 - Los tipos de request/response vienen de `@workspace/api-client`; los enums y la validación de
   `@workspace/api-client/zod`.
 

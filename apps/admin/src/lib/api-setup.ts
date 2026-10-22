@@ -2,7 +2,7 @@ import { client } from "@workspace/api-client/client"
 import Cookies from "js-cookie"
 
 client.setConfig({
-  baseURL: "http://localhost:8000",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
   withCredentials: true,
 })
 

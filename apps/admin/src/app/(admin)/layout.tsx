@@ -1,11 +1,9 @@
 "use client"
 
 import { AppSidebar } from "@/components/app-sidebar"
-import { useQuery } from "@tanstack/react-query"
-import { authUserRetrieveOptions } from "@workspace/api-client/query"
+import { AuthGuard } from "@/components/auth-guard"
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 import "@workspace/ui/globals.css"
-import { useRouter } from "next/navigation"
 import * as React from "react"
 
 export default function AdminLayout({
@@ -13,30 +11,19 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
-
-  const { isSuccess, isError } = useQuery({
-    ...authUserRetrieveOptions(),
-    retry: false,
-  })
-
-  React.useEffect(() => {
-    if (isError) router.push("/login")
-  }, [isError, router])
-
-  if (!isSuccess) return null
-
   return (
-    <SidebarProvider
-      defaultOpen={false}
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <AuthGuard>
+      <SidebarProvider
+        defaultOpen={false}
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    </AuthGuard>
   )
 }
