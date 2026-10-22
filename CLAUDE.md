@@ -51,4 +51,4 @@ Nunca editar a mano `packages/api-client/src/**/*.gen.ts`. La skill `/regen-api`
 ## Git
 - Conventional Commits con scope, mensajes en español:
   `refactor(admin): ...`, `fix(billing): ...`, `feat(api): ...`.
-- El trabajo diario va en `claude/desarrollo`. Commitear o pushear solo cuando se pide.
+- El trabajo diario va en `main` (todavía no hay producción). Commitear o pushear solo cuando se pide.
