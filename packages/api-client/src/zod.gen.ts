@@ -341,13 +341,6 @@ export const zRestAuthDetail = z.object({
 });
 
 /**
- * Serializer for Token model.
- */
-export const zToken = z.object({
-    key: z.string().max(40)
-});
-
-/**
  * User model w/o password
  */
 export const zUserDetails = z.object({
@@ -549,7 +542,10 @@ export const zUserDetailsWritable = z.object({
 
 export const zAuthLoginCreateBody = zLogin;
 
-export const zAuthLoginCreateResponse = zToken;
+/**
+ * No response body
+ */
+export const zAuthLoginCreateResponse = z.void();
 
 export const zAuthLogoutCreateResponse = zRestAuthDetail;
 
@@ -880,14 +876,6 @@ export const zProductsUpdatePath = z.object({
 });
 
 export const zProductsUpdateResponse = zProduct;
-
-export const zProductsDetectAndAssignBrandCreateBody = zProductWritable;
-
-export const zProductsDetectAndAssignBrandCreatePath = z.object({
-    slug: z.string()
-});
-
-export const zProductsDetectAndAssignBrandCreateResponse = zProduct;
 
 export const zProductsGenerateSkuCreateBody = zProductWritable;
 

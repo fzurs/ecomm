@@ -72,15 +72,6 @@ class Product(models.Model):
         self.save()
         return True
 
-    def detect_and_assign_brand(self):
-        name = self.name.lower()
-        for brand in Brand.objects.all():
-            if brand.name.lower() in name:
-                self.brand = brand
-                self.save()
-                return True
-        return False
-
     def __str__(self):
         return self.name
 

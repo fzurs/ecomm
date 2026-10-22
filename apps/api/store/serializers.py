@@ -59,6 +59,5 @@ class ProductSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         instance = super().create(validated_data)
         if instance.sku == None: instance.generate_sku()
-        if instance.brand == None: instance.detect_and_assign_brand()
         return instance
             

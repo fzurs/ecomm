@@ -29,7 +29,7 @@ import {
   InputGroupAddon,
   InputGroupButton,
 } from "@workspace/ui/components/input-group"
-import { ScanTextIcon, SparklesIcon } from "lucide-react"
+import { SparklesIcon } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
@@ -43,7 +43,6 @@ import {
 import {
   brandsListChoicesOptions,
   categoriesListChoicesOptions,
-  productsDetectAndAssignBrandCreateMutation,
   productsGenerateSkuCreateMutation,
   productsUpdateMutation,
 } from "@workspace/api-client/query"
@@ -255,11 +254,7 @@ export const ProductEditForm = withForm({
                       value={field.state.value ?? null}
                       onValueChange={field.handleChange}
                     >
-                      <ComboboxInput placeholder="Assing a brand">
-                        <InputGroupAddon align="inline-end">
-                          <DetectAndAssignBrandButton product={product} />
-                        </InputGroupAddon>
-                      </ComboboxInput>
+                      <ComboboxInput placeholder="Assing a brand" />
                       <ComboboxContent>
                         <ComboboxEmpty>No brands found.</ComboboxEmpty>
                         <ComboboxList>
@@ -272,7 +267,7 @@ export const ProductEditForm = withForm({
                       </ComboboxContent>
                     </ComboboxQueryOnOpenById>
                     <FieldDescription>
-                      The product&apos;s brand can be inferred from its name.
+                      The brand the product is sold under.
                     </FieldDescription>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -349,8 +344,8 @@ export const ProductEditForm = withForm({
   },
 })
 
-// The SKU and brand helpers save on the server and only update their own field,
-// so other unsaved edits in the form are kept.
+// The SKU helper saves on the server and only updates its own field, so other
+// unsaved edits in the form are kept.
 
 function GenerateSKUButton({
   product,
@@ -376,34 +371,6 @@ function GenerateSKUButton({
   return (
     <InputGroupButton onClick={onClick} size={size} {...props}>
       {isPending ? <Spinner /> : <SparklesIcon />}
-    </InputGroupButton>
-  )
-}
-
-function DetectAndAssignBrandButton({
-  product,
-  size = "icon-xs",
-  ...props
-}: React.ComponentProps<typeof InputGroupButton> & {
-  product: Product
-}) {
-  const queryClient = useQueryClient()
-  const form = useTypedAppFormContext(productEditFormOpts)
-
-  const { mutate, isPending } = useMutation({
-    ...productsDetectAndAssignBrandCreateMutation(),
-    onSuccess: async (data) => {
-      await invalidateProducts(queryClient)
-      form.setFieldValue("brand_id", toProductFormValues(data).brand_id)
-    },
-  })
-
-  const onClick = () =>
-    mutate({ path: { slug: product.slug as string }, body: product })
-
-  return (
-    <InputGroupButton onClick={onClick} size={size} {...props}>
-      {isPending ? <Spinner /> : <ScanTextIcon />}
     </InputGroupButton>
   )
 }

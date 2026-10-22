@@ -316,13 +316,6 @@ export type RestAuthDetail = {
 };
 
 /**
- * Serializer for Token model.
- */
-export type Token = {
-    key: string;
-};
-
-/**
  * User model w/o password
  */
 export type UserDetails = {
@@ -536,7 +529,10 @@ export type AuthLoginCreateData = {
 };
 
 export type AuthLoginCreateResponses = {
-    200: Token;
+    /**
+     * No response body
+     */
+    204: void;
 };
 
 export type AuthLoginCreateResponse = AuthLoginCreateResponses[keyof AuthLoginCreateResponses];
@@ -1374,21 +1370,6 @@ export type ProductsUpdateResponses = {
 };
 
 export type ProductsUpdateResponse = ProductsUpdateResponses[keyof ProductsUpdateResponses];
-
-export type ProductsDetectAndAssignBrandCreateData = {
-    body: ProductWritable;
-    path: {
-        slug: string;
-    };
-    query?: never;
-    url: '/products/{slug}/detect-and-assign-brand/';
-};
-
-export type ProductsDetectAndAssignBrandCreateResponses = {
-    200: Product;
-};
-
-export type ProductsDetectAndAssignBrandCreateResponse = ProductsDetectAndAssignBrandCreateResponses[keyof ProductsDetectAndAssignBrandCreateResponses];
 
 export type ProductsGenerateSkuCreateData = {
     body: ProductWritable;

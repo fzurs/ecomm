@@ -34,15 +34,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["post"], url_path='detect-and-assign-brand')
-    def detect_and_assign_brand(self, request, **kwargs):
-        instance = self.get_object()
-        is_success = instance.detect_and_assign_brand()
-        if not is_success:
-            return Response({'message': 'No brand was detected in the product name'}, status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
-
     def get_serializer_class(self):
         if self.action == "choices":
             return ProductChoiceSerializer
