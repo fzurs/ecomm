@@ -306,6 +306,7 @@ export type ProductChoice = {
     name: string;
     slug?: string;
     price?: number | null;
+    image?: string | null;
 };
 
 /**
@@ -525,6 +526,7 @@ export type ProductChoiceWritable = {
     name: string;
     slug?: string;
     price?: number | null;
+    image?: string | null;
 };
 
 export type ProductSummaryWritable = {

@@ -29,7 +29,7 @@ class CategoryChoiceSerializer(serializers.ModelSerializer):
 class ProductChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "name", "slug", "price"]
+        fields = ["id", "name", "slug", "price", "image"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
