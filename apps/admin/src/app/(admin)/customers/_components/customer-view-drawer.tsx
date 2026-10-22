@@ -37,13 +37,13 @@ export function CustomerViewDrawer() {
   return (
     <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
       <DrawerContent size="md">
-        {row && <CustomerViewDrawerContent item={row} />}
+        {row && <CustomerViewDrawerContent customer={row} />}
       </DrawerContent>
     </Drawer>
   )
 }
 
-function CustomerViewDrawerContent({ item }: { item: Customer }) {
+function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
   return (
     <>
       <div className="flex h-(--header-height) items-center justify-between gap-4 border-b px-4">
@@ -51,12 +51,12 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           <BreadcrumbList>
             <BreadcrumbItem>Customers</BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbPage>{item.name}</BreadcrumbPage>
+            <BreadcrumbPage>{customer.name}</BreadcrumbPage>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex h-4 items-center gap-2 text-muted-foreground">
           <Link
-            href={`/customers/${item.id}`}
+            href={`/customers/${customer.id}`}
             className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
           >
             <Maximize2Icon />
@@ -73,21 +73,21 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <Avatar className="size-12">
-              {item.image && <AvatarImage src={item.image} />}
+              {customer.image && <AvatarImage src={customer.image} />}
               <AvatarFallback />
             </Avatar>
             <div className="flex flex-col gap-1">
-              <DrawerTitle className="text-base">{item.name}</DrawerTitle>
-              {item.email && (
+              <DrawerTitle className="text-base">{customer.name}</DrawerTitle>
+              {customer.email && (
                 <DrawerDescription className="flex items-center gap-2">
                   <MailIcon className="size-4" />
-                  {item.email}
+                  {customer.email}
                 </DrawerDescription>
               )}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <CustomerEditButton customer={item} size="sm" />
+            <CustomerEditButton customer={customer} size="sm" />
           </div>
         </div>
       </DrawerHeader>
@@ -96,7 +96,7 @@ function CustomerViewDrawerContent({ item }: { item: Customer }) {
           <div className="typeset">
             <h3>Customer details</h3>
           </div>
-          <CustomerDetails customer={item} />
+          <CustomerDetails customer={customer} />
         </div>
       </div>
     </>
