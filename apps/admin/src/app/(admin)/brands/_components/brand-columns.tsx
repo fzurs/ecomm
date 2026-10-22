@@ -1,48 +1,21 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@workspace/ui/components/drawer"
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import * as React from "react"
-import { BrandForm, invalidateBrands, useBrandForm } from "./form"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Brand, PaginatedBrandList } from "@workspace/api-client"
-import {
-  brandsDestroyMutation,
-  brandsListQueryKey,
-} from "@workspace/api-client/query"
+import { Brand } from "@workspace/api-client"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
+import { EditIcon, EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
+import { useRowActions } from "@/context/row-actions-provider"
 
-export const columns: ColumnDef<Brand>[] = [
+export const brandColumns: ColumnDef<Brand>[] = [
   {
     accessorKey: "name",
-    cell: ({ row }) => <TableCellViewer item={row.original} />,
+    cell: ({ row }) => <TableCellViewer brand={row.original} />,
     enableHiding: false,
     meta: { thClassName: "pl-5" },
   },
@@ -54,115 +27,50 @@ export const columns: ColumnDef<Brand>[] = [
   },
 ]
 
-function TableCellViewer({ item }: { item: Brand }) {
-  const isMobile = useIsMobile()
-  const [open, setOpen] = React.useState(false)
-
-  const form = useBrandForm({ item, setOpen })
+function TableCellViewer({ brand }: { brand: Brand }) {
+  const { openAction } = useRowActions<Brand>()
 
   return (
-    <Drawer
-      swipeDirection={isMobile ? "down" : "right"}
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <DrawerTrigger render={<Button size="sm" variant="link" />}>
-        {item.name}
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>{item.name}</DrawerTitle>
-        </DrawerHeader>
-        <div className="overflow-auto px-4">
-          <BrandForm form={form} />
-        </div>
-        <DrawerFooter>
-          <form.AppForm>
-            <form.SubmitButton>Save Changes</form.SubmitButton>
-          </form.AppForm>
-          <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+    <Button size="sm" variant="link" onClick={() => openAction("edit", brand)}>
+      {brand.name}
+    </Button>
   )
 }
 
 function TableCellActions({ item }: { item: Brand }) {
-  const destroyMutation = useOptimisticBrandDestroy(item)
-
-  const onDestroy = () =>
-    destroyMutation.mutate({ path: { slug: item.slug as string } })
+  const { openAction } = useRowActions<Brand>()
 
   return (
-    <AlertDialog>
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>
-          <EllipsisVerticalIcon />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuGroup>
-            <AlertDialogTrigger
-              render={<DropdownMenuItem variant="destructive" />}
-              nativeButton={false}
-            >
-              <Trash2Icon />
-              Delete
-            </AlertDialogTrigger>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AlertDialogContent size="sm">
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-            <Trash2Icon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Once deleted, there is no going back; the item will be permanently
-            deleted.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onDestroy}>
-            Delete Brand
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
-
-function useOptimisticBrandDestroy(item: Brand) {
-  const queryClient = useQueryClient()
-  const queryKey = brandsListQueryKey()
-
-  const destroyMutation = useMutation({
-    ...brandsDestroyMutation(),
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey,
-      })
-
-      const previousData = queryClient.getQueryData(queryKey)
-
-      queryClient.setQueriesData(
-        { queryKey },
-        (old: PaginatedBrandList | undefined) => {
-          if (!old) return old
-          return {
-            ...old,
-            results: old.results.filter((brand) => brand.id !== item.id),
-          }
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={`${item.name} actions`}
+          />
         }
-      )
-
-      return { previousData }
-    },
-    onError: (err, _, onMutateResult) =>
-      queryClient.setQueryData(queryKey, onMutateResult?.previousData),
-    onSettled: () => invalidateBrands(queryClient),
-  })
-
-  return destroyMutation
+      >
+        <EllipsisVerticalIcon />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => openAction("edit", item)}>
+            <EditIcon />
+            Edit
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => openAction("delete", item)}
+          >
+            <Trash2Icon />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }

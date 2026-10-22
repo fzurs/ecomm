@@ -22,9 +22,9 @@
 ## Estructura de las secciones
 - **`src/app/(admin)/orders/` es el patrón de referencia**: `page.tsx`, `[number]/page.tsx`,
   `new/page.tsx`, y las carpetas privadas `_components/`, `_hooks/`, `_lib/`.
-- `customers` y `products` también siguen este patrón, con row actions vía `RowActionsProvider`.
-- Las demás secciones (`invoices`, `brands`, `categories`) todavía usan
-  `columns.tsx` / `form.tsx` sueltos. Migrarlas al patrón nuevo solo cuando se pide.
+- `customers`, `products`, `brands` y `categories` también siguen este patrón, con row actions
+  vía `RowActionsProvider`.
+- `invoices` todavía usa `columns.tsx` suelto. Migrarla al patrón nuevo solo cuando se pide.
 - Las secciones nuevas necesitan una entrada en `src/components/app-sidebar.tsx`. `/new-admin-section` arma una.
 
 ## UI

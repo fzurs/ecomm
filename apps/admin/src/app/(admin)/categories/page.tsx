@@ -1,89 +1,82 @@
 "use client"
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
-import { columns } from "./columns"
-import { useDebounce } from "@/hooks/use-debounce"
-import {
-  categoriesListOptions,
-  categoriesListQueryKey,
-} from "@workspace/api-client/query"
-import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
-import { useMemo } from "react"
-import { CategoriesListData } from "@workspace/api-client"
-import { DataTable } from "@workspace/data-table/components/data-table"
-import { parseAsString, useQueryState } from "nuqs"
-import { SearchInput } from "@/components/search-input"
-import { usePagination } from "@/hooks/use-pagination"
-import { useOrdering } from "@/hooks/use-ordering"
-import { useFilters } from "@/hooks/use-filters"
-import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 
-const DEBOUNCE_DELAY = 300
+import { useState } from "react"
+import { PlusIcon } from "lucide-react"
+
+import { Button } from "@workspace/ui/components/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog"
+import {
+  AppHeader,
+  AppHeaderActions,
+  AppHeaderNav,
+} from "@/components/app-header"
+import { RowActionsProvider } from "@/context/row-actions-provider"
+
+import { CategoryForm, useCategoryForm } from "./_components/category-form"
+import { CategoriesTable } from "./_components/categories-table"
+import { CategoryEditDrawer } from "./_components/category-edit-drawer"
+import { CategoryDeleteAlertDialog } from "./_components/category-delete-alert-dialog"
 
 export default function CategoriesPage() {
-  const queryClient = useQueryClient()
-
-  const pagination = usePagination()
-  const ordering = useOrdering()
-  const columnFilters = useFilters(columns)
-
-  const [search, setSearch] = useQueryState(
-    "search",
-    parseAsString.withDefault("")
+  return (
+    <RowActionsProvider>
+      <AppHeader>
+        <AppHeaderNav items={[{ type: "page", label: "Categories" }]} />
+        <AppHeaderActions>
+          <CreateCategoryDialog />
+        </AppHeaderActions>
+      </AppHeader>
+      <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
+        <CategoriesTable />
+        <CategoryEditDrawer />
+        <CategoryDeleteAlertDialog />
+      </main>
+    </RowActionsProvider>
   )
+}
 
-  const queryFilters = useMemo<CategoriesListData["query"]>(
-    () => ({ ...columnFilters, ordering, search }),
-    [columnFilters, search, ordering]
-  )
+function CreateCategoryDialog() {
+  const [open, setOpen] = useState(false)
 
-  const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
-
-  const query = useMemo<CategoriesListData["query"]>(
-    () => ({
-      ...debouncedQueryFilters,
-      ...pagination,
-    }),
-    [debouncedQueryFilters, pagination]
-  )
-
-  const immediateQuery = useMemo(
-    () => ({
-      ...queryFilters,
-      ...pagination,
-    }),
-    [queryFilters, pagination]
-  )
-
-  const isCached = useMemo(
-    () =>
-      queryClient.getQueryData(
-        categoriesListQueryKey({ query: immediateQuery })
-      ) !== undefined,
-    [queryClient, immediateQuery]
-  )
-
-  const activeFilters = isCached ? immediateQuery : query
-
-  const { data } = useQuery({
-    ...categoriesListOptions({ query: activeFilters }),
-    placeholderData: keepPreviousData,
-  })
-
-  const table = useDataTable({ data, columns })
+  const form = useCategoryForm({ setOpen })
 
   return (
-    <DataTable table={table}>
-      <DataTableAdvancedToolbar table={table}>
-        <SearchInput
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search for a categories..."
-        />
-      </DataTableAdvancedToolbar>
-    </DataTable>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button size="sm" />}>
+        <PlusIcon />
+        Quick Create
+      </DialogTrigger>
+      <DialogContent
+        onAnimationEnd={(e) => {
+          if (!open && e.animationName === "exit") form.reset()
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>Create Category</DialogTitle>
+          <DialogDescription className="sr-only">
+            These categories can be assigned to products to be able to filter
+            and sort them.
+          </DialogDescription>
+        </DialogHeader>
+        <CategoryForm form={form} variant="required" />
+        <DialogFooter>
+          <DialogClose render={<Button variant="secondary" />}>
+            Close
+          </DialogClose>
+          <form.AppForm>
+            <form.SubmitButton>Create</form.SubmitButton>
+          </form.AppForm>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

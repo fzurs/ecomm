@@ -1,15 +1,14 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { formOptions } from "@tanstack/react-form"
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Brand, BrandWritable } from "@workspace/api-client"
 import {
   brandsCreateMutation,
-  brandsListChoicesQueryKey,
-  brandsListQueryKey,
   brandsUpdateMutation,
 } from "@workspace/api-client/query"
 import { zBrandWritable } from "@workspace/api-client/zod"
 import { FieldGroup } from "@workspace/ui/components/field"
+import { invalidateBrands } from "../_lib/invalidate-brands"
 
 const defaultValues: Brand | BrandWritable = {
   name: "",
@@ -20,20 +19,13 @@ const brandFormOpts = formOptions({
   validators: { onSubmit: zBrandWritable },
 })
 
-export const invalidateBrands = async (queryClient: QueryClient) => {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: brandsListQueryKey() }),
-    queryClient.invalidateQueries({ queryKey: brandsListChoicesQueryKey() }),
-  ])
-}
-
 export function useBrandForm({
-  item,
+  brand,
   setOpen,
 }: {
-  item?: Brand
-  setOpen: (open: boolean) => void
-}) {
+  brand?: Brand
+  setOpen?: (open: boolean) => void
+} = {}) {
   const queryClient = useQueryClient()
 
   const onSuccess = async () => {
@@ -44,16 +36,16 @@ export function useBrandForm({
   const updateMutation = useMutation({ ...brandsUpdateMutation(), onSuccess })
   const createMutation = useMutation({ ...brandsCreateMutation(), onSuccess })
 
-  const formId = item ? `update-brand-form-${item.id}` : "create-brand-form"
+  const formId = brand ? `update-brand-form-${brand.id}` : "create-brand-form"
 
   const form = useAppForm({
     ...brandFormOpts,
     formId,
-    defaultValues: item ?? defaultValues,
+    defaultValues: brand ?? defaultValues,
     onSubmit: ({ value: body }) =>
-      item
+      brand
         ? updateMutation.mutateAsync({
-            path: { slug: item.slug as string },
+            path: { slug: brand.slug as string },
             body,
           })
         : createMutation.mutateAsync({ body }),

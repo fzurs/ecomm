@@ -1,15 +1,14 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { formOptions } from "@tanstack/react-form"
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Category, CategoryWritable } from "@workspace/api-client"
 import {
   categoriesCreateMutation,
-  categoriesListChoicesQueryKey,
-  categoriesListQueryKey,
   categoriesUpdateMutation,
 } from "@workspace/api-client/query"
 import { zCategoryWritable } from "@workspace/api-client/zod"
 import { FieldGroup } from "@workspace/ui/components/field"
+import { invalidateCategories } from "../_lib/invalidate-categories"
 
 const defaultValues: CategoryWritable | Category = {
   name: "",
@@ -21,22 +20,13 @@ const categoryFormOpts = formOptions({
   validators: { onSubmit: zCategoryWritable },
 })
 
-export const invalidateCategories = async (queryClient: QueryClient) => {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: categoriesListQueryKey() }),
-    queryClient.invalidateQueries({
-      queryKey: categoriesListChoicesQueryKey(),
-    }),
-  ])
-}
-
 export function useCategoryForm({
-  item,
+  category,
   setOpen,
 }: {
-  item?: Category
-  setOpen: (open: boolean) => void
-}) {
+  category?: Category
+  setOpen?: (open: boolean) => void
+} = {}) {
   const queryClient = useQueryClient()
 
   const onSuccess = async () => {
@@ -53,18 +43,18 @@ export function useCategoryForm({
     onSuccess,
   })
 
-  const formId = item
-    ? `update-category-form-${item.id}`
+  const formId = category
+    ? `update-category-form-${category.id}`
     : "create-category-form"
 
   const form = useAppForm({
     ...categoryFormOpts,
     formId,
-    defaultValues: item ?? defaultValues,
+    defaultValues: category ?? defaultValues,
     onSubmit: ({ value: body }) =>
-      item
+      category
         ? updateMutation.mutateAsync({
-            path: { slug: item.slug as string },
+            path: { slug: category.slug as string },
             body,
           })
         : createMutation.mutateAsync({ body }),
