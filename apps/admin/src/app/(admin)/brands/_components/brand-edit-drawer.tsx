@@ -39,12 +39,12 @@ function BrandEditDrawerContent({
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle>{brand.name}</DrawerTitle>
-        <DrawerDescription className="sr-only">
-          Edit the brand details.
+        <DrawerTitle>Edit brand</DrawerTitle>
+        <DrawerDescription>
+          Changes apply to every product of this brand.
         </DrawerDescription>
       </DrawerHeader>
-      <div className="overflow-auto px-4">
+      <div className="overflow-auto p-4">
         <BrandEditForm form={form} />
       </div>
       <DrawerFooter>

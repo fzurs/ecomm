@@ -53,12 +53,12 @@ function CategoryEditDrawerContent({
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle>{category.name}</DrawerTitle>
-        <DrawerDescription className="sr-only">
-          Edit the category details.
+        <DrawerTitle>Edit category</DrawerTitle>
+        <DrawerDescription>
+          Changes apply to every product in this category.
         </DrawerDescription>
       </DrawerHeader>
-      <div className="overflow-auto px-4">
+      <div className="overflow-auto p-4">
         <CategoryEditForm form={form} />
       </div>
       <DrawerFooter>
