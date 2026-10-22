@@ -307,7 +307,19 @@ export function SelectField({
           className="w-full"
           {...props}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue>
+            {(value) => {
+              // The icon is shown next to the selected label, as in the list.
+              const option = options.find((opt) => opt.value === value)
+              if (!option) return placeholder
+              return (
+                <>
+                  {option.icon}
+                  {option.label}
+                </>
+              )
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
