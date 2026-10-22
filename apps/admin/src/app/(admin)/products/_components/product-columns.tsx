@@ -130,7 +130,6 @@ export function getProductColumns({
       header: "Discount",
       cell: ({ row }) => formatPrice(row.original.discount_price),
       meta: {
-        thClassName: "text-left",
         className: "text-amber-500",
         variant: "range",
       },
