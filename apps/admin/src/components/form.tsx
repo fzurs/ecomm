@@ -1,4 +1,5 @@
 import { useFieldContext, useFormContext } from "@/hooks/form-context"
+import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
@@ -21,9 +22,14 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
+import { CircleAlertIcon } from "lucide-react"
 import * as React from "react"
 
-export function Form({ onSubmit, ...props }: React.ComponentProps<"form">) {
+export function Form({
+  onSubmit,
+  children,
+  ...props
+}: React.ComponentProps<"form">) {
   const form = useFormContext()
 
   return (
@@ -41,6 +47,36 @@ export function Form({ onSubmit, ...props }: React.ComponentProps<"form">) {
           scrollToFirstInvalidField(formElement)
         }
       }}
+    >
+      <FormError />
+      {children}
+    </form>
+  )
+}
+
+/** The form-level error set by `applyServerErrors` (e.g. wrong credentials). */
+function FormError() {
+  const form = useFormContext()
+
+  return (
+    <form.Subscribe
+      selector={(state) => state.errorMap.onSubmit}
+      children={(error) => {
+        // Schema errors also land here, as a map of field issues: those are
+        // shown on each field, so only a `{ message }` error is rendered.
+        const message =
+          error && typeof error === "object" && "message" in error
+            ? error.message
+            : undefined
+        if (typeof message !== "string") return null
+
+        return (
+          <Alert variant="destructive" data-slot="form-error" className="mb-6">
+            <CircleAlertIcon />
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
+        )
+      }}
     />
   )
 }
@@ -49,7 +85,9 @@ function scrollToFirstInvalidField(formElement: HTMLFormElement) {
   // Wait for React to render the field errors before measuring.
   requestAnimationFrame(() => {
     formElement
-      .querySelector('[data-slot="field"][data-invalid="true"]')
+      .querySelector(
+        '[data-slot="form-error"], [data-slot="field"][data-invalid="true"]'
+      )
       ?.scrollIntoView({ block: "nearest", behavior: "smooth" })
   })
 }

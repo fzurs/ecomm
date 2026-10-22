@@ -26,7 +26,8 @@
     UX, su tipo, y `toXFormValues(x)` para mapear la entidad a los valores editables.
   - Los hooks reciben `onSuccess`, no `setOpen`; quien contiene el form decide cómo cerrarse.
   - `onSubmit` hace `try { await mutateAsync } catch { applyServerErrors(formApi, error) }`
-    (`src/lib/utils.ts`) para mostrar los errores de DRF en cada campo.
+    (`src/lib/utils.ts`): los errores de DRF van a cada campo, y el resto (`non_field_errors`,
+    `detail`, red, 500) a un error del form que `form.Form` muestra arriba (`FormError`).
 
 ## Estructura de las secciones
 - **`src/app/(admin)/orders/` es el patrón de referencia**: `page.tsx`, `[number]/page.tsx`,
