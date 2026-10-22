@@ -22,7 +22,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
-import { useProductColumns } from "./product-columns"
+import { useProductColumns } from "../_hooks/use-product-columns"
 
 const DEBOUNCE_DELAY = 300
 
