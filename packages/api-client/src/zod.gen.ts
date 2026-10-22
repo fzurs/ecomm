@@ -34,9 +34,9 @@ export const zCategoryChoice = z.object({
  * * `80` - CUIT
  * * `86` - CUIL
  * * `87` - CDI
+ * * `96` - DNI
  * * `89` - LE
  * * `90` - LC
- * * `96` - DNI
  * * `94` - Pasaporte
  * * `91` - CI Extranjera
  * * `0` - CI Policía Federal
@@ -46,9 +46,9 @@ export const zDocumentTypeEnum = z.union([
     z.literal(80),
     z.literal(86),
     z.literal(87),
+    z.literal(96),
     z.literal(89),
     z.literal(90),
-    z.literal(96),
     z.literal(94),
     z.literal(91),
     z.literal(0),

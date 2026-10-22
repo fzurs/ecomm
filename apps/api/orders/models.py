@@ -7,23 +7,27 @@ from store.models import Product
 
 
 class Customer(models.Model):
-    class DocumentTypes(models.IntegerChoices):
+    # ARCA document type codes (the values are what WSFE expects as DocTipo).
+    class DocumentType(models.IntegerChoices):
+        # Tax IDs
         CUIT = 80, _("CUIT")
         CUIL = 86, _("CUIL")
         CDI = 87, _("CDI")
+        # National IDs
+        DNI = 96, _("DNI")
         LE = 89, _("LE")
         LC = 90, _("LC")
-        DNI = 96, _("DNI")
-        PASAPORT = 94, _("Pasaporte")
+        # Foreigners and others
+        PASSPORT = 94, _("Pasaporte")
         CI_FOREIGN = 91, _("CI Extranjera")
-        CI_FEDERAL_POLICE = 00, _("CI Policía Federal")
+        CI_FEDERAL_POLICE = 0, _("CI Policía Federal")
         MIGRATION_CERTIFICATE = 30, _("Certificado de Migración")
 
     name = models.CharField(max_length=255, unique=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     document_type = models.PositiveSmallIntegerField(
-        choices=DocumentTypes.choices, default=DocumentTypes.CUIT)
+        choices=DocumentType.choices, default=DocumentType.CUIT)
     document_number = models.CharField(max_length=20, blank=True, null=True)
     image = models.ImageField(upload_to="customers/", blank=True, null=True)
 

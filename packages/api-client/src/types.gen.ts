@@ -46,15 +46,15 @@ export type Customer = {
  * * `80` - CUIT
  * * `86` - CUIL
  * * `87` - CDI
+ * * `96` - DNI
  * * `89` - LE
  * * `90` - LC
- * * `96` - DNI
  * * `94` - Pasaporte
  * * `91` - CI Extranjera
  * * `0` - CI Policía Federal
  * * `30` - Certificado de Migración
  */
-export type DocumentTypeEnum = 80 | 86 | 87 | 89 | 90 | 96 | 94 | 91 | 0 | 30;
+export type DocumentTypeEnum = 80 | 86 | 87 | 96 | 89 | 90 | 94 | 91 | 0 | 30;
 
 export type Invoice = {
     readonly id: number;
