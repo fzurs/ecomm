@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query"
 import { formatISO } from "date-fns"
-import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
+import { parseAsArrayOf, parseAsStringEnum, useQueryState } from "nuqs"
 import { ProductsListData } from "@workspace/api-client"
 import {
   productsListOptions,
@@ -14,10 +14,14 @@ import {
 import { zProductStatus } from "@workspace/api-client/zod"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { DataTableFilterMenu } from "@workspace/data-table/components/data-table-filter-menu"
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
+import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@workspace/ui/components/toggle-group"
+import { ListCollapseIcon, SlidersHorizontalIcon } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
@@ -30,7 +34,6 @@ const columnVisibility = { description: false }
 
 export function ProductsTable() {
   const queryClient = useQueryClient()
-  const isMobile = useIsMobile()
 
   const columns = useProductColumns()
 
@@ -108,15 +111,61 @@ export function ProductsTable() {
     initialState: { columnVisibility },
   })
 
+  const [filterView, setFilterView] = useQueryState(
+    "filterView",
+    parseAsStringEnum<FilterView>([...filterViews]).withDefault("menu")
+  )
+
+  const filterViewToggle = (
+    <FilterViewToggle value={filterView} onValueChange={setFilterView} />
+  )
+
   return (
     <DataTable table={table}>
-      {isMobile ? (
-        <DataTableAdvancedToolbar table={table}>
+      {filterView === "toolbar" ? (
+        <DataTableToolbar table={table}>{filterViewToggle}</DataTableToolbar>
+      ) : (
+        <DataTableAdvancedToolbar table={table} actions={filterViewToggle}>
           <DataTableFilterMenu table={table} />
         </DataTableAdvancedToolbar>
-      ) : (
-        <DataTableToolbar table={table} />
       )}
     </DataTable>
+  )
+}
+
+const filterViews = ["menu", "toolbar"] as const
+
+type FilterView = (typeof filterViews)[number]
+
+/** Switches between the compact filter menu and one control per column. */
+function FilterViewToggle({
+  value,
+  onValueChange,
+}: {
+  value: FilterView
+  onValueChange: (value: FilterView) => void
+}) {
+  return (
+    <ToggleGroup
+      variant="outline"
+      value={[value]}
+      // Ignore deselecting the active item: one view is always selected.
+      onValueChange={([next]) => next && onValueChange(next as FilterView)}
+    >
+      <ToggleGroupItem
+        value="menu"
+        aria-label="Filter menu"
+        title="Filter menu"
+      >
+        <ListCollapseIcon />
+      </ToggleGroupItem>
+      <ToggleGroupItem
+        value="toolbar"
+        aria-label="All filters"
+        title="All filters"
+      >
+        <SlidersHorizontalIcon />
+      </ToggleGroupItem>
+    </ToggleGroup>
   )
 }

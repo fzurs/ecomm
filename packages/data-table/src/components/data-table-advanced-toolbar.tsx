@@ -2,13 +2,16 @@ import { Table } from "@tanstack/react-table"
 import { cn } from "@workspace/ui/lib/utils"
 import { DataTableViewOptions } from "./data-table-view-options"
 
+/** `children` go on the left (filters); `actions` on the right, before the view options. */
 export function DataTableAdvancedToolbar<TData>({
   table,
   className,
   children,
+  actions,
   ...props
 }: React.ComponentProps<"div"> & {
   table: Table<TData>
+  actions?: React.ReactNode
 }) {
   return (
     <div
@@ -19,6 +22,7 @@ export function DataTableAdvancedToolbar<TData>({
     >
       <div className="flex flex-1 flex-wrap items-center gap-2">{children}</div>
       <div className="flex items-center gap-2">
+        {actions}
         <DataTableViewOptions table={table} />
       </div>
     </div>
