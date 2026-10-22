@@ -11,7 +11,55 @@ from rest_framework.test import APITestCase
 from orders.models import Customer, Order, OrderItem
 
 from .images import generate_customer_image, generate_product_image
-from .models import Brand, Category, Product
+from .models import Brand, Category, Product, build_sku
+
+
+class BuildSkuTests(SimpleTestCase):
+    def test_uses_name_prefix_and_padded_pk(self):
+        self.assertEqual(build_sku('ACME Hammer', 42), 'ACMEH-0042')
+
+    def test_ignores_symbols_and_accents(self):
+        self.assertEqual(build_sku('Ñandú-Café & Co.', 7), 'NANDU-0007')
+
+    def test_short_name(self):
+        self.assertEqual(build_sku('Saw', 1), 'SAW-0001')
+
+    def test_keeps_prefix_with_long_pk(self):
+        self.assertEqual(build_sku('ACME Hammer', 12345), 'ACMEH-12345')
+
+    def test_name_without_letters_or_digits(self):
+        self.assertEqual(build_sku('¡¿!?', 42), '0042')
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class GenerateSkuTests(APITestCase):
+    def test_saves_sku(self):
+        product = Product.objects.create(name='ACME Hammer')
+        product.generate_sku()
+        product.refresh_from_db()
+        self.assertEqual(product.sku, build_sku('ACME Hammer', product.pk))
+
+    def test_unsaved_product_raises(self):
+        with self.assertRaises(ValueError):
+            Product(name='ACME Hammer').generate_sku()
+
+    def test_api_create_generates_sku(self):
+        self.client.force_login(get_user_model().objects.create(username='admin'))
+        response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()['sku'], build_sku('ACME Hammer', response.json()['id']))
+
+    def test_api_create_keeps_given_sku(self):
+        self.client.force_login(get_user_model().objects.create(username='admin'))
+        response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer', 'sku': 'MY-SKU'})
+        self.assertEqual(response.json()['sku'], 'MY-SKU')
+
+    def test_generate_sku_endpoint(self):
+        self.client.force_login(get_user_model().objects.create(username='admin'))
+        product = Product.objects.create(name='ACME Hammer', sku='OLD')
+        response = self.client.post(reverse('product-generate-sku', args=[product.slug]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['sku'], build_sku('ACME Hammer', product.pk))
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

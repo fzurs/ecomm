@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, status, permissions
+from rest_framework import viewsets, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -28,9 +28,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='generate-sku')
     def generate_sku(self, request, **kwargs):
         instance = self.get_object()
-        is_success = instance.generate_sku()
-        if not is_success:
-            return Response({'message': 'The SKU could not be generated'}, status.HTTP_400_BAD_REQUEST)
+        instance.generate_sku()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 

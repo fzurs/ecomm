@@ -5,6 +5,16 @@ from django.utils.text import slugify
 from .images import generate_product_image, to_png
 
 
+def build_sku(name: str, pk: int) -> str:
+    """
+    "<first 5 letters or digits of the name>-<pk padded to 4 digits>", e.g. "ACMEH-0042".
+    Accents are dropped and symbols ignored; the pk keeps it unique.
+    """
+    prefix = slugify(name).replace('-', '')[:5].upper()
+    number = f'{pk:04d}'
+    return f'{prefix}-{number}' if prefix else number
+
+
 class NamedSlugModel(models.Model):
     """Unique `name`, with a `slug` filled from it on the first save unless one is given."""
     slug = models.SlugField(max_length=255, blank=True, unique=True)
@@ -63,11 +73,11 @@ class Product(NamedSlugModel):
         ordering = ['-created_at']
 
     def generate_sku(self):
-        id = str(self.pk)
-        first = self.name.replace(" ", "")[0:5].upper()
-        self.sku = first+"-"+"0"*(4-len(id))+id if len(id) < 4 else id
-        self.save()
-        return True
+        """Sets and saves the SKU built by `build_sku`. Needs a saved product, since it uses the pk."""
+        if self.pk is None:
+            raise ValueError("Can't generate a SKU for an unsaved product.")
+        self.sku = build_sku(self.name, self.pk)
+        self.save(update_fields=['sku'])
 
     def save(self, *args, **kwargs):
         if not self.image:

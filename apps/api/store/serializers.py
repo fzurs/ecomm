@@ -58,6 +58,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = super().create(validated_data)
-        if instance.sku == None: instance.generate_sku()
+        if instance.sku is None: instance.generate_sku()
         return instance
             
