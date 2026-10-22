@@ -27,14 +27,14 @@ export function DataTable<TData>({
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">
           <Table>
-            <TableHeader className="bg-secondary">
+            <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-xs uppercase",
+                        "group/th text-xs uppercase",
                         header.column.columnDef.meta?.thClassName
                       )}
                     >
