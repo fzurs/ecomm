@@ -13,7 +13,8 @@
   nunca volver a `CORS_ALLOW_ALL_ORIGINS`: cualquier sitio podría leer la API con la sesión del
   admin. Un frontend nuevo se agrega a esa lista.
 - dj-rest-auth corre solo con sesión (`REST_AUTH = {"TOKEN_MODEL": None}`): el login responde 204
-  y no crea tokens.
+  y no crea tokens. `config/schema.py` documenta ese 204 para drf-spectacular; sin esa extensión
+  `generate:schema` falla, porque el `TokenSerializer` no tiene modelo.
 - Los endpoints son `ModelViewSet` con un FilterSet en el `filters.py` de la app, más
   `ordering_fields` / `search_fields`. Referencia: `orders/views.py`.
 - Las `@action` propias llevan `@extend_schema(operation_id=...)` para que los nombres del cliente
