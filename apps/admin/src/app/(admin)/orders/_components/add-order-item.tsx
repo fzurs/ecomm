@@ -3,6 +3,11 @@ import { useQuery } from "@tanstack/react-query"
 import { OrderItemWritable } from "@workspace/api-client"
 import { productsListChoicesOptions } from "@workspace/api-client/query"
 import { zProductStatus } from "@workspace/api-client/zod"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@workspace/ui/components/avatar"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -14,12 +19,21 @@ import {
   CommandList,
 } from "@workspace/ui/components/command"
 import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@workspace/ui/components/item"
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@workspace/ui/components/popover"
 import { PlusIcon } from "lucide-react"
 import * as React from "react"
+import { formatPrice } from "@/lib/utils"
 
 export function AddOrderItem({
   orderItems,
@@ -86,10 +100,29 @@ export function AddOrderItem({
                     key={product.id}
                     value={product.name}
                     onSelect={onSelect}
-                    className="justify-between gap-2"
+                    // Hides CommandItem's check icon: it's never checked here, but its
+                    // space would push the quantity badge away from the end.
+                    className="*:[svg]:hidden"
                   >
-                    {product.name}
-                    {isSelected && <Badge variant="outline">x{quantity}</Badge>}
+                    <Item className="w-full p-0" size="sm">
+                      <ItemMedia>
+                        <Avatar shape="square" size="lg">
+                          {product.image && <AvatarImage src={product.image} />}
+                          <AvatarFallback />
+                        </Avatar>
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>{product.name}</ItemTitle>
+                        <ItemDescription>
+                          {formatPrice(product.price)}
+                        </ItemDescription>
+                      </ItemContent>
+                      {isSelected && (
+                        <ItemActions>
+                          <Badge variant="outline">x{quantity}</Badge>
+                        </ItemActions>
+                      )}
+                    </Item>
                   </CommandItem>
                 )
               )}
