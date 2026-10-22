@@ -69,10 +69,8 @@ function ProductEditDrawerContent({
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle>{product.name}</DrawerTitle>
-        <DrawerDescription className="sr-only">
-          Edit the product details.
-        </DrawerDescription>
+        <DrawerTitle>Edit product</DrawerTitle>
+        <DrawerDescription>{product.name}</DrawerDescription>
       </DrawerHeader>
       <div
         ref={scrollRef}

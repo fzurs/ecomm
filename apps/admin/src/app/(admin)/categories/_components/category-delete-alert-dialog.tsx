@@ -43,10 +43,10 @@ function CategoryDeleteAlertDialogContent({
         <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
           <Trash2Icon />
         </AlertDialogMedia>
-        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+        <AlertDialogTitle>Delete category?</AlertDialogTitle>
         <AlertDialogDescription>
-          Once deleted, there is no going back; the item will be permanently
-          deleted.
+          This action cannot be undone. Its products are kept, without a
+          category.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

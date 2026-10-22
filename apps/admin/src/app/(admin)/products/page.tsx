@@ -64,7 +64,7 @@ function CreateProductDialog() {
         }}
       >
         <DialogHeader>
-          <DialogTitle>Create Product</DialogTitle>
+          <DialogTitle>Create product</DialogTitle>
           <DialogDescription className="sr-only">
             Fill in the basic details to quickly add a new product to your
             catalog.

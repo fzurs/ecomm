@@ -75,7 +75,7 @@ function CreateCustomerDialog() {
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
           <form.AppForm>
-            <form.SubmitButton>Save</form.SubmitButton>
+            <form.SubmitButton>Create</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

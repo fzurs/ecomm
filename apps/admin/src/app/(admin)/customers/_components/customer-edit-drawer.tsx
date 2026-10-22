@@ -51,7 +51,7 @@ function CustomerEditDrawerContent({
       </div>
       <DrawerFooter>
         <form.AppForm>
-          <form.SubmitButton>Save</form.SubmitButton>
+          <form.SubmitButton>Save changes</form.SubmitButton>
         </form.AppForm>
         <DrawerClose render={<Button variant="secondary" />}>Close</DrawerClose>
       </DrawerFooter>

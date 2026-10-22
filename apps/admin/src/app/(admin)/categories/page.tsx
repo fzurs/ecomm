@@ -64,7 +64,7 @@ function CreateCategoryDialog() {
         }}
       >
         <DialogHeader>
-          <DialogTitle>Create Category</DialogTitle>
+          <DialogTitle>Create category</DialogTitle>
           <DialogDescription className="sr-only">
             These categories can be assigned to products to be able to filter
             and sort them.

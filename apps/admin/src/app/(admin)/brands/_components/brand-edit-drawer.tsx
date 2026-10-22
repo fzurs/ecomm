@@ -49,7 +49,7 @@ function BrandEditDrawerContent({
       </div>
       <DrawerFooter>
         <form.AppForm>
-          <form.SubmitButton>Save Changes</form.SubmitButton>
+          <form.SubmitButton>Save changes</form.SubmitButton>
         </form.AppForm>
         <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
       </DrawerFooter>

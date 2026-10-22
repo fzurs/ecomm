@@ -59,7 +59,7 @@ function CreateBrandDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Brand</DialogTitle>
+          <DialogTitle>Create brand</DialogTitle>
         </DialogHeader>
         <BrandCreateForm form={form} />
         <DialogFooter>
