@@ -33,7 +33,7 @@ export default function ProductsPage() {
   return (
     <RowActionsProvider>
       <AppHeader>
-        <AppHeaderNav items={[{ type: "page", label: "Products" }]} />
+        <AppHeaderNav page="Products" />
         <AppHeaderActions>
           <CreateProductDialog />
         </AppHeaderActions>

@@ -33,7 +33,7 @@ export default function CategoriesPage() {
   return (
     <RowActionsProvider>
       <AppHeader>
-        <AppHeaderNav items={[{ type: "page", label: "Categories" }]} />
+        <AppHeaderNav page="Categories" />
         <AppHeaderActions>
           <CreateCategoryDialog />
         </AppHeaderActions>

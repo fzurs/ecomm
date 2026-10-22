@@ -32,7 +32,7 @@ export default function CustomersPage() {
   return (
     <RowActionsProvider>
       <AppHeader>
-        <AppHeaderNav items={[{ type: "page", label: "Customers" }]} />
+        <AppHeaderNav page="Customers" />
         <AppHeaderActions>
           <CreateCustomerDialog />
         </AppHeaderActions>

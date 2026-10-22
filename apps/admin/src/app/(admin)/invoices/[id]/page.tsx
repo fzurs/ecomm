@@ -15,10 +15,8 @@ export default function InvoicesDetailPage() {
     <>
       <AppHeader>
         <AppHeaderNav
-          items={[
-            { label: "Invoices", href: "/invoices", type: "link" },
-            { label: invoice.document_name, type: "page" },
-          ]}
+          parents={[{ label: "Invoices", href: "/invoices" }]}
+          page={invoice.document_name}
         />
       </AppHeader>
     </>

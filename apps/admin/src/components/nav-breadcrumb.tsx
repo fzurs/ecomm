@@ -9,31 +9,32 @@ import {
 import Link from "next/link"
 import React from "react"
 
-type NavItem = { type: "link" | "page"; label: string; href?: string }
+type NavLink = { label: string; href: string }
 
-const renderNavItem = (item: NavItem) => {
-  switch (item.type) {
-    case "link":
-      return (
-        <BreadcrumbLink render={<Link href={item.href ?? "#"} />}>
-          {item.label}
-        </BreadcrumbLink>
-      )
-    case "page":
-      return <BreadcrumbPage>{item.label}</BreadcrumbPage>
-  }
-}
-
-function NavBreadcrumb({ items }: { items: NavItem[] }) {
+/** `parents` are the links leading to the current `page`, in order. */
+function NavBreadcrumb({
+  parents = [],
+  page,
+}: {
+  parents?: NavLink[]
+  page: string
+}) {
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {items.map((item, index) => (
-          <React.Fragment key={index}>
-            <BreadcrumbItem>{renderNavItem(item)}</BreadcrumbItem>
-            {index < items.length - 1 && <BreadcrumbSeparator />}
+        {parents.map((link) => (
+          <React.Fragment key={link.href}>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href={link.href} />}>
+                {link.label}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
           </React.Fragment>
         ))}
+        <BreadcrumbItem>
+          <BreadcrumbPage>{page}</BreadcrumbPage>
+        </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
   )

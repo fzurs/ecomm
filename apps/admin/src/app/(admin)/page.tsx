@@ -4,7 +4,7 @@ export default function Page() {
   return (
     <>
       <AppHeader>
-        <AppHeaderNav items={[{ type: "page", label: "Home" }]} />
+        <AppHeaderNav page="Home" />
       </AppHeader>
     </>
   )

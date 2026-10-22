@@ -99,7 +99,7 @@ export default function OrdersPage() {
   return (
     <RowActionsProvider>
       <AppHeader>
-        <AppHeaderNav items={[{ type: "page", label: "Orders" }]} />
+        <AppHeaderNav page="Orders" />
         <AppHeaderActions>
           <Link href="/orders/new" className={buttonVariants({ size: "sm" })}>
             New Order

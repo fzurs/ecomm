@@ -26,10 +26,8 @@ export default function CustomerDetailsPage() {
     <RowActionsProvider>
       <AppHeader>
         <AppHeaderNav
-          items={[
-            { label: "Customers", href: "/customers", type: "link" },
-            { label: customer.name, type: "page" },
-          ]}
+          parents={[{ label: "Customers", href: "/customers" }]}
+          page={customer.name}
         />
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col">

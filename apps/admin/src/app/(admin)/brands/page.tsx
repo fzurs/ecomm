@@ -32,7 +32,7 @@ export default function BrandsPage() {
   return (
     <RowActionsProvider>
       <AppHeader>
-        <AppHeaderNav items={[{ type: "page", label: "Brands" }]} />
+        <AppHeaderNav page="Brands" />
         <AppHeaderActions>
           <CreateBrandDialog />
         </AppHeaderActions>

@@ -16,10 +16,8 @@ export default function OrdersCreatePage() {
     <>
       <AppHeader>
         <AppHeaderNav
-          items={[
-            { type: "link", label: "Orders", href: "/orders" },
-            { type: "page", label: "New" },
-          ]}
+          parents={[{ label: "Orders", href: "/orders" }]}
+          page="New"
         />
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col">

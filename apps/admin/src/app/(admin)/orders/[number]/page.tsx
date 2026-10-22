@@ -34,10 +34,8 @@ export default function OrdersDetailsPage() {
     <>
       <AppHeader>
         <AppHeaderNav
-          items={[
-            { label: "Orders", href: "/orders", type: "link" },
-            { label: order.number, type: "page" },
-          ]}
+          parents={[{ label: "Orders", href: "/orders" }]}
+          page={order.number}
         />
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col">

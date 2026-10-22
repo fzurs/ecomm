@@ -14,9 +14,7 @@ export default function InvoicesPage() {
   return (
     <>
       <AppHeader>
-        <AppHeaderNav
-          items={[{ label: "Invoices", href: "/invoices", type: "page" }]}
-        />
+        <AppHeaderNav page="Invoices" />
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
         <DataTable table={table} />
