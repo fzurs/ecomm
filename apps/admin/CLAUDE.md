@@ -52,6 +52,10 @@
 - Componentes base de `@workspace/ui/components/*`. Los componentes nuevos de shadcn se agregan en
   `packages/ui`, no acá.
 - Helpers en `src/lib/utils.ts` (`formatPrice` formatea en es-AR).
+- Playground en `/playground` (solo en desarrollo; `layout.tsx` hace `notFound()` en otros
+  entornos) para armar y revisar componentes con los providers y datos reales. Una página por
+  tema en `playground/<slug>/page.tsx`, con `PlaygroundSection`, y su entrada en
+  `playground/_lib/playground-entries.ts`. No va en el sidebar.
 
 ## Verificar
 `pnpm --filter admin typecheck` y `pnpm --filter admin lint`.
