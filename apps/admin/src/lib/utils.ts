@@ -68,10 +68,14 @@ export function capitalize(str: string) {
   return str.at(0)?.toUpperCase() + str.slice(1)
 }
 
-export function formatPrice(price: number | string) {
-  const value = Number(price).toLocaleString("es-AR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-  return `$ ${value}`
+const priceFormatter = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  trailingZeroDisplay: "stripIfInteger",
+})
+
+export function formatPrice(price: number | string | null | undefined) {
+  if (price == null || price === "") return null
+  const value = Number(price)
+  return Number.isFinite(value) ? priceFormatter.format(value) : null
 }

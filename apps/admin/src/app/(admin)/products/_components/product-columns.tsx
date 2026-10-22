@@ -132,8 +132,7 @@ export function getProductColumns({
     },
     {
       accessorKey: "price",
-      cell: ({ row }) =>
-        row.original.price != null && formatPrice(row.original.price),
+      cell: ({ row }) => formatPrice(row.original.price),
       meta: {
         thClassName: "text-right",
         className: "text-right text-green-500",
@@ -143,9 +142,7 @@ export function getProductColumns({
     {
       accessorKey: "discount_price",
       header: "Discount",
-      cell: ({ row }) =>
-        row.original.discount_price != null &&
-        formatPrice(row.original.discount_price),
+      cell: ({ row }) => formatPrice(row.original.discount_price),
       meta: {
         thClassName: "text-left",
         className: "text-amber-500",

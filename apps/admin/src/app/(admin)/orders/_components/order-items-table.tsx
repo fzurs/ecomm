@@ -47,7 +47,7 @@ export function OrderItemsTable({
                 {renderQuantity?.(index) ?? quantity}
               </TableCell>
               <TableCell className="text-center">
-                {product.price && formatPrice(product.price)}
+                {formatPrice(product.price)}
               </TableCell>
               <TableCell className="text-right font-semibold">
                 {formatPrice(subtotal)}
@@ -65,9 +65,7 @@ export function OrderItemsTable({
         <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">
-              {total && formatPrice(total)}
-            </TableCell>
+            <TableCell className="text-right">{formatPrice(total)}</TableCell>
             {renderActions && <TableCell />}
           </TableRow>
         </TableFooter>
