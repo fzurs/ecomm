@@ -21,7 +21,10 @@ import {
 } from "@/components/app-header"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 
-import { ProductForm, useProductForm } from "./_components/product-form"
+import {
+  ProductCreateForm,
+  useProductCreateForm,
+} from "./_components/product-create-form"
 import { ProductsTable } from "./_components/products-table"
 import { ProductEditDrawer } from "./_components/product-edit-drawer"
 import { ProductDeleteAlertDialog } from "./_components/product-delete-alert-dialog"
@@ -47,7 +50,7 @@ export default function ProductsPage() {
 function CreateProductDialog() {
   const [open, setOpen] = useState(false)
 
-  const form = useProductForm({ setOpen })
+  const form = useProductCreateForm({ onSuccess: () => setOpen(false) })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -67,7 +70,7 @@ function CreateProductDialog() {
             catalog.
           </DialogDescription>
         </DialogHeader>
-        <ProductForm form={form} variant="required" />
+        <ProductCreateForm form={form} />
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Close

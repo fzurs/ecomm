@@ -10,14 +10,14 @@ import {
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Product } from "@workspace/api-client"
-import { ProductForm, useProductForm } from "./product-form"
+import { ProductEditForm, useProductEditForm } from "./product-edit-form"
 import { Button } from "@workspace/ui/components/button"
 import { RefObject, useLayoutEffect, useRef } from "react"
 
 export function ProductEditDrawer() {
   const isMobile = useIsMobile()
 
-  const { row, rootProps } = useRowActionDialog<Product>("edit")
+  const { row, rootProps, closeAction } = useRowActionDialog<Product>("edit")
 
   // Survives the content remount so switching products keeps the scroll.
   const scrollTopRef = useRef(0)
@@ -41,7 +41,7 @@ export function ProductEditDrawer() {
           <ProductEditDrawerContent
             key={row.id}
             product={row}
-            setOpen={rootProps.onOpenChange}
+            onSuccess={closeAction}
             scrollTopRef={scrollTopRef}
           />
         )}
@@ -52,14 +52,14 @@ export function ProductEditDrawer() {
 
 function ProductEditDrawerContent({
   product,
-  setOpen,
+  onSuccess,
   scrollTopRef,
 }: {
   product: Product
-  setOpen: (open: boolean) => void
+  onSuccess: () => void
   scrollTopRef: RefObject<number>
 }) {
-  const form = useProductForm({ product, setOpen })
+  const form = useProductEditForm({ product, onSuccess })
 
   const scrollRef = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -81,7 +81,7 @@ function ProductEditDrawerContent({
         }}
         className="overflow-auto p-4"
       >
-        <ProductForm form={form} />
+        <ProductEditForm form={form} product={product} />
       </div>
       <DrawerFooter>
         <form.AppForm>
