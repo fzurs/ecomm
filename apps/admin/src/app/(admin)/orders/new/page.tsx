@@ -1,7 +1,17 @@
+"use client"
+
+import { useRouter } from "next/navigation"
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
-import { CreateOrderForm } from "../_components/order-form"
+import {
+  OrderCreateForm,
+  useOrderCreateForm,
+} from "../_components/order-create-form"
 
 export default function OrdersCreatePage() {
+  const router = useRouter()
+
+  const form = useOrderCreateForm({ onSuccess: () => router.push("/orders") })
+
   return (
     <>
       <AppHeader>
@@ -17,7 +27,7 @@ export default function OrdersCreatePage() {
           <div className="typeset">
             <h1>Create order</h1>
           </div>
-          <CreateOrderForm />
+          <OrderCreateForm form={form} />
         </div>
       </main>
     </>

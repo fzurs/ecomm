@@ -18,7 +18,7 @@
 ## Formularios
 - TanStack Form con `useAppForm` / `withForm` de `src/hooks/form.ts`; los componentes de campo
   (`TextField`, `SelectField`, `NumberField`...) están en `src/components/form.tsx`.
-- Convención (referencia: `categories`; las demás secciones se migran cuando se pide):
+- Convención (la siguen todos los forms de recursos; orders solo tiene create):
   - Un form por operación: `<resource>-create-form.tsx` y `<resource>-edit-form.tsx`, cada uno
     con su hook (`useXCreateForm({ onSuccess })`, `useXEditForm({ x, onSuccess })`) y su `withForm`.
     Sin `variant` ni ramas `if (x)` dentro del hook.
