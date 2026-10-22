@@ -21,7 +21,10 @@ import {
 } from "@/components/app-header"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 
-import { CategoryForm, useCategoryForm } from "./_components/category-form"
+import {
+  CategoryCreateForm,
+  useCategoryCreateForm,
+} from "./_components/category-create-form"
 import { CategoriesTable } from "./_components/categories-table"
 import { CategoryEditDrawer } from "./_components/category-edit-drawer"
 import { CategoryDeleteAlertDialog } from "./_components/category-delete-alert-dialog"
@@ -47,7 +50,7 @@ export default function CategoriesPage() {
 function CreateCategoryDialog() {
   const [open, setOpen] = useState(false)
 
-  const form = useCategoryForm({ setOpen })
+  const form = useCategoryCreateForm({ onSuccess: () => setOpen(false) })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -67,7 +70,7 @@ function CreateCategoryDialog() {
             and sort them.
           </DialogDescription>
         </DialogHeader>
-        <CategoryForm form={form} variant="required" />
+        <CategoryCreateForm form={form} />
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Close

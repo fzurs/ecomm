@@ -18,6 +18,15 @@
 ## Formularios
 - TanStack Form con `useAppForm` / `withForm` de `src/hooks/form.ts`; los componentes de campo
   (`TextField`, `SelectField`, `NumberField`...) están en `src/components/form.tsx`.
+- Convención (referencia: `categories`; las demás secciones se migran cuando se pide):
+  - Un form por operación: `<resource>-create-form.tsx` y `<resource>-edit-form.tsx`, cada uno
+    con su hook (`useXCreateForm({ onSuccess })`, `useXEditForm({ x, onSuccess })`) y su `withForm`.
+    Sin `variant` ni ramas `if (x)` dentro del hook.
+  - `_lib/<resource>-schema.ts`: schema del form que extiende el zod generado con las reglas de
+    UX, su tipo, y `toXFormValues(x)` para mapear la entidad a los valores editables.
+  - Los hooks reciben `onSuccess`, no `setOpen`; quien contiene el form decide cómo cerrarse.
+  - `onSubmit` hace `try { await mutateAsync } catch { applyServerErrors(formApi, error) }`
+    (`src/lib/utils.ts`) para mostrar los errores de DRF en cada campo.
 
 ## Estructura de las secciones
 - **`src/app/(admin)/orders/` es el patrón de referencia**: `page.tsx`, `[number]/page.tsx`,

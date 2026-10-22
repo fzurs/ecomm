@@ -10,13 +10,13 @@ import {
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Category } from "@workspace/api-client"
-import { CategoryForm, useCategoryForm } from "./category-form"
+import { CategoryEditForm, useCategoryEditForm } from "./category-edit-form"
 import { Button } from "@workspace/ui/components/button"
 
 export function CategoryEditDrawer() {
   const isMobile = useIsMobile()
 
-  const { row, rootProps } = useRowActionDialog<Category>("edit")
+  const { row, rootProps, closeAction } = useRowActionDialog<Category>("edit")
 
   return (
     // Not modal and not dismissed by outside clicks: clicking another row swaps
@@ -33,7 +33,7 @@ export function CategoryEditDrawer() {
           <CategoryEditDrawerContent
             key={row.id}
             category={row}
-            setOpen={rootProps.onOpenChange}
+            onSuccess={closeAction}
           />
         )}
       </DrawerContent>
@@ -43,12 +43,12 @@ export function CategoryEditDrawer() {
 
 function CategoryEditDrawerContent({
   category,
-  setOpen,
+  onSuccess,
 }: {
   category: Category
-  setOpen: (open: boolean) => void
+  onSuccess: () => void
 }) {
-  const form = useCategoryForm({ category, setOpen })
+  const form = useCategoryEditForm({ category, onSuccess })
 
   return (
     <>
@@ -59,7 +59,7 @@ function CategoryEditDrawerContent({
         </DrawerDescription>
       </DrawerHeader>
       <div className="overflow-auto px-4">
-        <CategoryForm form={form} />
+        <CategoryEditForm form={form} />
       </div>
       <DrawerFooter>
         <form.AppForm>
