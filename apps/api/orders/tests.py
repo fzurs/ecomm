@@ -28,6 +28,28 @@ class CustomerNameTests(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CustomerChoicesTests(APITestCase):
+    def setUp(self):
+        Customer.objects.create(name='Juan Pérez')
+        Customer.objects.create(name='Ana Gómez')
+
+    def test_requires_a_session(self):
+        response = self.client.get(reverse('customer-choices'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_lists_all_unpaginated(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        response = self.client.get(reverse('customer-choices'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual({c['name'] for c in response.json()}, {'Juan Pérez', 'Ana Gómez'})
+
+    def test_applies_search(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        response = self.client.get(reverse('customer-choices'), {'search': 'juan'})
+        self.assertEqual([c['name'] for c in response.json()], ['Juan Pérez'])
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class OrdersTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create(

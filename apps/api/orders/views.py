@@ -1,9 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
+from config.viewsets import ChoicesMixin, choices_schema
 from .filters import OrderFilter
 from .models import Order, Customer
 from .serializers import OrderSerializer, OrderCreateSerializer, CustomerSerializer
@@ -24,16 +22,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         return OrderSerializer
 
 
-class CustomerViewSet(viewsets.ModelViewSet):
+# Not PublicReadMixin: customers hold personal data, so every action needs a session.
+@choices_schema("customers_list_choices", CustomerSerializer)
+class CustomerViewSet(ChoicesMixin, viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    choices_serializer_class = CustomerSerializer
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['name', 'email']
     search_fields = ['name', 'email']
-
-    @extend_schema(operation_id="customers_list_choices", responses=CustomerSerializer(many=True))
-    @action(detail=False, methods=["get"], pagination_class=None)
-    def choices(self, request):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
