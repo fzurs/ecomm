@@ -9,6 +9,20 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = serializers.ALL_FIELDS
 
 
+# The serializers below leave out phone and document_number: only the customer detail needs them.
+
+class CustomerChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ["id", "name", "image"]
+
+
+class CustomerSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ["id", "name", "email", "image"]
+
+
 class ProductSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -30,7 +44,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(read_only=True, many=True)
     total = serializers.IntegerField(read_only=True)
-    customer_detail = CustomerSerializer(source="customer", read_only=True)
+    customer_detail = CustomerSummarySerializer(source="customer", read_only=True)
 
     class Meta:
         model = Order

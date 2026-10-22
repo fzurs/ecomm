@@ -1,6 +1,6 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
-import { Customer } from "@workspace/api-client"
+import { CustomerChoice } from "@workspace/api-client"
 import { customersListChoicesOptions } from "@workspace/api-client/query"
 import {
   Avatar,
@@ -49,7 +49,7 @@ export function CustomerSelect({
       <ComboboxContent>
         <ComboboxEmpty>No customers result.</ComboboxEmpty>
         <ComboboxList>
-          {(customer: Customer) => (
+          {(customer: CustomerChoice) => (
             <ComboboxItem key={customer.id} value={customer}>
               <Item className="p-0" size="sm">
                 <ItemMedia>

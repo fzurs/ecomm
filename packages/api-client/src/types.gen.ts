@@ -42,6 +42,19 @@ export type Customer = {
     image?: string | null;
 };
 
+export type CustomerChoice = {
+    readonly id: number;
+    name: string;
+    image?: string | null;
+};
+
+export type CustomerSummary = {
+    readonly id: number;
+    name: string;
+    email?: string;
+    image?: string | null;
+};
+
 /**
  * * `80` - CUIT
  * * `86` - CUIL
@@ -84,7 +97,7 @@ export type Order = {
     readonly id: number;
     readonly items: Array<OrderItem>;
     readonly total: number;
-    customer_detail: Customer;
+    customer_detail: CustomerSummary;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
@@ -96,7 +109,7 @@ export type OrderCreate = {
     readonly id: number;
     items: Array<OrderItem>;
     readonly total: number;
-    customer_detail: Customer;
+    customer_detail: CustomerSummary;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
@@ -224,7 +237,7 @@ export type PatchedOrder = {
     readonly id?: number;
     readonly items?: Array<OrderItem>;
     readonly total?: number;
-    customer_detail?: Customer;
+    customer_detail?: CustomerSummary;
     readonly number?: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at?: string;
@@ -363,6 +376,17 @@ export type CustomerWritable = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string | null;
+    image?: string | null;
+};
+
+export type CustomerChoiceWritable = {
+    name: string;
+    image?: string | null;
+};
+
+export type CustomerSummaryWritable = {
+    name: string;
+    email?: string;
     image?: string | null;
 };
 
@@ -1019,7 +1043,7 @@ export type CustomersListChoicesData = {
 };
 
 export type CustomersListChoicesResponses = {
-    200: Array<Customer>;
+    200: Array<CustomerChoice>;
 };
 
 export type CustomersListChoicesResponse = CustomersListChoicesResponses[keyof CustomersListChoicesResponses];

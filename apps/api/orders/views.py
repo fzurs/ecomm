@@ -4,7 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from config.viewsets import ChoicesMixin, choices_schema
 from .filters import OrderFilter
 from .models import Order, Customer
-from .serializers import OrderSerializer, OrderCreateSerializer, CustomerSerializer
+from .serializers import OrderSerializer, OrderCreateSerializer, CustomerChoiceSerializer, CustomerSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -23,11 +23,11 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 # Not PublicReadMixin: customers hold personal data, so every action needs a session.
-@choices_schema("customers_list_choices", CustomerSerializer)
+@choices_schema("customers_list_choices", CustomerChoiceSerializer)
 class CustomerViewSet(ChoicesMixin, viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    choices_serializer_class = CustomerSerializer
+    choices_serializer_class = CustomerChoiceSerializer
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['name', 'email']
     search_fields = ['name', 'email']

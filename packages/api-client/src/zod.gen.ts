@@ -30,6 +30,19 @@ export const zCategoryChoice = z.object({
     description: z.string().nullish()
 });
 
+export const zCustomerChoice = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    image: z.url().nullish()
+});
+
+export const zCustomerSummary = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    email: z.email().max(254).optional(),
+    image: z.url().nullish()
+});
+
 /**
  * * `80` - CUIT
  * * `86` - CUIL
@@ -288,7 +301,7 @@ export const zOrder = z.object({
     id: z.int().readonly(),
     items: z.array(zOrderItem).readonly(),
     total: z.int().readonly(),
-    customer_detail: zCustomer,
+    customer_detail: zCustomerSummary,
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -303,7 +316,7 @@ export const zOrderCreate = z.object({
     id: z.int().readonly(),
     items: z.array(zOrderItem),
     total: z.int().readonly(),
-    customer_detail: zCustomer,
+    customer_detail: zCustomerSummary,
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -325,7 +338,7 @@ export const zPatchedOrder = z.object({
     id: z.int().readonly().optional(),
     items: z.array(zOrderItem).readonly().optional(),
     total: z.int().readonly().optional(),
-    customer_detail: zCustomer.optional(),
+    customer_detail: zCustomerSummary.optional(),
     number: z.string().readonly().optional(),
     status: z.union([
         zOrderStatus,
@@ -379,6 +392,17 @@ export const zCustomerWritable = z.object({
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
     document_number: z.string().max(20).nullish(),
+    image: z.url().nullish()
+});
+
+export const zCustomerChoiceWritable = z.object({
+    name: z.string().max(255),
+    image: z.url().nullish()
+});
+
+export const zCustomerSummaryWritable = z.object({
+    name: z.string().max(255),
+    email: z.email().max(254).optional(),
     image: z.url().nullish()
 });
 
@@ -722,7 +746,7 @@ export const zCustomersListChoicesQuery = z.object({
     search: z.string().optional()
 });
 
-export const zCustomersListChoicesResponse = z.array(zCustomer);
+export const zCustomersListChoicesResponse = z.array(zCustomerChoice);
 
 export const zInvoicesListQuery = z.object({
     limit: z.int().optional(),

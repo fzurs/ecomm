@@ -48,6 +48,37 @@ class CustomerChoicesTests(APITestCase):
         response = self.client.get(reverse('customer-choices'), {'search': 'juan'})
         self.assertEqual([c['name'] for c in response.json()], ['Juan Pérez'])
 
+    def test_leaves_out_contact_and_document(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        response = self.client.get(reverse('customer-choices'))
+        self.assertEqual(set(response.json()[0]), {'id', 'name', 'image'})
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class OrderCustomerDetailTests(APITestCase):
+    def setUp(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        customer = Customer.objects.create(
+            name='Juan Pérez', email='juan@example.com', phone='1155550000',
+            document_number='20123456786')
+        self.order = Order.objects.create(customer=customer)
+
+    def test_leaves_out_phone_and_document(self):
+        for url in (reverse('order-list'), reverse('order-detail', args=[self.order.number])):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                data = response.json()
+                order = data['results'][0] if 'results' in data else data
+                self.assertEqual(
+                    order['customer_detail'],
+                    {'id': self.order.customer.id, 'name': 'Juan Pérez',
+                     'email': 'juan@example.com', 'image': order['customer_detail']['image']})
+
+    def test_customer_detail_keeps_everything(self):
+        response = self.client.get(reverse('customer-detail', args=[self.order.customer.id]))
+        self.assertEqual(response.json()['phone'], '1155550000')
+        self.assertEqual(response.json()['document_number'], '20123456786')
+
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class OrdersTests(APITestCase):
