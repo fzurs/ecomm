@@ -144,6 +144,42 @@ class ProductImageTests(TestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class PublicReadPermissionTests(APITestCase):
+    basenames = ('product', 'category', 'brand')
+
+    def setUp(self):
+        self.objects = {
+            'product': Product.objects.create(name='ACME Hammer'),
+            'category': Category.objects.create(name='Tools'),
+            'brand': Brand.objects.create(name='ACME'),
+        }
+
+    def test_anonymous_can_read(self):
+        for basename in self.basenames:
+            slug = self.objects[basename].slug
+            for url in (reverse(f'{basename}-list'), reverse(f'{basename}-choices'),
+                        reverse(f'{basename}-detail', args=[slug])):
+                with self.subTest(url=url):
+                    self.assertEqual(self.client.get(url).status_code, status.HTTP_200_OK)
+
+    def test_anonymous_cannot_write(self):
+        for basename in self.basenames:
+            detail = reverse(f'{basename}-detail', args=[self.objects[basename].slug])
+            requests = [
+                (self.client.post, reverse(f'{basename}-list')),
+                (self.client.patch, detail),
+                (self.client.delete, detail),
+            ]
+            for method, url in requests:
+                with self.subTest(method=method.__name__, url=url):
+                    self.assertEqual(method(url, {'name': 'New'}).status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_anonymous_cannot_generate_sku(self):
+        url = reverse('product-generate-sku', args=[self.objects['product'].slug])
+        self.assertEqual(self.client.post(url).status_code, status.HTTP_403_FORBIDDEN)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProductDestroyTests(APITestCase):
     def setUp(self):
         self.client.force_login(get_user_model().objects.create(username='admin'))
