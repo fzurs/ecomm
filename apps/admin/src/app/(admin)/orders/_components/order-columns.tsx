@@ -40,6 +40,7 @@ export const orderColumns = [
   },
   {
     accessorKey: "total",
+    header: "Total",
     cell: ({ row }) => formatPrice(row.original.total),
     meta: {
       thClassName: "text-right",
@@ -49,6 +50,7 @@ export const orderColumns = [
   },
   {
     accessorKey: "status",
+    header: "Status",
     cell: ({ row }) => {
       const status = row.original.status
       if (!status) return null
@@ -84,6 +86,7 @@ export const orderColumns = [
   },
   {
     accessorKey: "customer",
+    header: "Customer",
     cell: ({ row }) => {
       const customer = row.original.customer_detail
       return (
@@ -116,6 +119,7 @@ export const orderColumns = [
   },
   {
     id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <OrderRowActions item={row.original} />,
     enableHiding: false,
   },

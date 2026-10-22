@@ -15,12 +15,14 @@ import { useRowActions } from "@/context/row-actions-provider"
 export const categoryColumns = [
   {
     accessorKey: "name",
+    header: "Name",
     cell: ({ row }) => <TableCellViewer category={row.original} />,
     enableHiding: false,
     meta: { thClassName: "pl-5" },
   },
   {
     accessorKey: "description",
+    header: "Description",
     cell: ({ row }) => (
       <div className="min-w-sm text-pretty text-muted-foreground">
         {row.original.description}
@@ -30,6 +32,7 @@ export const categoryColumns = [
   },
   {
     id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
     meta: { className: "text-right" },

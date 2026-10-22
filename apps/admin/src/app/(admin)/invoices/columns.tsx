@@ -45,6 +45,7 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: "status",
+    header: "Status",
     cell: ({ row }) => {
       const status = row.original.status || "pending"
       return (

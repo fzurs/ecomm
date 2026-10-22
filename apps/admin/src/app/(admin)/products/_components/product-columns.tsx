@@ -50,16 +50,19 @@ export function getProductColumns({
   return [
     {
       accessorKey: "name",
+      header: "Name",
       cell: ({ row }) => <TableCellViewer product={row.original} />,
       enableHiding: false,
       meta: { variant: "text" },
     },
     {
       accessorKey: "sku",
+      header: "SKU",
       meta: { className: "text-muted-foreground font-medium" },
     },
     {
       accessorKey: "description",
+      header: "Description",
       cell: ({ row }) => (
         <div className="min-w-sm text-pretty text-muted-foreground">
           {row.original.description}
@@ -69,6 +72,7 @@ export function getProductColumns({
     },
     {
       accessorKey: "category",
+      header: "Category",
       cell: ({ row }) =>
         row.original.category && (
           <Badge variant="secondary">{row.original.category.name}</Badge>
@@ -81,6 +85,7 @@ export function getProductColumns({
     },
     {
       accessorKey: "brand",
+      header: "Brand",
       cell: ({ row }) => row.original.brand?.name,
       meta: {
         variant: "multi-select",
@@ -89,6 +94,7 @@ export function getProductColumns({
     },
     {
       accessorKey: "status",
+      header: "Status",
       cell: ({ row }) =>
         row.original.status && (
           <Badge variant="outline" className="capitalize">
@@ -104,6 +110,7 @@ export function getProductColumns({
     },
     {
       accessorKey: "featured",
+      header: "Featured",
       cell: ({ row }) =>
         featuredIcons[row.original.featured ? "true" : "false"],
       meta: {
@@ -118,6 +125,7 @@ export function getProductColumns({
     },
     {
       accessorKey: "price",
+      header: "Price",
       cell: ({ row }) => formatPrice(row.original.price),
       meta: {
         thClassName: "text-right",
@@ -145,6 +153,7 @@ export function getProductColumns({
     },
     {
       id: "actions",
+      header: () => <span className="sr-only">Actions</span>,
       cell: ({ row }) => <TableCellActions item={row.original} />,
       enableHiding: false,
       meta: { className: "text-right" },

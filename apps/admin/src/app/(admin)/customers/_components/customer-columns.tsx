@@ -26,17 +26,24 @@ import {
 export const customerColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "name",
+    header: "Name",
     cell: ({ row }) => <TableCellViewer customer={row.original} />,
     enableHiding: false,
   },
-  { accessorKey: "email", meta: { className: "text-muted-foreground" } },
+  {
+    accessorKey: "email",
+    header: "Email",
+    meta: { className: "text-muted-foreground" },
+  },
   {
     accessorKey: "phone",
+    header: "Phone",
     meta: { className: "text-muted-foreground font-medium" },
     enableSorting: false,
   },
   {
     id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
   },

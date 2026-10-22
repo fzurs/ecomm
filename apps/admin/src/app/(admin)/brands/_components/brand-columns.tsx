@@ -15,12 +15,14 @@ import { useRowActions } from "@/context/row-actions-provider"
 export const brandColumns: ColumnDef<Brand>[] = [
   {
     accessorKey: "name",
+    header: "Name",
     cell: ({ row }) => <TableCellViewer brand={row.original} />,
     enableHiding: false,
     meta: { thClassName: "pl-5" },
   },
   {
     id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
     meta: { className: "text-right" },
