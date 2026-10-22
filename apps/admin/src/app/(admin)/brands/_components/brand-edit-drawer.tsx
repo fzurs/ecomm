@@ -10,23 +10,18 @@ import {
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Brand } from "@workspace/api-client"
-import { BrandForm, useBrandForm } from "./brand-form"
+import { BrandEditForm, useBrandEditForm } from "./brand-edit-form"
 import { Button } from "@workspace/ui/components/button"
 
 export function BrandEditDrawer() {
   const isMobile = useIsMobile()
 
-  const { row, rootProps } = useRowActionDialog<Brand>("edit")
+  const { row, rootProps, closeAction } = useRowActionDialog<Brand>("edit")
 
   return (
     <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
       <DrawerContent>
-        {row && (
-          <BrandEditDrawerContent
-            brand={row}
-            setOpen={rootProps.onOpenChange}
-          />
-        )}
+        {row && <BrandEditDrawerContent brand={row} onSuccess={closeAction} />}
       </DrawerContent>
     </Drawer>
   )
@@ -34,12 +29,12 @@ export function BrandEditDrawer() {
 
 function BrandEditDrawerContent({
   brand,
-  setOpen,
+  onSuccess,
 }: {
   brand: Brand
-  setOpen: (open: boolean) => void
+  onSuccess: () => void
 }) {
-  const form = useBrandForm({ brand, setOpen })
+  const form = useBrandEditForm({ brand, onSuccess })
 
   return (
     <>
@@ -50,7 +45,7 @@ function BrandEditDrawerContent({
         </DrawerDescription>
       </DrawerHeader>
       <div className="overflow-auto px-4">
-        <BrandForm form={form} />
+        <BrandEditForm form={form} />
       </div>
       <DrawerFooter>
         <form.AppForm>

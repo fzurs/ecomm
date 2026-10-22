@@ -20,7 +20,10 @@ import {
 } from "@/components/app-header"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 
-import { BrandForm, useBrandForm } from "./_components/brand-form"
+import {
+  BrandCreateForm,
+  useBrandCreateForm,
+} from "./_components/brand-create-form"
 import { BrandsTable } from "./_components/brands-table"
 import { BrandEditDrawer } from "./_components/brand-edit-drawer"
 import { BrandDeleteAlertDialog } from "./_components/brand-delete-alert-dialog"
@@ -46,7 +49,7 @@ export default function BrandsPage() {
 function CreateBrandDialog() {
   const [open, setOpen] = useState(false)
 
-  const form = useBrandForm({ setOpen })
+  const form = useBrandCreateForm({ onSuccess: () => setOpen(false) })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -58,7 +61,7 @@ function CreateBrandDialog() {
         <DialogHeader>
           <DialogTitle>Create Brand</DialogTitle>
         </DialogHeader>
-        <BrandForm form={form} />
+        <BrandCreateForm form={form} />
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
           <form.AppForm>
