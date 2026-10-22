@@ -49,28 +49,14 @@ export function getProductColumns({
   // `as const` keeps the literal column keys that useFilters types filters by.
   return [
     {
-      accessorKey: "Image",
-      cell: ({ row }) => {
-        const product = row.original
-        return (
-          <Avatar shape="square">
-            <AvatarImage src={product.image ?? undefined} />
-            <AvatarFallback />
-          </Avatar>
-        )
-      },
-      meta: { thClassName: "text-center" },
-      enableSorting: false,
+      accessorKey: "name",
+      cell: ({ row }) => <TableCellViewer product={row.original} />,
+      enableHiding: false,
+      meta: { variant: "text" },
     },
     {
       accessorKey: "sku",
       meta: { className: "text-muted-foreground font-medium" },
-    },
-    {
-      accessorKey: "name",
-      cell: ({ row }) => <TableCellViewer product={row.original} />,
-      enableHiding: false,
-      meta: { variant: "text", thClassName: "px-5" },
     },
     {
       accessorKey: "description",
@@ -171,13 +157,20 @@ function TableCellViewer({ product }: { product: Product }) {
   const { openAction } = useRowActions<Product>()
 
   return (
-    <Button
-      size="sm"
-      variant="link"
-      onClick={() => openAction("edit", product)}
-    >
-      {product.name}
-    </Button>
+    <div className="flex items-center gap-2">
+      <Avatar shape="square">
+        {product.image && <AvatarImage src={product.image} />}
+        <AvatarFallback />
+      </Avatar>
+      <Button
+        size="sm"
+        variant="link"
+        className="px-0"
+        onClick={() => openAction("edit", product)}
+      >
+        {product.name}
+      </Button>
+    </div>
   )
 }
 

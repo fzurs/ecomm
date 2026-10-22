@@ -30,7 +30,7 @@ import { useProductColumns } from "../_hooks/use-product-columns"
 
 const DEBOUNCE_DELAY = 300
 
-const columnVisibility = { description: false }
+const columnVisibility = { sku: false, description: false }
 
 export function ProductsTable() {
   const queryClient = useQueryClient()
