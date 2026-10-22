@@ -22,18 +22,29 @@ import { cn } from "@workspace/ui/lib/utils"
 
 export const orderColumns = [
   {
+    accessorKey: "number",
+    header: "Order",
+    cell: ({ row }) => (
+      <Link
+        href={`/orders/${row.original.number}`}
+        className={cn(
+          buttonVariants({ variant: "link", size: "sm" }),
+          "px-0 font-medium"
+        )}
+      >
+        {row.original.number}
+      </Link>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "total",
     cell: ({ row }) => formatPrice(row.original.total),
     meta: {
       thClassName: "text-right",
       className: "text-right font-semibold",
     },
-    enableHiding: false,
-  },
-  {
-    id: "currency",
-    cell: "PES",
-    meta: { className: "text-muted-foreground font-medium" },
     enableHiding: false,
   },
   {
@@ -46,13 +57,8 @@ export const orderColumns = [
     meta: { variant: "multi-select", options: orderStatusOptions },
   },
   {
-    accessorKey: "number",
-    header: "Order Number",
-    enableSorting: false,
-    meta: { className: "text-muted-foreground font-medium" },
-  },
-  {
     accessorKey: "items",
+    header: "Items",
     cell: ({ row }) => {
       const orderItems = row.original.items
       return (
