@@ -7,19 +7,6 @@ import {
   FieldLabel,
   FieldTitle,
 } from "@workspace/ui/components/field"
-import {
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@workspace/ui/components/combobox"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "@workspace/ui/components/item"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import { productStatusOptions } from "../_lib/product-status"
@@ -34,15 +21,8 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
 import { applyServerErrors, getFormFieldId } from "@/lib/utils"
+import { Product, ProductWritable } from "@workspace/api-client"
 import {
-  BrandChoice,
-  CategoryChoice,
-  Product,
-  ProductWritable,
-} from "@workspace/api-client"
-import {
-  brandsListChoicesOptions,
-  categoriesListChoicesOptions,
   productsGenerateSkuCreateMutation,
   productsUpdateMutation,
 } from "@workspace/api-client/query"
@@ -52,8 +32,9 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar"
-import { ComboboxQueryOnOpenById } from "@/components/combobox"
 import { Checkbox } from "@workspace/ui/components/checkbox"
+import { BrandSelect } from "./brand-select"
+import { CategorySelect } from "./category-select"
 
 // Only the edit form uploads or clears the image.
 const productEditSchema = productFormSchema.extend({
@@ -203,31 +184,12 @@ export const ProductEditForm = withForm({
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={fieldId}>Category</FieldLabel>
-                    <ComboboxQueryOnOpenById
-                      initialItem={product.category}
-                      itemsQueryOptions={categoriesListChoicesOptions()}
+                    <CategorySelect
+                      id={fieldId}
+                      aria-invalid={isInvalid}
                       value={field.state.value ?? null}
                       onValueChange={field.handleChange}
-                    >
-                      <ComboboxInput placeholder="Assing a category" />
-                      <ComboboxContent>
-                        <ComboboxEmpty>No categories found.</ComboboxEmpty>
-                        <ComboboxList>
-                          {(item: CategoryChoice) => (
-                            <ComboboxItem key={item.id} value={item}>
-                              <Item size="sm" className="p-0">
-                                <ItemContent>
-                                  <ItemTitle>{item.name}</ItemTitle>
-                                  <ItemDescription>
-                                    {item.description}
-                                  </ItemDescription>
-                                </ItemContent>
-                              </Item>
-                            </ComboboxItem>
-                          )}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </ComboboxQueryOnOpenById>
+                    />
                     <FieldDescription>
                       The category allows you to group products.
                     </FieldDescription>
@@ -248,24 +210,12 @@ export const ProductEditForm = withForm({
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={fieldId}>Brand</FieldLabel>
-                    <ComboboxQueryOnOpenById
-                      itemsQueryOptions={brandsListChoicesOptions()}
-                      initialItem={product.brand}
+                    <BrandSelect
+                      id={fieldId}
+                      aria-invalid={isInvalid}
                       value={field.state.value ?? null}
                       onValueChange={field.handleChange}
-                    >
-                      <ComboboxInput placeholder="Assing a brand" />
-                      <ComboboxContent>
-                        <ComboboxEmpty>No brands found.</ComboboxEmpty>
-                        <ComboboxList>
-                          {(item: BrandChoice) => (
-                            <ComboboxItem key={item.id} value={item}>
-                              {item.name}
-                            </ComboboxItem>
-                          )}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </ComboboxQueryOnOpenById>
+                    />
                     <FieldDescription>
                       The brand the product is sold under.
                     </FieldDescription>
