@@ -1,4 +1,6 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { getServerErrorMessage } from "@/lib/utils"
 import { Brand, PaginatedBrandList } from "@workspace/api-client"
 import {
   brandsDestroyMutation,
@@ -6,7 +8,10 @@ import {
 } from "@workspace/api-client/query"
 import { invalidateBrands } from "../_lib/invalidate-brands"
 
-export function useOptimisticBrandDestroy(item: Brand) {
+export function useOptimisticBrandDestroy(
+  item: Brand,
+  { onSettled }: { onSettled?: () => void } = {}
+) {
   const queryClient = useQueryClient()
 
   const queryKey = brandsListQueryKey()
@@ -31,8 +36,9 @@ export function useOptimisticBrandDestroy(item: Brand) {
 
       return { previousData }
     },
-    onError: (err, _, onMutateResult) => {
+    onError: (error, _, onMutateResult) => {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
+      toast.error(getServerErrorMessage(error))
     },
     onSettled: async () => {
       await invalidateBrands(queryClient)
@@ -40,7 +46,7 @@ export function useOptimisticBrandDestroy(item: Brand) {
   })
 
   const onDestroy = () =>
-    mutation.mutate({ path: { slug: item.slug as string } })
+    mutation.mutate({ path: { slug: item.slug as string } }, { onSettled })
 
   return { mutation, onDestroy }
 }

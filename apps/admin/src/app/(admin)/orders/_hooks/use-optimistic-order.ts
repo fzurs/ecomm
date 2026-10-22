@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { getServerErrorMessage } from "@/lib/utils"
 import { Order, PaginatedOrderList } from "@workspace/api-client"
 import {
   ordersDestroyMutation,
@@ -80,8 +82,10 @@ export function useOptimisticOrderDestroy(order: Order) {
 
       return { previousData }
     },
-    onError: (err, _, onMutateResult) =>
-      queryClient.setQueryData(queryKey, onMutateResult?.previousData),
+    onError: (error, _, onMutateResult) => {
+      queryClient.setQueryData(queryKey, onMutateResult?.previousData)
+      toast.error(getServerErrorMessage(error))
+    },
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 }

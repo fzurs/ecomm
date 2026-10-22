@@ -15,21 +15,29 @@ import { Trash2Icon } from "lucide-react"
 import { useOptimisticOrderDestroy } from "../_hooks/use-optimistic-order"
 
 export function OrderDeleteAlertDialog() {
-  const { row, rootProps } = useRowActionDialog<Order>("delete")
+  const { row, rootProps, closeAction } = useRowActionDialog<Order>("delete")
 
   return (
     <AlertDialog {...rootProps}>
       <AlertDialogContent>
-        {row && <OrderDeleteAlertDialogContent item={row} />}
+        {row && (
+          <OrderDeleteAlertDialogContent item={row} onSettled={closeAction} />
+        )}
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-function OrderDeleteAlertDialogContent({ item }: { item: Order }) {
-  const destroyMutation = useOptimisticOrderDestroy(item)
+function OrderDeleteAlertDialogContent({
+  item,
+  onSettled,
+}: {
+  item: Order
+  onSettled: () => void
+}) {
+  const mutation = useOptimisticOrderDestroy(item)
   const onDestroy = () =>
-    destroyMutation.mutate({ path: { number: item.number } })
+    mutation.mutate({ path: { number: item.number } }, { onSettled })
 
   return (
     <>
@@ -45,7 +53,11 @@ function OrderDeleteAlertDialogContent({ item }: { item: Order }) {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-        <AlertDialogAction variant="destructive" onClick={onDestroy}>
+        <AlertDialogAction
+          variant="destructive"
+          onClick={onDestroy}
+          disabled={mutation.isPending}
+        >
           Delete
         </AlertDialogAction>
       </AlertDialogFooter>

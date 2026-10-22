@@ -15,19 +15,29 @@ import { Trash2Icon } from "lucide-react"
 import { useOptimisticProductDestroy } from "../_hooks/use-optimistic-destroy"
 
 export function ProductDeleteAlertDialog() {
-  const { row, rootProps } = useRowActionDialog<Product>("delete")
+  const { row, rootProps, closeAction } = useRowActionDialog<Product>("delete")
 
   return (
     <AlertDialog {...rootProps}>
       <AlertDialogContent>
-        {row && <ProductDeleteAlertDialogContent item={row} />}
+        {row && (
+          <ProductDeleteAlertDialogContent item={row} onSettled={closeAction} />
+        )}
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-function ProductDeleteAlertDialogContent({ item }: { item: Product }) {
-  const { onDestroy } = useOptimisticProductDestroy(item)
+function ProductDeleteAlertDialogContent({
+  item,
+  onSettled,
+}: {
+  item: Product
+  onSettled: () => void
+}) {
+  const { mutation, onDestroy } = useOptimisticProductDestroy(item, {
+    onSettled,
+  })
 
   return (
     <>
@@ -43,7 +53,11 @@ function ProductDeleteAlertDialogContent({ item }: { item: Product }) {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-        <AlertDialogAction variant="destructive" onClick={onDestroy}>
+        <AlertDialogAction
+          variant="destructive"
+          onClick={onDestroy}
+          disabled={mutation.isPending}
+        >
           Delete
         </AlertDialogAction>
       </AlertDialogFooter>

@@ -15,19 +15,32 @@ import { Trash2Icon } from "lucide-react"
 import { useOptimisticCategoryDestroy } from "../_hooks/use-optimistic-destroy"
 
 export function CategoryDeleteAlertDialog() {
-  const { row, rootProps } = useRowActionDialog<Category>("delete")
+  const { row, rootProps, closeAction } = useRowActionDialog<Category>("delete")
 
   return (
     <AlertDialog {...rootProps}>
       <AlertDialogContent size="sm">
-        {row && <CategoryDeleteAlertDialogContent item={row} />}
+        {row && (
+          <CategoryDeleteAlertDialogContent
+            item={row}
+            onSettled={closeAction}
+          />
+        )}
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-function CategoryDeleteAlertDialogContent({ item }: { item: Category }) {
-  const { onDestroy } = useOptimisticCategoryDestroy(item)
+function CategoryDeleteAlertDialogContent({
+  item,
+  onSettled,
+}: {
+  item: Category
+  onSettled: () => void
+}) {
+  const { mutation, onDestroy } = useOptimisticCategoryDestroy(item, {
+    onSettled,
+  })
 
   return (
     <>
@@ -43,7 +56,11 @@ function CategoryDeleteAlertDialogContent({ item }: { item: Category }) {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-        <AlertDialogAction variant="destructive" onClick={onDestroy}>
+        <AlertDialogAction
+          variant="destructive"
+          onClick={onDestroy}
+          disabled={mutation.isPending}
+        >
           Delete Category
         </AlertDialogAction>
       </AlertDialogFooter>

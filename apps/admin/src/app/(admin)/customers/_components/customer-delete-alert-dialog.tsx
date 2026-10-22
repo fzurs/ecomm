@@ -15,19 +15,32 @@ import { Trash2 } from "lucide-react"
 import { useOptimisticCustomerDestroy } from "../_hooks/use-optimistic-destroy"
 
 export function CustomerDeleteAlertDialog() {
-  const { row, rootProps } = useRowActionDialog<Customer>("delete")
+  const { row, rootProps, closeAction } = useRowActionDialog<Customer>("delete")
 
   return (
     <AlertDialog {...rootProps}>
       <AlertDialogContent>
-        {row && <CustomerDeleteAlertDialogContent item={row} />}
+        {row && (
+          <CustomerDeleteAlertDialogContent
+            item={row}
+            onSettled={closeAction}
+          />
+        )}
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-function CustomerDeleteAlertDialogContent({ item }: { item: Customer }) {
-  const { onDestroy } = useOptimisticCustomerDestroy(item)
+function CustomerDeleteAlertDialogContent({
+  item,
+  onSettled,
+}: {
+  item: Customer
+  onSettled: () => void
+}) {
+  const { mutation, onDestroy } = useOptimisticCustomerDestroy(item, {
+    onSettled,
+  })
 
   return (
     <>
@@ -43,7 +56,11 @@ function CustomerDeleteAlertDialogContent({ item }: { item: Customer }) {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-        <AlertDialogAction variant="destructive" onClick={onDestroy}>
+        <AlertDialogAction
+          variant="destructive"
+          onClick={onDestroy}
+          disabled={mutation.isPending}
+        >
           Delete
         </AlertDialogAction>
       </AlertDialogFooter>

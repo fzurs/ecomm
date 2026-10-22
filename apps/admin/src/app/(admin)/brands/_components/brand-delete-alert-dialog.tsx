@@ -15,19 +15,29 @@ import { Trash2Icon } from "lucide-react"
 import { useOptimisticBrandDestroy } from "../_hooks/use-optimistic-destroy"
 
 export function BrandDeleteAlertDialog() {
-  const { row, rootProps } = useRowActionDialog<Brand>("delete")
+  const { row, rootProps, closeAction } = useRowActionDialog<Brand>("delete")
 
   return (
     <AlertDialog {...rootProps}>
       <AlertDialogContent size="sm">
-        {row && <BrandDeleteAlertDialogContent item={row} />}
+        {row && (
+          <BrandDeleteAlertDialogContent item={row} onSettled={closeAction} />
+        )}
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-function BrandDeleteAlertDialogContent({ item }: { item: Brand }) {
-  const { onDestroy } = useOptimisticBrandDestroy(item)
+function BrandDeleteAlertDialogContent({
+  item,
+  onSettled,
+}: {
+  item: Brand
+  onSettled: () => void
+}) {
+  const { mutation, onDestroy } = useOptimisticBrandDestroy(item, {
+    onSettled,
+  })
 
   return (
     <>
@@ -43,7 +53,11 @@ function BrandDeleteAlertDialogContent({ item }: { item: Brand }) {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-        <AlertDialogAction variant="destructive" onClick={onDestroy}>
+        <AlertDialogAction
+          variant="destructive"
+          onClick={onDestroy}
+          disabled={mutation.isPending}
+        >
           Delete Brand
         </AlertDialogAction>
       </AlertDialogFooter>

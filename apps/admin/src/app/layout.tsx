@@ -2,6 +2,7 @@ import { ReactQueryProvider } from "@/components/react-query-provider"
 import "@workspace/ui/globals.css"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
+import { Toaster } from "@workspace/ui/components/sonner"
 import { Inter } from "next/font/google"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -23,6 +24,7 @@ export default function RootLayout({
           <NuqsAdapter>
             <ReactQueryProvider>{children}</ReactQueryProvider>
           </NuqsAdapter>
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>

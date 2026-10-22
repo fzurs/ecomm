@@ -1,4 +1,6 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { getServerErrorMessage } from "@/lib/utils"
 import { Category, PaginatedCategoryList } from "@workspace/api-client"
 import {
   categoriesDestroyMutation,
@@ -6,7 +8,10 @@ import {
 } from "@workspace/api-client/query"
 import { invalidateCategories } from "../_lib/invalidate-categories"
 
-export function useOptimisticCategoryDestroy(item: Category) {
+export function useOptimisticCategoryDestroy(
+  item: Category,
+  { onSettled }: { onSettled?: () => void } = {}
+) {
   const queryClient = useQueryClient()
 
   const queryKey = categoriesListQueryKey()
@@ -31,8 +36,9 @@ export function useOptimisticCategoryDestroy(item: Category) {
 
       return { previousData }
     },
-    onError: (err, _, onMutateResult) => {
+    onError: (error, _, onMutateResult) => {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
+      toast.error(getServerErrorMessage(error))
     },
     onSettled: async () => {
       await invalidateCategories(queryClient)
@@ -40,7 +46,7 @@ export function useOptimisticCategoryDestroy(item: Category) {
   })
 
   const onDestroy = () =>
-    mutation.mutate({ path: { slug: item.slug as string } })
+    mutation.mutate({ path: { slug: item.slug as string } }, { onSettled })
 
   return { mutation, onDestroy }
 }

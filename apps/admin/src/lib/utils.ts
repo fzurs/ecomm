@@ -11,14 +11,7 @@ export function getFormFieldId(form: AnyFormApi, field: AnyFieldApi) {
  * errors) become a form-level error, rendered by `FormError`.
  */
 export function applyServerErrors(form: AnyFormApi, error: unknown) {
-  const response = (
-    error as { response?: { status?: number; data?: unknown } } | null
-  )?.response
-  const data = response?.data
-
-  // Errors are objects; a string body is an HTML error page, not a message.
-  const entries =
-    data && typeof data === "object" ? flattenServerErrors(data) : []
+  const { response, entries } = parseServerError(error)
 
   const formMessages: string[] = []
   for (const [name, message] of entries) {
@@ -35,16 +28,45 @@ export function applyServerErrors(form: AnyFormApi, error: unknown) {
 
   if (entries.length === 0) {
     console.error(error)
-    formMessages.push(
-      response
-        ? `Unexpected server error (${response.status}). Try again.`
-        : "Could not reach the server. Check your connection and try again."
-    )
+    formMessages.push(unexpectedErrorMessage(response))
   }
 
   if (formMessages.length > 0) {
     form.setErrorMap({ onSubmit: { message: formMessages.join(" ") } })
   }
+}
+
+/**
+ * Message for a failed request outside a form (e.g. a toast): the DRF
+ * messages joined, or a generic one for network and server errors.
+ */
+export function getServerErrorMessage(error: unknown) {
+  const { response, entries } = parseServerError(error)
+  if (entries.length > 0) {
+    return entries.map(([, message]) => message).join(" ")
+  }
+  console.error(error)
+  return unexpectedErrorMessage(response)
+}
+
+type ServerErrorResponse = { status?: number; data?: unknown }
+
+function parseServerError(error: unknown) {
+  const response = (error as { response?: ServerErrorResponse } | null)
+    ?.response
+  const data = response?.data
+
+  // Errors are objects; a string body is an HTML error page, not a message.
+  const entries =
+    data && typeof data === "object" ? flattenServerErrors(data) : []
+
+  return { response, entries }
+}
+
+function unexpectedErrorMessage(response: ServerErrorResponse | undefined) {
+  return response
+    ? `Unexpected server error (${response.status}). Try again.`
+    : "Could not reach the server. Check your connection and try again."
 }
 
 function flattenServerErrors(data: unknown, path = ""): [string, string][] {
