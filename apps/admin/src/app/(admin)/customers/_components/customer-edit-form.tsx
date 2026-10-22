@@ -1,100 +1,84 @@
 import { useAppForm, withForm } from "@/hooks/form"
 import { formOptions } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Customer, CustomerWritable } from "@workspace/api-client"
-import {
-  customersCreateMutation,
-  customersUpdateMutation,
-} from "@workspace/api-client/query"
-import { zCustomerWritable } from "@workspace/api-client/zod"
-import { invalidateCustomers } from "../_lib/invalidate-customers"
+import { Customer } from "@workspace/api-client"
+import { customersUpdateMutation } from "@workspace/api-client/query"
 import { FieldGroup } from "@workspace/ui/components/field"
+import { applyServerErrors } from "@/lib/utils"
+import { invalidateCustomers } from "../_lib/invalidate-customers"
+import {
+  customerFormSchema,
+  CustomerFormValues,
+  toCustomerFormValues,
+} from "../_lib/customer-schema"
 
-const defaultValues: CustomerWritable = { name: "" }
+const defaultValues: CustomerFormValues = {
+  name: "",
+  email: "",
+  phone: "",
+  document_number: "",
+}
 
-const customerFormOpts = formOptions({
+const customerEditFormOpts = formOptions({
   defaultValues,
-  validators: { onSubmit: zCustomerWritable },
+  validators: { onSubmit: customerFormSchema },
 })
 
-export function useCustomerForm({
+export function useCustomerEditForm({
   customer,
-  setOpen,
+  onSuccess,
 }: {
-  customer?: Customer
-  setOpen?: (open: boolean) => void
-} = {}) {
+  customer: Customer
+  onSuccess?: (customer: Customer) => void
+}) {
   const queryClient = useQueryClient()
-  const onSuccess = async () => {
-    await invalidateCustomers(queryClient)
-    setOpen?.(false)
-  }
-  const createMutation = useMutation({
-    ...customersCreateMutation(),
-    onSuccess,
-  })
-  const updateMutation = useMutation({
+
+  const { mutateAsync } = useMutation({
     ...customersUpdateMutation(),
-    onSuccess,
+    onSuccess: () => invalidateCustomers(queryClient),
   })
 
   return useAppForm({
-    ...customerFormOpts,
-    formId: customer
-      ? `update-customer-form-${customer.id}`
-      : "create-customer-form",
-    defaultValues: { ...defaultValues, ...(customer ?? {}) },
-    onSubmit: ({ value }) => {
-      const body: CustomerWritable = { ...value, image: undefined }
-      const headers = { "Content-Type": "multipart/form-data" }
-
-      return customer
-        ? updateMutation.mutateAsync({
-            path: { id: customer.id },
-            body,
-            headers,
-          })
-        : createMutation.mutateAsync({ body, headers })
+    ...customerEditFormOpts,
+    formId: `update-customer-form-${customer.id}`,
+    defaultValues: toCustomerFormValues(customer),
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        const updated = await mutateAsync({
+          path: { id: customer.id },
+          body: value,
+        })
+        onSuccess?.(updated)
+      } catch (error) {
+        applyServerErrors(formApi, error)
+      }
     },
   })
 }
 
-export const CustomerForm = withForm({
-  ...customerFormOpts,
-  props: { variant: "full" } as { variant?: "required" | "full" },
-  render: function Render({ form, variant }) {
-    const requiredFields = (
-      <>
-        <form.AppField
-          name="name"
-          children={(field) => <field.TextField label="Name" />}
-        />
-      </>
-    )
-
-    const fullFields = (
-      <>
-        {requiredFields}
-        <form.AppField
-          name="email"
-          children={(field) => <field.EmailField />}
-        />
-        <form.AppField
-          name="phone"
-          children={(field) => <field.TextField label="Phone" />}
-        />
-        <form.AppField
-          name="document_number"
-          children={(field) => <field.TextField label="CUIT" />}
-        />
-      </>
-    )
-
+export const CustomerEditForm = withForm({
+  ...customerEditFormOpts,
+  render: function Render({ form }) {
     return (
       <form.AppForm>
         <form.Form>
           <FieldGroup>
-            {variant === "required" ? requiredFields : fullFields}
+            <form.AppField
+              name="name"
+              children={(field) => <field.TextField label="Name" />}
+            />
+            <form.AppField
+              name="email"
+              children={(field) => <field.EmailField />}
+            />
+            <form.AppField
+              name="phone"
+              children={(field) => <field.TextField label="Phone" />}
+            />
+            <form.AppField
+              name="document_number"
+              children={(field) => <field.TextField label="CUIT" />}
+            />
           </FieldGroup>
         </form.Form>
       </form.AppForm>

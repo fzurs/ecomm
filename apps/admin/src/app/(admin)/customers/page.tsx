@@ -4,7 +4,10 @@ import {
   AppHeaderActions,
   AppHeaderNav,
 } from "@/components/app-header"
-import { CustomerForm, useCustomerForm } from "./_components/customer-form"
+import {
+  CustomerCreateForm,
+  useCustomerCreateForm,
+} from "./_components/customer-create-form"
 import {
   Dialog,
   DialogClose,
@@ -47,7 +50,7 @@ export default function CustomersPage() {
 function CreateCustomerDialog() {
   const [open, setOpen] = useState(false)
 
-  const form = useCustomerForm({ setOpen })
+  const form = useCustomerCreateForm({ onSuccess: () => setOpen(false) })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -68,7 +71,7 @@ function CreateCustomerDialog() {
             Create a new customer.
           </DialogDescription>
         </DialogHeader>
-        <CustomerForm form={form} variant="required" />
+        <CustomerCreateForm form={form} />
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
           <form.AppForm>

@@ -10,22 +10,19 @@ import {
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Customer } from "@workspace/api-client"
-import { CustomerForm, useCustomerForm } from "./customer-form"
+import { CustomerEditForm, useCustomerEditForm } from "./customer-edit-form"
 import { Button } from "@workspace/ui/components/button"
 
 export function CustomerEditDrawer() {
   const isMobile = useIsMobile()
 
-  const { row, rootProps } = useRowActionDialog<Customer>("edit")
+  const { row, rootProps, closeAction } = useRowActionDialog<Customer>("edit")
 
   return (
     <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
       <DrawerContent>
         {row && (
-          <CustomerEditDrawerContent
-            customer={row}
-            setOpen={rootProps.onOpenChange}
-          />
+          <CustomerEditDrawerContent customer={row} onSuccess={closeAction} />
         )}
       </DrawerContent>
     </Drawer>
@@ -34,12 +31,12 @@ export function CustomerEditDrawer() {
 
 function CustomerEditDrawerContent({
   customer,
-  setOpen,
+  onSuccess,
 }: {
   customer: Customer
-  setOpen: (open: boolean) => void
+  onSuccess: () => void
 }) {
-  const form = useCustomerForm({ customer, setOpen })
+  const form = useCustomerEditForm({ customer, onSuccess })
 
   return (
     <>
@@ -50,7 +47,7 @@ function CustomerEditDrawerContent({
         </DrawerDescription>
       </DrawerHeader>
       <div className="overflow-auto px-4 pt-2">
-        <CustomerForm form={form} />
+        <CustomerEditForm form={form} />
       </div>
       <DrawerFooter>
         <form.AppForm>
