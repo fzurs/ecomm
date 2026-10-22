@@ -34,7 +34,7 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "group/th text-xs uppercase",
+                        "group/th text-muted-foreground",
                         header.column.columnDef.meta?.thClassName
                       )}
                     >
