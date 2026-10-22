@@ -21,10 +21,7 @@ export function CustomerDeleteAlertDialog() {
     <AlertDialog {...rootProps}>
       <AlertDialogContent>
         {row && (
-          <CustomerDeleteAlertDialogContent
-            item={row}
-            onSettled={closeAction}
-          />
+          <CustomerDeleteAlertDialogContent item={row} onClose={closeAction} />
         )}
       </AlertDialogContent>
     </AlertDialog>
@@ -33,14 +30,12 @@ export function CustomerDeleteAlertDialog() {
 
 function CustomerDeleteAlertDialogContent({
   item,
-  onSettled,
+  onClose,
 }: {
   item: Customer
-  onSettled: () => void
+  onClose: () => void
 }) {
-  const { mutation, onDestroy } = useOptimisticCustomerDestroy(item, {
-    onSettled,
-  })
+  const { onDestroy } = useOptimisticCustomerDestroy(item)
 
   return (
     <>
@@ -58,8 +53,11 @@ function CustomerDeleteAlertDialogContent({
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
         <AlertDialogAction
           variant="destructive"
-          onClick={onDestroy}
-          disabled={mutation.isPending}
+          onClick={() => {
+            // The row is already gone optimistically; errors show up as a toast.
+            onDestroy()
+            onClose()
+          }}
         >
           Delete
         </AlertDialogAction>

@@ -8,10 +8,7 @@ import {
 } from "@workspace/api-client/query"
 import { invalidateCustomers } from "../_lib/invalidate-customers"
 
-export function useOptimisticCustomerDestroy(
-  item: Customer,
-  { onSettled }: { onSettled?: () => void } = {}
-) {
+export function useOptimisticCustomerDestroy(item: Customer) {
   const queryClient = useQueryClient()
 
   const queryKey = customersListQueryKey()
@@ -45,8 +42,7 @@ export function useOptimisticCustomerDestroy(
     },
   })
 
-  const onDestroy = () =>
-    mutation.mutate({ path: { id: item.id } }, { onSettled })
+  const onDestroy = () => mutation.mutate({ path: { id: item.id } })
 
   return { mutation, onDestroy }
 }

@@ -21,10 +21,7 @@ export function CategoryDeleteAlertDialog() {
     <AlertDialog {...rootProps}>
       <AlertDialogContent size="sm">
         {row && (
-          <CategoryDeleteAlertDialogContent
-            item={row}
-            onSettled={closeAction}
-          />
+          <CategoryDeleteAlertDialogContent item={row} onClose={closeAction} />
         )}
       </AlertDialogContent>
     </AlertDialog>
@@ -33,14 +30,12 @@ export function CategoryDeleteAlertDialog() {
 
 function CategoryDeleteAlertDialogContent({
   item,
-  onSettled,
+  onClose,
 }: {
   item: Category
-  onSettled: () => void
+  onClose: () => void
 }) {
-  const { mutation, onDestroy } = useOptimisticCategoryDestroy(item, {
-    onSettled,
-  })
+  const { onDestroy } = useOptimisticCategoryDestroy(item)
 
   return (
     <>
@@ -58,8 +53,11 @@ function CategoryDeleteAlertDialogContent({
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
         <AlertDialogAction
           variant="destructive"
-          onClick={onDestroy}
-          disabled={mutation.isPending}
+          onClick={() => {
+            // The row is already gone optimistically; errors show up as a toast.
+            onDestroy()
+            onClose()
+          }}
         >
           Delete Category
         </AlertDialogAction>

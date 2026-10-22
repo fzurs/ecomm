@@ -21,7 +21,7 @@ export function OrderDeleteAlertDialog() {
     <AlertDialog {...rootProps}>
       <AlertDialogContent>
         {row && (
-          <OrderDeleteAlertDialogContent item={row} onSettled={closeAction} />
+          <OrderDeleteAlertDialogContent item={row} onClose={closeAction} />
         )}
       </AlertDialogContent>
     </AlertDialog>
@@ -30,14 +30,13 @@ export function OrderDeleteAlertDialog() {
 
 function OrderDeleteAlertDialogContent({
   item,
-  onSettled,
+  onClose,
 }: {
   item: Order
-  onSettled: () => void
+  onClose: () => void
 }) {
   const mutation = useOptimisticOrderDestroy(item)
-  const onDestroy = () =>
-    mutation.mutate({ path: { number: item.number } }, { onSettled })
+  const onDestroy = () => mutation.mutate({ path: { number: item.number } })
 
   return (
     <>
@@ -55,8 +54,11 @@ function OrderDeleteAlertDialogContent({
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
         <AlertDialogAction
           variant="destructive"
-          onClick={onDestroy}
-          disabled={mutation.isPending}
+          onClick={() => {
+            // The row is already gone optimistically; errors show up as a toast.
+            onDestroy()
+            onClose()
+          }}
         >
           Delete
         </AlertDialogAction>

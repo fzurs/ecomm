@@ -8,10 +8,7 @@ import {
 } from "@workspace/api-client/query"
 import { invalidateBrands } from "../_lib/invalidate-brands"
 
-export function useOptimisticBrandDestroy(
-  item: Brand,
-  { onSettled }: { onSettled?: () => void } = {}
-) {
+export function useOptimisticBrandDestroy(item: Brand) {
   const queryClient = useQueryClient()
 
   const queryKey = brandsListQueryKey()
@@ -46,7 +43,7 @@ export function useOptimisticBrandDestroy(
   })
 
   const onDestroy = () =>
-    mutation.mutate({ path: { slug: item.slug as string } }, { onSettled })
+    mutation.mutate({ path: { slug: item.slug as string } })
 
   return { mutation, onDestroy }
 }

@@ -8,10 +8,7 @@ import {
 } from "@workspace/api-client/query"
 import { invalidateProducts } from "../_lib/invalidate-products"
 
-export function useOptimisticProductDestroy(
-  item: Product,
-  { onSettled }: { onSettled?: () => void } = {}
-) {
+export function useOptimisticProductDestroy(item: Product) {
   const queryClient = useQueryClient()
 
   const queryKey = productsListQueryKey()
@@ -46,7 +43,7 @@ export function useOptimisticProductDestroy(
   })
 
   const onDestroy = () =>
-    mutation.mutate({ path: { slug: item.slug as string } }, { onSettled })
+    mutation.mutate({ path: { slug: item.slug as string } })
 
   return { mutation, onDestroy }
 }

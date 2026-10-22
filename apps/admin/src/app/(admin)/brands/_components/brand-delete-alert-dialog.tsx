@@ -21,7 +21,7 @@ export function BrandDeleteAlertDialog() {
     <AlertDialog {...rootProps}>
       <AlertDialogContent size="sm">
         {row && (
-          <BrandDeleteAlertDialogContent item={row} onSettled={closeAction} />
+          <BrandDeleteAlertDialogContent item={row} onClose={closeAction} />
         )}
       </AlertDialogContent>
     </AlertDialog>
@@ -30,14 +30,12 @@ export function BrandDeleteAlertDialog() {
 
 function BrandDeleteAlertDialogContent({
   item,
-  onSettled,
+  onClose,
 }: {
   item: Brand
-  onSettled: () => void
+  onClose: () => void
 }) {
-  const { mutation, onDestroy } = useOptimisticBrandDestroy(item, {
-    onSettled,
-  })
+  const { onDestroy } = useOptimisticBrandDestroy(item)
 
   return (
     <>
@@ -55,8 +53,11 @@ function BrandDeleteAlertDialogContent({
         <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
         <AlertDialogAction
           variant="destructive"
-          onClick={onDestroy}
-          disabled={mutation.isPending}
+          onClick={() => {
+            // The row is already gone optimistically; errors show up as a toast.
+            onDestroy()
+            onClose()
+          }}
         >
           Delete Brand
         </AlertDialogAction>

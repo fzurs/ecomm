@@ -8,10 +8,7 @@ import {
 } from "@workspace/api-client/query"
 import { invalidateCategories } from "../_lib/invalidate-categories"
 
-export function useOptimisticCategoryDestroy(
-  item: Category,
-  { onSettled }: { onSettled?: () => void } = {}
-) {
+export function useOptimisticCategoryDestroy(item: Category) {
   const queryClient = useQueryClient()
 
   const queryKey = categoriesListQueryKey()
@@ -46,7 +43,7 @@ export function useOptimisticCategoryDestroy(
   })
 
   const onDestroy = () =>
-    mutation.mutate({ path: { slug: item.slug as string } }, { onSettled })
+    mutation.mutate({ path: { slug: item.slug as string } })
 
   return { mutation, onDestroy }
 }
