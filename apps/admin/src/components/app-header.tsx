@@ -26,7 +26,7 @@ function AppHeaderContent({
   return (
     <div
       className={cn(
-        "flex w-full items-center gap-1 [&_[data-slot=sidebar-trigger]]:-ml-1",
+        "flex h-4 w-full items-center gap-1 **:data-[slot=sidebar-trigger]:-ml-1",
         className
       )}
       {...props}
