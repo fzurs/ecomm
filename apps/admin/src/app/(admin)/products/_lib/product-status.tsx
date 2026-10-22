@@ -9,12 +9,16 @@ import { ProductStatus } from "@workspace/api-client"
 import { zProductStatus } from "@workspace/api-client/zod"
 import { capitalize } from "@/lib/utils"
 
+// Colored through `stroke`, not `color`: select and menu items set `color` on
+// every descendant on focus (`focus:**:text-accent-foreground`), including the
+// icon's inner <path>s, which draw with `currentColor`. A concrete stroke on the
+// <svg> is inherited by the paths as is, so the focus color doesn't reach it.
 export const productStatusIcons: Record<ProductStatus, React.JSX.Element> = {
-  active: <CircleCheckIcon className="text-green-500" />,
-  inactive: <CircleXIcon className="text-red-500" />,
+  active: <CircleCheckIcon className="stroke-green-500" />,
+  inactive: <CircleXIcon className="stroke-red-500" />,
   draft: <LoaderIcon />,
-  out_of_stock: <PackageXIcon className="text-orange-500" />,
-  discontinued: <ArchiveXIcon className="text-red-500" />,
+  out_of_stock: <PackageXIcon className="stroke-orange-500" />,
+  discontinued: <ArchiveXIcon className="stroke-red-500" />,
 }
 
 export const productStatusOptions = zProductStatus.options.map((status) => ({
