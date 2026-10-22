@@ -6,7 +6,8 @@ import { DataTableViewOptions } from "./data-table-view-options"
 
 import { cn } from "@workspace/ui/lib/utils"
 import { useCallback } from "react"
-import { DataTableFacetedFilter } from "./data-table-faceted-filter"
+import { DataTableMultiSelectFilter } from "./data-table-multi-select-filter"
+import { DataTableSelectFilter } from "./data-table-select-filter"
 import { getColumnLabel } from "../lib/column"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -104,12 +105,18 @@ export function DataTableToolbarFilter<TData>({
           </ToggleGroup>
         )
       case "select":
-      case "multi-select":
         return (
-          <DataTableFacetedFilter
+          <DataTableSelectFilter
             column={column}
             options={meta.options ?? []}
-            multiple={meta.variant === "multi-select"}
+            title={getColumnLabel(column)}
+          />
+        )
+      case "multi-select":
+        return (
+          <DataTableMultiSelectFilter
+            column={column}
+            options={meta.options ?? []}
             title={getColumnLabel(column)}
           />
         )

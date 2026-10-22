@@ -23,7 +23,8 @@
 - Estado en la URL con `nuqs` (`useQueryState`, `parseAs*`).
 - Hooks compartidos en `src/hooks/`: `usePagination`, `useOrdering`, `useFilters`, `useDebounce`.
 - Tablas: `@workspace/data-table` (`useDataTable`, `DataTable`, `DataTableAdvancedToolbar`,
-  `DataTableFacetedFilter`, `DataTableSortMenu`) + `SearchInput` de `src/components/`.
+  `DataTableSelectFilter` / `DataTableMultiSelectFilter`, `DataTableSortMenu`) + `SearchInput` de
+  `src/components/`.
 - Las row actions y sus diálogos pasan por `RowActionsProvider` (`src/context/row-actions-provider.tsx`).
 
 ## Formularios

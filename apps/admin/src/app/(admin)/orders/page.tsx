@@ -35,7 +35,7 @@ import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { SearchInput } from "@/components/search-input"
-import { DataTableFacetedFilter } from "@workspace/data-table/components/data-table-faceted-filter"
+import { DataTableMultiSelectFilter } from "@workspace/data-table/components/data-table-multi-select-filter"
 import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
@@ -115,8 +115,7 @@ export default function OrdersPage() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search orders..."
             />
-            <DataTableFacetedFilter
-              multiple
+            <DataTableMultiSelectFilter
               column={table.getColumn("status")}
               options={orderStatusOptions}
               title="Filter by Status"
