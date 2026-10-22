@@ -212,6 +212,15 @@ class ChoicesTests(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class ProductSearchTests(APITestCase):
+    def test_searches_by_sku(self):
+        Product.objects.create(name='ACME Hammer', sku='HAM-0001')
+        Product.objects.create(name='ACME Saw', sku='SAW-0002')
+        response = self.client.get(reverse('product-list'), {'search': 'saw-0002'})
+        self.assertEqual([p['name'] for p in response.json()['results']], ['ACME Saw'])
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProductDestroyTests(APITestCase):
     def setUp(self):
         self.client.force_login(get_user_model().objects.create(username='admin'))

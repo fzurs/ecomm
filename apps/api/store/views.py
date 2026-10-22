@@ -16,7 +16,7 @@ class ProductViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter,
                        DjangoFilterBackend, ProductOrdering]
     filterset_class = ProductFilter
-    search_fields = ["name", "description", "category__name", "brand__name"]
+    search_fields = ["name", "sku", "description", "category__name", "brand__name"]
     # Category and Brand are ordered by {model}__name, in ProductFilter
     ordering_fields = ["name", "category", "brand", "status",
                        "featured", "price", "discount_price", "created_at"]
