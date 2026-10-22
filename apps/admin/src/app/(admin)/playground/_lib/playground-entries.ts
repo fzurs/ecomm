@@ -10,4 +10,10 @@ export const playgroundEntries = [
     title: "Order status",
     description: "Order status badge and the status picker used in menus.",
   },
+  {
+    slug: "table-filter",
+    title: "Table filter",
+    description:
+      "Advanced table filter (in development), against every filter variant.",
+  },
 ] as const
