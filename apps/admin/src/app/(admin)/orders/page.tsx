@@ -16,8 +16,8 @@ import {
   parseAsStringEnum,
   useQueryState,
 } from "nuqs"
-import { orderStatusOptions } from "./_lib/order-status"
 import { orderColumns } from "./_components/order-columns"
+import { OrderStatusFilter } from "./_components/order-status-filter"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import {
   AppHeader,
@@ -35,7 +35,6 @@ import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { SearchInput } from "@/components/search-input"
-import { DataTableMultiSelectFilter } from "@workspace/data-table/components/data-table-multi-select-filter"
 import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
@@ -115,11 +114,7 @@ export default function OrdersPage() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search orders..."
             />
-            <DataTableMultiSelectFilter
-              column={table.getColumn("status")}
-              options={orderStatusOptions}
-              title="Filter by Status"
-            />
+            <OrderStatusFilter column={table.getColumn("status")} />
             <DataTableSortMenu table={table} />
           </DataTableAdvancedToolbar>
         </DataTable>
