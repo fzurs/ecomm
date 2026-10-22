@@ -21,7 +21,8 @@ Argumento: el nombre del recurso (en plural, como en la URL de la API, ej. `supp
    - `_components/<resource>-columns.tsx`, `<resource>-row-actions.tsx`, `<resource>-form.tsx` y el alert dialog de borrado
    - `_lib/` para listas de opciones / constantes, `_hooks/` para hooks propios de la sección
    - páginas de detalle y `new/` solo si se piden; el segmento dinámico usa el lookup field de la API
-5. **Sidebar**: agregar la entrada a la lista de items en `apps/admin/src/components/app-sidebar.tsx`.
+5. **Sidebar**: agregar la entrada al grupo que corresponda (`Sales`, `Catalog`...) en `groups` de
+   `apps/admin/src/components/app-sidebar.tsx`; si no encaja en ninguno, crear un grupo nuevo.
 6. **Verificar**: `pnpm --filter admin typecheck` y `pnpm --filter admin lint`; corregir lo que falle.
 
 Reusar los componentes de `@workspace/ui` y `@workspace/data-table`; no agregar componentes

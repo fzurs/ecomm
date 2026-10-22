@@ -27,36 +27,22 @@ import { NavUser } from "./nav-user"
 import { useSession } from "@/hooks/use-auth"
 import { usePathname } from "next/navigation"
 
-const items = [
+const groups = [
   {
-    title: "Customers",
-    url: "/customers",
-    icon: UsersRoundIcon,
+    label: "Sales",
+    items: [
+      { title: "Orders", url: "/orders", icon: ShoppingCartIcon },
+      { title: "Invoices", url: "/invoices", icon: ReceiptTextIcon },
+      { title: "Customers", url: "/customers", icon: UsersRoundIcon },
+    ],
   },
   {
-    title: "Orders",
-    url: "/orders",
-    icon: ShoppingCartIcon,
-  },
-  {
-    title: "Invoices",
-    url: "/invoices",
-    icon: ReceiptTextIcon,
-  },
-  {
-    title: "Products",
-    url: "/products",
-    icon: PackageIcon,
-  },
-  {
-    title: "Categories",
-    url: "/categories",
-    icon: LayoutGridIcon,
-  },
-  {
-    title: "Brands",
-    url: "/brands",
-    icon: TagIcon,
+    label: "Catalog",
+    items: [
+      { title: "Products", url: "/products", icon: PackageIcon },
+      { title: "Categories", url: "/categories", icon: LayoutGridIcon },
+      { title: "Brands", url: "/brands", icon: TagIcon },
+    ],
   },
 ]
 
@@ -78,27 +64,30 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => {
-                const isActive = item.url === pathname.slice(0, item.url.length)
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      render={<Link href={item.url} />}
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {groups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const isActive =
+                    item.url === pathname.slice(0, item.url.length)
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        render={<Link href={item.url} />}
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
       <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
     </Sidebar>
