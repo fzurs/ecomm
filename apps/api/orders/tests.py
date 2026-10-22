@@ -81,82 +81,134 @@ class OrderCustomerDetailTests(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
-class OrdersTests(APITestCase):
+class OrderTestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(
-            username='acmeinc', password='password123')
-        self.customer = User.objects.create(username='customer')
-        self.client.force_login(self.user)
-        self.base_url = reverse('order-list')
+        self.client.force_login(User.objects.create(username='admin'))
+        self.customer = Customer.objects.create(name='ACME Inc')
 
-    def test_order_create_with_product_active(self):
-        product = Product.objects.create(
-            name='ACME Hammer', status=Product.Status.OUT_OF_STOCK)
-        items = [{'product': product.pk}]
-        data = {'customer': self.customer.pk, 'items': items}
-        response = self.client.post(self.base_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
- 
-    def test_order_create_with_items(self):
-        products = Product.objects.bulk_create(
-            [Product(name=f'Product {i}', status=Product.Status.ACTIVE, slug=f'slug-{i}', sku=f'sku-{i}') for i in range(2)])
-        items = [{'product': p.pk} for p in products]
-        data = {'customer': self.customer.pk, 'items': items}
-        response = self.client.post(self.base_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(len(response.data['items']), len(items))
+    def create_product(self, name='ACME Hammer', price=100, status=Product.Status.ACTIVE):
+        return Product.objects.create(name=name, price=price, status=status)
 
-    def test_order_create_with_items_unit_price(self):
-        product = Product.objects.create(
-            name='Prod 1', price=10, status=Product.Status.ACTIVE)
-        # the unit price should not be captured
-        unit_price_bait = 11
-        items = [{'product': product.pk, 'unit_price': unit_price_bait}]
-        data = {'customer': self.customer.pk, 'items': items}
-        response = self.client.post(self.base_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(response.data['items'][0]['unit_price'],
-                            unit_price_bait, 'The unit price should not be changed by the user')
-        self.assertEqual(response.data['items']
-                         [0]['unit_price'], product.price, '')
+    def post_order(self, items, **data):
+        return self.client.post(
+            reverse('order-list'), {'customer': self.customer.pk, 'items': items, **data}, format='json')
 
-    def test_order_create_with_items_subtotal_and_total(self):
-        # price = 100, 200, 300
-        products = Product.objects.bulk_create(
-            [Product(name=f'Product {i}', status=Product.Status.ACTIVE, slug=f'slug-{i}', sku=f'sku-{i}', price=i*100) for i in range(1, 3+1)])
-        items = [{'product': p.pk} for p in products]
-        data = {'customer': self.customer.pk, 'items': items}
-        response = self.client.post(self.base_url, data, format='json')
+
+class OrderCreateTests(OrderTestCase):
+    def test_creates_order_with_items(self):
+        hammer, saw = self.create_product('ACME Hammer'), self.create_product('ACME Saw')
+        response = self.post_order([{'product': hammer.pk}, {'product': saw.pk, 'quantity': 3}])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # subtotal
-        # We assume unit_price === product.price
-        for item in response.data['items']:
-            self.assertEqual(item['subtotal'],
-                             item['unit_price'] * item['quantity'])
-            self.assertEqual(item['subtotal'], item['quantity'] * next(
-                (p for p in products if p.pk == item['product']), None).price)
-        # total
         self.assertEqual(
-            sum([item['subtotal'] for item in response.data['items']]), response.data['total'])
+            [(i['product'], i['quantity']) for i in response.data['items']],
+            [(hammer.pk, 1), (saw.pk, 3)])
 
-    def test_order_update_ignore_items(self):
-        order = Order.objects.create(customer=self.customer)
-        product = Product.objects.create(name='ACME TNT Sticks', status=Product.Status.ACTIVE)
-        OrderItem.objects.create(order=order, product=product)
-        url = reverse('order-detail', kwargs={'pk': order.pk})
-        # empty list
-        data = {'customer': self.customer.pk, 'items': []}
-        response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEqual(len(response.data['items']), len(data['items']))
-        # charged list
-        data = {'customer': self.customer.pk, 'items': [
-            {'product': 2026, 'quantity': 100}]}
-        response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEqual(
-            response.data['items'][0]['product'], data['items'][0]['product'])
-        self.assertNotEqual(
-            response.data['items'][0]['quantity'], data['items'][0]['quantity'])
+    def test_assigns_a_sequential_number(self):
+        response = self.post_order([{'product': self.create_product().pk}])
+        order = Order.objects.get()
+        self.assertEqual(response.data['number'], f'ORD-{order.pk:06d}')
 
-   
+    def test_starts_pending(self):
+        response = self.post_order([{'product': self.create_product().pk}])
+        self.assertEqual(response.data['status'], Order.Status.PENDING)
+
+    def test_rejects_inactive_product(self):
+        for product_status in (Product.Status.DRAFT, Product.Status.OUT_OF_STOCK):
+            with self.subTest(status=product_status):
+                product = self.create_product(name=f'ACME {product_status}', status=product_status)
+                response = self.post_order([{'product': product.pk}])
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('product', response.data['items'][0])
+        self.assertFalse(Order.objects.exists())
+
+    def test_rejects_unknown_customer(self):
+        response = self.post_order([{'product': self.create_product().pk}], customer=2026)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('customer', response.data)
+
+    def test_unit_price_comes_from_the_product(self):
+        product = self.create_product(price=10)
+        response = self.post_order([{'product': product.pk, 'unit_price': 11}])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['items'][0]['unit_price'], 10)
+
+    def test_unit_price_does_not_follow_later_price_changes(self):
+        product = self.create_product(price=10)
+        response = self.post_order([{'product': product.pk}])
+        product.price = 20
+        product.save()
+        response = self.client.get(reverse('order-detail', args=[response.data['number']]))
+        self.assertEqual(response.data['items'][0]['unit_price'], 10)
+
+    def test_computes_subtotals_and_total(self):
+        products = [self.create_product(f'Product {price}', price=price) for price in (100, 200, 300)]
+        response = self.post_order([{'product': p.pk, 'quantity': 2} for p in products])
+        self.assertEqual([i['subtotal'] for i in response.data['items']], [200, 400, 600])
+        self.assertEqual(response.data['total'], 1200)
+
+
+class OrderUpdateTests(OrderTestCase):
+    def setUp(self):
+        super().setUp()
+        self.product = self.create_product()
+        self.order = Order.objects.create(customer=self.customer)
+        OrderItem.objects.create(order=self.order, product=self.product, quantity=2)
+        self.url = reverse('order-detail', args=[self.order.number])
+
+    def test_updates_status(self):
+        response = self.client.patch(self.url, {'status': Order.Status.PAID}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.PAID)
+
+    def test_ignores_items(self):
+        other = self.create_product('ACME Saw')
+        for items in ([], [{'product': other.pk, 'quantity': 100}]):
+            with self.subTest(items=items):
+                response = self.client.put(
+                    self.url, {'customer': self.customer.pk, 'items': items}, format='json')
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(
+                    [(i['product'], i['quantity']) for i in response.data['items']],
+                    [(self.product.pk, 2)])
+
+    def test_number_cannot_be_changed(self):
+        response = self.client.patch(self.url, {'number': 'ORD-999999'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.number, f'ORD-{self.order.pk:06d}')
+
+
+class OrderListTests(OrderTestCase):
+    def test_filters_by_status(self):
+        Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        Order.objects.create(customer=self.customer, status=Order.Status.SHIPPED)
+        Order.objects.create(customer=self.customer, status=Order.Status.CANCELLED)
+        response = self.client.get(reverse('order-list'), {'status': ['paid', 'shipped']})
+        self.assertEqual(
+            {o['status'] for o in response.data['results']}, {'paid', 'shipped'})
+
+    def test_searches_by_customer(self):
+        Order.objects.create(customer=self.customer)
+        Order.objects.create(customer=Customer.objects.create(name='Wile E. Coyote'))
+        response = self.client.get(reverse('order-list'), {'search': 'coyote'})
+        self.assertEqual(
+            [o['customer_detail']['name'] for o in response.data['results']], ['Wile E. Coyote'])
+
+    def test_requires_a_session(self):
+        self.client.logout()
+        response = self.client.get(reverse('order-list'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class CustomerDestroyTests(OrderTestCase):
+    def test_deletes_customer_without_orders(self):
+        response = self.client.delete(reverse('customer-detail', args=[self.customer.pk]))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_customer_with_orders_is_a_conflict(self):
+        Order.objects.create(customer=self.customer)
+        response = self.client.delete(reverse('customer-detail', args=[self.customer.pk]))
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json()['detail'], "It can't be deleted because it's used in 1 order.")
+        self.assertTrue(Customer.objects.filter(pk=self.customer.pk).exists())
