@@ -70,7 +70,7 @@ export function DataTableFilterMenu<TData>({ table }: { table: Table<TData> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44" align="start">
           {columns.map((column) => (
-            <DropdownMenuItem key={column.id} onSelect={() => onSelect(column)}>
+            <DropdownMenuItem key={column.id} onClick={() => onSelect(column)}>
               {getColumnLabel(column)}
               {filters.has(column.id) && <CheckIcon className="ml-auto" />}
             </DropdownMenuItem>
