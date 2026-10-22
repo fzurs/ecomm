@@ -23,20 +23,20 @@ export function DataTableFilterMenu<TData>({ table }: { table: Table<TData> }) {
   const [filters, setFilters] = useState<Set<string>>(new Set(initialFilters))
 
   const onSelect = useCallback(
-    (column: Column<TData>) =>
+    (column: Column<TData>) => {
+      // Clearing the column filter updates the table's state (the URL), so it
+      // can't run inside the updater below: React calls updaters while
+      // rendering this component.
+      if (filters.has(column.id)) column.setFilterValue(undefined)
+
       setFilters((prev) => {
-        const filters = new Set(prev)
-
-        if (filters.has(column.id)) {
-          filters.delete(column.id)
-          column.setFilterValue(undefined)
-        } else {
-          filters.add(column.id)
-        }
-
-        return filters
-      }),
-    [setFilters]
+        const next = new Set(prev)
+        if (next.has(column.id)) next.delete(column.id)
+        else next.add(column.id)
+        return next
+      })
+    },
+    [filters]
   )
 
   const onClear = () => {
