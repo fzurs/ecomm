@@ -2,7 +2,6 @@
 
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
 import { DataTable } from "@workspace/data-table/components/data-table"
-import { DataTableAdvancedFilter } from "@workspace/data-table/components/data-table-advanced-filter"
 import { DataTableFilterMenu } from "@workspace/data-table/components/data-table-filter-menu"
 import { DataTableToolbar } from "@workspace/data-table/components/data-table-toolbar"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
@@ -32,10 +31,10 @@ export default function TableFilterPlaygroundPage() {
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col gap-8 px-4 py-6 lg:px-6">
         <PlaygroundSection
-          title="DataTableAdvancedFilter"
-          description="New component, in development."
+          title="DataTableFilterMenu"
+          description="Pick the columns to filter from a menu (mobile filters)."
         >
-          <DataTableAdvancedFilter table={table} />
+          <DataTableFilterMenu table={table} />
         </PlaygroundSection>
 
         <PlaygroundSection
@@ -56,16 +55,9 @@ export default function TableFilterPlaygroundPage() {
 
         <PlaygroundSection
           title="Reference: DataTableToolbar"
-          description="Current desktop filters: one control per filterable column. The date variant has no control yet."
+          description="Desktop filters: one control per filterable column. The date variant has no control yet."
         >
           <DataTableToolbar table={table} className="w-full" />
-        </PlaygroundSection>
-
-        <PlaygroundSection
-          title="Reference: DataTableFilterMenu"
-          description="Current mobile filters: pick the columns to filter from a menu."
-        >
-          <DataTableFilterMenu table={table} />
         </PlaygroundSection>
 
         <PlaygroundSection

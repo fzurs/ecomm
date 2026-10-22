@@ -13,7 +13,6 @@ export const playgroundEntries = [
   {
     slug: "table-filter",
     title: "Table filter",
-    description:
-      "Advanced table filter (in development), against every filter variant.",
+    description: "Table filters against a column of every filter variant.",
   },
 ] as const
