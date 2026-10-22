@@ -323,6 +323,7 @@ export type ProductSummary = {
     slug?: string;
     name: string;
     price?: number | null;
+    image?: string | null;
 };
 
 export type RestAuthDetail = {
@@ -533,6 +534,7 @@ export type ProductSummaryWritable = {
     slug?: string;
     name: string;
     price?: number | null;
+    image?: string | null;
 };
 
 /**

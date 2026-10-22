@@ -26,7 +26,7 @@ class CustomerSummarySerializer(serializers.ModelSerializer):
 class ProductSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "slug", "name", "price"]
+        fields = ["id", "slug", "name", "price", "image"]
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

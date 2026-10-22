@@ -286,7 +286,8 @@ export const zProductSummary = z.object({
     id: z.int().readonly(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
-    price: z.int().gte(0).lte(2147483647).nullish()
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    image: z.url().nullish()
 });
 
 export const zOrderItem = z.object({
@@ -554,7 +555,8 @@ export const zProductChoiceWritable = z.object({
 export const zProductSummaryWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
-    price: z.int().gte(0).lte(2147483647).nullish()
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    image: z.url().nullish()
 });
 
 /**
