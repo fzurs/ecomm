@@ -158,7 +158,7 @@ function TableCellViewer({ product }: { product: Product }) {
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar shape="square">
+      <Avatar shape="square" size="sm">
         {product.image && <AvatarImage src={product.image} />}
         <AvatarFallback />
       </Avatar>

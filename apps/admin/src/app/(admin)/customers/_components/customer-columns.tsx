@@ -25,26 +25,8 @@ import {
 
 export const customerColumns: ColumnDef<Customer>[] = [
   {
-    accessorKey: "image",
-    cell: ({ row }) => {
-      const customer = row.original
-      return (
-        <Avatar>
-          {customer.image && <AvatarImage src={customer.image} />}
-          <AvatarFallback />
-        </Avatar>
-      )
-    },
-    enableSorting: false,
-    meta: {
-      thClassName: "text-center",
-      className: "flex justify-center",
-    },
-  },
-  {
     accessorKey: "name",
     cell: ({ row }) => <TableCellViewer customer={row.original} />,
-    meta: { thClassName: "pl-5" },
     enableHiding: false,
   },
   { accessorKey: "email", meta: { className: "text-muted-foreground" } },
@@ -64,13 +46,20 @@ function TableCellViewer({ customer }: { customer: Customer }) {
   const { openAction } = useRowActions<Customer>()
 
   return (
-    <Button
-      size="sm"
-      variant="link"
-      onClick={() => openAction("view", customer)}
-    >
-      {customer.name}
-    </Button>
+    <div className="flex items-center gap-2">
+      <Avatar size="sm">
+        {customer.image && <AvatarImage src={customer.image} />}
+        <AvatarFallback />
+      </Avatar>
+      <Button
+        size="sm"
+        variant="link"
+        className="px-0"
+        onClick={() => openAction("view", customer)}
+      >
+        {customer.name}
+      </Button>
+    </div>
   )
 }
 
