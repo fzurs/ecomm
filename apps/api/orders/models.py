@@ -1,10 +1,9 @@
-import io
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from django.db import models, transaction
+from store.images import generate_customer_image, to_png
 from store.models import Product
-from .utils import generate_gradient
 
 
 class Customer(models.Model):
@@ -30,13 +29,9 @@ class Customer(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.image:
-            image = generate_gradient(self.name)
-
-            buffer = io.BytesIO()
-            image.save(buffer, format="PNG")
-
+            image = generate_customer_image(self.name)
             filename = f"{slugify(self.name)}.png"
-            self.image.save(filename, ContentFile(buffer.getvalue()), save=False)
+            self.image.save(filename, ContentFile(to_png(image)), save=False)
 
         super().save(*args, **kwargs)
 

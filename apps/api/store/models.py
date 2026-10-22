@@ -1,5 +1,8 @@
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils.text import slugify
+
+from .images import generate_product_image, to_png
 
 
 class Brand(models.Model):
@@ -78,6 +81,9 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        if not self.image:
+            image = generate_product_image(self.name)
+            self.image.save(f'{self.slug}.png', ContentFile(to_png(image)), save=False)
         super().save(*args, **kwargs)
 
     @property

@@ -1,5 +1,8 @@
+import tempfile
+
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from rest_framework.test import APITestCase
 from rest_framework import status
 from store.models import Product
@@ -8,6 +11,7 @@ from .models import Order, OrderItem
 User = get_user_model()
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class OrdersTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create(
