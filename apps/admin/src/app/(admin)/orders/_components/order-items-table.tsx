@@ -33,7 +33,7 @@ export function OrderItemsTable({
         <TableRow>
           <TableHead>Product</TableHead>
           <TableHead className="text-center">Quantity</TableHead>
-          <TableHead className="text-center">Unit Price</TableHead>
+          <TableHead className="text-center">Unit price</TableHead>
           <TableHead className="text-right">Subtotal</TableHead>
           {renderActions && <TableHead />}
         </TableRow>
