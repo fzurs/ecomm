@@ -12,7 +12,7 @@ export function useOptimisticOrderUpdate(order: Order) {
 
   return useMutation({
     ...ordersPartialUpdateMutation(),
-    onMutate: (data) => {
+    onMutate: ({ body }) => {
       queryClient.cancelQueries({ queryKey })
       const previousData = queryClient.getQueryData(queryKey)
       queryClient.setQueriesData({ queryKey }, (old: PaginatedOrderList) => {
@@ -20,7 +20,7 @@ export function useOptimisticOrderUpdate(order: Order) {
         return {
           ...old,
           results: old.results.map((item) =>
-            item.id === order.id ? { ...order, ...data } : item
+            item.id === order.id ? { ...item, ...body } : item
           ),
         }
       })
