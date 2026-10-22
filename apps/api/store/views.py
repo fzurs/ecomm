@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Category, Brand
 from .serializers import BrandChoiceSerializer, CategoryChoiceSerializer, ProductChoiceSerializer, ProductSerializer, CategorySerializer, BrandSerializer
 from .filters import ProductFilter, ProductOrdering
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
 # Lets anyone run `public_actions` (the store reads them); the rest use the default permissions.
@@ -19,9 +19,33 @@ class PublicReadMixin:
         return super().get_permissions()
 
 
-class ProductViewSet(PublicReadMixin, viewsets.ModelViewSet):
+# Adds `choices`: the filtered queryset, unpaginated, with `choices_serializer_class` (feeds the
+# admin selects). Each viewset documents it with `choices_schema`, to keep its operation_id.
+class ChoicesMixin:
+    choices_serializer_class = None
+
+    def get_serializer_class(self):
+        if self.action == "choices":
+            return self.choices_serializer_class
+        return super().get_serializer_class()
+
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def choices(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+def choices_schema(operation_id, serializer_class):
+    return extend_schema_view(
+        choices=extend_schema(operation_id=operation_id, responses=serializer_class(many=True)))
+
+
+@choices_schema("products_list_choices", ProductChoiceSerializer)
+class ProductViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    choices_serializer_class = ProductChoiceSerializer
     filter_backends = [filters.SearchFilter,
                        DjangoFilterBackend, ProductOrdering]
     filterset_class = ProductFilter
@@ -38,56 +62,24 @@ class ProductViewSet(PublicReadMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    def get_serializer_class(self):
-        if self.action == "choices":
-            return ProductChoiceSerializer
-        return super().get_serializer_class()
 
-    @extend_schema(operation_id="products_list_choices", responses=ProductChoiceSerializer(many=True))
-    @action(detail=False, methods=["get"], pagination_class=None)
-    def choices(self, request):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-class CategoryViewSet(PublicReadMixin, viewsets.ModelViewSet):
+@choices_schema("categories_list_choices", CategoryChoiceSerializer)
+class CategoryViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
     queryset = Category.objects.order_by("name")
     serializer_class = CategorySerializer
+    choices_serializer_class = CategoryChoiceSerializer
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     ordering_fields = ['name']
     search_fields = ["name"]
     lookup_field = "slug"
 
-    def get_serializer_class(self):
-        if self.action == "choices":
-            return CategoryChoiceSerializer
-        return super().get_serializer_class()
 
-    @extend_schema(operation_id="categories_list_choices", responses=CategoryChoiceSerializer(many=True))
-    @action(detail=False, methods=["get"], pagination_class=None)
-    def choices(self, request):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-class BrandViewSet(PublicReadMixin, viewsets.ModelViewSet):
+@choices_schema("brands_list_choices", BrandChoiceSerializer)
+class BrandViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
+    choices_serializer_class = BrandChoiceSerializer
     lookup_field = "slug"
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     ordering_fields = ['name']
     search_fields = ['name']
-
-    def get_serializer_class(self):
-        if self.action == "choices":
-            return BrandChoiceSerializer
-        return super().get_serializer_class()
-
-    @extend_schema(operation_id="brands_list_choices", responses=BrandChoiceSerializer(many=True))
-    @action(detail=False, methods=["get"], pagination_class=None)
-    def choices(self, request):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)

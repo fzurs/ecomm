@@ -12,6 +12,7 @@ from orders.models import Customer, Order, OrderItem
 
 from .images import generate_customer_image, generate_product_image
 from .models import Brand, Category, Product, build_sku
+from .serializers import BrandChoiceSerializer, CategoryChoiceSerializer, ProductChoiceSerializer
 
 
 class BuildSkuTests(SimpleTestCase):
@@ -177,6 +178,37 @@ class PublicReadPermissionTests(APITestCase):
     def test_anonymous_cannot_generate_sku(self):
         url = reverse('product-generate-sku', args=[self.objects['product'].slug])
         self.assertEqual(self.client.post(url).status_code, status.HTTP_403_FORBIDDEN)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class ChoicesTests(APITestCase):
+    models = {'product': Product, 'category': Category, 'brand': Brand}
+    choice_serializers = {
+        'product': ProductChoiceSerializer,
+        'category': CategoryChoiceSerializer,
+        'brand': BrandChoiceSerializer,
+    }
+
+    def setUp(self):
+        for model in self.models.values():
+            model.objects.create(name='ACME Hammer')
+            model.objects.create(name='Saw')
+
+    def test_lists_all_unpaginated_with_choice_fields(self):
+        for basename in self.models:
+            with self.subTest(basename=basename):
+                response = self.client.get(reverse(f'{basename}-choices'))
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertIsInstance(response.json(), list)
+                self.assertEqual({c['name'] for c in response.json()}, {'ACME Hammer', 'Saw'})
+                self.assertEqual(
+                    list(response.json()[0]), self.choice_serializers[basename].Meta.fields)
+
+    def test_applies_search(self):
+        for basename in self.models:
+            with self.subTest(basename=basename):
+                response = self.client.get(reverse(f'{basename}-choices'), {'search': 'hammer'})
+                self.assertEqual([c['name'] for c in response.json()], ['ACME Hammer'])
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
