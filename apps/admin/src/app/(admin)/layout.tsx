@@ -1,6 +1,7 @@
 "use client"
 
 import { AppSidebar } from "@/components/app-sidebar"
+import { AssistantProvider } from "@/components/assistant/assistant-provider"
 import { AuthGuard } from "@/components/auth-guard"
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 import "@workspace/ui/globals.css"
@@ -22,8 +23,10 @@ export default function AdminLayout({
           } as React.CSSProperties
         }
       >
-        <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        <AssistantProvider>
+          <AppSidebar />
+          <SidebarInset>{children}</SidebarInset>
+        </AssistantProvider>
       </SidebarProvider>
     </AuthGuard>
   )

@@ -30,6 +30,13 @@ export const zCategoryChoice = z.object({
     description: z.string().nullish()
 });
 
+export const zConversation = z.object({
+    id: z.int().readonly(),
+    title: z.string().readonly(),
+    created_at: z.iso.datetime().readonly(),
+    updated_at: z.iso.datetime().readonly()
+});
+
 export const zCustomerChoice = z.object({
     id: z.int().readonly(),
     name: z.string().max(255),
@@ -107,6 +114,27 @@ export const zLogin = z.object({
 });
 
 /**
+ * * `user` - User
+ * * `assistant` - Assistant
+ */
+export const zMessageRole = z.enum(['user', 'assistant']);
+
+export const zMessage = z.object({
+    id: z.int().readonly(),
+    role: zMessageRole,
+    text: z.string().optional(),
+    created_at: z.iso.datetime().readonly()
+});
+
+export const zConversationDetail = z.object({
+    id: z.int().readonly(),
+    title: z.string().readonly(),
+    created_at: z.iso.datetime().readonly(),
+    updated_at: z.iso.datetime().readonly(),
+    messages: z.array(zMessage).readonly()
+});
+
+/**
  * * `pending` - Pending
  * * `paid` - Paid
  * * `shipped` - Shipped
@@ -133,6 +161,13 @@ export const zPaginatedCategoryList = z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
     results: z.array(zCategory)
+});
+
+export const zPaginatedConversationList = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(zConversation)
 });
 
 export const zPaginatedCustomerList = z.object({
@@ -394,6 +429,8 @@ export const zCategoryChoiceWritable = z.object({
     description: z.string().nullish()
 });
 
+export const zConversationDetailWritable = z.record(z.string(), z.unknown());
+
 export const zCustomerWritable = z.object({
     name: z.string().max(255),
     email: z.email().max(254).optional(),
@@ -416,6 +453,11 @@ export const zCustomerSummaryWritable = z.object({
 
 export const zInvoiceWritable = z.object({
     order: z.int()
+});
+
+export const zMessageWritable = z.object({
+    role: zMessageRole,
+    text: z.string().optional()
 });
 
 export const zOrderWritable = z.object({
@@ -452,6 +494,13 @@ export const zPaginatedCategoryListWritable = z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
     results: z.array(zCategoryWritable)
+});
+
+export const zPaginatedConversationListWritable = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(z.unknown())
 });
 
 export const zPaginatedCustomerListWritable = z.object({
@@ -575,6 +624,32 @@ export const zUserDetailsWritable = z.object({
     first_name: z.string().max(150).optional(),
     last_name: z.string().max(150).optional()
 });
+
+export const zAssistantConversationsListQuery = z.object({
+    limit: z.int().optional(),
+    offset: z.int().optional()
+});
+
+export const zAssistantConversationsListResponse = zPaginatedConversationList;
+
+export const zAssistantConversationsCreateBody = zConversation;
+
+export const zAssistantConversationsCreateResponse = zConversation;
+
+export const zAssistantConversationsDestroyPath = z.object({
+    id: z.int()
+});
+
+/**
+ * No response body
+ */
+export const zAssistantConversationsDestroyResponse = z.void();
+
+export const zAssistantConversationsRetrievePath = z.object({
+    id: z.int()
+});
+
+export const zAssistantConversationsRetrieveResponse = zConversationDetail;
 
 export const zAuthLoginCreateBody = zLogin;
 

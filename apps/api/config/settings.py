@@ -28,6 +28,9 @@ ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH", default="certifi
 ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH", default="private-key.pem")
 ARCA_ENVIRONMENT = env("ARCA_ENVIRONMENT", default="homologacion")
 
+# Admin assistant (Claude). Without a key the assistant endpoints answer with an error.
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -58,6 +61,7 @@ INSTALLED_APPS = [
     "store",
     "orders",
     "billing",
+    "assistant",
 ]
 
 REST_FRAMEWORK = {
@@ -80,6 +84,7 @@ SPECTACULAR_SETTINGS = {
         "ProductStatus": "orders.models.Product.Status",
         "OrderStatus": "orders.models.Order.Status",
         "InvoiceStatus": "billing.models.Invoice.Status",
+        "MessageRole": "assistant.models.Message.Role",
     },
 }
 

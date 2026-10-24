@@ -10,5 +10,6 @@ urlpatterns = [
     path('auth/', include('dj_rest_auth.urls')),
     path('', include('store.urls')),
     path('', include('orders.urls')),
-    path('', include('billing.urls'))
+    path('', include('billing.urls')),
+    path('', include('assistant.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

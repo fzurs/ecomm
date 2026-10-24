@@ -2,9 +2,16 @@ import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { cn } from "@workspace/ui/lib/utils"
 import React from "react"
+import { AssistantTrigger } from "./assistant/assistant-trigger"
 import { NavBreadcrumb } from "./nav-breadcrumb"
 
-function AppHeader({ className, ...props }: React.ComponentProps<"header">) {
+// Every page renders its own header, so the assistant's button goes here to show up on all of
+// them. AppHeaderNav takes the full width, which keeps it on the right.
+function AppHeader({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"header">) {
   return (
     <header
       className={cn(
@@ -12,7 +19,10 @@ function AppHeader({ className, ...props }: React.ComponentProps<"header">) {
         className
       )}
       {...props}
-    />
+    >
+      {children}
+      <AssistantTrigger />
+    </header>
   )
 }
 

@@ -32,6 +32,21 @@ export type CategoryChoice = {
     description?: string | null;
 };
 
+export type Conversation = {
+    readonly id: number;
+    readonly title: string;
+    readonly created_at: string;
+    readonly updated_at: string;
+};
+
+export type ConversationDetail = {
+    readonly id: number;
+    readonly title: string;
+    readonly created_at: string;
+    readonly updated_at: string;
+    readonly messages: Array<Message>;
+};
+
 export type Customer = {
     readonly id: number;
     name: string;
@@ -93,6 +108,19 @@ export type Login = {
     password: string;
 };
 
+export type Message = {
+    readonly id: number;
+    role: MessageRole;
+    text?: string;
+    readonly created_at: string;
+};
+
+/**
+ * * `user` - User
+ * * `assistant` - Assistant
+ */
+export type MessageRole = 'user' | 'assistant';
+
 export type Order = {
     readonly id: number;
     readonly items: Array<OrderItem>;
@@ -147,6 +175,13 @@ export type PaginatedCategoryList = {
     next?: string | null;
     previous?: string | null;
     results: Array<Category>;
+};
+
+export type PaginatedConversationList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<Conversation>;
 };
 
 export type PaginatedCustomerList = {
@@ -378,6 +413,10 @@ export type CategoryChoiceWritable = {
     description?: string | null;
 };
 
+export type ConversationDetailWritable = {
+    [key: string]: unknown;
+};
+
 export type CustomerWritable = {
     name: string;
     email?: string;
@@ -400,6 +439,11 @@ export type CustomerSummaryWritable = {
 
 export type InvoiceWritable = {
     order: number;
+};
+
+export type MessageWritable = {
+    role: MessageRole;
+    text?: string;
 };
 
 export type OrderWritable = {
@@ -430,6 +474,13 @@ export type PaginatedCategoryListWritable = {
     next?: string | null;
     previous?: string | null;
     results: Array<CategoryWritable>;
+};
+
+export type PaginatedConversationListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<unknown>;
 };
 
 export type PaginatedCustomerListWritable = {
@@ -556,6 +607,80 @@ export type UserDetailsWritable = {
     first_name?: string;
     last_name?: string;
 };
+
+export type AssistantConversationsListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Number of results to return per page.
+         */
+        limit?: number;
+        /**
+         * The initial index from which to return the results.
+         */
+        offset?: number;
+    };
+    url: '/assistant/conversations/';
+};
+
+export type AssistantConversationsListResponses = {
+    200: PaginatedConversationList;
+};
+
+export type AssistantConversationsListResponse = AssistantConversationsListResponses[keyof AssistantConversationsListResponses];
+
+export type AssistantConversationsCreateData = {
+    body?: Conversation;
+    path?: never;
+    query?: never;
+    url: '/assistant/conversations/';
+};
+
+export type AssistantConversationsCreateResponses = {
+    201: Conversation;
+};
+
+export type AssistantConversationsCreateResponse = AssistantConversationsCreateResponses[keyof AssistantConversationsCreateResponses];
+
+export type AssistantConversationsDestroyData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this conversation.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/assistant/conversations/{id}/';
+};
+
+export type AssistantConversationsDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type AssistantConversationsDestroyResponse = AssistantConversationsDestroyResponses[keyof AssistantConversationsDestroyResponses];
+
+export type AssistantConversationsRetrieveData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this conversation.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/assistant/conversations/{id}/';
+};
+
+export type AssistantConversationsRetrieveResponses = {
+    200: ConversationDetail;
+};
+
+export type AssistantConversationsRetrieveResponse = AssistantConversationsRetrieveResponses[keyof AssistantConversationsRetrieveResponses];
 
 export type AuthLoginCreateData = {
     body: Login;

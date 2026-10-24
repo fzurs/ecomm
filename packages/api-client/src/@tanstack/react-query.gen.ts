@@ -4,8 +4,155 @@ import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOption
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesDestroy, invoicesList, invoicesPartialUpdate, invoicesRetrieve, invoicesUpdate, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
-import type { AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesListData, InvoicesListResponse, InvoicesPartialUpdateData, InvoicesPartialUpdateResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesUpdateData, InvoicesUpdateResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesDestroy, invoicesList, invoicesPartialUpdate, invoicesRetrieve, invoicesUpdate, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesListData, InvoicesListResponse, InvoicesPartialUpdateData, InvoicesPartialUpdateResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesUpdateData, InvoicesUpdateResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+
+export type QueryKey<TOptions extends Options> = [
+    Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
+        _id: string;
+        _infinite?: boolean;
+        tags?: ReadonlyArray<string>;
+    }
+];
+
+const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions, infinite?: boolean, tags?: ReadonlyArray<string>): [
+    QueryKey<TOptions>[0]
+] => {
+    const params: QueryKey<TOptions>[0] = { _id: id, baseURL: options?.baseURL || (options?.client ?? client).getConfig().baseURL } as QueryKey<TOptions>[0];
+    if (infinite) {
+        params._infinite = infinite;
+    }
+    if (tags) {
+        params.tags = tags;
+    }
+    if (options?.body) {
+        params.body = options.body;
+    }
+    if (options?.headers) {
+        params.headers = options.headers;
+    }
+    if (options?.path) {
+        params.path = options.path;
+    }
+    if (options?.query) {
+        params.query = options.query;
+    }
+    return [params];
+};
+
+export const assistantConversationsListQueryKey = (options?: Options<AssistantConversationsListData>) => createQueryKey('assistantConversationsList', options);
+
+export const assistantConversationsListOptions = (options?: Options<AssistantConversationsListData>) => queryOptions<AssistantConversationsListResponse, AxiosError<DefaultError>, AssistantConversationsListResponse, ReturnType<typeof assistantConversationsListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await assistantConversationsList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: assistantConversationsListQueryKey(options)
+});
+
+const createInfiniteParams = <K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>>(queryKey: QueryKey<Options>, page: K) => {
+    const params = { ...queryKey[0] };
+    if (page.body) {
+        params.body = {
+            ...queryKey[0].body as any,
+            ...page.body as any
+        };
+    }
+    if (page.headers) {
+        params.headers = {
+            ...queryKey[0].headers,
+            ...page.headers
+        };
+    }
+    if (page.path) {
+        params.path = {
+            ...queryKey[0].path as any,
+            ...page.path as any
+        };
+    }
+    if (page.query) {
+        params.query = {
+            ...queryKey[0].query as any,
+            ...page.query as any
+        };
+    }
+    return params as unknown as typeof page;
+};
+
+export const assistantConversationsListInfiniteQueryKey = (options?: Options<AssistantConversationsListData>): QueryKey<Options<AssistantConversationsListData>> => createQueryKey('assistantConversationsList', options, true);
+
+export const assistantConversationsListInfiniteOptions = (options?: Options<AssistantConversationsListData>) => {
+    const opts = infiniteQueryOptions<AssistantConversationsListResponse, AxiosError<DefaultError>, InfiniteData<AssistantConversationsListResponse>, QueryKey<Options<AssistantConversationsListData>>, number | Pick<QueryKey<Options<AssistantConversationsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<AssistantConversationsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    offset: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await assistantConversationsList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: assistantConversationsListInfiniteQueryKey(options)
+    });
+    return opts as Omit<typeof opts, 'initialData'>;
+};
+
+export const assistantConversationsCreateMutation = (options?: Partial<Options<AssistantConversationsCreateData>>): UseMutationOptions<AssistantConversationsCreateResponse, AxiosError<DefaultError>, Options<AssistantConversationsCreateData>> => {
+    const mutationOptions: UseMutationOptions<AssistantConversationsCreateResponse, AxiosError<DefaultError>, Options<AssistantConversationsCreateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await assistantConversationsCreate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const assistantConversationsDestroyMutation = (options?: Partial<Options<AssistantConversationsDestroyData>>): UseMutationOptions<AssistantConversationsDestroyResponse, AxiosError<DefaultError>, Options<AssistantConversationsDestroyData>> => {
+    const mutationOptions: UseMutationOptions<AssistantConversationsDestroyResponse, AxiosError<DefaultError>, Options<AssistantConversationsDestroyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await assistantConversationsDestroy({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const assistantConversationsRetrieveQueryKey = (options: Options<AssistantConversationsRetrieveData>) => createQueryKey('assistantConversationsRetrieve', options);
+
+export const assistantConversationsRetrieveOptions = (options: Options<AssistantConversationsRetrieveData>) => queryOptions<AssistantConversationsRetrieveResponse, AxiosError<DefaultError>, AssistantConversationsRetrieveResponse, ReturnType<typeof assistantConversationsRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await assistantConversationsRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: assistantConversationsRetrieveQueryKey(options)
+});
 
 /**
  * Check the credentials and return the REST Token
@@ -112,39 +259,6 @@ export const authPasswordResetConfirmCreateMutation = (options?: Partial<Options
     return mutationOptions;
 };
 
-export type QueryKey<TOptions extends Options> = [
-    Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
-        _id: string;
-        _infinite?: boolean;
-        tags?: ReadonlyArray<string>;
-    }
-];
-
-const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions, infinite?: boolean, tags?: ReadonlyArray<string>): [
-    QueryKey<TOptions>[0]
-] => {
-    const params: QueryKey<TOptions>[0] = { _id: id, baseURL: options?.baseURL || (options?.client ?? client).getConfig().baseURL } as QueryKey<TOptions>[0];
-    if (infinite) {
-        params._infinite = infinite;
-    }
-    if (tags) {
-        params.tags = tags;
-    }
-    if (options?.body) {
-        params.body = options.body;
-    }
-    if (options?.headers) {
-        params.headers = options.headers;
-    }
-    if (options?.path) {
-        params.path = options.path;
-    }
-    if (options?.query) {
-        params.query = options.query;
-    }
-    return [params];
-};
-
 export const authUserRetrieveQueryKey = (options?: Options<AuthUserRetrieveData>) => createQueryKey('authUserRetrieve', options);
 
 /**
@@ -232,35 +346,6 @@ export const brandsListOptions = (options?: Options<BrandsListData>) => queryOpt
     },
     queryKey: brandsListQueryKey(options)
 });
-
-const createInfiniteParams = <K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>>(queryKey: QueryKey<Options>, page: K) => {
-    const params = { ...queryKey[0] };
-    if (page.body) {
-        params.body = {
-            ...queryKey[0].body as any,
-            ...page.body as any
-        };
-    }
-    if (page.headers) {
-        params.headers = {
-            ...queryKey[0].headers,
-            ...page.headers
-        };
-    }
-    if (page.path) {
-        params.path = {
-            ...queryKey[0].path as any,
-            ...page.path as any
-        };
-    }
-    if (page.query) {
-        params.query = {
-            ...queryKey[0].query as any,
-            ...page.query as any
-        };
-    }
-    return params as unknown as typeof page;
-};
 
 export const brandsListInfiniteQueryKey = (options?: Options<BrandsListData>): QueryKey<Options<BrandsListData>> => createQueryKey('brandsList', options, true);
 
