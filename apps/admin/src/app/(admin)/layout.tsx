@@ -24,7 +24,9 @@ export default function AdminLayout({
       >
         <AssistantProvider>
           <AppSidebar />
-          <SidebarInset>{children}</SidebarInset>
+          {/* min-w-0: without it a long header title widens the whole page
+              instead of truncating. */}
+          <SidebarInset className="min-w-0">{children}</SidebarInset>
         </AssistantProvider>
       </SidebarProvider>
     </AuthGuard>

@@ -11,7 +11,10 @@ import React from "react"
 
 type NavLink = { label: string; href: string }
 
-/** `parents` are the links leading to the current `page`, in order. */
+/**
+ * `parents` are the links leading to the current `page`, in order. It stays on
+ * one line: a long `page` is truncated.
+ */
 function NavBreadcrumb({
   parents = [],
   page,
@@ -20,11 +23,11 @@ function NavBreadcrumb({
   page: string
 }) {
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
+    <Breadcrumb className="min-w-0">
+      <BreadcrumbList className="flex-nowrap">
         {parents.map((link) => (
           <React.Fragment key={link.href}>
-            <BreadcrumbItem>
+            <BreadcrumbItem className="shrink-0">
               <BreadcrumbLink render={<Link href={link.href} />}>
                 {link.label}
               </BreadcrumbLink>
@@ -32,8 +35,10 @@ function NavBreadcrumb({
             <BreadcrumbSeparator />
           </React.Fragment>
         ))}
-        <BreadcrumbItem>
-          <BreadcrumbPage>{page}</BreadcrumbPage>
+        <BreadcrumbItem className="min-w-0">
+          <BreadcrumbPage className="truncate" title={page}>
+            {page}
+          </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
