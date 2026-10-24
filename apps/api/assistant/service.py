@@ -13,7 +13,8 @@ from .tools import run_tool, tool_definitions
 
 logger = logging.getLogger(__name__)
 
-MODEL = 'claude-opus-5-5'
+# The fastest model: answering from a few tool results doesn't need a bigger one.
+MODEL = 'claude-haiku-5-5'
 # Tool calls per answer; past it the turn ends with an error.
 MAX_STEPS = 10
 # Retries of one step whose tool input came back as unparseable JSON.
@@ -87,19 +88,17 @@ def _run(conversation, history):
     steps = 0
     while True:
         try:
-            with client.beta.messages.stream(
+            with client.messages.stream(
                 model=MODEL,
                 max_tokens=64000,
                 system=SYSTEM,
                 tools=tool_definitions(),
                 messages=history,
                 thinking={'type': 'adaptive'},
-                output_config={'effort': 'medium'},
+                # Low effort: less thinking before answering, which is what makes it fast.
+                output_config={'effort': 'low'},
                 # Caches the whole prefix up to the last message.
                 cache_control={'type': 'ephemeral'},
-                # If a safety classifier declines, the API retries on its recommended model.
-                betas=['server-side-fallback-2026-07-01'],
-                fallbacks='default',
             ) as stream:
                 for event in stream:
                     if event.type == 'text':

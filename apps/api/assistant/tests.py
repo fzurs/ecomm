@@ -3,7 +3,7 @@ import tempfile
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock
+from anthropic.types import Message as APIMessage, TextBlock, ToolUseBlock
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -101,12 +101,12 @@ def fake_client(*messages):
         client.requests.append({**request, 'messages': list(request['messages'])})
         return FakeStream(next(responses))
 
-    client.beta = SimpleNamespace(messages=SimpleNamespace(stream=stream))
+    client.messages = SimpleNamespace(stream=stream)
     return client
 
 
 def message(stop_reason, *content):
-    return BetaMessage.model_construct(content=list(content), stop_reason=stop_reason)
+    return APIMessage.model_construct(content=list(content), stop_reason=stop_reason)
 
 
 def parse_events(response):
@@ -135,7 +135,7 @@ class ReplyTests(APITestCase):
             return parse_events(response)
 
     def test_streams_the_answer_and_saves_it(self):
-        client = fake_client(message('end_turn', BetaTextBlock(type='text', text='Hola')))
+        client = fake_client(message('end_turn', TextBlock(type='text', text='Hola')))
         events = self.post(client)
 
         self.assertEqual(events, [('text', {'delta': 'Hola'}), ('done', {'conversation': self.conversation.pk})])
@@ -147,10 +147,10 @@ class ReplyTests(APITestCase):
         self.assertIn('Página: /orders', client.requests[0]['messages'][0]['content'][0]['text'])
 
     def test_runs_the_tools_and_sends_back_the_results(self):
-        tool_use = BetaToolUseBlock(type='tool_use', id='toolu_1', name='get_order', input={'number': self.order.number})
+        tool_use = ToolUseBlock(type='tool_use', id='toolu_1', name='get_order', input={'number': self.order.number})
         client = fake_client(
             message('tool_use', tool_use),
-            message('end_turn', BetaTextBlock(type='text', text='Está pagado.')),
+            message('end_turn', TextBlock(type='text', text='Está pagado.')),
         )
         events = self.post(client)
 
@@ -161,15 +161,15 @@ class ReplyTests(APITestCase):
         self.assertEqual(json.loads(result['content'])['number'], self.order.number)
 
     def test_resumes_the_saved_history(self):
-        self.post(fake_client(message('end_turn', BetaTextBlock(type='text', text='Hola'))))
-        client = fake_client(message('end_turn', BetaTextBlock(type='text', text='Chau')))
+        self.post(fake_client(message('end_turn', TextBlock(type='text', text='Hola'))))
+        client = fake_client(message('end_turn', TextBlock(type='text', text='Chau')))
         self.post(client, 'Gracias')
 
         self.assertEqual([m['role'] for m in client.requests[0]['messages']], ['user', 'assistant', 'user'])
         self.assertEqual(client.requests[0]['messages'][1]['content'], [{'type': 'text', 'text': 'Hola'}])
 
     def test_answers_the_tool_uses_it_doesnt_run(self):
-        tool_use = BetaToolUseBlock(type='tool_use', id='toolu_1', name='get_order', input={'number': 'ORD-0'})
+        tool_use = ToolUseBlock(type='tool_use', id='toolu_1', name='get_order', input={'number': 'ORD-0'})
         events = self.post(fake_client(message('max_tokens', tool_use)))
 
         self.assertEqual(events[-2][0], 'error')
