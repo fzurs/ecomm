@@ -11,7 +11,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import { productStatusOptions } from "../_lib/product-status"
 import { invalidateProducts } from "../_lib/invalidate-products"
-import { productFormSchema, toProductFormValues } from "../_lib/product-schema"
+import {
+  previewActivePrice,
+  productFormSchema,
+  toProductFormValues,
+} from "../_lib/product-schema"
 import {
   InputGroupAddon,
   InputGroupButton,
@@ -20,7 +24,7 @@ import { SparklesIcon } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { formOptions } from "@tanstack/react-form"
 import { useAppForm, useTypedAppFormContext, withForm } from "@/hooks/form"
-import { applyServerErrors, getFormFieldId } from "@/lib/utils"
+import { applyServerErrors, formatPrice, getFormFieldId } from "@/lib/utils"
 import { Product, ProductWritable } from "@workspace/api-client"
 import {
   productsGenerateSkuCreateMutation,
@@ -52,7 +56,7 @@ const defaultValues: ProductEditFormValues = {
   brand_id: null,
   featured: false,
   price: null,
-  discount_price: null,
+  discount_percent: null,
   imageFile: null,
   clearImage: false,
 }
@@ -87,7 +91,7 @@ export function useProductEditForm({
     formId: `update-product-form-${product.id}`,
     defaultValues: values,
     onSubmit: async ({
-      value: { imageFile, clearImage, discount_price, ...value },
+      value: { imageFile, clearImage, discount_percent, ...value },
       formApi,
     }) => {
       // Sent as multipart for the image upload: "" clears a field, since a
@@ -95,7 +99,7 @@ export function useProductEditForm({
       const body: ProductWritable = {
         ...value,
         image: clearImage ? "" : ((imageFile as never) ?? undefined),
-        discount_price: discount_price ?? ("" as never),
+        discount_percent: discount_percent ?? ("" as never),
       }
       try {
         const updated = await mutateAsync({
@@ -277,15 +281,33 @@ export const ProductEditForm = withForm({
                   />
                 )}
               />
-              <form.AppField
-                name="discount_price"
-                children={(field) => (
-                  <field.NumberField
-                    label="Discount"
-                    description="Discounted price after applying any promotions or coupon codes."
+              <form.Subscribe
+                selector={(state) =>
+                  previewActivePrice(
+                    state.values.price,
+                    state.values.discount_percent
+                  )
+                }
+              >
+                {(finalPrice) => (
+                  <form.AppField
+                    name="discount_percent"
+                    children={(field) => (
+                      <field.NumberField
+                        label="Discount (%)"
+                        description={
+                          finalPrice != null
+                            ? `Final price: ${formatPrice(finalPrice)}`
+                            : "Percentage off the price, from 1 to 99."
+                        }
+                        min={1}
+                        max={99}
+                        step={1}
+                      />
+                    )}
                   />
                 )}
-              />
+              </form.Subscribe>
             </div>
           </FieldGroup>
         </form.Form>

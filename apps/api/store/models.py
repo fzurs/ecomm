@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
@@ -65,12 +66,19 @@ class Product(NamedSlugModel):
     featured = models.BooleanField(default=False)
 
     price = models.PositiveIntegerField(default=0, blank=True, null=True)
-    discount_price = models.PositiveIntegerField(blank=True, null=True)
+    discount_percent = models.PositiveSmallIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(99)])
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(discount_percent__isnull=True) | models.Q(discount_percent__range=(1, 99)),
+                name='product_discount_percent_range',
+            ),
+        ]
 
     def generate_sku(self):
         """Sets and saves the SKU built by `build_sku`. Needs a saved product, since it uses the pk."""
@@ -87,14 +95,11 @@ class Product(NamedSlugModel):
 
     @property
     def has_discount(self):
-        return self.discount_price is not None and self.discount_price < self.price
-
-    @property
-    def discount_porcentage(self):
-        if self.has_discount:
-            return round((1 - self.discount_price / self.price) * 100)
-        return 0
+        return bool(self.discount_percent and self.price)
 
     @property
     def active_price(self):
-        return self.discount_price if self.has_discount else self.price
+        """`price` with `discount_percent` applied, rounded half up to the unit."""
+        if not self.has_discount:
+            return self.price
+        return (self.price * (100 - self.discount_percent) + 50) // 100

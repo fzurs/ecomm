@@ -220,6 +220,46 @@ class ProductSearchTests(APITestCase):
         self.assertEqual([p['name'] for p in response.json()['results']], ['ACME Saw'])
 
 
+class ActivePriceTests(SimpleTestCase):
+    def test_without_discount_is_the_price(self):
+        self.assertEqual(Product(price=1000).active_price, 1000)
+
+    def test_applies_discount_percent(self):
+        self.assertEqual(Product(price=1000, discount_percent=15).active_price, 850)
+
+    def test_rounds_half_up(self):
+        self.assertEqual(Product(price=45, discount_percent=10).active_price, 41)  # 40.5
+
+    def test_without_price_has_no_discount(self):
+        product = Product(price=None, discount_percent=10)
+        self.assertFalse(product.has_discount)
+        self.assertIsNone(product.active_price)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class DiscountPercentTests(APITestCase):
+    def setUp(self):
+        self.client.force_login(get_user_model().objects.create(username='admin'))
+
+    def test_api_returns_active_price(self):
+        response = self.client.post(
+            reverse('product-list'), {'name': 'ACME Hammer', 'price': 1000, 'discount_percent': 20})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()['active_price'], 800)
+
+    def test_api_rejects_out_of_range_percent(self):
+        for percent in (0, 100):
+            with self.subTest(percent=percent):
+                response = self.client.post(
+                    reverse('product-list'), {'name': f'ACME {percent}', 'price': 1000, 'discount_percent': percent})
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('discount_percent', response.json())
+
+    def test_db_rejects_out_of_range_percent(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Product.objects.create(name='ACME Hammer', price=1000, discount_percent=100)
+
+
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProductDestroyTests(APITestCase):
     def setUp(self):

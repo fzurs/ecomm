@@ -14,11 +14,21 @@ export const productFormSchema = zProductWritable
     status: true,
     featured: true,
     price: true,
-    discount_price: true,
+    discount_percent: true,
   })
   .extend({ name: z.string().trim().min(1, "Name is required").max(255) })
 
 export type ProductFormValues = z.infer<typeof productFormSchema>
+
+// Preview only, while editing: mirrors `Product.active_price` in the API
+// (rounded half up), which stays the source of truth once saved.
+export function previewActivePrice(
+  price: number | null | undefined,
+  discountPercent: number | null | undefined
+) {
+  if (!price || !discountPercent) return null
+  return Math.floor((price * (100 - discountPercent) + 50) / 100)
+}
 
 export function toProductFormValues(product: Product): ProductFormValues {
   return {
@@ -30,6 +40,6 @@ export function toProductFormValues(product: Product): ProductFormValues {
     status: product.status,
     featured: product.featured ?? false,
     price: product.price ?? null,
-    discount_price: product.discount_price ?? null,
+    discount_percent: product.discount_percent ?? null,
   }
 }

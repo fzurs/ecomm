@@ -47,13 +47,13 @@ export function ProductsTable() {
     const {
       name: search,
       price,
-      discount_price,
+      discount_percent,
       created_at,
       ...rest
     } = columnFilters
 
     const [price_min, price_max] = price ?? []
-    const [discount_price_min, discount_price_max] = discount_price ?? []
+    const [discount_percent_min, discount_percent_max] = discount_percent ?? []
 
     const [created_at_after, created_at_before] =
       created_at?.map((date) => formatISO(date, { representation: "date" })) ??
@@ -65,8 +65,8 @@ export function ProductsTable() {
       search,
       price_min,
       price_max,
-      discount_price_min,
-      discount_price_max,
+      discount_percent_min,
+      discount_percent_max,
       created_at_after,
       created_at_before,
     }

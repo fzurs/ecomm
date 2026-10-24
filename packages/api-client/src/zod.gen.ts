@@ -245,6 +245,7 @@ export const zPatchedProduct = z.object({
     brand_id: z.int().nullish(),
     category: zCategory.nullish(),
     category_id: z.int().nullish(),
+    active_price: z.int().readonly().nullish(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255).optional(),
     sku: z.string().max(255).nullish(),
@@ -253,7 +254,7 @@ export const zPatchedProduct = z.object({
     status: zProductStatus.optional(),
     featured: z.boolean().optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
     created_at: z.iso.datetime().readonly().optional()
 });
 
@@ -263,6 +264,7 @@ export const zProduct = z.object({
     brand_id: z.int().nullish(),
     category: zCategory.nullable(),
     category_id: z.int().nullish(),
+    active_price: z.int().readonly().nullable(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
     sku: z.string().max(255).nullish(),
@@ -271,7 +273,7 @@ export const zProduct = z.object({
     status: zProductStatus.optional(),
     featured: z.boolean().optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
     created_at: z.iso.datetime().readonly()
 });
 
@@ -512,7 +514,7 @@ export const zPatchedProductWritable = z.object({
     status: zProductStatus.optional(),
     featured: z.boolean().optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_price: z.int().gte(0).lte(2147483647).nullish()
+    discount_percent: z.int().gte(1).lte(99).nullish()
 });
 
 /**
@@ -535,7 +537,7 @@ export const zProductWritable = z.object({
     status: zProductStatus.optional(),
     featured: z.boolean().optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_price: z.int().gte(0).lte(2147483647).nullish()
+    discount_percent: z.int().gte(1).lte(99).nullish()
 });
 
 export const zPaginatedProductListWritable = z.object({
@@ -850,8 +852,8 @@ export const zProductsListQuery = z.object({
     category: z.array(z.string()).optional(),
     created_at_after: z.iso.date().optional(),
     created_at_before: z.iso.date().optional(),
-    discount_price_max: z.int().gte(0).lte(2147483647).nullish(),
-    discount_price_min: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent_max: z.int().gte(1).lte(99).nullish(),
+    discount_percent_min: z.int().gte(1).lte(99).nullish(),
     featured: z.boolean().optional(),
     limit: z.int().optional(),
     offset: z.int().optional(),
@@ -918,8 +920,8 @@ export const zProductsListChoicesQuery = z.object({
     category: z.array(z.string()).optional(),
     created_at_after: z.iso.date().optional(),
     created_at_before: z.iso.date().optional(),
-    discount_price_max: z.int().gte(0).lte(2147483647).nullish(),
-    discount_price_min: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent_max: z.int().gte(1).lte(99).nullish(),
+    discount_percent_min: z.int().gte(1).lte(99).nullish(),
     featured: z.boolean().optional(),
     ordering: z.string().optional(),
     price_max: z.int().gte(0).lte(2147483647).nullish(),

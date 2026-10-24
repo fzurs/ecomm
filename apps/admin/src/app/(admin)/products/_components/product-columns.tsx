@@ -136,12 +136,25 @@ export function getProductColumns({
       },
     },
     {
-      accessorKey: "discount_price",
+      accessorKey: "discount_percent",
       header: "Discount",
-      cell: ({ row }) => formatPrice(row.original.discount_price),
+      cell: ({ row }) =>
+        row.original.discount_percent != null &&
+        `${row.original.discount_percent}%`,
       meta: {
         className: "text-amber-500",
         variant: "range",
+      },
+    },
+    {
+      // A model property in the API, not a column: it can't be sorted or filtered.
+      accessorKey: "active_price",
+      header: "Final price",
+      cell: ({ row }) => formatPrice(row.original.active_price),
+      enableSorting: false,
+      meta: {
+        thClassName: "text-right",
+        className: "text-right",
       },
     },
     {

@@ -5,15 +5,13 @@ import { cn } from "@workspace/ui/lib/utils"
 export function ProductPrice({
   size = "md",
   price,
-  discount_price: discountPrice,
+  discount_percent: discountPercent,
+  active_price: activePrice,
   slug,
 }: Product & {
   size?: "lg" | "md"
 }) {
-  const isDiscount = !!discountPrice && discountPrice > 0
-  const discountPercentage =
-    price && isDiscount ? Math.ceil((discountPrice * 100) / price) : null
-  const finalPrice = price && isDiscount ? price - discountPrice : price
+  const isDiscount = !!price && !!discountPercent
   return (
     <section id={`${slug}-price`}>
       {isDiscount && (
@@ -23,16 +21,16 @@ export function ProductPrice({
             size === "lg" ? "text-sm" : "text-xs"
           )}
         >
-          $ {price ?? "---"}
+          $ {price}
         </span>
       )}
       <div className="flex items-center gap-2">
         <span className={cn(size === "lg" ? "text-2xl" : "text-xl")}>
-          $ {finalPrice || "---"}
+          $ {activePrice || "---"}
         </span>
-        {discountPercentage && (
+        {isDiscount && (
           <Badge variant="secondary" className={cn(size === "lg" && "text-sm")}>
-            % {discountPercentage} OFF
+            % {discountPercent} OFF
           </Badge>
         )}
       </div>

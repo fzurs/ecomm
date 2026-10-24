@@ -51,6 +51,8 @@ class ProductSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
 
+    active_price = serializers.IntegerField(read_only=True, allow_null=True)
+
     class Meta:
         model = Product
         fields = serializers.ALL_FIELDS

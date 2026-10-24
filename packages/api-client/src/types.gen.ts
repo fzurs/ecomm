@@ -251,6 +251,7 @@ export type PatchedProduct = {
     brand_id?: number | null;
     category?: Category | null;
     category_id?: number | null;
+    readonly active_price?: number | null;
     slug?: string;
     name?: string;
     sku?: string | null;
@@ -259,7 +260,7 @@ export type PatchedProduct = {
     status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
-    discount_price?: number | null;
+    discount_percent?: number | null;
     readonly created_at?: string;
 };
 
@@ -289,6 +290,7 @@ export type Product = {
     brand_id?: number | null;
     category: Category | null;
     category_id?: number | null;
+    readonly active_price: number | null;
     slug?: string;
     name: string;
     sku?: string | null;
@@ -297,7 +299,7 @@ export type Product = {
     status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
-    discount_price?: number | null;
+    discount_percent?: number | null;
     readonly created_at: string;
 };
 
@@ -494,7 +496,7 @@ export type PatchedProductWritable = {
     status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
-    discount_price?: number | null;
+    discount_percent?: number | null;
 };
 
 /**
@@ -520,7 +522,7 @@ export type ProductWritable = {
     status?: ProductStatus;
     featured?: boolean;
     price?: number | null;
-    discount_price?: number | null;
+    discount_percent?: number | null;
 };
 
 export type ProductChoiceWritable = {
@@ -1284,8 +1286,8 @@ export type ProductsListData = {
         category?: Array<string>;
         created_at_after?: string;
         created_at_before?: string;
-        discount_price_max?: number | null;
-        discount_price_min?: number | null;
+        discount_percent_max?: number | null;
+        discount_percent_min?: number | null;
         featured?: boolean;
         /**
          * Number of results to return per page.
@@ -1422,8 +1424,8 @@ export type ProductsListChoicesData = {
         category?: Array<string>;
         created_at_after?: string;
         created_at_before?: string;
-        discount_price_max?: number | null;
-        discount_price_min?: number | null;
+        discount_percent_max?: number | null;
+        discount_percent_min?: number | null;
         featured?: boolean;
         /**
          * Which field to use when ordering the results.
