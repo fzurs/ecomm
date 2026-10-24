@@ -1,8 +1,8 @@
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { customerColumns } from "./customer-columns"
-import { parseAsString, useQueryState } from "nuqs"
 import { useMemo } from "react"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useSearch } from "@/hooks/use-search"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { customersListOptions } from "@workspace/api-client/query"
 import { DataTable } from "@workspace/data-table/components/data-table"
@@ -16,10 +16,7 @@ export function CustomersTable() {
   const ordering = useOrdering()
   const pagination = usePagination()
 
-  const [search, setSearch] = useQueryState(
-    "search",
-    parseAsString.withDefault("")
-  )
+  const [search, setSearch] = useSearch()
   const debouncedSearch = useDebounce(search, 300)
 
   const queryFilters = useMemo<CustomersListData["query"]>(
@@ -39,8 +36,9 @@ export function CustomersTable() {
       <DataTableAdvancedToolbar table={table}>
         <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search for a customers..."
+          onValueChange={setSearch}
+          count={data?.count}
+          placeholder="Search customers..."
         />
       </DataTableAdvancedToolbar>
     </DataTable>

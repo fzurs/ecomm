@@ -10,12 +10,7 @@ import {
   ordersListQueryKey,
 } from "@workspace/api-client/query"
 import { zOrderStatus } from "@workspace/api-client/zod"
-import {
-  parseAsArrayOf,
-  parseAsString,
-  parseAsStringEnum,
-  useQueryState,
-} from "nuqs"
+import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { orderColumns } from "./_components/order-columns"
 import { OrderStatusFilter } from "./_components/order-status-filter"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
@@ -36,6 +31,7 @@ import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { SearchInput } from "@/components/search-input"
+import { useSearch } from "@/hooks/use-search"
 import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
@@ -51,7 +47,7 @@ export default function OrdersPage() {
     status: parseAsArrayOf(parseAsStringEnum(zOrderStatus.options)),
   })
 
-  const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
+  const [search, setSearch] = useSearch()
 
   const queryFilters = useMemo<OrdersListData["query"]>(
     () => ({ ...columnFilters, ordering, search }),
@@ -113,8 +109,9 @@ export default function OrdersPage() {
             <SearchInput
               className="flex min-w-64 flex-1"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search orders..."
+              onValueChange={setSearch}
+              count={data?.count}
+              placeholder="Search by customer name or email..."
             />
             <OrderStatusFilter column={table.getColumn("status")} />
             <DataTableSortMenu table={table} />

@@ -4,7 +4,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query"
-import { parseAsString, useQueryState } from "nuqs"
 import { CategoriesListData } from "@workspace/api-client"
 import {
   categoriesListOptions,
@@ -18,6 +17,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
+import { useSearch } from "@/hooks/use-search"
 import { categoryColumns } from "./category-columns"
 
 const DEBOUNCE_DELAY = 300
@@ -29,10 +29,7 @@ export function CategoriesTable() {
   const ordering = useOrdering()
   const columnFilters = useFilters(categoryColumns)
 
-  const [search, setSearch] = useQueryState(
-    "search",
-    parseAsString.withDefault("")
-  )
+  const [search, setSearch] = useSearch()
 
   const queryFilters = useMemo<CategoriesListData["query"]>(
     () => ({ ...columnFilters, ordering, search }),
@@ -79,8 +76,9 @@ export function CategoriesTable() {
       <DataTableAdvancedToolbar table={table}>
         <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search for a categories..."
+          onValueChange={setSearch}
+          count={data?.count}
+          placeholder="Search categories..."
         />
       </DataTableAdvancedToolbar>
     </DataTable>

@@ -21,7 +21,10 @@
 
 ## Páginas de listado
 - Estado en la URL con `nuqs` (`useQueryState`, `parseAs*`).
-- Hooks compartidos en `src/hooks/`: `usePagination`, `useOrdering`, `useFilters`, `useDebounce`.
+- Hooks compartidos en `src/hooks/`: `usePagination`, `useOrdering`, `useFilters`, `useDebounce`,
+  `useSearch` (param `search` de la URL; al cambiar vuelve a la página 1).
+- Búsqueda: `SearchInput` con `value`/`onValueChange` de `useSearch()` y `count={data?.count}`
+  para mostrar el total de resultados.
 - Tablas: `@workspace/data-table` (`useDataTable`, `DataTable`, `DataTableAdvancedToolbar`,
   `DataTableSelectFilter` / `DataTableMultiSelectFilter`, `DataTableSortMenu`) + `SearchInput` de
   `src/components/`.

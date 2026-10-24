@@ -1,6 +1,5 @@
 import { useMemo } from "react"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
-import { parseAsString, useQueryState } from "nuqs"
 import { BrandsListData } from "@workspace/api-client"
 import { brandsListOptions } from "@workspace/api-client/query"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
@@ -9,15 +8,13 @@ import { SearchInput } from "@/components/search-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
+import { useSearch } from "@/hooks/use-search"
 import { brandColumns } from "./brand-columns"
 
 export function BrandsTable() {
   const ordering = useOrdering()
   const pagination = usePagination()
-  const [search, setSearch] = useQueryState(
-    "search",
-    parseAsString.withDefault("")
-  )
+  const [search, setSearch] = useSearch()
 
   const debouncedSearch = useDebounce(search, 300)
 
@@ -41,8 +38,9 @@ export function BrandsTable() {
     <DataTable table={table}>
       <SearchInput
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search for a brands..."
+        onValueChange={setSearch}
+        count={data?.count}
+        placeholder="Search brands..."
       />
     </DataTable>
   )
