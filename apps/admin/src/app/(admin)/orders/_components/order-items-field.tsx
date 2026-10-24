@@ -25,10 +25,9 @@ export function OrderItemsField({
           (product) => product.id === orderItem.product
         )
 
-        const subtotal =
-          product?.price && orderItem.quantity
-            ? product.price * orderItem.quantity
-            : 0
+        // A preview: the API sets the unit price from active_price on create.
+        const unitPrice = product?.active_price ?? 0
+        const subtotal = unitPrice * (orderItem.quantity ?? 0)
 
         return {
           id: -1,
@@ -36,7 +35,7 @@ export function OrderItemsField({
           product: product?.id ?? 0,
           product_detail: product as Product,
           quantity: orderItem.quantity,
-          unit_price: product?.price ?? 0,
+          unit_price: unitPrice,
         }
       }),
     [orderItems, products]

@@ -24,9 +24,11 @@ class CustomerSummarySerializer(serializers.ModelSerializer):
 
 
 class ProductSummarySerializer(serializers.ModelSerializer):
+    active_price = serializers.IntegerField(read_only=True, allow_null=True)
+
     class Meta:
         model = Product
-        fields = ["id", "slug", "name", "price", "image"]
+        fields = ["id", "slug", "name", "price", "discount_percent", "active_price", "image"]
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

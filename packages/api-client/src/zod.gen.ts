@@ -221,6 +221,8 @@ export const zProductChoice = z.object({
     name: z.string().max(255),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    active_price: z.int().readonly().nullable(),
     image: z.url().nullish()
 });
 
@@ -289,6 +291,8 @@ export const zProductSummary = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
     price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    active_price: z.int().readonly().nullable(),
     image: z.url().nullish()
 });
 
@@ -551,6 +555,7 @@ export const zProductChoiceWritable = z.object({
     name: z.string().max(255),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
     image: z.url().nullish()
 });
 
@@ -558,6 +563,7 @@ export const zProductSummaryWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
     price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
     image: z.url().nullish()
 });
 

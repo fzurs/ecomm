@@ -101,7 +101,7 @@ class OrderItem(models.Model):
 
     def save(self, *args, **kwargs):
         if self._state.adding and not self.unit_price:
-            self.unit_price = self.product.price
+            self.unit_price = self.product.active_price
         return super().save(*args, **kwargs)
 
     def __str__(self):

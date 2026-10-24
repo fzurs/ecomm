@@ -113,8 +113,18 @@ export function AddOrderItem({
                       </ItemMedia>
                       <ItemContent>
                         <ItemTitle>{product.name}</ItemTitle>
-                        <ItemDescription>
-                          {formatPrice(product.price)}
+                        <ItemDescription className="flex items-center gap-1.5">
+                          {formatPrice(product.active_price)}
+                          {product.discount_percent && (
+                            <>
+                              <span className="line-through">
+                                {formatPrice(product.price)}
+                              </span>
+                              <Badge variant="secondary">
+                                -{product.discount_percent}%
+                              </Badge>
+                            </>
+                          )}
                         </ItemDescription>
                       </ItemContent>
                       {isSelected && (

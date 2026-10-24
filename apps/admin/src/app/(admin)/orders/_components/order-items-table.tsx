@@ -45,7 +45,10 @@ export function OrderItemsTable({
       </TableHeader>
       <TableBody>
         {orderItems.map(
-          ({ product_detail: product, quantity, subtotal }, index) => (
+          (
+            { product_detail: product, quantity, unit_price, subtotal },
+            index
+          ) => (
             <TableRow key={index}>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -59,8 +62,9 @@ export function OrderItemsTable({
               <TableCell className="text-center">
                 {renderQuantity?.(index) ?? quantity}
               </TableCell>
+              {/* The price the order was made at, not the product's current one. */}
               <TableCell className="text-center">
-                {formatPrice(product.price)}
+                {formatPrice(unit_price)}
               </TableCell>
               <TableCell className="text-right font-semibold">
                 {formatPrice(subtotal)}

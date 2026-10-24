@@ -132,6 +132,22 @@ class OrderCreateTests(OrderTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['items'][0]['unit_price'], 10)
 
+    def test_unit_price_applies_the_product_discount(self):
+        product = self.create_product(price=1000)
+        product.discount_percent = 15
+        product.save()
+        response = self.post_order([{'product': product.pk, 'quantity': 2}])
+        self.assertEqual(response.data['items'][0]['unit_price'], 850)
+        self.assertEqual(response.data['total'], 1700)
+
+    def test_unit_price_does_not_follow_later_discount_changes(self):
+        product = self.create_product(price=1000)
+        response = self.post_order([{'product': product.pk}])
+        product.discount_percent = 50
+        product.save()
+        response = self.client.get(reverse('order-detail', args=[response.data['number']]))
+        self.assertEqual(response.data['items'][0]['unit_price'], 1000)
+
     def test_unit_price_does_not_follow_later_price_changes(self):
         product = self.create_product(price=10)
         response = self.post_order([{'product': product.pk}])

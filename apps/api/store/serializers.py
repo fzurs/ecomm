@@ -27,9 +27,11 @@ class CategoryChoiceSerializer(serializers.ModelSerializer):
 
 
 class ProductChoiceSerializer(serializers.ModelSerializer):
+    active_price = serializers.IntegerField(read_only=True, allow_null=True)
+
     class Meta:
         model = Product
-        fields = ["id", "name", "slug", "price", "image"]
+        fields = ["id", "name", "slug", "price", "discount_percent", "active_price", "image"]
 
 
 class ProductSerializer(serializers.ModelSerializer):

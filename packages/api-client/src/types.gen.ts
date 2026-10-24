@@ -308,6 +308,8 @@ export type ProductChoice = {
     name: string;
     slug?: string;
     price?: number | null;
+    discount_percent?: number | null;
+    readonly active_price: number | null;
     image?: string | null;
 };
 
@@ -325,6 +327,8 @@ export type ProductSummary = {
     slug?: string;
     name: string;
     price?: number | null;
+    discount_percent?: number | null;
+    readonly active_price: number | null;
     image?: string | null;
 };
 
@@ -529,6 +533,7 @@ export type ProductChoiceWritable = {
     name: string;
     slug?: string;
     price?: number | null;
+    discount_percent?: number | null;
     image?: string | null;
 };
 
@@ -536,6 +541,7 @@ export type ProductSummaryWritable = {
     slug?: string;
     name: string;
     price?: number | null;
+    discount_percent?: number | null;
     image?: string | null;
 };
 
