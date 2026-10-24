@@ -1,12 +1,19 @@
-import type { Table } from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table"
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from "lucide-react";
+} from "lucide-react"
 
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+} from "@workspace/ui/components/pagination"
 import {
   Select,
   SelectContent,
@@ -14,12 +21,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@workspace/ui/components/select";
-import { cn } from "@workspace/ui/lib/utils";
+} from "@workspace/ui/components/select"
+import { cn } from "@workspace/ui/lib/utils"
+import { getPageItems } from "../lib/pagination"
+
+const numberFormat = new Intl.NumberFormat("en-US")
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<"div"> {
-  table: Table<TData>;
-  pageSizeOptions?: number[];
+  table: Table<TData>
+  pageSizeOptions?: number[]
 }
 
 export function DataTablePagination<TData>({
@@ -28,88 +38,158 @@ export function DataTablePagination<TData>({
   className,
   ...props
 }: DataTablePaginationProps<TData>) {
+  const { pageIndex, pageSize } = table.getState().pagination
+  const pageCount = Math.max(table.getPageCount(), 1)
+  const rowCount = table.getRowCount()
+  const from = rowCount ? pageIndex * pageSize + 1 : 0
+  const to = Math.min((pageIndex + 1) * pageSize, rowCount)
+
+  const goToPage = (value: string) => {
+    const page = Number.parseInt(value, 10)
+    if (Number.isNaN(page)) return
+    table.setPageIndex(Math.min(Math.max(page, 1), pageCount) - 1)
+  }
+
   return (
     <div
       className={cn(
-        "flex w-full flex-col-reverse items-center justify-end gap-4 overflow-auto p-1 sm:flex-row sm:gap-8",
+        "flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 lg:flex-row",
         className
       )}
       {...props}
     >
-      {/* <div className="flex-1 whitespace-nowrap text-muted-foreground text-sm">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
-      </div> */}
-      <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
-        <div className="flex items-center space-x-2">
-          <p className="whitespace-nowrap font-medium text-sm">Rows per page</p>
+      <p className="text-sm whitespace-nowrap text-muted-foreground">
+        {rowCount ? (
+          <>
+            Showing{" "}
+            <span className="font-medium text-foreground">
+              {numberFormat.format(from)}–{numberFormat.format(to)}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-foreground">
+              {numberFormat.format(rowCount)}
+            </span>
+          </>
+        ) : (
+          "No results"
+        )}
+      </p>
+
+      <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
+            value={`${pageSize}`}
+            onValueChange={(value) => table.setPageSize(Number(value))}
           >
             <SelectTrigger className="h-8 w-[4.5rem] [&[data-size]]:h-8">
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
+              <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
               <SelectGroup>
-                {pageSizeOptions.map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
+                {pageSizeOptions.map((option) => (
+                  <SelectItem key={option} value={`${option}`}>
+                    {option}
                   </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center justify-center font-medium text-sm">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            aria-label="Go to first page"
-            variant="outline"
-            size="icon"
-            className="hidden size-8 lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronsLeft />
-          </Button>
-          <Button
-            aria-label="Go to previous page"
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft />
-          </Button>
-          <Button
-            aria-label="Go to next page"
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRight />
-          </Button>
-          <Button
-            aria-label="Go to last page"
-            variant="outline"
-            size="icon"
-            className="hidden size-8 lg:flex"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronsRight />
-          </Button>
-        </div>
+
+        <Pagination className="mx-0 w-auto">
+          <PaginationContent>
+            <PaginationItem>
+              <Button
+                aria-label="Go to first page"
+                variant="outline"
+                size="icon-sm"
+                onClick={() => table.firstPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <ChevronsLeft />
+              </Button>
+            </PaginationItem>
+            <PaginationItem>
+              <Button
+                aria-label="Go to previous page"
+                variant="outline"
+                size="icon-sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <ChevronLeft />
+              </Button>
+            </PaginationItem>
+
+            {getPageItems(pageIndex, pageCount).map((item) =>
+              typeof item === "number" ? (
+                <PaginationItem key={item} className="hidden md:block">
+                  <Button
+                    aria-label={`Go to page ${item + 1}`}
+                    aria-current={item === pageIndex ? "page" : undefined}
+                    variant={item === pageIndex ? "outline" : "ghost"}
+                    size="sm"
+                    className="min-w-8 tabular-nums"
+                    onClick={() => table.setPageIndex(item)}
+                  >
+                    {item + 1}
+                  </Button>
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={item} className="hidden md:block">
+                  <PaginationEllipsis className="size-8" />
+                </PaginationItem>
+              )
+            )}
+            <PaginationItem className="px-2 text-sm font-medium whitespace-nowrap md:hidden">
+              Page {pageIndex + 1} of {pageCount}
+            </PaginationItem>
+
+            <PaginationItem>
+              <Button
+                aria-label="Go to next page"
+                variant="outline"
+                size="icon-sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <ChevronRight />
+              </Button>
+            </PaginationItem>
+            <PaginationItem>
+              <Button
+                aria-label="Go to last page"
+                variant="outline"
+                size="icon-sm"
+                onClick={() => table.lastPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <ChevronsRight />
+              </Button>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
+        <label className="hidden items-center gap-2 text-sm font-medium whitespace-nowrap sm:flex">
+          Go to
+          <Input
+            // Remounting resets the typed value when the page changes elsewhere.
+            key={pageIndex}
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={pageCount}
+            defaultValue={pageIndex + 1}
+            aria-label="Page number"
+            className="h-8 w-16 tabular-nums"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") goToPage(event.currentTarget.value)
+            }}
+            onBlur={(event) => goToPage(event.currentTarget.value)}
+          />
+        </label>
       </div>
     </div>
-  );
+  )
 }

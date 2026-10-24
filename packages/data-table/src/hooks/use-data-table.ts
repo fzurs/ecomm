@@ -17,7 +17,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { parseAsColumnSort } from "@workspace/data-table/lib/parsers"
 import { getColumnFilterParsers } from "../lib/column"
 
@@ -70,6 +70,14 @@ export function useDataTable<TData extends { id: number }>({
     },
     [pagination, setPageIndex, setPerPage]
   )
+
+  // Deleting the last rows, or an old link, can leave the URL past the last
+  // page: go back to the last page that has results.
+  useEffect(() => {
+    if (!data) return
+    const lastPageIndex = Math.max(Math.ceil(data.count / perPage) - 1, 0)
+    if (pageIndex > lastPageIndex) setPageIndex(lastPageIndex)
+  }, [data, pageIndex, perPage, setPageIndex])
 
   const [columnSort, setColumnSort] = useQueryState(sortKey, parseAsColumnSort)
 
