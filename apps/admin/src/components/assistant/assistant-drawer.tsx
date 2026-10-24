@@ -22,7 +22,13 @@ import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { HistoryIcon, Maximize2Icon, SquarePenIcon, XIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
-import { AssistantChat } from "./assistant-chat"
+import {
+  AssistantChat,
+  AssistantChatContent,
+  AssistantChatEmpty,
+  AssistantChatInput,
+  AssistantChatMessages,
+} from "./assistant-chat"
 import { AssistantConversations } from "./assistant-conversations"
 import { useAssistant } from "./assistant-provider"
 
@@ -118,10 +124,14 @@ export function AssistantDrawer() {
             }}
           />
         ) : (
-          <AssistantChat
-            conversation={conversation}
-            onCreate={setConversation}
-          />
+          <AssistantChat conversation={conversation} onCreate={setConversation}>
+            <AssistantChatMessages>
+              <AssistantChatContent>
+                <AssistantChatEmpty />
+              </AssistantChatContent>
+            </AssistantChatMessages>
+            <AssistantChatInput className="p-4 pt-0" />
+          </AssistantChat>
         )}
       </DrawerContent>
     </Drawer>
