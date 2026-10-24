@@ -21,6 +21,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
@@ -90,6 +91,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   )
 }

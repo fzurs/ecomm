@@ -15,6 +15,7 @@ export default function AdminLayout({
     <AuthGuard>
       <SidebarProvider
         defaultOpen={false}
+        className="[&_[data-slot=sidebar-container]]:duration-100 [&_[data-slot=sidebar-gap]]:duration-100"
         style={
           {
             "--sidebar-width": "calc(var(--spacing) * 72)",
