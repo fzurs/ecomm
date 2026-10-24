@@ -50,7 +50,7 @@ const groups = [
 export function AppSidebar() {
   const pathname = usePathname()
 
-  const { user: session } = useSession()
+  const { user } = useSession()
 
   return (
     <Sidebar>
@@ -90,7 +90,7 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
+      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

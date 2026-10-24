@@ -1,9 +1,6 @@
-import { buttonVariants } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { cn } from "@workspace/ui/lib/utils"
-import { ChevronLeftIcon } from "lucide-react"
-import Link from "next/link"
 import React from "react"
 import { NavBreadcrumb } from "./nav-breadcrumb"
 
@@ -60,22 +57,6 @@ function AppHeaderActions({
   )
 }
 
-function AppHeaderBackLink({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof Link>) {
-  return (
-    <Link
-      className={buttonVariants({ size: "sm", variant: "ghost", className })}
-      {...props}
-    >
-      <ChevronLeftIcon />
-      {children}
-    </Link>
-  )
-}
-
 function AppHeaderNav({
   ...props
 }: React.ComponentProps<typeof NavBreadcrumb>) {
@@ -93,6 +74,5 @@ export {
   AppHeaderContent,
   AppHeaderSeparator,
   AppHeaderActions,
-  AppHeaderBackLink,
   AppHeaderNav,
 }
