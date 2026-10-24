@@ -65,42 +65,6 @@ export function getProductColumns({
       meta: { className: "text-muted-foreground font-medium" },
     },
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <div className="min-w-sm text-pretty text-muted-foreground">
-          {row.original.description || <EmptyCell label="No description" />}
-        </div>
-      ),
-      enableSorting: false,
-    },
-    {
-      accessorKey: "category",
-      header: "Category",
-      // The dash lines up with the badge text, like the header's pl-4.
-      cell: ({ row }) =>
-        row.original.category ? (
-          <Badge variant="secondary">{row.original.category.name}</Badge>
-        ) : (
-          <EmptyCell label="No category" className="pl-2" />
-        ),
-      meta: {
-        thClassName: "pl-4",
-        variant: "multi-select",
-        options: categoryOptions,
-      },
-    },
-    {
-      accessorKey: "brand",
-      header: "Brand",
-      cell: ({ row }) =>
-        row.original.brand?.name ?? <EmptyCell label="No brand" />,
-      meta: {
-        variant: "multi-select",
-        options: brandOptions,
-      },
-    },
-    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) =>
@@ -137,6 +101,26 @@ export function getProductColumns({
           { label: "Featured", value: "true", icon: featuredIcons.true },
           { label: "Not Featured", value: "false", icon: featuredIcons.false },
         ],
+      },
+    },
+    {
+      accessorKey: "category",
+      header: "Category",
+      cell: ({ row }) =>
+        row.original.category?.name ?? <EmptyCell label="No category" />,
+      meta: {
+        variant: "multi-select",
+        options: categoryOptions,
+      },
+    },
+    {
+      accessorKey: "brand",
+      header: "Brand",
+      cell: ({ row }) =>
+        row.original.brand?.name ?? <EmptyCell label="No brand" />,
+      meta: {
+        variant: "multi-select",
+        options: brandOptions,
       },
     },
     {
@@ -178,6 +162,16 @@ export function getProductColumns({
         thClassName: "text-right",
         className: "text-right tabular-nums",
       },
+    },
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: ({ row }) => (
+        <div className="min-w-sm text-pretty text-muted-foreground">
+          {row.original.description || <EmptyCell label="No description" />}
+        </div>
+      ),
+      enableSorting: false,
     },
     {
       accessorKey: "created_at",
