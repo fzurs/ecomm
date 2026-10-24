@@ -161,14 +161,14 @@ export const OrderCreateForm = withForm({
                 )
               }}
             />
-            <Field orientation="horizontal">
-              <form.SubmitButton>Create order</form.SubmitButton>
+            <Field orientation="horizontal" className="justify-end">
               <Link
                 href="/orders"
                 className={buttonVariants({ variant: "outline" })}
               >
                 Cancel
               </Link>
+              <form.SubmitButton>Save</form.SubmitButton>
             </Field>
           </FieldGroup>
         </form.Form>

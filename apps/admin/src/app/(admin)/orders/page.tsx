@@ -28,6 +28,7 @@ import { DataTable } from "@workspace/data-table/components/data-table"
 import { buttonVariants } from "@workspace/ui/components/button"
 import Link from "next/link"
 import { useMemo } from "react"
+import { PlusIcon } from "lucide-react"
 import { OrdersListData } from "@workspace/api-client"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useFilters } from "@/hooks/use-filters"
@@ -101,7 +102,8 @@ export default function OrdersPage() {
         <AppHeaderNav page="Orders" />
         <AppHeaderActions>
           <Link href="/orders/new" className={buttonVariants({ size: "sm" })}>
-            New Order
+            <PlusIcon />
+            Create
           </Link>
         </AppHeaderActions>
       </AppHeader>

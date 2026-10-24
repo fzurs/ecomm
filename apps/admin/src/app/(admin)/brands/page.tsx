@@ -55,7 +55,7 @@ function CreateBrandDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
         <PlusIcon />
-        Add New
+        Create
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -63,9 +63,11 @@ function CreateBrandDialog() {
         </DialogHeader>
         <BrandCreateForm form={form} />
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
+          <DialogClose render={<Button variant="outline" />}>
+            Cancel
+          </DialogClose>
           <form.AppForm>
-            <form.SubmitButton>Create</form.SubmitButton>
+            <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

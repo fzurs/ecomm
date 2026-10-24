@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
 import { Button } from "@workspace/ui/components/button"
-import { UserPlusIcon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 import { useState } from "react"
 
 import { CustomersTable } from "./_components/customers-table"
@@ -55,8 +55,8 @@ function CreateCustomerDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
-        <UserPlusIcon />
-        New
+        <PlusIcon />
+        Create
       </DialogTrigger>
       <DialogContent
         onAnimationEnd={(e) => {
@@ -73,9 +73,11 @@ function CreateCustomerDialog() {
         </DialogHeader>
         <CustomerCreateForm form={form} />
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
+          <DialogClose render={<Button variant="outline" />}>
+            Cancel
+          </DialogClose>
           <form.AppForm>
-            <form.SubmitButton>Create</form.SubmitButton>
+            <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>

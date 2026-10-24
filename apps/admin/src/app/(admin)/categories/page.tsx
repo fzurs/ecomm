@@ -56,7 +56,7 @@ function CreateCategoryDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
         <PlusIcon />
-        Quick Create
+        Create
       </DialogTrigger>
       <DialogContent
         onAnimationEnd={(e) => {
@@ -72,11 +72,11 @@ function CreateCategoryDialog() {
         </DialogHeader>
         <CategoryCreateForm form={form} />
         <DialogFooter>
-          <DialogClose render={<Button variant="secondary" />}>
-            Close
+          <DialogClose render={<Button variant="outline" />}>
+            Cancel
           </DialogClose>
           <form.AppForm>
-            <form.SubmitButton>Create</form.SubmitButton>
+            <form.SubmitButton>Save</form.SubmitButton>
           </form.AppForm>
         </DialogFooter>
       </DialogContent>
