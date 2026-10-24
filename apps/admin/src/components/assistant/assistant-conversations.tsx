@@ -13,30 +13,29 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "@workspace/ui/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { Trash2Icon } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
-import { useAssistant } from "./assistant-provider"
 
 /**
- * The user's conversations, newest first. `onSelect` gets the picked one
- * (the page navigates to it; the side panel opens it in place).
+ * The user's conversations, newest first, with `selected` highlighted.
+ * `onSelect` gets the picked one (the page navigates to it; the side panel
+ * opens it in place) and `onDelete` the deleted one.
  */
 export function AssistantConversations({
+  selected,
   onSelect,
+  onDelete,
   className,
 }: {
+  selected: number | null
   onSelect: (id: number) => void
+  onDelete?: (id: number) => void
   className?: string
 }) {
-  const { reset, conversation } = useAssistant()
-  const router = useRouter()
-  const pathname = usePathname()
   const queryClient = useQueryClient()
   const { data, isPending } = useQuery(assistantConversationsListOptions())
   const destroy = useMutation({
     ...assistantConversationsDestroyMutation(),
     onSuccess: (_, { path }) => {
-      if (path.id === conversation) reset()
-      if (pathname === `/assistant/${path.id}`) router.replace("/assistant")
+      onDelete?.(path.id)
       queryClient.invalidateQueries({
         queryKey: assistantConversationsListQueryKey(),
       })
@@ -64,7 +63,7 @@ export function AssistantConversations({
               type="button"
               className={cn(
                 "flex w-full flex-col items-start gap-0.5 rounded-md px-3 py-2 pr-10 text-left hover:bg-muted",
-                item.id === conversation && "bg-muted"
+                item.id === selected && "bg-muted"
               )}
               onClick={() => onSelect(item.id)}
             >

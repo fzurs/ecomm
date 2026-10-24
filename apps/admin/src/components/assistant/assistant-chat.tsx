@@ -15,22 +15,28 @@ import { SendIcon, SquareIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { AssistantMarkdown } from "./assistant-markdown"
-import { useAssistant } from "./assistant-provider"
+import { useConversation } from "./use-conversation"
 
 /**
- * The open conversation and the message box. `contentClassName` sizes the
+ * A conversation (null for a new one, which its first message creates and
+ * passes to `onCreate`) and the message box. `contentClassName` sizes the
  * column of messages and the box (the page centers them in a narrower one).
- * In the "page" layout the box floats without the top border, and an empty
- * conversation shows it in the middle of the screen, under the empty state.
+ * In the "page" layout an empty conversation shows the box in the middle of
+ * the screen, under the empty state.
  */
 export function AssistantChat({
+  conversation,
+  onCreate,
   contentClassName,
   layout = "panel",
 }: {
+  conversation: number | null
+  onCreate?: (id: number) => void
   contentClassName?: string
   layout?: "panel" | "page"
 }) {
-  const { messages, tool, error, isStreaming, send, stop } = useAssistant()
+  const { messages, tool, error, isLoading, isStreaming, send, stop } =
+    useConversation(conversation, { onCreate })
   const pathname = usePathname()
   const [text, setText] = useState("")
   const end = useRef<HTMLDivElement>(null)
@@ -107,7 +113,7 @@ export function AssistantChat({
     </form>
   )
 
-  if (layout === "page" && !messages.length) {
+  if (layout === "page" && !messages.length && !isLoading) {
     return (
       // The halves around the box are equal, so the box sits in the middle;
       // the bottom padding, as tall as the header above, makes it the middle
@@ -131,7 +137,8 @@ export function AssistantChat({
     <>
       <ScrollArea className="min-h-0 flex-1">
         <div className={cn("flex flex-col gap-4 p-4", contentClassName)}>
-          {!messages.length && empty}
+          {!messages.length &&
+            (isLoading ? <Spinner className="mx-auto" /> : empty)}
           {messages.map((message) =>
             message.role === "user" ? (
               <div
@@ -156,13 +163,7 @@ export function AssistantChat({
           <div ref={end} />
         </div>
       </ScrollArea>
-      <div className={cn(layout === "panel" && "border-t")}>
-        <div
-          className={cn("p-4", layout === "page" && "pt-0", contentClassName)}
-        >
-          {form}
-        </div>
-      </div>
+      <div className={cn("p-4 pt-0", contentClassName)}>{form}</div>
     </>
   )
 }

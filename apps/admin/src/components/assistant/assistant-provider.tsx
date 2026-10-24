@@ -2,12 +2,15 @@
 
 import { usePathname } from "next/navigation"
 import { createContext, useContext, useEffect, useState } from "react"
-import { AssistantSheet } from "./assistant-sheet"
-import { useAssistantChat } from "./use-assistant-chat"
+import { AssistantDrawer } from "./assistant-drawer"
 
-type AssistantContextValue = ReturnType<typeof useAssistantChat> & {
+type AssistantContextValue = {
   isOpen: boolean
   setOpen: (open: boolean) => void
+  // The side panel's conversation (null for a new one). The assistant's pages
+  // take theirs from the URL instead.
+  conversation: number | null
+  setConversation: (conversation: number | null) => void
 }
 
 const AssistantContext = createContext<AssistantContextValue | null>(null)
@@ -21,13 +24,13 @@ export function useAssistant() {
 }
 
 /**
- * Holds the assistant's panel and conversation, so they survive closing the
- * panel and moving between pages. ⌘J / Ctrl+J toggles it.
+ * Holds the assistant's side panel and its conversation, so they survive
+ * closing the panel and moving between pages. ⌘J / Ctrl+J toggles it.
  */
 export function AssistantProvider({ children }: { children: React.ReactNode }) {
-  const chat = useAssistantChat()
   const [isOpen, setOpen] = useState(false)
-  // The assistant page shows the same conversation: no panel on top of it.
+  const [conversation, setConversation] = useState<number | null>(null)
+  // The assistant's pages are the chat already: no panel on top of them.
   const isAssistantPage = usePathname().startsWith("/assistant")
 
   useEffect(() => {
@@ -44,10 +47,15 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AssistantContext.Provider
-      value={{ ...chat, isOpen: isOpen && !isAssistantPage, setOpen }}
+      value={{
+        isOpen: isOpen && !isAssistantPage,
+        setOpen,
+        conversation,
+        setConversation,
+      }}
     >
       {children}
-      <AssistantSheet />
+      <AssistantDrawer />
     </AssistantContext.Provider>
   )
 }

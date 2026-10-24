@@ -6,28 +6,23 @@ import {
   AppHeaderNav,
 } from "@/components/app-header"
 import { AssistantChat } from "@/components/assistant/assistant-chat"
-import { AssistantConversations } from "@/components/assistant/assistant-conversations"
-import { useAssistant } from "@/components/assistant/assistant-provider"
 import { useQuery } from "@tanstack/react-query"
 import { assistantConversationsListOptions } from "@workspace/api-client/query"
-import { Button } from "@workspace/ui/components/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@workspace/ui/components/popover"
+import { buttonVariants } from "@workspace/ui/components/button"
 import { HistoryIcon, SquarePenIcon } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 
 /**
- * The assistant's page: the conversation of the AssistantProvider (the same
- * one as the side panel) with the full width. History lists the conversations.
+ * The assistant's page: the conversation of the URL (null in /assistant, a new
+ * one) with the full width. History links to the list of conversations.
  */
-export function AssistantView() {
+export function AssistantView({
+  conversation,
+}: {
+  conversation: number | null
+}) {
   const router = useRouter()
-  const { reset, conversation } = useAssistant()
-  const [isHistoryOpen, setHistoryOpen] = useState(false)
   const { data } = useQuery(assistantConversationsListOptions())
   const title = data?.results.find((item) => item.id === conversation)?.title
 
@@ -36,40 +31,31 @@ export function AssistantView() {
       <AppHeader>
         <AppHeaderNav page={title || "Assistant"} />
         <AppHeaderActions>
-          <Popover open={isHistoryOpen} onOpenChange={setHistoryOpen}>
-            <PopoverTrigger
-              render={<Button size="icon-sm" variant="outline" />}
-              title="History"
-            >
-              <HistoryIcon />
-              <span className="sr-only">History</span>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-80 p-0">
-              <AssistantConversations
-                className="[&_[data-slot=scroll-area-viewport]]:max-h-96"
-                onSelect={(id) => {
-                  setHistoryOpen(false)
-                  router.push(`/assistant/${id}`)
-                }}
-              />
-            </PopoverContent>
-          </Popover>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              // Before navigating: /assistant redirects to an open conversation.
-              reset()
-              router.push("/assistant")
-            }}
+          <Link
+            href="/assistant/history"
+            className={buttonVariants({ size: "icon-sm", variant: "outline" })}
+            title="History"
+          >
+            <HistoryIcon />
+            <span className="sr-only">History</span>
+          </Link>
+          <Link
+            href="/assistant"
+            className={buttonVariants({ size: "sm", variant: "outline" })}
           >
             <SquarePenIcon />
             New conversation
-          </Button>
+          </Link>
         </AppHeaderActions>
       </AppHeader>
       <main className="flex h-[calc(100svh-var(--header-height))] min-h-0 flex-col">
         <AssistantChat
+          // A new chat for each URL: the text being typed doesn't carry over.
+          key={conversation ?? "new"}
+          conversation={conversation}
+          // The new conversation's URL takes over (replace: Back skips the
+          // empty /assistant).
+          onCreate={(id) => router.replace(`/assistant/${id}`)}
           layout="page"
           contentClassName="mx-auto w-full max-w-2xl"
         />
