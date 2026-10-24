@@ -14,11 +14,15 @@ import { capitalize } from "@/lib/utils"
 // icon's inner <path>s, which draw with `currentColor`. A concrete stroke on the
 // <svg> is inherited by the paths as is, so the focus color doesn't reach it.
 export const productStatusIcons: Record<ProductStatus, React.JSX.Element> = {
-  active: <CircleCheckIcon className="stroke-green-500" />,
-  inactive: <CircleXIcon className="stroke-red-500" />,
+  active: (
+    <CircleCheckIcon className="stroke-green-500 dark:stroke-green-400" />
+  ),
+  inactive: <CircleXIcon className="stroke-red-500 dark:stroke-red-400" />,
   draft: <LoaderIcon />,
-  out_of_stock: <PackageXIcon className="stroke-orange-500" />,
-  discontinued: <ArchiveXIcon className="stroke-red-500" />,
+  out_of_stock: (
+    <PackageXIcon className="stroke-orange-500 dark:stroke-orange-400" />
+  ),
+  discontinued: <ArchiveXIcon className="stroke-red-500 dark:stroke-red-400" />,
 }
 
 export const productStatusOptions = zProductStatus.options.map((status) => ({

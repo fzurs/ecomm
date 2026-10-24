@@ -31,8 +31,10 @@ import {
 } from "../_lib/product-status"
 
 const featuredIcons = {
-  true: <StarIcon className="fill-yellow-500 text-yellow-500" />,
-  false: <StarIcon className="text-muted-foreground" />,
+  true: (
+    <StarIcon className="fill-yellow-500 stroke-yellow-500 dark:fill-yellow-400 dark:stroke-yellow-400" />
+  ),
+  false: <StarIcon className="stroke-muted-foreground" />,
 } as const
 
 /**
