@@ -83,10 +83,15 @@ export function OrderItemsTable({
           <TableRow>
             <TableCell>Total</TableCell>
             <TableCell className="text-center">
-              {orderItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0)}
+              {orderItems.reduce(
+                (sum, item) => sum + (item.quantity ?? 0),
+                0
+              ) || null}
             </TableCell>
             <TableCell />
-            <TableCell className="text-right">{formatPrice(total)}</TableCell>
+            <TableCell className="text-right">
+              {formatPrice(total || null)}
+            </TableCell>
             {renderActions && <TableCell />}
           </TableRow>
         </TableFooter>

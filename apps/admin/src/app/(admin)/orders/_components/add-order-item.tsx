@@ -88,7 +88,10 @@ export function AddOrderItem({
         <PlusIcon />
         Add Item
       </PopoverTrigger>
-      <PopoverContent className="p-0" align="end">
+      <PopoverContent
+        className="w-96 max-w-(--available-width) p-0"
+        align="end"
+      >
         <Command>
           <CommandInput placeholder="Filter by name" />
           <CommandList>
