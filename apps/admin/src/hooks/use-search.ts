@@ -8,7 +8,7 @@ import { useCallback } from "react"
 export function useSearch() {
   const [{ search }, setQueryStates] = useQueryStates({
     search: parseAsString.withDefault(""),
-    page: parseAsIndex.withDefault(1),
+    page: parseAsIndex.withDefault(0),
   })
 
   const setSearch = useCallback(

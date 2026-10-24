@@ -48,24 +48,27 @@ export function useDataTable<TData extends { id: number }>({
   const perPageKey = queryKeys?.perPage ?? PER_PAGE_KEY
   const sortKey = queryKeys?.sort ?? SORT_KEY
 
-  const [page, setPage] = useQueryState(pageKey, parseAsIndex.withDefault(1))
+  const [pageIndex, setPageIndex] = useQueryState(
+    pageKey,
+    parseAsIndex.withDefault(0)
+  )
   const [perPage, setPerPage] = useQueryState(
     perPageKey,
     parseAsInteger.withDefault(initialState?.pagination?.pageSize ?? 10)
   )
 
   const pagination = useMemo<PaginationState>(
-    () => ({ pageIndex: page - 1, pageSize: perPage }),
-    [page, perPage]
+    () => ({ pageIndex, pageSize: perPage }),
+    [pageIndex, perPage]
   )
 
   const onPaginationChange = useCallback<OnChangeFn<PaginationState>>(
     (updater) => {
-      const { pageIndex, pageSize } = functionalUpdate(updater, pagination)
-      setPage(pageIndex + 1)
-      setPerPage(pageSize)
+      const next = functionalUpdate(updater, pagination)
+      setPageIndex(next.pageIndex)
+      setPerPage(next.pageSize)
     },
-    [pagination, setPage, setPerPage]
+    [pagination, setPageIndex, setPerPage]
   )
 
   const [columnSort, setColumnSort] = useQueryState(sortKey, parseAsColumnSort)
