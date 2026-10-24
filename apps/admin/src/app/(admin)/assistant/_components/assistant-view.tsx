@@ -37,9 +37,12 @@ export function AssistantView() {
         <AppHeaderNav page={title || "Assistant"} />
         <AppHeaderActions>
           <Popover open={isHistoryOpen} onOpenChange={setHistoryOpen}>
-            <PopoverTrigger render={<Button size="sm" variant="outline" />}>
+            <PopoverTrigger
+              render={<Button size="icon-sm" variant="outline" />}
+              title="History"
+            >
               <HistoryIcon />
-              History
+              <span className="sr-only">History</span>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-0">
               <AssistantConversations
@@ -66,7 +69,10 @@ export function AssistantView() {
         </AppHeaderActions>
       </AppHeader>
       <main className="flex h-[calc(100svh-var(--header-height))] min-h-0 flex-col">
-        <AssistantChat contentClassName="mx-auto max-w-3xl" />
+        <AssistantChat
+          layout="page"
+          contentClassName="mx-auto w-full max-w-2xl"
+        />
       </main>
     </>
   )

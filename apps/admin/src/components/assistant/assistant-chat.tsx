@@ -1,16 +1,15 @@
 "use client"
 
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
-import { Button } from "@workspace/ui/components/button"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@workspace/ui/components/empty"
+import { Empty, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { Textarea } from "@workspace/ui/components/textarea"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupTextarea,
+} from "@workspace/ui/components/input-group"
 import { cn } from "@workspace/ui/lib/utils"
 import { SendIcon, SquareIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -21,11 +20,15 @@ import { useAssistant } from "./assistant-provider"
 /**
  * The open conversation and the message box. `contentClassName` sizes the
  * column of messages and the box (the page centers them in a narrower one).
+ * In the "page" layout the box floats without the top border, and an empty
+ * conversation shows it in the middle of the screen, under the empty state.
  */
 export function AssistantChat({
   contentClassName,
+  layout = "panel",
 }: {
   contentClassName?: string
+  layout?: "panel" | "page"
 }) {
   const { messages, tool, error, isStreaming, send, stop } = useAssistant()
   const pathname = usePathname()
@@ -43,21 +46,92 @@ export function AssistantChat({
     send(message, pathname)
   }
 
+  const empty = (
+    <Empty className={cn(layout === "page" && "flex-none p-0")}>
+      <EmptyHeader>
+        <EmptyTitle>How can I help you today?</EmptyTitle>
+      </EmptyHeader>
+    </Empty>
+  )
+  const alert = error && (
+    <Alert variant="destructive">
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
+  )
+  const form = (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        submit()
+      }}
+    >
+      <InputGroup>
+        <InputGroupTextarea
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault()
+              submit()
+            }
+          }}
+          placeholder="How many orders came in this week?"
+          className="max-h-40 min-h-10"
+          autoFocus
+        />
+        <InputGroupAddon align="block-end">
+          {isStreaming ? (
+            <InputGroupButton
+              size="icon-sm"
+              variant="outline"
+              className="ml-auto"
+              onClick={stop}
+              title="Stop"
+            >
+              <SquareIcon />
+            </InputGroupButton>
+          ) : (
+            <InputGroupButton
+              type="submit"
+              size="icon-sm"
+              variant="default"
+              className="ml-auto"
+              disabled={!text.trim()}
+              title="Send"
+            >
+              <SendIcon />
+            </InputGroupButton>
+          )}
+        </InputGroupAddon>
+      </InputGroup>
+    </form>
+  )
+
+  if (layout === "page" && !messages.length) {
+    return (
+      // The halves around the box are equal, so the box sits in the middle;
+      // the bottom padding, as tall as the header above, makes it the middle
+      // of the screen rather than of the space under the header.
+      <div className="flex flex-1 flex-col px-4 pb-(--header-height)">
+        <div
+          className={cn(
+            "flex flex-1 flex-col justify-end pb-6",
+            contentClassName
+          )}
+        >
+          {empty}
+        </div>
+        <div className={contentClassName}>{form}</div>
+        <div className={cn("flex-1 pt-4", contentClassName)}>{alert}</div>
+      </div>
+    )
+  }
+
   return (
     <>
       <ScrollArea className="min-h-0 flex-1">
         <div className={cn("flex flex-col gap-4 p-4", contentClassName)}>
-          {!messages.length && (
-            <Empty>
-              <EmptyHeader>
-                <EmptyTitle>Ask about the store</EmptyTitle>
-                <EmptyDescription>
-                  Orders, products, customers, sales and invoices. It knows the
-                  page you&apos;re on.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          )}
+          {!messages.length && empty}
           {messages.map((message) =>
             message.role === "user" ? (
               <div
@@ -78,56 +152,16 @@ export function AssistantChat({
               {tool ? `${tool}…` : null}
             </div>
           )}
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+          {alert}
           <div ref={end} />
         </div>
       </ScrollArea>
-      <div className="border-t">
-        <form
-          className={cn("flex w-full items-end gap-2 p-4", contentClassName)}
-          onSubmit={(event) => {
-            event.preventDefault()
-            submit()
-          }}
+      <div className={cn(layout === "panel" && "border-t")}>
+        <div
+          className={cn("p-4", layout === "page" && "pt-0", contentClassName)}
         >
-          <Textarea
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault()
-                submit()
-              }
-            }}
-            placeholder="How many orders came in this week?"
-            className="max-h-40 min-h-10 resize-none"
-            autoFocus
-          />
-          {isStreaming ? (
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              onClick={stop}
-              title="Stop"
-            >
-              <SquareIcon />
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!text.trim()}
-              title="Send"
-            >
-              <SendIcon />
-            </Button>
-          )}
-        </form>
+          {form}
+        </div>
       </div>
     </>
   )
