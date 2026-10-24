@@ -119,9 +119,19 @@ export function useAssistantChat() {
     async (id: number) => {
       reset()
       setConversation(id)
-      const detail = await queryClient.fetchQuery(
-        assistantConversationsRetrieveOptions({ path: { id } })
-      )
+      let detail
+      try {
+        detail = await queryClient.fetchQuery({
+          ...assistantConversationsRetrieveOptions({ path: { id } }),
+          // Always fresh: the cached one misses the messages sent since.
+          staleTime: 0,
+        })
+      } catch {
+        // An id from the URL may not exist (or belong to someone else).
+        setConversation(null)
+        setError("The conversation couldn't be loaded.")
+        return
+      }
       setMessages(
         detail.messages.map((message) => ({
           id: String(message.id),

@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { createContext, useContext, useEffect, useState } from "react"
 import { AssistantSheet } from "./assistant-sheet"
 import { useAssistantChat } from "./use-assistant-chat"
@@ -26,8 +27,11 @@ export function useAssistant() {
 export function AssistantProvider({ children }: { children: React.ReactNode }) {
   const chat = useAssistantChat()
   const [isOpen, setOpen] = useState(false)
+  // The assistant page shows the same conversation: no panel on top of it.
+  const isAssistantPage = usePathname().startsWith("/assistant")
 
   useEffect(() => {
+    if (isAssistantPage) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "j" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
@@ -36,10 +40,12 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
     }
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
-  }, [])
+  }, [isAssistantPage])
 
   return (
-    <AssistantContext.Provider value={{ ...chat, isOpen, setOpen }}>
+    <AssistantContext.Provider
+      value={{ ...chat, isOpen: isOpen && !isAssistantPage, setOpen }}
+    >
       {children}
       <AssistantSheet />
     </AssistantContext.Provider>
