@@ -11,7 +11,7 @@ function AppHeader({ className, ...props }: React.ComponentProps<"header">) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) lg:gap-2 lg:px-6",
+        "sticky top-0 z-5 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) lg:gap-2 lg:px-6",
         className
       )}
       {...props}
