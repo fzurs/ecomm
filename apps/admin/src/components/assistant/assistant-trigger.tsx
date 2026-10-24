@@ -12,12 +12,14 @@ export function AssistantTrigger() {
   return (
     <Button
       variant="ghost"
-      size="icon-sm"
+      size="sm"
+      // On mobile only the icon shows, in a square button like icon-sm.
+      className="max-sm:w-8 max-sm:px-0"
       onClick={() => setOpen(true)}
       title="Assistant (⌘J)"
     >
       <AssistantIcon />
-      <span className="sr-only">Open the assistant</span>
+      <span className="max-sm:sr-only">Assistant</span>
     </Button>
   )
 }
