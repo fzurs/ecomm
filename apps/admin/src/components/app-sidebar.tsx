@@ -43,13 +43,13 @@ const groups: { label: string | null; items: NavItem[] }[] = [
   {
     label: null,
     items: [
+      { title: "Home", url: "/", icon: HouseIcon },
       {
         title: "Assistant",
         url: "/assistant",
         icon: BotMessageSquareIcon,
         highlight: true,
       },
-      { title: "Home", url: "/", icon: HouseIcon },
     ],
   },
   {
@@ -91,10 +91,10 @@ function HighlightGradient() {
           y2="0"
         >
           <stop offset="0%" className="[stop-color:var(--color-violet-500)]" />
-          <stop
-            offset="100%"
-            className="[stop-color:var(--color-fuchsia-500)]"
-          />
+          {/* SVG blends in sRGB: straight from violet to amber the middle
+              turns grayish, so it goes through pink. */}
+          <stop offset="50%" className="[stop-color:var(--color-pink-500)]" />
+          <stop offset="100%" className="[stop-color:var(--color-amber-400)]" />
         </linearGradient>
       </defs>
     </svg>
