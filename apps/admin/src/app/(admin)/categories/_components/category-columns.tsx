@@ -1,3 +1,4 @@
+import { EmptyCell } from "@/components/empty-cell"
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import { Category } from "@workspace/api-client"
@@ -25,7 +26,7 @@ export const categoryColumns = [
     header: "Description",
     cell: ({ row }) => (
       <div className="min-w-sm text-pretty text-muted-foreground">
-        {row.original.description}
+        {row.original.description || <EmptyCell label="No description" />}
       </div>
     ),
     enableSorting: false,

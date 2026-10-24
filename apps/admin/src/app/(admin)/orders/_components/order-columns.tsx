@@ -1,3 +1,4 @@
+import { EmptyCell } from "@/components/empty-cell"
 import { formatPrice } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { Order } from "@workspace/api-client"
@@ -53,7 +54,8 @@ export const orderColumns = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.status
-      if (!status) return null
+      if (!status) return <EmptyCell label="No status" />
+
       return <OrderStatusBadge status={status} />
     },
     meta: { variant: "multi-select", options: orderStatusOptions },

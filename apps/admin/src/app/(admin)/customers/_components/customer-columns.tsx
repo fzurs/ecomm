@@ -1,4 +1,5 @@
 "use client"
+import { EmptyCell } from "@/components/empty-cell"
 import { ColumnDef } from "@tanstack/react-table"
 import { Customer } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -33,11 +34,13 @@ export const customerColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "email",
     header: "Email",
+    cell: ({ row }) => row.original.email || <EmptyCell label="No email" />,
     meta: { className: "text-muted-foreground" },
   },
   {
     accessorKey: "phone",
     header: "Phone",
+    cell: ({ row }) => row.original.phone || <EmptyCell label="No phone" />,
     meta: { className: "text-muted-foreground font-medium" },
     enableSorting: false,
   },

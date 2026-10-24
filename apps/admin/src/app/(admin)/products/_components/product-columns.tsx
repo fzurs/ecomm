@@ -24,6 +24,7 @@ import {
   Trash2Icon,
 } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
+import { EmptyCell } from "@/components/empty-cell"
 import { useRowActions } from "@/context/row-actions-provider"
 import {
   productStatusIcons,
@@ -60,6 +61,7 @@ export function getProductColumns({
     {
       accessorKey: "sku",
       header: "SKU",
+      cell: ({ row }) => row.original.sku || <EmptyCell label="No SKU" />,
       meta: { className: "text-muted-foreground font-medium" },
     },
     {
@@ -67,7 +69,7 @@ export function getProductColumns({
       header: "Description",
       cell: ({ row }) => (
         <div className="min-w-sm text-pretty text-muted-foreground">
-          {row.original.description}
+          {row.original.description || <EmptyCell label="No description" />}
         </div>
       ),
       enableSorting: false,
@@ -75,9 +77,12 @@ export function getProductColumns({
     {
       accessorKey: "category",
       header: "Category",
+      // The dash lines up with the badge text, like the header's pl-4.
       cell: ({ row }) =>
-        row.original.category && (
+        row.original.category ? (
           <Badge variant="secondary">{row.original.category.name}</Badge>
+        ) : (
+          <EmptyCell label="No category" className="pl-2" />
         ),
       meta: {
         thClassName: "pl-4",
@@ -88,7 +93,8 @@ export function getProductColumns({
     {
       accessorKey: "brand",
       header: "Brand",
-      cell: ({ row }) => row.original.brand?.name,
+      cell: ({ row }) =>
+        row.original.brand?.name ?? <EmptyCell label="No brand" />,
       meta: {
         variant: "multi-select",
         options: brandOptions,
@@ -113,11 +119,19 @@ export function getProductColumns({
     {
       accessorKey: "featured",
       header: "Featured",
+      // The empty star would read as a toggle, so non-featured rows get a dash.
       cell: ({ row }) =>
-        featuredIcons[row.original.featured ? "true" : "false"],
+        row.original.featured ? (
+          <>
+            {featuredIcons.true}
+            <span className="sr-only">Featured</span>
+          </>
+        ) : (
+          <EmptyCell label="Not featured" />
+        ),
       meta: {
         thClassName: "text-center",
-        className: "[&>svg]:size-4 [&>svg]:mx-auto",
+        className: "text-center [&>svg]:size-4 [&>svg]:mx-auto",
         variant: "boolean",
         options: [
           { label: "Featured", value: "true", icon: featuredIcons.true },
@@ -128,10 +142,11 @@ export function getProductColumns({
     {
       accessorKey: "price",
       header: "Price",
-      cell: ({ row }) => formatPrice(row.original.price),
+      cell: ({ row }) =>
+        formatPrice(row.original.price) ?? <EmptyCell label="No price" />,
       meta: {
         thClassName: "text-right",
-        className: "text-right text-green-500",
+        className: "text-right tabular-nums",
         variant: "range",
       },
     },
@@ -139,10 +154,14 @@ export function getProductColumns({
       accessorKey: "discount_percent",
       header: "Discount",
       cell: ({ row }) =>
-        row.original.discount_percent != null &&
-        `${row.original.discount_percent}%`,
+        row.original.discount_percent != null ? (
+          `${row.original.discount_percent}%`
+        ) : (
+          <EmptyCell label="No discount" />
+        ),
       meta: {
-        className: "text-amber-500",
+        thClassName: "text-right",
+        className: "text-right tabular-nums",
         variant: "range",
       },
     },
@@ -150,11 +169,14 @@ export function getProductColumns({
       // A model property in the API, not a column: it can't be sorted or filtered.
       accessorKey: "active_price",
       header: "Final price",
-      cell: ({ row }) => formatPrice(row.original.active_price),
+      cell: ({ row }) =>
+        formatPrice(row.original.active_price) ?? (
+          <EmptyCell label="No price" />
+        ),
       enableSorting: false,
       meta: {
         thClassName: "text-right",
-        className: "text-right",
+        className: "text-right tabular-nums",
       },
     },
     {
