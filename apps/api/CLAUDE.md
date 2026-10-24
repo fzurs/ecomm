@@ -33,6 +33,13 @@
 - Nunca reintentar una emisión a ciegas: puede duplicar el comprobante. Los importes son
   `Decimal`, nunca `float`.
 
+## Datos de desarrollo
+- `python manage.py seed [path] [--reset]` carga `seed/dev.json` (brands, categorías, productos,
+  customers y órdenes, referenciados por nombre) pasando por el ORM. No usar `loaddata`: se saltea
+  los `save()` que arman slug, imagen, número de orden y `unit_price`.
+- Es idempotente por nombre; las órdenes se crean solo si la tabla está vacía. `--reset` borra
+  todo antes y se niega si hay facturas. Datos ficticios, sin facturas.
+
 ## Tests
 - `python manage.py test <app>`; los tests están en el `tests.py` de cada app. Sin `<app>` hay que
   correrlo desde `apps/api`: desde la raíz no descubre ningún test ("Ran 0 tests"). `--keepdb` reutiliza la base de tests entre corridas; si cambian las

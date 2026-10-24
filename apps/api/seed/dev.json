@@ -1,0 +1,732 @@
+{
+  "brands": [
+    "Acme",
+    "Globex",
+    "Initech",
+    "Umbrella",
+    "Hooli",
+    "Stark"
+  ],
+  "categories": [
+    {
+      "name": "Microcontrollers",
+      "description": "Development boards, MCUs and single-board computers."
+    },
+    {
+      "name": "Networking",
+      "description": "Switches, routers, access points and cabling."
+    },
+    {
+      "name": "Power Supplies",
+      "description": "Bench, DIN rail and embedded power supplies."
+    },
+    {
+      "name": "Test & Measurement",
+      "description": "Multimeters, oscilloscopes and analyzers."
+    },
+    {
+      "name": "Sensors",
+      "description": "Temperature, pressure, motion and distance sensors."
+    },
+    {
+      "name": "Tools",
+      "description": "Soldering stations, crimpers and precision hand tools."
+    }
+  ],
+  "products": [
+    {
+      "name": "Acme ESP32-S3 DevKit",
+      "brand": "Acme",
+      "category": "Microcontrollers",
+      "price": 18500,
+      "status": "active",
+      "discount_percent": 10,
+      "featured": true,
+      "description": "Dual-core Xtensa LX7 at 240 MHz, 8 MB PSRAM, Wi-Fi 4 and Bluetooth LE 5."
+    },
+    {
+      "name": "Initech RP2040 Pico Board",
+      "brand": "Initech",
+      "category": "Microcontrollers",
+      "price": 9800,
+      "status": "active",
+      "featured": false,
+      "description": "Dual-core Cortex-M0+ at 133 MHz, 264 KB SRAM, 2 MB QSPI flash, 26 GPIO."
+    },
+    {
+      "name": "Globex STM32F411 Black Pill",
+      "brand": "Globex",
+      "category": "Microcontrollers",
+      "price": 14200,
+      "status": "active",
+      "featured": false,
+      "description": "Cortex-M4F at 100 MHz with FPU, 512 KB flash and USB-C."
+    },
+    {
+      "name": "Hooli SBC-4 8GB",
+      "brand": "Hooli",
+      "category": "Microcontrollers",
+      "price": 165000,
+      "status": "active",
+      "featured": true,
+      "description": "Quad-core Cortex-A76 at 2.4 GHz, 8 GB LPDDR4X, PCIe 2.0 x1, dual 4K HDMI."
+    },
+    {
+      "name": "Stark CAN-FD Shield",
+      "brand": "Stark",
+      "category": "Microcontrollers",
+      "price": 22000,
+      "status": "out_of_stock",
+      "featured": false,
+      "description": "MCP2518FD controller with isolated transceiver, up to 8 Mbit/s."
+    },
+    {
+      "name": "Hooli 24-Port Gigabit Managed Switch",
+      "brand": "Hooli",
+      "category": "Networking",
+      "price": 385000,
+      "status": "active",
+      "featured": true,
+      "description": "Layer 2+ managed switch, 24x 1 GbE RJ45 plus 4x 10G SFP+, VLAN and LACP."
+    },
+    {
+      "name": "Globex 8-Port PoE+ Switch",
+      "brand": "Globex",
+      "category": "Networking",
+      "price": 142000,
+      "status": "active",
+      "discount_percent": 15,
+      "featured": false,
+      "description": "802.3at PoE+ on 8 ports, 120 W budget, fanless."
+    },
+    {
+      "name": "Initech Wi-Fi 6 Access Point",
+      "brand": "Initech",
+      "category": "Networking",
+      "price": 128000,
+      "status": "active",
+      "featured": false,
+      "description": "Dual-band AX3000, 2x2 MU-MIMO, PoE powered, ceiling mount."
+    },
+    {
+      "name": "Acme Cat6A S/FTP Cable 305m",
+      "brand": "Acme",
+      "category": "Networking",
+      "price": 210000,
+      "status": "active",
+      "featured": false,
+      "description": "23 AWG solid copper, 500 MHz, LSZH jacket."
+    },
+    {
+      "name": "Umbrella SFP+ 10G SR Transceiver",
+      "brand": "Umbrella",
+      "category": "Networking",
+      "price": 31000,
+      "status": "active",
+      "featured": false,
+      "description": "850 nm multimode, LC duplex, up to 300 m on OM3."
+    },
+    {
+      "name": "Stark Edge Router 5",
+      "brand": "Stark",
+      "category": "Networking",
+      "price": 176000,
+      "status": "inactive",
+      "featured": false
+    },
+    {
+      "name": "Globex RJ45 Crimp Connectors x100",
+      "brand": "Globex",
+      "category": "Networking",
+      "price": 8500,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "name": "Stark Bench Power Supply 30V 5A",
+      "brand": "Stark",
+      "category": "Power Supplies",
+      "price": 189000,
+      "status": "active",
+      "featured": true,
+      "description": "Linear regulated, 0-30 V / 0-5 A, 1 mV resolution, USB remote control."
+    },
+    {
+      "name": "Umbrella DIN Rail PSU 24V 5A",
+      "brand": "Umbrella",
+      "category": "Power Supplies",
+      "price": 64000,
+      "status": "active",
+      "discount_percent": 20,
+      "featured": false,
+      "description": "120 W, 85-264 VAC input, 89% efficiency, DC OK relay."
+    },
+    {
+      "name": "Acme Buck Converter 12-24V to 5V 3A",
+      "brand": "Acme",
+      "category": "Power Supplies",
+      "price": 4200,
+      "status": "active",
+      "featured": false,
+      "description": "Synchronous step-down, 95% efficiency, 8-36 V input."
+    },
+    {
+      "name": "Hooli USB-C PD Trigger Board",
+      "brand": "Hooli",
+      "category": "Power Supplies",
+      "price": 3900,
+      "status": "active",
+      "featured": false
+    },
+    {
+      "name": "Initech UPS 1500VA Rack 2U",
+      "brand": "Initech",
+      "category": "Power Supplies",
+      "price": 720000,
+      "status": "out_of_stock",
+      "featured": false
+    },
+    {
+      "name": "Globex LiFePO4 Battery 12V 50Ah",
+      "brand": "Globex",
+      "category": "Power Supplies",
+      "price": 410000,
+      "status": "discontinued",
+      "featured": false
+    },
+    {
+      "name": "Initech 4-Channel Oscilloscope 200MHz",
+      "brand": "Initech",
+      "category": "Test & Measurement",
+      "price": 980000,
+      "status": "active",
+      "discount_percent": 8,
+      "featured": true,
+      "description": "200 MHz bandwidth, 1 GSa/s, 50 Mpts memory, serial decoding."
+    },
+    {
+      "name": "Acme True RMS Multimeter",
+      "brand": "Acme",
+      "category": "Test & Measurement",
+      "price": 76000,
+      "status": "active",
+      "featured": false,
+      "description": "6000 counts, CAT III 600 V, 10 A, capacitance and frequency."
+    },
+    {
+      "name": "Globex 16-Channel Logic Analyzer",
+      "brand": "Globex",
+      "category": "Test & Measurement",
+      "price": 54000,
+      "status": "active",
+      "featured": false,
+      "description": "100 MSa/s, USB 3.0, protocol decoders for I2C, SPI and UART."
+    },
+    {
+      "name": "Stark LCR Meter 100kHz",
+      "brand": "Stark",
+      "category": "Test & Measurement",
+      "price": 245000,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "name": "Umbrella BME280 Environmental Sensor",
+      "brand": "Umbrella",
+      "category": "Sensors",
+      "price": 6800,
+      "status": "active",
+      "featured": false,
+      "description": "Temperature, humidity and pressure over I2C/SPI, ±1 hPa accuracy."
+    },
+    {
+      "name": "Acme LiDAR Distance Sensor 12m",
+      "brand": "Acme",
+      "category": "Sensors",
+      "price": 39000,
+      "status": "active",
+      "discount_percent": 12,
+      "featured": false,
+      "description": "Time-of-flight, 12 m range, 100 Hz, UART and I2C."
+    },
+    {
+      "name": "Hooli MPU-9250 IMU Module",
+      "brand": "Hooli",
+      "category": "Sensors",
+      "price": 9500,
+      "status": "inactive",
+      "featured": false
+    },
+    {
+      "name": "Stark PT100 RTD Probe Class A",
+      "brand": "Stark",
+      "category": "Sensors",
+      "price": 15500,
+      "status": "active",
+      "featured": false,
+      "description": "3-wire, -50 to 250 °C, 6 mm stainless steel sheath."
+    },
+    {
+      "name": "Stark Soldering Station 90W",
+      "brand": "Stark",
+      "category": "Tools",
+      "price": 135000,
+      "status": "active",
+      "featured": true,
+      "description": "Digital temperature control 200-480 °C, ESD safe, T12 tips."
+    },
+    {
+      "name": "Globex Hot Air Rework Station",
+      "brand": "Globex",
+      "category": "Tools",
+      "price": 98000,
+      "status": "active",
+      "discount_percent": 10,
+      "featured": false,
+      "description": "700 W, 100-500 °C, adjustable airflow, three nozzles."
+    },
+    {
+      "name": "Acme Ratcheting Crimper for Ferrules",
+      "brand": "Acme",
+      "category": "Tools",
+      "price": 27000,
+      "status": "active",
+      "featured": false
+    },
+    {
+      "name": "Initech Precision Screwdriver Set 64pcs",
+      "brand": "Initech",
+      "category": "Tools",
+      "price": 19500,
+      "status": "discontinued",
+      "featured": false
+    }
+  ],
+  "customers": [
+    {
+      "name": "Emily Smith",
+      "email": "emily.smith@example.com",
+      "phone": "+54 11 5555-0101",
+      "document_type": 96,
+      "document_number": "30123456"
+    },
+    {
+      "name": "Michael Brown",
+      "email": "michael.brown@example.com",
+      "phone": "+54 11 5555-0102",
+      "document_type": 96,
+      "document_number": "28765432"
+    },
+    {
+      "name": "Sarah Davis",
+      "email": "sarah.davis@example.com",
+      "phone": "+54 351 555-0103",
+      "document_type": 86,
+      "document_number": "27351234569"
+    },
+    {
+      "name": "John Carter",
+      "email": "john.carter@example.com",
+      "phone": "+54 341 555-0104",
+      "document_type": 96,
+      "document_number": "33445566"
+    },
+    {
+      "name": "Jessica Wilson",
+      "email": "jessica.wilson@example.com",
+      "phone": "",
+      "document_type": 96,
+      "document_number": "40112233"
+    },
+    {
+      "name": "Southern Automation SRL",
+      "email": "purchasing@southernauto.example.com",
+      "phone": "+54 11 5555-0201",
+      "document_type": 80,
+      "document_number": "30712345671"
+    },
+    {
+      "name": "Delta Robotics SA",
+      "email": "admin@deltarobotics.example.com",
+      "phone": "+54 223 555-0202",
+      "document_type": 80,
+      "document_number": "30709876542"
+    },
+    {
+      "name": "Ruiz Engineering",
+      "email": "contact@ruizeng.example.com",
+      "phone": "+54 11 5555-0203",
+      "document_type": 80,
+      "document_number": "20234567897"
+    },
+    {
+      "name": "Ashley Miller",
+      "email": "ashley.miller@example.com",
+      "phone": "+54 261 555-0105",
+      "document_type": 86,
+      "document_number": "27387654327"
+    },
+    {
+      "name": "Northwind Labs",
+      "email": "orders@northwind.example.com",
+      "phone": "+54 11 5555-0106",
+      "document_type": 80,
+      "document_number": "30711223343"
+    },
+    {
+      "name": "Emma Johnson",
+      "email": "emma.johnson@example.com",
+      "phone": "+1 555 0107",
+      "document_type": 94,
+      "document_number": "X1234567"
+    },
+    {
+      "name": "Walk-in Customer",
+      "email": "",
+      "phone": "",
+      "document_type": 96,
+      "document_number": null
+    }
+  ],
+  "orders": [
+    {
+      "customer": "Emily Smith",
+      "status": "delivered",
+      "days_ago": 88,
+      "items": [
+        {
+          "product": "Acme ESP32-S3 DevKit",
+          "quantity": 3
+        },
+        {
+          "product": "Umbrella BME280 Environmental Sensor",
+          "quantity": 3
+        }
+      ]
+    },
+    {
+      "customer": "Southern Automation SRL",
+      "status": "delivered",
+      "days_ago": 85,
+      "items": [
+        {
+          "product": "Umbrella DIN Rail PSU 24V 5A",
+          "quantity": 10
+        },
+        {
+          "product": "Stark PT100 RTD Probe Class A",
+          "quantity": 20
+        }
+      ]
+    },
+    {
+      "customer": "Michael Brown",
+      "status": "delivered",
+      "days_ago": 80,
+      "items": [
+        {
+          "product": "Stark Soldering Station 90W",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Delta Robotics SA",
+      "status": "delivered",
+      "days_ago": 76,
+      "items": [
+        {
+          "product": "Stark CAN-FD Shield",
+          "quantity": 6
+        },
+        {
+          "product": "Acme LiDAR Distance Sensor 12m",
+          "quantity": 4
+        },
+        {
+          "product": "Hooli SBC-4 8GB",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "customer": "Sarah Davis",
+      "status": "cancelled",
+      "days_ago": 72,
+      "items": [
+        {
+          "product": "Initech 4-Channel Oscilloscope 200MHz",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "John Carter",
+      "status": "delivered",
+      "days_ago": 67,
+      "items": [
+        {
+          "product": "Initech RP2040 Pico Board",
+          "quantity": 5
+        },
+        {
+          "product": "Globex 16-Channel Logic Analyzer",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Walk-in Customer",
+      "status": "delivered",
+      "days_ago": 63,
+      "items": [
+        {
+          "product": "Acme Buck Converter 12-24V to 5V 3A",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "customer": "Ruiz Engineering",
+      "status": "delivered",
+      "days_ago": 58,
+      "items": [
+        {
+          "product": "Hooli 24-Port Gigabit Managed Switch",
+          "quantity": 2
+        },
+        {
+          "product": "Umbrella SFP+ 10G SR Transceiver",
+          "quantity": 8
+        }
+      ]
+    },
+    {
+      "customer": "Jessica Wilson",
+      "status": "delivered",
+      "days_ago": 54,
+      "items": [
+        {
+          "product": "Acme True RMS Multimeter",
+          "quantity": 1
+        },
+        {
+          "product": "Initech Precision Screwdriver Set 64pcs",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Ashley Miller",
+      "status": "delivered",
+      "days_ago": 49,
+      "items": [
+        {
+          "product": "Globex STM32F411 Black Pill",
+          "quantity": 2
+        },
+        {
+          "product": "Hooli USB-C PD Trigger Board",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "customer": "Northwind Labs",
+      "status": "cancelled",
+      "days_ago": 45,
+      "items": [
+        {
+          "product": "Initech UPS 1500VA Rack 2U",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Emma Johnson",
+      "status": "delivered",
+      "days_ago": 41,
+      "items": [
+        {
+          "product": "Globex Hot Air Rework Station",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Southern Automation SRL",
+      "status": "shipped",
+      "days_ago": 36,
+      "items": [
+        {
+          "product": "Globex 8-Port PoE+ Switch",
+          "quantity": 3
+        },
+        {
+          "product": "Initech Wi-Fi 6 Access Point",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "customer": "Emily Smith",
+      "status": "shipped",
+      "days_ago": 31,
+      "items": [
+        {
+          "product": "Stark Bench Power Supply 30V 5A",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Delta Robotics SA",
+      "status": "shipped",
+      "days_ago": 27,
+      "items": [
+        {
+          "product": "Acme Ratcheting Crimper for Ferrules",
+          "quantity": 4
+        },
+        {
+          "product": "Umbrella DIN Rail PSU 24V 5A",
+          "quantity": 6
+        }
+      ]
+    },
+    {
+      "customer": "Michael Brown",
+      "status": "paid",
+      "days_ago": 22,
+      "items": [
+        {
+          "product": "Hooli SBC-4 8GB",
+          "quantity": 1
+        },
+        {
+          "product": "Acme Buck Converter 12-24V to 5V 3A",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "customer": "John Carter",
+      "status": "paid",
+      "days_ago": 18,
+      "items": [
+        {
+          "product": "Acme ESP32-S3 DevKit",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "customer": "Sarah Davis",
+      "status": "paid",
+      "days_ago": 14,
+      "items": [
+        {
+          "product": "Initech 4-Channel Oscilloscope 200MHz",
+          "quantity": 1
+        },
+        {
+          "product": "Acme True RMS Multimeter",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Walk-in Customer",
+      "status": "paid",
+      "days_ago": 10,
+      "items": [
+        {
+          "product": "Umbrella BME280 Environmental Sensor",
+          "quantity": 2
+        },
+        {
+          "product": "Initech RP2040 Pico Board",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Ruiz Engineering",
+      "status": "pending",
+      "days_ago": 7,
+      "items": [
+        {
+          "product": "Acme Cat6A S/FTP Cable 305m",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "customer": "Ashley Miller",
+      "status": "pending",
+      "days_ago": 5,
+      "items": [
+        {
+          "product": "Stark Soldering Station 90W",
+          "quantity": 1
+        },
+        {
+          "product": "Globex 16-Channel Logic Analyzer",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Jessica Wilson",
+      "status": "pending",
+      "days_ago": 3,
+      "items": [
+        {
+          "product": "Acme LiDAR Distance Sensor 12m",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "customer": "Northwind Labs",
+      "status": "pending",
+      "days_ago": 2,
+      "items": [
+        {
+          "product": "Hooli 24-Port Gigabit Managed Switch",
+          "quantity": 1
+        },
+        {
+          "product": "Umbrella SFP+ 10G SR Transceiver",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "customer": "Emma Johnson",
+      "status": "pending",
+      "days_ago": 1,
+      "items": [
+        {
+          "product": "Stark PT100 RTD Probe Class A",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "customer": "Emily Smith",
+      "status": "pending",
+      "days_ago": 0,
+      "items": [
+        {
+          "product": "Globex STM32F411 Black Pill",
+          "quantity": 1
+        },
+        {
+          "product": "Hooli USB-C PD Trigger Board",
+          "quantity": 1
+        }
+      ]
+    }
+  ]
+}

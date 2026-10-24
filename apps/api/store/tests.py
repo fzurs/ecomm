@@ -1,6 +1,8 @@
+import io
 import tempfile
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import SimpleTestCase, TestCase, override_settings
@@ -280,3 +282,34 @@ class ProductDestroyTests(APITestCase):
         self.assertEqual(
             response.json()['detail'], "It can't be deleted because it's used in 1 order item.")
         self.assertTrue(Product.objects.filter(pk=self.product.pk).exists())
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class SeedCommandTests(TestCase):
+    def seed(self, *args):
+        call_command('seed', *args, stdout=io.StringIO())
+
+    def counts(self):
+        return [model.objects.count() for model in (Brand, Category, Product, Customer, Order, OrderItem)]
+
+    def test_loads_data_through_the_models(self):
+        self.seed()
+        self.assertTrue(Order.objects.exists())
+        product = Product.objects.first()
+        self.assertTrue(product.slug and product.sku and product.image)
+        self.assertTrue(Customer.objects.first().image)
+        item = OrderItem.objects.select_related('order', 'product').first()
+        self.assertTrue(item.order.number.startswith('ORD-'))
+        self.assertEqual(item.unit_price, item.product.active_price)
+
+    def test_is_idempotent(self):
+        self.seed()
+        counts = self.counts()
+        self.seed()
+        self.assertEqual(self.counts(), counts)
+
+    def test_reset_recreates_the_data(self):
+        self.seed()
+        counts = self.counts()
+        self.seed('--reset')
+        self.assertEqual(self.counts(), counts)
