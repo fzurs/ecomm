@@ -10,9 +10,9 @@ import {
   CheckboxField,
   FileField,
   SelectField,
+  PasswordField,
   SubmitButton,
 } from "@/components/form"
-import { PasswordField } from "@/components/password-field"
 
 export const { useAppForm, useTypedAppFormContext, withForm } = createFormHook({
   fieldComponents: {

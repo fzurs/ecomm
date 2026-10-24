@@ -11,6 +11,8 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import {
   InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from "@workspace/ui/components/input-group"
 import {
@@ -22,7 +24,7 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { CircleAlertIcon } from "lucide-react"
+import { CircleAlertIcon, EyeIcon, EyeOffIcon } from "lucide-react"
 import * as React from "react"
 
 export function Form({
@@ -222,6 +224,39 @@ export function InputGroupField({
       {description && <FieldDescription>{description}</FieldDescription>}
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
+  )
+}
+
+export function PasswordField({
+  label = "Password",
+  ...props
+}: Omit<
+  React.ComponentProps<typeof InputGroupField>,
+  "label" | "type" | "children"
+> & {
+  label?: string
+}) {
+  const [visible, setVisible] = React.useState(false)
+
+  return (
+    <InputGroupField
+      autoComplete="current-password"
+      type={visible ? "text" : "password"}
+      label={label}
+      {...props}
+    >
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton
+          type="button"
+          size="icon-xs"
+          aria-label={visible ? "Hide password" : "Show password"}
+          aria-pressed={visible}
+          onClick={() => setVisible((v) => !v)}
+        >
+          {visible ? <EyeOffIcon /> : <EyeIcon />}
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroupField>
   )
 }
 
