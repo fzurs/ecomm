@@ -10,5 +10,7 @@ export async function invalidateCustomers(queryClient: QueryClient) {
     queryClient.invalidateQueries({
       queryKey: customersListChoicesQueryKey(),
     }),
+    // Every customer detail: keys match partially, so `_id` alone covers any id.
+    queryClient.invalidateQueries({ queryKey: [{ _id: "customersRetrieve" }] }),
   ])
 }
