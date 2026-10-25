@@ -56,6 +56,10 @@
 - Componentes base de `@workspace/ui/components/*`. Los componentes nuevos de shadcn se agregan en
   `packages/ui`, no acá.
 - Helpers en `src/lib/utils.ts` (`formatPrice` formatea en es-AR).
+- Statuses: label, ícono y colores de cada valor en `_lib/<resource>-status` como
+  `<resource>Statuses: Record<XStatus, {...}>` (el tipo generado), con los labels escritos a mano;
+  nunca derivados del valor. Las opciones de selects y filtros salen de `zXStatus.options`. Al
+  regenerar la API, el typecheck marca los statuses nuevos que falten.
 
 ## Verificar
 `pnpm --filter admin typecheck` y `pnpm --filter admin lint`.

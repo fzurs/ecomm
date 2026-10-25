@@ -15,7 +15,7 @@ import {
 } from "@workspace/ui/components/combobox"
 import { cn } from "cn"
 import { useMemo } from "react"
-import { orderStatusClasses, orderStatusOptions } from "../_lib/order-status"
+import { orderStatuses, orderStatusOptions } from "../_lib/order-status"
 
 type StatusOption = (typeof orderStatusOptions)[number]
 
@@ -56,7 +56,7 @@ export function OrderStatusFilter({ column }: { column?: Column<Order> }) {
                 values.map((opt) => (
                   <ComboboxChip
                     key={opt.value}
-                    className={orderStatusClasses[opt.value].badge}
+                    className={orderStatuses[opt.value].badge}
                   >
                     {opt.label}
                   </ComboboxChip>
@@ -75,8 +75,8 @@ export function OrderStatusFilter({ column }: { column?: Column<Order> }) {
               key={option.value}
               value={option}
               className={cn(
-                orderStatusClasses[option.value].badge,
-                orderStatusClasses[option.value].highlight,
+                orderStatuses[option.value].badge,
+                orderStatuses[option.value].highlight,
                 "bg-transparent dark:bg-transparent"
               )}
             >

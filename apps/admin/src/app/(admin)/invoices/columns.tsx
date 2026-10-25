@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { Invoice, InvoiceStatus } from "@workspace/api-client"
+import { Invoice } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -13,12 +13,7 @@ import {
 import { cn } from "cn"
 import { FileTextIcon } from "lucide-react"
 import { useState } from "react"
-
-const statusClasses: Record<InvoiceStatus, string> = {
-  pending: "bg-yellow-500/15 text-yellow-900 dark:text-yellow-400",
-  success: "bg-green-500/15 text-green-900 dark:text-green-400",
-  error: "bg-red-500/15 text-red-900 dark:text-red-400",
-}
+import { invoiceStatuses } from "./_lib/invoice-status"
 
 export const columns: ColumnDef<Invoice>[] = [
   {
@@ -47,14 +42,8 @@ export const columns: ColumnDef<Invoice>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.original.status || "pending"
-      return (
-        <Badge
-          className={cn("h-6 rounded-md capitalize", statusClasses[status])}
-        >
-          {status}
-        </Badge>
-      )
+      const { label, badge } = invoiceStatuses[row.original.status || "pending"]
+      return <Badge className={cn("h-6 rounded-md", badge)}>{label}</Badge>
     },
     enableSorting: false,
   },

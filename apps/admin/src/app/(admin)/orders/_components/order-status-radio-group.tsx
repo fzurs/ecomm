@@ -4,7 +4,7 @@ import {
   DropdownMenuRadioItem,
 } from "@workspace/ui/components/dropdown-menu"
 import { cn } from "cn"
-import { orderStatusClasses, orderStatusOptions } from "../_lib/order-status"
+import { orderStatuses, orderStatusOptions } from "../_lib/order-status"
 
 /** Status options for a dropdown menu, each colored like its badge. */
 export function OrderStatusRadioGroup({
@@ -24,8 +24,8 @@ export function OrderStatusRadioGroup({
           key={opt.value}
           value={opt.value}
           className={cn(
-            orderStatusClasses[opt.value].badge,
-            orderStatusClasses[opt.value].focus,
+            orderStatuses[opt.value].badge,
+            orderStatuses[opt.value].focus,
             "bg-transparent dark:bg-transparent"
           )}
         >

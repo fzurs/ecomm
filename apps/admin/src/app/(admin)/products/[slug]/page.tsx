@@ -17,7 +17,7 @@ import { ProductEditButton } from "../_components/product-buttons"
 import { ProductDetails } from "../_components/product-details"
 import { ProductDescription } from "../_components/product-description"
 import { ProductPrice } from "../_components/product-price"
-import { ProductStatusBadge } from "../_lib/product-status"
+import { ProductStatusBadge } from "../_components/product-status-badge"
 
 export default function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>()

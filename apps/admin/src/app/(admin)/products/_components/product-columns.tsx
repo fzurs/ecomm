@@ -26,10 +26,8 @@ import {
 import { formatPrice } from "@/lib/utils"
 import { EmptyCell } from "@/components/empty-cell"
 import { useRowActions } from "@/context/row-actions-provider"
-import {
-  ProductStatusBadge,
-  productStatusOptions,
-} from "../_lib/product-status"
+import { productStatusOptions } from "../_lib/product-status"
+import { ProductStatusBadge } from "./product-status-badge"
 
 const featuredIcons = {
   true: (

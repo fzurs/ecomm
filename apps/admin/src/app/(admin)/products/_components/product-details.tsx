@@ -12,7 +12,7 @@ import {
   TagIcon,
 } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
-import { ProductStatusBadge } from "../_lib/product-status"
+import { ProductStatusBadge } from "./product-status-badge"
 
 export function ProductDetails({
   product,

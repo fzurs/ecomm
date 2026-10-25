@@ -86,10 +86,6 @@ function flattenServerErrors(data: unknown, path = ""): [string, string][] {
   return []
 }
 
-export function capitalize(str: string) {
-  return str.at(0)?.toUpperCase() + str.slice(1)
-}
-
 const priceFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
