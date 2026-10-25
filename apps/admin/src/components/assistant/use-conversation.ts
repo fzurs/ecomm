@@ -90,9 +90,12 @@ const TOOL_LABELS: Record<string, string> = {
   search_orders: "Searching orders",
   get_order: "Reading the order",
   search_products: "Searching products",
+  list_categories: "Listing categories",
+  list_brands: "Listing brands",
   search_customers: "Searching customers",
   get_customer: "Reading the customer",
   sales_summary: "Summing up sales",
+  unsold_products: "Looking for unsold products",
   list_invoices: "Searching invoices",
   get_invoice: "Reading the invoice",
 }

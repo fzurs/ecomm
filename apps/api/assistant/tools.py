@@ -6,12 +6,12 @@ import json
 from datetime import date
 
 import jsonschema
-from django.db.models import Count, DateField, F, Q, Sum
+from django.db.models import Count, DateField, F, Max, Q, Sum
 from django.db.models.functions import Coalesce, TruncDate, TruncMonth, TruncWeek
 
 from billing.models import Invoice
 from orders.models import Customer, Order, OrderItem
-from store.models import Product
+from store.models import Brand, Category, Product
 
 # Rows per list: enough to answer, few enough to keep the context small.
 LIMIT = 20
@@ -135,6 +135,29 @@ def search_products(query=None, category=None, brand=None, status=None, offset=0
     }
 
 
+def _catalog_groups(model, key, offset):
+    groups = model.objects.annotate(
+        product_count=Count('product'),
+        active_product_count=Count('product', filter=Q(product__status=Product.Status.ACTIVE)),
+    ).order_by('name')
+    return {
+        'count': groups.count(),
+        key: [{
+            'name': group.name,
+            'product_count': group.product_count,
+            'active_product_count': group.active_product_count,
+        } for group in groups[offset:offset + LIMIT]],
+    }
+
+
+def list_categories(offset=0):
+    return _catalog_groups(Category, 'categories', offset)
+
+
+def list_brands(offset=0):
+    return _catalog_groups(Brand, 'brands', offset)
+
+
 def search_customers(query, offset=0):
     customers = Customer.objects.filter(
         Q(name__icontains=query) | Q(email__icontains=query) | Q(document_number__icontains=query),
@@ -208,6 +231,35 @@ def sales_summary(date_from, date_to, group_by):
         'totals': totals,
         # Products without a category or brand group under None.
         'groups': [{**group, 'group': group['group'] and str(group['group'])} for group in groups[:LIMIT]],
+    }
+
+
+def unsold_products(date_from, date_to, status=None, category=None, brand=None, offset=0):
+    # Cancelled orders aren't sales, here and in the last sale.
+    sales = OrderItem.objects.exclude(order__status=Order.Status.CANCELLED)
+    sold = _date_range(sales, 'order__created_at', date_from, date_to).values('product')
+    products = Product.objects.select_related('category', 'brand').exclude(pk__in=sold).annotate(
+        last_sold_at=Max('order_items__order__created_at',
+                         filter=~Q(order_items__order__status=Order.Status.CANCELLED)),
+    ).order_by(F('last_sold_at').asc(nulls_first=True), 'name')
+    if status:
+        products = products.filter(status=status)
+    if category:
+        products = products.filter(category__name__icontains=category)
+    if brand:
+        products = products.filter(brand__name__icontains=brand)
+    return {
+        'count': products.count(),
+        'products': [{
+            'name': product.name,
+            'sku': product.sku,
+            'category': product.category and product.category.name,
+            'brand': product.brand and product.brand.name,
+            'status': product.status,
+            'active_price': product.active_price,
+            'created_at': product.created_at.isoformat(),
+            'last_sold_at': product.last_sold_at and product.last_sold_at.isoformat(),
+        } for product in products[offset:offset + LIMIT]],
     }
 
 
@@ -292,6 +344,19 @@ TOOLS = [
             'offset': OFFSET,
         }),
     }),
+    (list_categories, {
+        'name': 'list_categories',
+        'description': f'Lists the product categories by name (at most {LIMIT}), with the total count and '
+                       'how many products each has, in total and active. Use it to find the names to '
+                       'filter by.',
+        'input_schema': _schema({'offset': OFFSET}),
+    }),
+    (list_brands, {
+        'name': 'list_brands',
+        'description': f'Lists the brands by name (at most {LIMIT}), with the total count and how many '
+                       'products each has, in total and active. Use it to find the names to filter by.',
+        'input_schema': _schema({'offset': OFFSET}),
+    }),
     (search_customers, {
         'name': 'search_customers',
         'description': f'Customers whose name, email or document number (CUIT, DNI...) contains the query '
@@ -320,6 +385,21 @@ TOOLS = [
             'date_to': DATE,
             'group_by': {'type': 'string', 'enum': list(SALES_GROUPS)},
         }, required=['date_from', 'date_to', 'group_by']),
+    }),
+    (unsold_products, {
+        'name': 'unsold_products',
+        'description': f'Products with no sales in a date range, leaving out cancelled orders (at most '
+                       f'{LIMIT}), with the total count and their last sale ever: never sold first, then '
+                       'the longest without sales. Pass status active to leave out drafts and '
+                       'discontinued products, and check created_at for products that came out later.',
+        'input_schema': _schema({
+            'date_from': DATE,
+            'date_to': DATE,
+            'status': {'type': 'string', 'enum': Product.Status.values},
+            'category': {'type': 'string', 'description': 'Part of the category name.'},
+            'brand': {'type': 'string', 'description': 'Part of the brand name.'},
+            'offset': OFFSET,
+        }, required=['date_from', 'date_to']),
     }),
     (list_invoices, {
         'name': 'list_invoices',

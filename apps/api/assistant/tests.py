@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 
 from billing.models import Invoice
 from orders.models import Customer, Order
-from store.models import Category, Product
+from store.models import Brand, Category, Product
 from .models import Conversation, Message
 from .tools import LIMIT, run_tool
 
@@ -137,6 +137,43 @@ class ToolTests(TestCase):
         # The product has no brand.
         result = self.run_tool('sales_summary', {**dates, 'group_by': 'brand'})
         self.assertEqual(result['groups'][0]['group'], None)
+
+    def test_list_categories_counts_the_products(self):
+        speakers = Category.objects.create(name='Parlantes')
+        Product.objects.create(name='Parlante Y', category=speakers, status=Product.Status.DRAFT)
+        result = self.run_tool('list_categories', {})
+        self.assertEqual(result, {'count': 2, 'categories': [
+            {'name': 'Auriculares', 'product_count': 1, 'active_product_count': 1},
+            {'name': 'Parlantes', 'product_count': 1, 'active_product_count': 0},
+        ]})
+
+    def test_list_brands_counts_the_products(self):
+        brand = Brand.objects.create(name='Sony')
+        Product.objects.filter(name='Auricular X').update(brand=brand)
+        result = self.run_tool('list_brands', {})
+        self.assertEqual(result['brands'], [{'name': 'Sony', 'product_count': 1, 'active_product_count': 1}])
+
+    def test_unsold_products_leaves_out_the_sold_ones(self):
+        never_sold = Product.objects.create(name='Parlante Y', status=Product.Status.ACTIVE)
+        dates = {'date_from': '2000-01-01', 'date_to': '2100-01-01'}
+        result = self.run_tool('unsold_products', dates)
+        self.assertEqual([product['name'] for product in result['products']], [never_sold.name])
+        self.assertIsNone(result['products'][0]['last_sold_at'])
+
+    def test_unsold_products_counts_only_orders_not_cancelled(self):
+        product = Product.objects.create(name='Parlante Y', status=Product.Status.ACTIVE)
+        Order.objects.create_with_items(customer=self.order.customer, status=Order.Status.CANCELLED,
+                                        items=[{'product': product, 'quantity': 1}])
+        result = self.run_tool('unsold_products', {'date_from': '2000-01-01', 'date_to': '2100-01-01'})
+        self.assertEqual(result['products'][0], {**result['products'][0], 'name': 'Parlante Y', 'last_sold_at': None})
+
+    def test_unsold_products_lists_never_sold_first_with_the_last_sale(self):
+        Product.objects.create(name='Parlante Y', status=Product.Status.ACTIVE)
+        # Before the orders: nothing sold yet in the range.
+        result = self.run_tool('unsold_products', {'date_from': '2000-01-01', 'date_to': '2000-12-31',
+                                                   'status': 'active'})
+        self.assertEqual([product['name'] for product in result['products']], ['Parlante Y', 'Auricular X'])
+        self.assertEqual(result['products'][1]['last_sold_at'], self.order.created_at.isoformat())
 
     def test_rejects_invalid_input(self):
         for tool_input in [{}, {'number': 1}, {'number': 'ORD-1', 'extra': True}]:
