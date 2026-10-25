@@ -91,8 +91,10 @@ const TOOL_LABELS: Record<string, string> = {
   get_order: "Reading the order",
   search_products: "Searching products",
   search_customers: "Searching customers",
+  get_customer: "Reading the customer",
   sales_summary: "Summing up sales",
   list_invoices: "Searching invoices",
+  get_invoice: "Reading the invoice",
 }
 
 type Reply = {

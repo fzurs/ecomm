@@ -6,8 +6,8 @@ import json
 from datetime import date
 
 import jsonschema
-from django.db.models import Count, F, Q, Sum
-from django.db.models.functions import Coalesce, TruncDate
+from django.db.models import Count, DateField, F, Q, Sum
+from django.db.models.functions import Coalesce, TruncDate, TruncMonth, TruncWeek
 
 from billing.models import Invoice
 from orders.models import Customer, Order, OrderItem
@@ -29,24 +29,53 @@ def _date_range(queryset, field, date_from, date_to):
     return queryset
 
 
-def search_orders(status=None, customer=None, date_from=None, date_to=None):
-    orders = Order.objects.select_related('customer').annotate(
+def _orders_with_totals():
+    return Order.objects.select_related('customer').annotate(
         items_total=Coalesce(Sum(F('items__unit_price') * F('items__quantity')), 0),
     ).order_by('-created_at')
+
+
+def _order_summary(order):
+    return {
+        'number': order.number,
+        'customer': order.customer.name,
+        'status': order.status,
+        'total': order.items_total,
+        'created_at': order.created_at.isoformat(),
+    }
+
+
+def _invoice_summary(invoice):
+    return {
+        'id': invoice.id,
+        'order': invoice.order.number,
+        'customer': invoice.order.customer.name,
+        'point_of_sale': invoice.point_of_sale,
+        'invoice_type': invoice.invoice_type,
+        'invoice_number': invoice.invoice_number,
+        'total_amount': str(invoice.total_amount),
+        'status': invoice.status,
+        'error_message': invoice.error_message,
+        'created_at': invoice.created_at.isoformat(),
+    }
+
+
+def search_orders(status=None, customer=None, product=None, date_from=None, date_to=None, offset=0):
+    orders = _orders_with_totals()
     if status:
         orders = orders.filter(status=status)
     if customer:
         orders = orders.filter(Q(customer__name__icontains=customer) | Q(customer__email__icontains=customer))
+    if product:
+        # A subquery: filtering on items__ here would add a second join to the items and
+        # multiply items_total.
+        orders = orders.filter(pk__in=OrderItem.objects.filter(
+            Q(product__name__icontains=product) | Q(product__sku__icontains=product),
+        ).values('order'))
     orders = _date_range(orders, 'created_at', date_from, date_to)
     return {
         'count': orders.count(),
-        'orders': [{
-            'number': order.number,
-            'customer': order.customer.name,
-            'status': order.status,
-            'total': order.items_total,
-            'created_at': order.created_at.isoformat(),
-        } for order in orders[:LIMIT]],
+        'orders': [_order_summary(order) for order in orders[offset:offset + LIMIT]],
     }
 
 
@@ -71,6 +100,7 @@ def get_order(number):
         } for item in items],
         'total': sum(item.subtotal for item in items),
         'invoices': [{
+            'id': invoice.id,
             'invoice_number': invoice.invoice_number,
             'status': invoice.status,
             'total_amount': str(invoice.total_amount),
@@ -78,7 +108,7 @@ def get_order(number):
     }
 
 
-def search_products(query=None, category=None, brand=None, status=None):
+def search_products(query=None, category=None, brand=None, status=None, offset=0):
     products = Product.objects.select_related('category', 'brand')
     if query:
         products = products.filter(Q(name__icontains=query) | Q(sku__icontains=query))
@@ -101,32 +131,64 @@ def search_products(query=None, category=None, brand=None, status=None):
             'price': product.price,
             'discount_percent': product.discount_percent,
             'active_price': product.active_price,
-        } for product in products[:LIMIT]],
+        } for product in products[offset:offset + LIMIT]],
     }
 
 
-def search_customers(query):
+def search_customers(query, offset=0):
     customers = Customer.objects.filter(
-        Q(name__icontains=query) | Q(email__icontains=query),
+        Q(name__icontains=query) | Q(email__icontains=query) | Q(document_number__icontains=query),
     ).annotate(order_count=Count('orders')).order_by('name')
     return {
         'count': customers.count(),
         'customers': [{
+            'id': customer.id,
             'name': customer.name,
             'email': customer.email,
             'phone': customer.phone,
             'document_type': customer.get_document_type_display(),
             'document_number': customer.document_number,
             'order_count': customer.order_count,
-        } for customer in customers[:LIMIT]],
+        } for customer in customers[offset:offset + LIMIT]],
     }
 
 
+def get_customer(id):
+    try:
+        customer = Customer.objects.get(pk=id)
+    except Customer.DoesNotExist:
+        raise ToolError(f'There is no customer {id}.')
+    orders = _orders_with_totals().filter(customer=customer)
+    invoices = Invoice.objects.filter(order__customer=customer).select_related('order__customer') \
+        .order_by('-created_at')
+    # Cancelled orders aren't spent.
+    spent = OrderItem.objects.filter(order__customer=customer).exclude(order__status=Order.Status.CANCELLED) \
+        .aggregate(total=Coalesce(Sum(F('unit_price') * F('quantity')), 0))['total']
+    return {
+        'id': customer.id,
+        'name': customer.name,
+        'email': customer.email,
+        'phone': customer.phone,
+        'document_type': customer.get_document_type_display(),
+        'document_number': customer.document_number,
+        'order_count': orders.count(),
+        'total_spent': spent,
+        'orders': [_order_summary(order) for order in orders[:LIMIT]],
+        'invoices': [_invoice_summary(invoice) for invoice in invoices[:LIMIT]],
+    }
+
+
+# Dates come out as YYYY-MM-DD: the start of the day, week (Monday) or month.
 SALES_GROUPS = {
     'day': TruncDate('order__created_at'),
+    'week': TruncWeek('order__created_at', output_field=DateField()),
+    'month': TruncMonth('order__created_at', output_field=DateField()),
     'product': F('product__name'),
     'category': F('product__category__name'),
+    'brand': F('product__brand__name'),
+    'customer': F('order__customer__name'),
 }
+DATE_GROUPS = ('day', 'week', 'month')
 
 
 def sales_summary(date_from, date_to, group_by):
@@ -141,34 +203,55 @@ def sales_summary(date_from, date_to, group_by):
     groups = items.annotate(group=SALES_GROUPS[group_by]).values('group').annotate(
         revenue=revenue, units=Sum('quantity'), orders=Count('order', distinct=True),
     )
-    groups = groups.order_by('group') if group_by == 'day' else groups.order_by('-revenue')
+    groups = groups.order_by('group') if group_by in DATE_GROUPS else groups.order_by('-revenue')
     return {
         'totals': totals,
-        'groups': [{**group, 'group': str(group['group'])} for group in groups[:LIMIT]],
+        # Products without a category or brand group under None.
+        'groups': [{**group, 'group': group['group'] and str(group['group'])} for group in groups[:LIMIT]],
     }
 
 
-def list_invoices(status=None, date_from=None, date_to=None):
-    invoices = Invoice.objects.select_related('order').order_by('-created_at')
+def list_invoices(status=None, order=None, customer=None, date_from=None, date_to=None, offset=0):
+    invoices = Invoice.objects.select_related('order__customer').order_by('-created_at')
     if status:
         invoices = invoices.filter(status=status)
+    if order:
+        invoices = invoices.filter(order__number=order)
+    if customer:
+        invoices = invoices.filter(
+            Q(order__customer__name__icontains=customer) | Q(order__customer__email__icontains=customer))
     invoices = _date_range(invoices, 'created_at', date_from, date_to)
     return {
         'count': invoices.count(),
-        'invoices': [{
-            'order': invoice.order.number,
-            'point_of_sale': invoice.point_of_sale,
-            'invoice_type': invoice.invoice_type,
-            'invoice_number': invoice.invoice_number,
-            'total_amount': str(invoice.total_amount),
-            'status': invoice.status,
-            'error_message': invoice.error_message,
-            'created_at': invoice.created_at.isoformat(),
-        } for invoice in invoices[:LIMIT]],
+        'invoices': [_invoice_summary(invoice) for invoice in invoices[offset:offset + LIMIT]],
+    }
+
+
+def get_invoice(id):
+    try:
+        invoice = Invoice.objects.select_related('order__customer').get(pk=id)
+    except Invoice.DoesNotExist:
+        raise ToolError(f'There is no invoice {id}.')
+    customer = invoice.order.customer
+    return {
+        **_invoice_summary(invoice),
+        'customer': {
+            'id': customer.id,
+            'name': customer.name,
+            'document_type': customer.get_document_type_display(),
+            'document_number': customer.document_number,
+        },
+        'net_amount': str(invoice.net_amount),
+        'vat_amount': str(invoice.vat_amount),
+        'cae': invoice.cae,
+        'cae_expiration_date': invoice.cae_expiration_date,
+        'updated_at': invoice.updated_at.isoformat(),
     }
 
 
 DATE = {'type': 'string', 'format': 'date', 'description': 'YYYY-MM-DD, inclusive.'}
+OFFSET = {'type': 'integer', 'minimum': 0,
+          'description': f'Rows to skip, to page past the first {LIMIT} (e.g. {LIMIT}, {2 * LIMIT}).'}
 
 
 def _schema(properties, required=()):
@@ -184,8 +267,10 @@ TOOLS = [
         'input_schema': _schema({
             'status': {'type': 'string', 'enum': Order.Status.values},
             'customer': {'type': 'string', 'description': 'Part of the customer name or email.'},
+            'product': {'type': 'string', 'description': 'Part of the name or SKU of a product in the order.'},
             'date_from': DATE,
             'date_to': DATE,
+            'offset': OFFSET,
         }),
     }),
     (get_order, {
@@ -204,21 +289,32 @@ TOOLS = [
             'category': {'type': 'string', 'description': 'Part of the category name.'},
             'brand': {'type': 'string', 'description': 'Part of the brand name.'},
             'status': {'type': 'string', 'enum': Product.Status.values},
+            'offset': OFFSET,
         }),
     }),
     (search_customers, {
         'name': 'search_customers',
-        'description': f'Customers whose name or email contains the query (at most {LIMIT}), '
-                       'with their contact details and order count.',
+        'description': f'Customers whose name, email or document number (CUIT, DNI...) contains the query '
+                       f'(at most {LIMIT}), with their id, contact details and order count.',
         'input_schema': _schema({
             'query': {'type': 'string', 'minLength': 1},
+            'offset': OFFSET,
         }, required=['query']),
+    }),
+    (get_customer, {
+        'name': 'get_customer',
+        'description': f'A customer with their total spent in ARS (leaving out cancelled orders) and their '
+                       f'latest orders and invoices (at most {LIMIT} each).',
+        'input_schema': _schema({
+            'id': {'type': 'integer', 'description': 'The customer id, as in the page /customers/{id}.'},
+        }, required=['id']),
     }),
     (sales_summary, {
         'name': 'sales_summary',
         'description': 'Revenue (ARS), units and orders in a date range, leaving out cancelled orders, '
-                       f'in total and grouped by day, product or category (at most {LIMIT} groups; '
-                       'products and categories are sorted by revenue).',
+                       f'in total and grouped (at most {LIMIT} groups): by day, week or month in date '
+                       'order, or by product, category, brand or customer sorted by revenue. For long '
+                       'ranges, group by week or month.',
         'input_schema': _schema({
             'date_from': DATE,
             'date_to': DATE,
@@ -230,9 +326,20 @@ TOOLS = [
         'description': f'Lists invoices, newest first (at most {LIMIT}), with the total count.',
         'input_schema': _schema({
             'status': {'type': 'string', 'enum': Invoice.Status.values},
+            'order': {'type': 'string', 'description': 'The order number, e.g. ORD-000042.'},
+            'customer': {'type': 'string', 'description': 'Part of the customer name or email.'},
             'date_from': DATE,
             'date_to': DATE,
+            'offset': OFFSET,
         }),
+    }),
+    (get_invoice, {
+        'name': 'get_invoice',
+        'description': 'An invoice with its customer, net, VAT and total amounts (ARS), and its CAE and '
+                       'CAE expiration date (YYYYMMDD) once ARCA authorized it.',
+        'input_schema': _schema({
+            'id': {'type': 'integer', 'description': 'The invoice id, as in the page /invoices/{id}.'},
+        }, required=['id']),
     }),
 ]
 

@@ -1,5 +1,6 @@
 import json
 import tempfile
+from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -10,10 +11,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from billing.models import Invoice
 from orders.models import Customer, Order
 from store.models import Category, Product
 from .models import Conversation, Message
-from .tools import run_tool
+from .tools import LIMIT, run_tool
 
 User = get_user_model()
 
@@ -27,6 +29,15 @@ def create_orders():
     Order.objects.create_with_items(customer=customer, status=Order.Status.CANCELLED,
                                     items=[{'product': product, 'quantity': 5}])
     return paid
+
+
+def create_invoice(order):
+    # A made-up CAE: never a real one in tests.
+    return Invoice.objects.create(
+        order=order, point_of_sale=1, invoice_type=11, invoice_number=1, net_amount='16528.93',
+        vat_amount='3471.07', total_amount='20000.00', cae='70000000000001', cae_expiration_date='20261105',
+        status=Invoice.Status.SUCCESS,
+    )
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -58,6 +69,74 @@ class ToolTests(TestCase):
         result = self.run_tool('sales_summary', {'date_from': '2000-01-01', 'date_to': '2100-01-01', 'group_by': 'category'})
         self.assertEqual(result['totals'], {'revenue': 20000, 'units': 2, 'orders': 1})
         self.assertEqual(result['groups'][0]['group'], 'Auriculares')
+
+    def test_search_orders_filters_by_product(self):
+        speaker = Product.objects.create(name='Parlante Y', sku='PAR-1', price=5000, status=Product.Status.ACTIVE)
+        order = Order.objects.create_with_items(customer=self.order.customer, items=[
+            {'product': speaker, 'quantity': 1}, {'product': self.order.items.get().product, 'quantity': 1},
+        ])
+        for query in ['parlante', 'PAR-1']:
+            result = self.run_tool('search_orders', {'product': query})
+            self.assertEqual(result['count'], 1)
+            # The whole order's total, not only the matching item's.
+            self.assertEqual(result['orders'][0], {**result['orders'][0], 'number': order.number, 'total': 15000})
+
+    def test_lists_page_with_offset(self):
+        for _ in range(LIMIT):
+            Order.objects.create_with_items(customer=self.order.customer, items=[])
+        result = self.run_tool('search_orders', {'offset': LIMIT})
+        self.assertEqual(result['count'], LIMIT + 2)
+        self.assertEqual(len(result['orders']), 2)
+
+    def test_search_customers_by_document_number(self):
+        Customer.objects.filter(pk=self.order.customer_id).update(document_number='20123456786')
+        result = self.run_tool('search_customers', {'query': '20123456786'})
+        self.assertEqual([customer['id'] for customer in result['customers']], [self.order.customer_id])
+
+    def test_get_customer_leaves_out_cancelled_orders_from_the_total(self):
+        result = self.run_tool('get_customer', {'id': self.order.customer_id})
+        self.assertEqual(result['order_count'], 2)
+        self.assertEqual(result['total_spent'], 20000)
+        self.assertEqual(len(result['orders']), 2)
+
+    def test_get_customer_reports_a_missing_customer(self):
+        content, is_error = run_tool('get_customer', {'id': 999999})
+        self.assertTrue(is_error)
+        self.assertIn('999999', content)
+
+    def test_get_invoice_includes_the_amounts_and_cae(self):
+        invoice = create_invoice(self.order)
+        result = self.run_tool('get_invoice', {'id': invoice.id})
+        self.assertEqual(result, {
+            **result, 'order': self.order.number, 'net_amount': '16528.93', 'vat_amount': '3471.07',
+            'total_amount': '20000.00', 'cae': '70000000000001', 'cae_expiration_date': '20261105',
+        })
+        self.assertEqual(result['customer']['name'], 'Juan Pérez')
+
+    def test_list_invoices_filters_by_order_and_customer(self):
+        invoice = create_invoice(self.order)
+        for tool_input in [{'order': self.order.number}, {'customer': 'juan@'}]:
+            result = self.run_tool('list_invoices', tool_input)
+            self.assertEqual([item['id'] for item in result['invoices']], [invoice.id])
+        self.assertEqual(self.run_tool('list_invoices', {'order': 'ORD-999999'})['count'], 0)
+
+    def test_sales_summary_groups_by_month_in_date_order(self):
+        older = Order.objects.create_with_items(customer=self.order.customer, status=Order.Status.PAID,
+                                                items=[{'product': self.order.items.get().product, 'quantity': 1}])
+        Order.objects.filter(pk=older.pk).update(created_at=datetime(2026, 1, 15, 12, tzinfo=timezone.utc))
+        result = self.run_tool('sales_summary', {'date_from': '2000-01-01', 'date_to': '2100-01-01', 'group_by': 'month'})
+        groups = [group['group'] for group in result['groups']]
+        self.assertEqual(groups[0], '2026-01-01')
+        self.assertEqual(groups, sorted(groups))
+        self.assertEqual(result['groups'][0]['revenue'], 10000)
+
+    def test_sales_summary_groups_by_customer_and_brand(self):
+        dates = {'date_from': '2000-01-01', 'date_to': '2100-01-01'}
+        result = self.run_tool('sales_summary', {**dates, 'group_by': 'customer'})
+        self.assertEqual(result['groups'], [{'group': 'Juan Pérez', 'revenue': 20000, 'units': 2, 'orders': 1}])
+        # The product has no brand.
+        result = self.run_tool('sales_summary', {**dates, 'group_by': 'brand'})
+        self.assertEqual(result['groups'][0]['group'], None)
 
     def test_rejects_invalid_input(self):
         for tool_input in [{}, {'number': 1}, {'number': 'ORD-1', 'extra': True}]:
