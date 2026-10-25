@@ -17,18 +17,21 @@ import { Trash2Icon } from "lucide-react"
 /**
  * The user's conversations, newest first, with `selected` highlighted.
  * `onSelect` gets the picked one (the page navigates to it; the side panel
- * opens it in place) and `onDelete` the deleted one.
+ * opens it in place) and `onDelete` the deleted one. `listClassName` goes on
+ * the list, which has its own padding unless a page's already does.
  */
 export function AssistantConversations({
   selected,
   onSelect,
   onDelete,
   className,
+  listClassName,
 }: {
   selected: number | null
   onSelect: (id: number) => void
   onDelete?: (id: number) => void
   className?: string
+  listClassName?: string
 }) {
   const queryClient = useQueryClient()
   const { data, isPending } = useQuery(assistantConversationsListOptions())
@@ -56,9 +59,9 @@ export function AssistantConversations({
   }
   return (
     <ScrollArea className={cn("min-h-0 flex-1", className)}>
-      <ul className="p-2">
+      <ul className={cn("divide-y p-2", listClassName)}>
         {data.results.map((item) => (
-          <li key={item.id} className="group/conversation relative">
+          <li key={item.id} className="group/conversation relative py-1">
             <button
               type="button"
               className={cn(
