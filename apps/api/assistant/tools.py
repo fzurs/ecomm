@@ -1,6 +1,7 @@
 """
-Read-only tools the assistant can call. Each one queries the ORM and returns something
-JSON-serializable; `run_tool` validates the input and serializes the result.
+Tools the assistant can call: read-only queries of the store through the ORM, plus set_title on
+its own conversation. Each one returns something JSON-serializable; `run_tool` validates the
+input and serializes the result.
 """
 import json
 from datetime import date
@@ -301,6 +302,15 @@ def get_invoice(id):
     }
 
 
+def set_title(title, conversation):
+    title = title.strip()
+    if not title:
+        raise ToolError('The title is blank.')
+    conversation.title = title
+    conversation.save(update_fields=['title'])
+    return {'title': title}
+
+
 DATE = {'type': 'string', 'format': 'date', 'description': 'YYYY-MM-DD, inclusive.'}
 OFFSET = {'type': 'integer', 'minimum': 0,
           'description': f'Rows to skip, to page past the first {LIMIT} (e.g. {LIMIT}, {2 * LIMIT}).'}
@@ -421,10 +431,20 @@ TOOLS = [
             'id': {'type': 'integer', 'description': 'The invoice id, as in the page /invoices/{id}.'},
         }, required=['id']),
     }),
+    (set_title, {
+        'name': 'set_title',
+        'description': 'Sets the title of this conversation, which the history shows: a few words '
+                       'about its topic.',
+        'input_schema': _schema({
+            'title': {'type': 'string', 'minLength': 1, 'maxLength': 80},
+        }, required=['title']),
+    }),
 ]
 
 FUNCTIONS = {definition['name']: function for function, definition in TOOLS}
 SCHEMAS = {definition['name']: definition['input_schema'] for _, definition in TOOLS}
+# The tools that act on the conversation they're called from: run_tool passes it.
+CONVERSATION_TOOLS = {'set_title'}
 
 
 def tool_definitions():
@@ -433,13 +453,14 @@ def tool_definitions():
     return [{**definition, 'eager_input_streaming': True} for _, definition in TOOLS]
 
 
-def run_tool(name, tool_input):
+def run_tool(name, tool_input, conversation=None):
     """Returns (content, is_error), ready for a tool_result block."""
     if name not in FUNCTIONS:
         return f'Unknown tool {name}.', True
+    context = {'conversation': conversation} if name in CONVERSATION_TOOLS else {}
     try:
         jsonschema.validate(tool_input, SCHEMAS[name], format_checker=jsonschema.FormatChecker())
-        result = FUNCTIONS[name](**tool_input)
+        result = FUNCTIONS[name](**tool_input, **context)
     except jsonschema.ValidationError as error:
         return f'Invalid input: {error.message}', True
     except ToolError as error:

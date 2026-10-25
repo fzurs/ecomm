@@ -185,6 +185,18 @@ class ToolTests(TestCase):
     def test_rejects_unknown_tools(self):
         self.assertTrue(run_tool('delete_order', {})[1])
 
+    def test_set_title_renames_the_conversation(self):
+        conversation = Conversation.objects.create(user=User.objects.create(username='admin'), title='Hola')
+        content, is_error = run_tool('set_title', {'title': ' Ventas de octubre '}, conversation)
+        self.assertFalse(is_error, content)
+        conversation.refresh_from_db()
+        self.assertEqual(conversation.title, 'Ventas de octubre')
+
+        for tool_input in [{'title': '   '}, {'title': 'x' * 81}, {'title': 'Otro', 'conversation': 1}]:
+            self.assertTrue(run_tool('set_title', tool_input, conversation)[1])
+        conversation.refresh_from_db()
+        self.assertEqual(conversation.title, 'Ventas de octubre')
+
 
 class FakeStream:
     def __init__(self, message):
@@ -275,6 +287,23 @@ class ReplyTests(APITestCase):
         self.assertEqual(result['tool_use_id'], 'toolu_1')
         self.assertFalse(result['is_error'])
         self.assertEqual(json.loads(result['content'])['number'], self.order.number)
+
+    def test_the_model_names_the_conversation(self):
+        tool_use = ToolUseBlock(type='tool_use', id='toolu_1', name='set_title', input={'title': 'Estado del pedido'})
+        client = fake_client(
+            message('tool_use', tool_use),
+            message('end_turn', TextBlock(type='text', text='Está pagado.')),
+        )
+        self.post(client)
+
+        # The first message asks for a title; the first 80 characters hold its place meanwhile.
+        self.assertIn('Título: (sin título)', client.requests[0]['messages'][0]['content'][0]['text'])
+        self.conversation.refresh_from_db()
+        self.assertEqual(self.conversation.title, 'Estado del pedido')
+
+        client = fake_client(message('end_turn', TextBlock(type='text', text='De nada')))
+        self.post(client, 'Gracias')
+        self.assertIn('Título: Estado del pedido', client.requests[0]['messages'][-1]['content'][0]['text'])
 
     def test_resumes_the_saved_history(self):
         self.post(fake_client(message('end_turn', TextBlock(type='text', text='Hola'))))

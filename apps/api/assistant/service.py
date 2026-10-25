@@ -28,13 +28,18 @@ español rioplatense, en forma breve y concreta, usando Markdown (listas y tabla
 
 Respondé con datos reales: consultá las herramientas antes de afirmar cifras, estados o \
 nombres, y no inventes datos que no devolvieron. Los importes están en pesos argentinos \
-(ARS); formatealos como $ 12.345. Las herramientas son de solo lectura: si te piden cambiar \
-algo, explicá cómo hacerlo desde el panel. Si una lista viene cortada, decí cuántos resultados \
-hay en total.
+(ARS); formatealos como $ 12.345. Las herramientas de la tienda son de solo lectura: si te \
+piden cambiar algo, explicá cómo hacerlo desde el panel. Si una lista viene cortada, decí \
+cuántos resultados hay en total.
 
-Cada mensaje del usuario empieza con un bloque <context> con la fecha de hoy y la página del \
-panel en la que está (ej. /orders/ORD-000042): usalo para resolver referencias como "este \
-pedido" o "esta semana"."""
+Cada mensaje del usuario empieza con un bloque <context> con la fecha de hoy, la página del \
+panel en la que está (ej. /orders/ORD-000042) y el título de la conversación: usalo para \
+resolver referencias como "este pedido" o "esta semana".
+
+Ponele título a la conversación con set_title: en el primer mensaje (el título es "(sin \
+título)"), uno de 3 a 6 palabras sobre el tema, sin punto final. Llamala junto con las otras \
+herramientas que necesites, no en un paso aparte. Después cambialo solo si te lo piden o si el \
+tema cambia por completo. No menciones el título en la respuesta salvo que te lo pidan."""
 
 
 def get_client():
@@ -49,8 +54,9 @@ def _text(blocks):
     return ''.join(block.text for block in blocks if block.type == 'text')
 
 
-def _user_content(text, page):
-    context = f'<context>\nHoy: {timezone.localdate().isoformat()}\nPágina: {page or "/"}\n</context>'
+def _user_content(text, page, title):
+    context = (f'<context>\nHoy: {timezone.localdate().isoformat()}\nPágina: {page or "/"}\n'
+               f'Título: {title or "(sin título)"}\n</context>')
     return [{'type': 'text', 'text': context}, {'type': 'text', 'text': text}]
 
 
@@ -61,9 +67,11 @@ def reply(conversation, text, page=None):
     """
     history = [{'role': m.role, 'content': m.content} for m in conversation.messages.all()]
 
-    content = _user_content(text, page)
+    # The title before this message: "(sin título)" is what asks the model to name it.
+    content = _user_content(text, page, conversation.title)
     conversation.messages.create(role=Message.Role.USER, content=content, text=text)
     history.append({'role': 'user', 'content': content})
+    # Until the model names it with set_title (or if the answer is cut off before that).
     if not conversation.title:
         conversation.title = text[:80]
     conversation.save(update_fields=['title', 'updated_at'])
@@ -135,7 +143,8 @@ def _run(conversation, history):
             yield 'error', {'message': message}
             return
 
-        _save_results(conversation, history, [(block, *run_tool(block.name, block.input)) for block in tool_uses])
+        _save_results(conversation, history,
+                      [(block, *run_tool(block.name, block.input, conversation)) for block in tool_uses])
 
 
 REFUSAL = 'El asistente no puede responder esa consulta.'

@@ -98,6 +98,7 @@ const TOOL_LABELS: Record<string, string> = {
   unsold_products: "Looking for unsold products",
   list_invoices: "Searching invoices",
   get_invoice: "Reading the invoice",
+  set_title: "Naming the conversation",
 }
 
 type Reply = {
