@@ -29,12 +29,12 @@ export function CustomerEditDrawer() {
   )
 }
 
-function CustomerEditDrawerContent({
+export function CustomerEditDrawerContent({
   customer,
   onSuccess,
 }: {
   customer: Customer
-  onSuccess: () => void
+  onSuccess: (customer: Customer) => void
 }) {
   const form = useCustomerEditForm({ customer, onSuccess })
 

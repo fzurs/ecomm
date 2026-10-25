@@ -1,5 +1,8 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActionDialog } from "@/context/row-actions-provider"
+import {
+  useRowActionDialog,
+  useRowActions,
+} from "@/context/row-actions-provider"
 import {
   Drawer,
   DrawerContent,
@@ -18,6 +21,7 @@ import {
 import * as React from "react"
 import { CustomerDetails } from "./customer-details"
 import { CustomerEditButton } from "./customer-buttons"
+import { CustomerEditDrawerContent } from "./customer-edit-drawer"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -44,6 +48,13 @@ export function CustomerViewDrawer() {
 }
 
 function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
+  const isMobile = useIsMobile()
+  const { openAction } = useRowActions<Customer>()
+
+  // Edit opens on top of this drawer instead of replacing it, so it's local
+  // state: a row action would close the view.
+  const [editOpen, setEditOpen] = React.useState(false)
+
   return (
     <>
       <div className="flex h-(--header-height) items-center justify-between gap-4 border-b px-4">
@@ -87,7 +98,11 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <CustomerEditButton customer={customer} size="sm" />
+            <CustomerEditButton
+              customer={customer}
+              size="sm"
+              onClick={() => setEditOpen(true)}
+            />
           </div>
         </div>
       </DrawerHeader>
@@ -99,6 +114,23 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
           <CustomerDetails customer={customer} />
         </div>
       </div>
+      {/* Rendered inside the view's content, so Base UI stacks it as nested. */}
+      <Drawer
+        swipeDirection={isMobile ? "down" : "right"}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      >
+        <DrawerContent size="md">
+          <CustomerEditDrawerContent
+            customer={customer}
+            onSuccess={(updated) => {
+              setEditOpen(false)
+              // The view shows the table row; swap in the saved customer.
+              openAction("view", updated)
+            }}
+          />
+        </DrawerContent>
+      </Drawer>
     </>
   )
 }
