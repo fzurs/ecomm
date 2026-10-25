@@ -54,8 +54,10 @@ def _text(blocks):
     return ''.join(block.text for block in blocks if block.type == 'text')
 
 
-def _user_content(text, page, title):
-    context = (f'<context>\nHoy: {timezone.localdate().isoformat()}\nPágina: {page or "/"}\n'
+def user_content(text, page, title, today=None):
+    """The content of a user message: the <context> block, then the text. `today` is for seeds."""
+    today = today or timezone.localdate()
+    context = (f'<context>\nHoy: {today.isoformat()}\nPágina: {page or "/"}\n'
                f'Título: {title or "(sin título)"}\n</context>')
     return [{'type': 'text', 'text': context}, {'type': 'text', 'text': text}]
 
@@ -68,7 +70,7 @@ def reply(conversation, text, page=None):
     history = [{'role': m.role, 'content': m.content} for m in conversation.messages.all()]
 
     # The title before this message: "(sin título)" is what asks the model to name it.
-    content = _user_content(text, page, conversation.title)
+    content = user_content(text, page, conversation.title)
     conversation.messages.create(role=Message.Role.USER, content=content, text=text)
     history.append({'role': 'user', 'content': content})
     # Until the model names it with set_title (or if the answer is cut off before that).

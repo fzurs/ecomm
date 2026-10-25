@@ -28,6 +28,8 @@ Responder en español. Código e identificadores en inglés, como el resto del r
 - `python apps/api/manage.py test [app]` — tests de la API
 - `python apps/api/manage.py makemigrations` / `migrate`
 - `python apps/api/manage.py seed [--reset]` — datos de desarrollo desde `apps/api/seed/dev.json`
+- `python apps/api/manage.py seed_conversations [--user USER] [--reset]` — conversaciones de ejemplo del
+  asistente desde `apps/api/seed/conversations.json`
 
 ## Flujo del contrato de la API (importante)
 Todo cambio en models/serializers/views que afecte a la API tiene que seguirse de:

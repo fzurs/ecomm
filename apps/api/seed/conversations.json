@@ -1,0 +1,48 @@
+{
+  "conversations": [
+    {
+      "title": "Pedidos pendientes",
+      "days_ago": 0,
+      "messages": [
+        {"role": "user", "page": "/orders", "text": "¿Qué pedidos tengo pendientes?"},
+        {"role": "assistant", "text": "Tenés **6 pedidos pendientes** por $ 1.201.420 en total:\n\n| Pedido | Cliente | Total |\n|---|---|---|\n| {order:25} | Emily Smith | $ 18.100 |\n| {order:24} | Emma Johnson | $ 31.000 |\n| {order:23} | Northwind Labs | $ 509.000 |\n| {order:22} | Jessica Wilson | $ 34.320 |\n| {order:21} | Ashley Miller | $ 189.000 |\n| {order:20} | Ruiz Engineering | $ 420.000 |\n\nEl más antiguo es el de Ruiz Engineering, de hace una semana."},
+        {"role": "user", "page": "/orders", "text": "¿Y cuál es el más grande?"},
+        {"role": "assistant", "text": "El de **Northwind Labs** ({order:23}), por $ 509.000: un Hooli 24-Port Gigabit Managed Switch y 4 Umbrella SFP+ 10G SR Transceiver."}
+      ]
+    },
+    {
+      "title": "Productos sin stock",
+      "days_ago": 2,
+      "messages": [
+        {"role": "user", "page": "/products", "text": "¿Qué productos están sin stock?"},
+        {"role": "assistant", "text": "Hay **2 productos** marcados como sin stock:\n\n- **Stark CAN-FD Shield** (Microcontrollers): $ 22.000\n- **Initech UPS 1500VA Rack 2U** (Power Supplies): $ 720.000\n\nPara volver a ponerlos a la venta, cambiales el estado a *Active* desde la página de productos."}
+      ]
+    },
+    {
+      "title": "Pedido de Northwind Labs",
+      "days_ago": 2,
+      "messages": [
+        {"role": "user", "page": "/orders/{order:23}", "text": "¿Qué incluye este pedido?"},
+        {"role": "assistant", "text": "El pedido **{order:23}** de Northwind Labs está pendiente e incluye:\n\n| Producto | Cantidad | Subtotal |\n|---|---|---|\n| Hooli 24-Port Gigabit Managed Switch | 1 | $ 385.000 |\n| Umbrella SFP+ 10G SR Transceiver | 4 | $ 124.000 |\n\nTotal: **$ 509.000**."},
+        {"role": "user", "page": "/orders/{order:23}", "text": "¿Ya está facturado?"},
+        {"role": "assistant", "text": "No, todavía no tiene ninguna factura."}
+      ]
+    },
+    {
+      "title": "Productos con descuento",
+      "days_ago": 6,
+      "messages": [
+        {"role": "user", "page": "/products", "text": "¿Qué productos tienen descuento?"},
+        {"role": "assistant", "text": "Hay **6 productos** con descuento, todos activos:\n\n| Producto | Descuento | Precio | Con descuento |\n|---|---|---|---|\n| Initech 4-Channel Oscilloscope 200MHz | 8% | $ 980.000 | $ 901.600 |\n| Globex 8-Port PoE+ Switch | 15% | $ 142.000 | $ 120.700 |\n| Globex Hot Air Rework Station | 10% | $ 98.000 | $ 88.200 |\n| Umbrella DIN Rail PSU 24V 5A | 20% | $ 64.000 | $ 51.200 |\n| Acme LiDAR Distance Sensor 12m | 12% | $ 39.000 | $ 34.320 |\n| Acme ESP32-S3 DevKit | 10% | $ 18.500 | $ 16.650 |"}
+      ]
+    },
+    {
+      "title": "Compra de Sarah Davis",
+      "days_ago": 13,
+      "messages": [
+        {"role": "user", "page": "/customers", "text": "¿Qué compró Sarah Davis ayer?"},
+        {"role": "assistant", "text": "El pedido **{order:18}**, que ya está pagado:\n\n- Initech 4-Channel Oscilloscope 200MHz: $ 901.600 (con 8% de descuento)\n- Acme True RMS Multimeter: $ 76.000\n\nEn total, **$ 977.600**."}
+      ]
+    }
+  ]
+}

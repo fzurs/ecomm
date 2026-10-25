@@ -39,6 +39,12 @@
   los `save()` que arman slug, imagen, número de orden y `unit_price`.
 - Es idempotente por nombre; las órdenes se crean solo si la tabla está vacía. `--reset` borra
   todo antes y se niega si hay facturas. Datos ficticios, sin facturas.
+- `python manage.py seed_conversations [path] [--user USER] [--reset]` carga `seed/conversations.json`
+  para un usuario staff (`--user` hace falta si hay más de uno). Se crean solo si el usuario no tiene
+  conversaciones; `--reset` borra las suyas antes. Las respuestas citan los datos de `dev.json`: si
+  cambia, revisarlas. Los pedidos van como `{order:23}` (el 23.º de `dev.json`) y se completan con
+  el número real al cargar, porque los ids siguen después de un `seed --reset`. Los mensajes se
+  guardan con el `<context>` de `user_content`, así una conversación sembrada se puede seguir con Claude.
 
 ## Tests
 - `python manage.py test <app>`; los tests están en el `tests.py` de cada app. Sin `<app>` hay que

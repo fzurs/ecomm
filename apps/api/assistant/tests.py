@@ -1,3 +1,4 @@
+import io
 import json
 import tempfile
 from datetime import datetime, timezone
@@ -6,6 +7,7 @@ from unittest.mock import patch
 
 from anthropic.types import Message as APIMessage, TextBlock, ToolUseBlock
 from django.contrib.auth import get_user_model
+from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -353,3 +355,80 @@ class ConversationTests(APITestCase):
 
         response = self.client.get(reverse('conversation-detail', args=[conversation.pk]))
         self.assertEqual([m['text'] for m in response.json()['messages']], ['¿Cuánto vendimos?', '$ 20.000'])
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class SeedConversationsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # The orders the conversations mention.
+        call_command('seed', stdout=io.StringIO())
+
+    def setUp(self):
+        self.user = User.objects.create(username='admin', is_staff=True)
+
+    def seed(self, *args):
+        call_command('seed_conversations', *args, stdout=io.StringIO())
+
+    def test_fills_in_the_order_numbers(self):
+        # Ids that don't start at 1, as after a `seed --reset`.
+        orders = list(Order.objects.order_by('pk'))
+        Order.objects.filter(pk=orders[22].pk).update(number='ORD-000099')
+        self.seed()
+        conversation = self.user.assistant_conversations.get(title='Pedido de Northwind Labs')
+        first = conversation.messages.first()
+        self.assertIn('Página: /orders/ORD-000099', first.content[0]['text'])
+        self.assertIn('ORD-000099', conversation.messages.all()[1].text)
+        self.assertFalse(Message.objects.filter(text__contains='{order:').exists())
+
+    def test_needs_the_orders_of_the_seed(self):
+        Order.objects.all().delete()
+        with self.assertRaisesMessage(CommandError, 'run `seed` first'):
+            self.seed()
+        self.assertFalse(Conversation.objects.exists())
+
+    def test_loads_the_conversations_for_the_staff_user(self):
+        self.seed()
+        conversations = list(self.user.assistant_conversations.all())
+        self.assertTrue(conversations)
+        # Backdated: the newest first, as in the history.
+        self.assertEqual(conversations, sorted(conversations, key=lambda c: c.updated_at, reverse=True))
+
+        first, second = conversations[0].messages.filter(role=Message.Role.USER)[:2]
+        # The content Claude gets if the conversation goes on, with the context of a real one.
+        self.assertEqual(first.content[1], {'type': 'text', 'text': first.text})
+        self.assertIn('Título: (sin título)', first.content[0]['text'])
+        self.assertIn(f'Título: {conversations[0].title}', second.content[0]['text'])
+        self.assertLess(first.created_at, second.created_at)
+
+    def test_is_idempotent(self):
+        self.seed()
+        count = Conversation.objects.count()
+        self.seed()
+        self.assertEqual(Conversation.objects.count(), count)
+
+    def test_reset_recreates_the_conversations(self):
+        self.seed()
+        count = Message.objects.count()
+        self.seed('--reset')
+        self.assertEqual(Message.objects.count(), count)
+
+    def test_needs_the_user_when_there_are_several(self):
+        User.objects.create(username='other', is_staff=True)
+        with self.assertRaisesMessage(CommandError, '--user'):
+            self.seed()
+        self.seed('--user', 'other')
+        self.assertTrue(Conversation.objects.filter(user__username='other').exists())
+        with self.assertRaisesMessage(CommandError, 'nobody'):
+            self.seed('--user', 'nobody')
+
+    def test_rejects_messages_that_dont_alternate(self):
+        data = {'conversations': [{'title': 'Hola', 'messages': [
+            {'role': 'assistant', 'text': '¿En qué te ayudo?'}, {'role': 'user', 'text': 'Hola'},
+        ]}]}
+        with tempfile.NamedTemporaryFile('w', suffix='.json') as file:
+            json.dump(data, file)
+            file.flush()
+            with self.assertRaisesMessage(CommandError, 'alternate'):
+                self.seed(file.name)
+        self.assertFalse(Conversation.objects.exists())
