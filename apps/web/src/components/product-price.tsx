@@ -1,6 +1,6 @@
 import { Product } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 
 export function ProductPrice({
   size = "md",

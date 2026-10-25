@@ -2,7 +2,7 @@
 
 import type { Column } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react"
 
 // The sort button shows on hover of the header cell (`group/th`, set by DataTable) or on

@@ -1,6 +1,6 @@
 import { OrderStatus } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import React from "react"
 import { orderStatusClasses, orderStatusOptions } from "../_lib/order-status"
 

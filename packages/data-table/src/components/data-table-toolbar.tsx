@@ -4,7 +4,7 @@ import type { Column, Table } from "@tanstack/react-table"
 
 import { DataTableViewOptions } from "./data-table-view-options"
 
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { useCallback } from "react"
 import { DataTableMultiSelectFilter } from "./data-table-multi-select-filter"
 import { DataTableSelectFilter } from "./data-table-select-filter"

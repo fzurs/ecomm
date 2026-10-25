@@ -10,7 +10,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { FileTextIcon } from "lucide-react"
 import { useState } from "react"
 

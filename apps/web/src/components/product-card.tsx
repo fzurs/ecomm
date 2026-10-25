@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import React from "react"
 import { ProductPrice } from "./product-price"
 

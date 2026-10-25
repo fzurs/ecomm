@@ -16,8 +16,8 @@ Responder en español. Código e identificadores en inglés, como el resto del r
   La skill `shadcn` (`.claude/skills/shadcn`, copia oficial de shadcn-ui/ui) usa el CLI: correrlo con
   `pnpm dlx shadcn@latest <cmd> -c packages/ui` (o `apps/admin` / `apps/web`); desde la raíz falla por ser monorepo.
   `add` escribe los componentes de UI en `packages/ui` según los aliases del `components.json`.
-  Después de `add`, reemplazar `import { cn } from "cn"` por `@workspace/ui/lib/utils` y quitar la
-  dependencia `cn` que agrega el CLI. Composición con `render={<Button />}`, no `asChild`.
+  `cn` viene del paquete `cn` (`import { cn } from "cn"`), el mismo que usa el CLI; no hay utilidad
+  propia. Composición con `render={<Button />}`, no `asChild`.
   Links con estilo de botón: `<Link className={buttonVariants({...})}>`, no `<Button render={<Link />}>`
   (el `Button` de Base UI fuerza `role="button"`; así lo indica la doc de shadcn).
 - `packages/{eslint,prettier,typescript}-config` — configuración compartida de herramientas.

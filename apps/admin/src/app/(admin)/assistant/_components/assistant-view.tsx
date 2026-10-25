@@ -17,7 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { assistantConversationsListOptions } from "@workspace/api-client/query"
 import { buttonVariants } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { HistoryIcon, SquarePenIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"

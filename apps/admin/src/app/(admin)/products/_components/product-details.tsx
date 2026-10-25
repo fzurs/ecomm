@@ -1,5 +1,5 @@
 import { Product } from "@workspace/api-client"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { format } from "date-fns"
 import {
   BanknoteIcon,

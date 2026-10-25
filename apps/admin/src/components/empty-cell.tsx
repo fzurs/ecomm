@@ -1,4 +1,4 @@
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 
 /** A muted dash for table cells without a value; `label` is announced instead of it. */
 export function EmptyCell({

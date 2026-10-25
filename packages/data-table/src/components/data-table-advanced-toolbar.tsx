@@ -1,5 +1,5 @@
 import { Table } from "@tanstack/react-table"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { DataTableViewOptions } from "./data-table-view-options"
 
 /** `children` go on the left (filters); `actions` on the right, before the view options. */

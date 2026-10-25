@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { Button } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { getColumnLabel } from "@workspace/data-table/lib/column"
 import { DataTableColumnHeader } from "./data-table-column-header"
 

@@ -10,7 +10,7 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@workspace/ui/components/input-group"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { SendIcon, SquareIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { createContext, useContext, useEffect, useRef, useState } from "react"

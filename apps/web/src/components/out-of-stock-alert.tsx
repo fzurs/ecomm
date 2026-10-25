@@ -3,7 +3,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@workspace/ui/components/alert"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { AlertTriangleIcon } from "lucide-react"
 
 export function OutOfStockAlert({

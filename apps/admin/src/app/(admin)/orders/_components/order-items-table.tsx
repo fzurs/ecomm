@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import React from "react"
 
 export function OrderItemsTable({

@@ -19,7 +19,7 @@ import { orderStatusOptions } from "../_lib/order-status"
 import { OrderItemsTable } from "./order-items-table"
 import { OrderRowActions } from "./order-row-actions"
 import { OrderStatusBadge } from "./order-status-badge"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { useRowActions } from "@/context/row-actions-provider"
 
 export const orderColumns = [

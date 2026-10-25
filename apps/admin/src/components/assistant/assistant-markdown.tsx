@@ -1,4 +1,4 @@
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 

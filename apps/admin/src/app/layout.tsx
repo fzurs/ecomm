@@ -4,7 +4,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { ThemeProvider } from "@workspace/ui/components/theme-provider"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { Inter } from "next/font/google"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 

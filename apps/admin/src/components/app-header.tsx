@@ -1,6 +1,6 @@
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import React from "react"
 import { AssistantTrigger } from "./assistant/assistant-trigger"
 import { NavBreadcrumb } from "./nav-breadcrumb"

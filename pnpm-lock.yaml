@@ -47,6 +47,9 @@ importers:
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      cn:
+        specifier: ^0.5.0
+        version: 0.5.0
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0
@@ -122,6 +125,9 @@ importers:
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      cn:
+        specifier: ^0.5.0
+        version: 0.5.0
       lucide-react:
         specifier: ^1.17.0
         version: 1.28.0(react@19.2.7)
@@ -199,6 +205,9 @@ importers:
       '@workspace/ui':
         specifier: workspace:*
         version: link:../ui
+      cn:
+        specifier: ^0.5.0
+        version: 0.5.0
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -292,15 +301,18 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.4.0(react-hook-form@7.73.1(react@19.2.7))
+      '@shadcn/react':
+        specifier: ^0.3.1
+        version: 0.3.1(@types/react@19.2.17)(react@19.2.7)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      cn:
+        specifier: ^0.5.0
+        version: 0.5.0
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0
@@ -325,9 +337,6 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      tailwind-merge:
-        specifier: ^3.5.0
-        version: 3.5.0
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.2.4
@@ -1393,6 +1402,17 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
+  '@shadcn/react@0.3.1':
+    resolution: {integrity: sha512-2gOR0HDMtWeRsCZfNDaU0YDFdgH3zsDQ6lz67Fv/y/qjY9y+R8kJqAn6q56phqv7/zHi0wqURjntrNO9zL7vnQ==}
+    peerDependencies:
+      '@types/react': '>=19'
+      react: '>=19'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+
   '@shadcn/registry@0.2.0':
     resolution: {integrity: sha512-m3TeqU/+av2kgOLfESHkWzsmhuQuY4NXZd5Y1Rd4lzy4IX3JJ5+k2mYfkq6OT8oMuk2W4GQPAkO7+CC7KlpSbw==}
     engines: {node: '>=20.18.1'}
@@ -2050,6 +2070,11 @@ packages:
   cn@0.2.6:
     resolution: {integrity: sha512-+i4L0zUGgRcEnhsxueVrP7iBGxBx5iD0WOTYg1MwFEu2ZyCmH5Ov2V1cul2Ht5UchRQQgftCf4be/RxspuW6QQ==}
     engines: {node: '>=20'}
+    hasBin: true
+
+  cn@0.5.0:
+    resolution: {integrity: sha512-JGEixZEpfFXm1P5uXwvEobOFLlHwIWi5v4tjd1ZwfiYmcEilkuD2l+054rvJcYCR1B+uVThHeUbgmNz1FwuxuA==}
+    engines: {node: '>=22'}
     hasBin: true
 
   code-block-writer@13.0.3:
@@ -4073,9 +4098,6 @@ packages:
     os: [darwin, linux, win32, freebsd, openbsd, netbsd, sunos, android]
     hasBin: true
 
-  tailwind-merge@3.5.0:
-    resolution: {integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==}
-
   tailwindcss@4.3.3:
     resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
 
@@ -5317,6 +5339,11 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
+  '@shadcn/react@0.3.1(@types/react@19.2.17)(react@19.2.7)':
+    optionalDependencies:
+      '@types/react': 19.2.17
+      react: 19.2.7
+
   '@shadcn/registry@0.2.0':
     dependencies:
       '@babel/core': 7.29.7
@@ -6001,6 +6028,8 @@ snapshots:
       - '@types/react-dom'
 
   cn@0.2.6: {}
+
+  cn@0.5.0: {}
 
   code-block-writer@13.0.3: {}
 
@@ -8372,8 +8401,6 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   systeminformation@5.33.16: {}
-
-  tailwind-merge@3.5.0: {}
 
   tailwindcss@4.3.3: {}
 

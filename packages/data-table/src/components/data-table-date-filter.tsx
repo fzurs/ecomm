@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@workspace/ui/components/popover"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { format } from "date-fns"
 import { XIcon } from "lucide-react"
 import { useCallback, useMemo } from "react"

@@ -13,7 +13,7 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@workspace/ui/components/combobox"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { useMemo } from "react"
 import { orderStatusClasses, orderStatusOptions } from "../_lib/order-status"
 

@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { getPageItems } from "../lib/pagination"
 
 const numberFormat = new Intl.NumberFormat("en-US")

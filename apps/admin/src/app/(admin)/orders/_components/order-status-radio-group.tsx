@@ -3,7 +3,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@workspace/ui/components/dropdown-menu"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { orderStatusClasses, orderStatusOptions } from "../_lib/order-status"
 
 /** Status options for a dropdown menu, each colored like its badge. */

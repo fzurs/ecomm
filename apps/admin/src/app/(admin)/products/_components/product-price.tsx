@@ -1,6 +1,6 @@
 import { Product } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { formatPrice } from "@/lib/utils"
 
 /** The final price, with the list price struck through when a discount applies. */

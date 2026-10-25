@@ -9,7 +9,7 @@ import BrandsProvider from "@/components/brands-provider"
 import { Suspense } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Inter } from "next/font/google"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 

@@ -10,7 +10,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Empty, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "cn"
 import { formatDistanceToNow } from "date-fns"
 import { Trash2Icon } from "lucide-react"
 
