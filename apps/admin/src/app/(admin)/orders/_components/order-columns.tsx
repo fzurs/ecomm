@@ -20,22 +20,13 @@ import { OrderItemsTable } from "./order-items-table"
 import { OrderRowActions } from "./order-row-actions"
 import { OrderStatusBadge } from "./order-status-badge"
 import { cn } from "@workspace/ui/lib/utils"
+import { useRowActions } from "@/context/row-actions-provider"
 
 export const orderColumns = [
   {
     accessorKey: "number",
     header: "Order",
-    cell: ({ row }) => (
-      <Link
-        href={`/orders/${row.original.number}`}
-        className={cn(
-          buttonVariants({ variant: "link", size: "sm" }),
-          "px-0 font-medium"
-        )}
-      >
-        {row.original.number}
-      </Link>
-    ),
+    cell: ({ row }) => <TableCellViewer order={row.original} />,
     enableSorting: false,
     enableHiding: false,
   },
@@ -126,3 +117,18 @@ export const orderColumns = [
     enableHiding: false,
   },
 ] as const satisfies ColumnDef<Order>[]
+
+function TableCellViewer({ order }: { order: Order }) {
+  const { openAction } = useRowActions<Order>()
+
+  return (
+    <Button
+      size="sm"
+      variant="link"
+      className="px-0 font-medium"
+      onClick={() => openAction("view", order)}
+    >
+      {order.number}
+    </Button>
+  )
+}

@@ -22,11 +22,10 @@ import {
 import {
   CircleDashedIcon,
   EllipsisVerticalIcon,
-  EyeIcon,
   FileTextIcon,
+  PanelRightIcon,
   Trash2Icon,
 } from "lucide-react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useRowActions } from "@/context/row-actions-provider"
@@ -71,10 +70,9 @@ export function OrderRowActions({ item: order }: { item: Order }) {
   const createInvoice = () =>
     createInvoiceMutation.mutate({ body: { order: order.id } })
 
-  const detailsHref = `/orders/${order.number}`
+  // Warms the detail query the view drawer reads.
   const prefetchDetails = (open: boolean) => {
     if (!open) return
-    router.prefetch(detailsHref)
     queryClient.prefetchQuery(
       ordersRetrieveOptions({ path: { number: order.number } })
     )
@@ -91,8 +89,8 @@ export function OrderRowActions({ item: order }: { item: Order }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
-          <DropdownMenuItem render={<Link href={detailsHref} />}>
-            <EyeIcon />
+          <DropdownMenuItem onClick={() => openAction("view", order)}>
+            <PanelRightIcon />
             View details
           </DropdownMenuItem>
           {order.status === "paid" && (

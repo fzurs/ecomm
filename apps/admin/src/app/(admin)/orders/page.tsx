@@ -35,6 +35,7 @@ import { useSearch } from "@/hooks/use-search"
 import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
+import { OrderViewDrawer } from "./_components/order-view-drawer"
 
 const DEBOUNCE_DELAY = 300
 
@@ -117,6 +118,7 @@ export default function OrdersPage() {
             <DataTableSortMenu table={table} />
           </DataTableAdvancedToolbar>
         </DataTable>
+        <OrderViewDrawer />
         <OrderDeleteAlertDialog />
       </main>
     </RowActionsProvider>

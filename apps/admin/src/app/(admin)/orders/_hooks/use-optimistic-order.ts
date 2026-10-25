@@ -31,7 +31,14 @@ export function useOptimisticOrderUpdate(order: Order) {
     },
     onError: (err, _, onMutateResult) =>
       queryClient.setQueryData(queryKey, onMutateResult?.previousData),
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        // The view drawer and the detail page read this one.
+        queryClient.invalidateQueries({
+          queryKey: ordersRetrieveQueryKey({ path: { number: order.number } }),
+        }),
+      ]),
   })
 }
 

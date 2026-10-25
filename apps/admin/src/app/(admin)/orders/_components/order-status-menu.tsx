@@ -10,7 +10,13 @@ import { CircleDashedIcon } from "lucide-react"
 import { useOptimisticOrderDetailUpdate } from "../_hooks/use-optimistic-order"
 import { OrderStatusRadioGroup } from "./order-status-radio-group"
 
-export function OrderStatusMenu({ order }: { order: Order }) {
+export function OrderStatusMenu({
+  order,
+  size,
+}: {
+  order: Order
+  size?: React.ComponentProps<typeof Button>["size"]
+}) {
   const { mutate, isPending } = useOptimisticOrderDetailUpdate(order)
 
   const status: OrderStatus = order.status || "pending"
@@ -22,7 +28,7 @@ export function OrderStatusMenu({ order }: { order: Order }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" />}>
+      <DropdownMenuTrigger render={<Button variant="outline" size={size} />}>
         <CircleDashedIcon />
         Change status
       </DropdownMenuTrigger>

@@ -7,28 +7,13 @@ import { useParams } from "next/navigation"
 import { OrderItemsTable } from "../_components/order-items-table"
 import { OrderStatusBadge } from "../_components/order-status-badge"
 import { OrderStatusMenu } from "../_components/order-status-menu"
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "@workspace/ui/components/item"
-import { CalendarIcon, EyeIcon, MailIcon } from "lucide-react"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
-import { buttonVariants } from "@workspace/ui/components/button"
-import Link from "next/link"
+import { OrderCustomerItem } from "../_components/order-customer-item"
+import { CalendarIcon } from "lucide-react"
 
 export default function OrdersDetailsPage() {
   const params = useParams<{ number: string }>()
   const query = useSuspenseQuery(ordersRetrieveOptions({ path: params }))
   const order = query.data
-  const customer = order.customer_detail
 
   return (
     <>
@@ -70,30 +55,7 @@ export default function OrdersDetailsPage() {
             <div className="typeset">
               <h2>Customer details</h2>
             </div>
-            <Item variant="muted">
-              <ItemMedia variant="image">
-                <Avatar size="lg">
-                  {customer.image && <AvatarImage src={customer.image} />}
-                  <AvatarFallback />
-                </Avatar>
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>{customer.name}</ItemTitle>
-                <ItemDescription className="flex items-center gap-2">
-                  <MailIcon className="size-4" />
-                  {customer.email}
-                </ItemDescription>
-              </ItemContent>
-              <ItemActions>
-                <Link
-                  href={`/customers/${customer.id}`}
-                  className={buttonVariants({ variant: "ghost" })}
-                >
-                  <EyeIcon />
-                  <span>View details</span>
-                </Link>
-              </ItemActions>
-            </Item>
+            <OrderCustomerItem customer={order.customer_detail} />
           </section>
         </div>
       </main>
