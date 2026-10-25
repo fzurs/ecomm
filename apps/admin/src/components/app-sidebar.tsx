@@ -24,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
 import { AssistantIcon } from "./assistant/assistant-icon"
@@ -65,6 +66,9 @@ const groups: { label: string | null; items: NavItem[] }[] = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  // On mobile the sidebar is a sheet over the page, so navigating closes it.
+  const { setOpenMobile } = useSidebar()
+  const closeMobile = () => setOpenMobile(false)
 
   const { user } = useSession()
 
@@ -73,7 +77,10 @@ export function AppSidebar() {
       <SidebarHeader className="h-(--header-height) border-b">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<Link href="/" />}>
+            <SidebarMenuButton
+              render={<Link href="/" />}
+              onClick={closeMobile}
+            >
               <GalleryVerticalEndIcon />
               <span className="text-base font-semibold">Acme Inc.</span>
             </SidebarMenuButton>
@@ -99,6 +106,7 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         isActive={isActive}
                         render={<Link href={item.url} />}
+                        onClick={closeMobile}
                       >
                         <item.icon />
                         <span>{item.title}</span>
