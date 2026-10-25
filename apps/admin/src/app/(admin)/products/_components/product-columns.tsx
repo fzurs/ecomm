@@ -19,6 +19,7 @@ import { Product } from "@workspace/api-client"
 import {
   EditIcon,
   EllipsisVerticalIcon,
+  PanelRightIcon,
   StarIcon,
   Trash2Icon,
 } from "lucide-react"
@@ -29,7 +30,6 @@ import {
   ProductStatusBadge,
   productStatusOptions,
 } from "../_lib/product-status"
-import Link from "next/link"
 
 const featuredIcons = {
   true: (
@@ -54,10 +54,7 @@ export function getProductColumns({
     {
       accessorKey: "name",
       header: "Name",
-      // cell: ({ row }) => <TableCellViewer product={row.original} />,
-      cell: ({ row }) => (
-        <Link href={`/products/${row.original.slug}`}>{row.original.name}</Link>
-      ),
+      cell: ({ row }) => <TableCellViewer product={row.original} />,
       enableHiding: false,
       meta: { variant: "text" },
     },
@@ -205,7 +202,7 @@ function TableCellViewer({ product }: { product: Product }) {
         size="sm"
         variant="link"
         className="px-0"
-        onClick={() => openAction("edit", product)}
+        onClick={() => openAction("view", product)}
       >
         {product.name}
       </Button>
@@ -231,6 +228,10 @@ function TableCellActions({ item }: { item: Product }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => openAction("view", item)}>
+            <PanelRightIcon />
+            View details
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => openAction("edit", item)}>
             <EditIcon />
             Edit

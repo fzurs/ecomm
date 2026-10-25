@@ -27,6 +27,7 @@ import {
 } from "./_components/product-create-form"
 import { ProductsTable } from "./_components/products-table"
 import { ProductEditDrawer } from "./_components/product-edit-drawer"
+import { ProductViewDrawer } from "./_components/product-view-drawer"
 import { ProductDeleteAlertDialog } from "./_components/product-delete-alert-dialog"
 
 export default function ProductsPage() {
@@ -40,6 +41,7 @@ export default function ProductsPage() {
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
         <ProductsTable />
+        <ProductViewDrawer />
         <ProductEditDrawer />
         <ProductDeleteAlertDialog />
       </main>
