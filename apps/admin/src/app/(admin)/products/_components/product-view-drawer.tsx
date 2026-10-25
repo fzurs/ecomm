@@ -1,5 +1,9 @@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import { useRowActionDialog } from "@/context/row-actions-provider"
+import {
+  useRowActionDialog,
+  useRowActions,
+} from "@/context/row-actions-provider"
+import { useState } from "react"
 import {
   Drawer,
   DrawerContent,
@@ -18,6 +22,7 @@ import {
 import { ProductDetails } from "./product-details"
 import { ProductDescription } from "./product-description"
 import { ProductEditButton } from "./product-buttons"
+import { ProductEditDrawerContent } from "./product-edit-drawer"
 import { ProductPrice } from "./product-price"
 import {
   Breadcrumb,
@@ -45,6 +50,13 @@ export function ProductViewDrawer() {
 }
 
 function ProductViewDrawerContent({ product }: { product: Product }) {
+  const isMobile = useIsMobile()
+  const { openAction } = useRowActions<Product>()
+
+  // Edit opens on top of this drawer instead of replacing it, so it's local
+  // state: a row action would close the view.
+  const [editOpen, setEditOpen] = useState(false)
+
   return (
     <>
       <div className="flex h-(--header-height) items-center justify-between gap-4 border-b px-4">
@@ -90,7 +102,11 @@ function ProductViewDrawerContent({ product }: { product: Product }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ProductEditButton product={product} size="sm" />
+            <ProductEditButton
+              product={product}
+              size="sm"
+              onClick={() => setEditOpen(true)}
+            />
           </div>
         </div>
       </DrawerHeader>
@@ -110,6 +126,23 @@ function ProductViewDrawerContent({ product }: { product: Product }) {
           <ProductDetails product={product} />
         </div>
       </div>
+      {/* Rendered inside the view's content, so Base UI stacks it as nested. */}
+      <Drawer
+        swipeDirection={isMobile ? "down" : "right"}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      >
+        <DrawerContent size="md">
+          <ProductEditDrawerContent
+            product={product}
+            onSuccess={(updated) => {
+              setEditOpen(false)
+              // The view shows the table row; swap in the saved product.
+              openAction("view", updated)
+            }}
+          />
+        </DrawerContent>
+      </Drawer>
     </>
   )
 }
