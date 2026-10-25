@@ -26,8 +26,10 @@ import {
   AssistantChat,
   AssistantChatContent,
   AssistantChatEmpty,
+  AssistantChatError,
   AssistantChatInput,
   AssistantChatMessages,
+  useAssistantChat,
 } from "./assistant-chat"
 import { AssistantConversations } from "./assistant-conversations"
 import { useAssistant } from "./assistant-provider"
@@ -125,15 +127,35 @@ export function AssistantDrawer() {
           />
         ) : (
           <AssistantChat conversation={conversation} onCreate={setConversation}>
-            <AssistantChatMessages>
-              <AssistantChatContent>
-                <AssistantChatEmpty />
-              </AssistantChatContent>
-            </AssistantChatMessages>
-            <AssistantChatInput className="p-4 pt-0" />
+            <AssistantDrawerChat />
           </AssistantChat>
         )}
       </DrawerContent>
     </Drawer>
+  )
+}
+
+/**
+ * The greeting while the conversation is empty, out of the scroller as there's
+ * nothing to scroll (with the error of a conversation that couldn't be
+ * created); the messages once it has any.
+ */
+function AssistantDrawerChat() {
+  const { messages, isLoading } = useAssistantChat()
+
+  return (
+    <>
+      {messages.length || isLoading ? (
+        <AssistantChatMessages>
+          <AssistantChatContent />
+        </AssistantChatMessages>
+      ) : (
+        <>
+          <AssistantChatEmpty />
+          <AssistantChatError className="mx-4 mb-4 w-auto" />
+        </>
+      )}
+      <AssistantChatInput className="p-4 pt-0" />
+    </>
   )
 }

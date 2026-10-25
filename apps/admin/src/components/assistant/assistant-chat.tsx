@@ -2,7 +2,16 @@
 
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { Empty, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import { Bubble, BubbleContent } from "@workspace/ui/components/bubble"
+import { Message, MessageContent } from "@workspace/ui/components/message"
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "@workspace/ui/components/message-scroller"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
   InputGroup,
@@ -13,8 +22,9 @@ import {
 import { cn } from "cn"
 import { SendIcon, SquareIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { createContext, useContext, useEffect, useRef, useState } from "react"
+import { createContext, useContext, useState } from "react"
 import { AssistantMarkdown } from "./assistant-markdown"
+import { AssistantSteps } from "./assistant-steps"
 import { useConversation } from "./use-conversation"
 
 const AssistantChatContext = createContext<ReturnType<
@@ -51,66 +61,106 @@ function AssistantChat({
   )
 }
 
-/** The scrolling area of the messages; `AssistantChatContent` goes inside. */
+/**
+ * The scrolling area of the messages; `AssistantChatContent` goes inside. It
+ * opens at the end, follows the answer while the reader stays at the bottom,
+ * and shows a button back to the end once they scroll up.
+ */
 function AssistantChatMessages({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof ScrollArea>) {
+}: React.ComponentProps<typeof MessageScroller>) {
   return (
-    <ScrollArea
-      data-slot="assistant-chat-messages"
-      className={cn("min-h-0 flex-1", className)}
-      {...props}
-    />
+    <MessageScrollerProvider autoScroll>
+      <MessageScroller
+        data-slot="assistant-chat-messages"
+        className={cn("flex-1", className)}
+        {...props}
+      >
+        <MessageScrollerViewport>{children}</MessageScrollerViewport>
+        <MessageScrollerButton />
+      </MessageScroller>
+    </MessageScrollerProvider>
   )
 }
 
 /**
- * The column of messages: `children` (e.g. `AssistantChatEmpty`), then the
- * messages, the answer's progress and the error. It scrolls to its end as
- * they change.
+ * The column of messages, then the error. Each one is an item of the
+ * scroller, which measures and anchors them. An empty conversation shows
+ * `AssistantChatEmpty` instead of the scroller.
  */
 function AssistantChatContent({
   className,
-  children,
   ...props
-}: React.ComponentProps<"div">) {
-  const { messages, tool, error, isLoading, isStreaming } = useAssistantChat()
-  const end = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    end.current?.scrollIntoView({ block: "end" })
-  }, [messages, tool, error])
+}: React.ComponentProps<typeof MessageScrollerContent>) {
+  const { messages, steps, error, isLoading, isStreaming } = useAssistantChat()
+  const last = messages.at(-1)
 
   return (
-    <div
+    <MessageScrollerContent
       data-slot="assistant-chat-content"
-      className={cn("flex flex-col gap-4 p-4", className)}
+      // Screen readers wait for the whole answer instead of reading it as it
+      // comes in.
+      aria-busy={isStreaming}
+      className={cn("gap-6 p-4", className)}
       {...props}
     >
-      {children}
-      {isLoading && <Spinner className="mx-auto" />}
-      {messages.map((message) =>
-        message.role === "user" ? (
-          <div
-            key={message.id}
-            className="max-w-[85%] self-end rounded-lg bg-primary px-3 py-2 whitespace-pre-wrap text-primary-foreground"
-          >
-            {message.text}
-          </div>
-        ) : (
-          <AssistantMarkdown key={message.id}>{message.text}</AssistantMarkdown>
-        )
+      {isLoading && (
+        <MessageScrollerItem>
+          <Spinner className="mx-auto" />
+        </MessageScrollerItem>
       )}
-      {isStreaming && (
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Spinner />
-          {tool ? `${tool}…` : null}
-        </div>
+      {messages.map((message, index) => (
+        <MessageScrollerItem
+          // By position: the list only grows and the saved messages take the
+          // drafts' places, so the answer isn't remounted when it's saved.
+          key={index}
+          messageId={String(index)}
+          // The question just sent settles near the top, with its answer
+          // coming in below it. Only until they're saved: the scroller keeps
+          // a screen of space under its last anchor, empty below a short or
+          // finished answer.
+          scrollAnchor={message.role === "user" && message.draft}
+        >
+          {message.role === "user" ? (
+            <Message align="end">
+              <MessageContent>
+                <Bubble variant="muted" align="end">
+                  <BubbleContent className="whitespace-pre-wrap">
+                    {message.text}
+                  </BubbleContent>
+                </Bubble>
+              </MessageContent>
+            </Message>
+          ) : (
+            <Message>
+              <MessageContent className="gap-3">
+                {/* The steps are the last answer's: older ones aren't kept. */}
+                {message === last && (
+                  <AssistantSteps
+                    steps={steps}
+                    thinking={
+                      isStreaming &&
+                      !message.text.trim() &&
+                      !steps.some((step) => step.status === "running")
+                    }
+                  />
+                )}
+                {message.text.trim() && (
+                  <AssistantMarkdown>{message.text}</AssistantMarkdown>
+                )}
+              </MessageContent>
+            </Message>
+          )}
+        </MessageScrollerItem>
+      ))}
+      {error && (
+        <MessageScrollerItem>
+          <AssistantChatError />
+        </MessageScrollerItem>
       )}
-      <AssistantChatError />
-      <div ref={end} />
-    </div>
+    </MessageScrollerContent>
   )
 }
 
@@ -179,11 +229,17 @@ function AssistantChatInput({
           value={text}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
+            // Not while composing (an IME's Enter confirms the text).
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
               event.preventDefault()
               submit()
             }
           }}
+          aria-label="Message"
           placeholder="How many orders came in this week?"
           className="max-h-40 min-h-10"
           autoFocus
@@ -198,6 +254,7 @@ function AssistantChatInput({
               title="Stop"
             >
               <SquareIcon />
+              <span className="sr-only">Stop</span>
             </InputGroupButton>
           ) : (
             <InputGroupButton
@@ -209,6 +266,7 @@ function AssistantChatInput({
               title="Send"
             >
               <SendIcon />
+              <span className="sr-only">Send</span>
             </InputGroupButton>
           )}
         </InputGroupAddon>

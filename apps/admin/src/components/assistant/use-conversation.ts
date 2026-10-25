@@ -17,7 +17,13 @@ import Cookies from "js-cookie"
 import { useMemo, useState, useSyncExternalStore } from "react"
 import { sessionQueryKey } from "@/hooks/use-auth"
 
-export type ChatMessage = { id: string; role: MessageRole; text: string }
+/** `draft`: shown before the server saves it, while its answer comes in. */
+export type ChatMessage = {
+  id: string
+  role: MessageRole
+  text: string
+  draft: boolean
+}
 
 type ReplyEvent =
   | { event: "text"; data: { delta: string } }
@@ -86,29 +92,21 @@ class ReplyError extends Error {
   }
 }
 
-const TOOL_LABELS: Record<string, string> = {
-  search_orders: "Searching orders",
-  get_order: "Reading the order",
-  search_products: "Searching products",
-  list_categories: "Listing categories",
-  list_brands: "Listing brands",
-  search_customers: "Searching customers",
-  get_customer: "Reading the customer",
-  sales_summary: "Summing up sales",
-  unsold_products: "Looking for unsold products",
-  list_invoices: "Searching invoices",
-  get_invoice: "Reading the invoice",
-  set_title: "Naming the conversation",
-}
+/**
+ * A tool the answer called. The stream only says when a call starts, so a step
+ * runs until the next event: text or another call ends it.
+ */
+export type ReplyStep = { name: string; status: "running" | "done" | "error" }
 
 type Reply = {
   isStreaming: boolean
-  tool: string | null
+  // The steps of the last answer, kept after it ends to show them under it.
+  steps: ReplyStep[]
   error: string | null
   controller?: AbortController
 }
 
-const IDLE: Reply = { isStreaming: false, tool: null, error: null }
+const IDLE: Reply = { isStreaming: false, steps: [], error: null }
 
 // The state of each conversation's answer, outside React: an answer keeps
 // streaming while the user moves between pages (e.g. /assistant hands over to
@@ -119,6 +117,17 @@ const listeners = new Set<() => void>()
 function setReply(id: number, patch: Partial<Reply>) {
   replies.set(id, { ...(replies.get(id) ?? IDLE), ...patch })
   listeners.forEach((listener) => listener())
+}
+
+/** Ends the running steps of the answer, if there are any. */
+function settleSteps(id: number, status: ReplyStep["status"]) {
+  const steps = replies.get(id)?.steps ?? []
+  if (!steps.some((step) => step.status === "running")) return
+  setReply(id, {
+    steps: steps.map((step) =>
+      step.status === "running" ? { ...step, status } : step
+    ),
+  })
 }
 
 function subscribe(listener: () => void) {
@@ -149,7 +158,7 @@ async function startReply(
   page: string
 ) {
   const controller = new AbortController()
-  setReply(id, { isStreaming: true, tool: null, error: null, controller })
+  setReply(id, { isStreaming: true, steps: [], error: null, controller })
 
   const { queryKey } = assistantConversationsRetrieveOptions({ path: { id } })
   const now = new Date().toISOString()
@@ -191,17 +200,26 @@ async function startReply(
       controller.signal
     )) {
       if (event === "text") {
-        setReply(id, { tool: null })
+        settleSteps(id, "done")
         append(data.delta)
       } else if (event === "tool") {
-        setReply(id, { tool: TOOL_LABELS[data.name] ?? "Looking it up" })
+        settleSteps(id, "done")
+        setReply(id, {
+          steps: [
+            ...(replies.get(id)?.steps ?? []),
+            { name: data.name, status: "running" },
+          ],
+        })
         // Text before and after a tool call are separate paragraphs.
         append("\n\n")
       } else if (event === "error") {
+        settleSteps(id, "error")
         setReply(id, { error: data.message })
       }
     }
   } catch (caught) {
+    // Stopped or failed: a step that was running didn't finish.
+    settleSteps(id, "error")
     if (!controller.signal.aborted) {
       if (caught instanceof ReplyError && [401, 403].includes(caught.status)) {
         // Same as the query client: a gone session sends the user to /login.
@@ -218,7 +236,8 @@ async function startReply(
       })
     }
   } finally {
-    setReply(id, { isStreaming: false, tool: null, controller: undefined })
+    settleSteps(id, "done")
+    setReply(id, { isStreaming: false, controller: undefined })
     // The saved messages replace the drafts. A stopped answer isn't saved, so
     // it stays as it is until the conversation is opened again.
     if (!controller.signal.aborted) queryClient.invalidateQueries({ queryKey })
@@ -285,24 +304,43 @@ export function useConversation(
     }
   }
 
-  // Memoized: the chat scrolls to the end whenever the messages change.
+  // Memoized: a stable array while nothing changes, for the chat's items.
   const data = conversation === null ? undefined : query.data
   const messages = useMemo<ChatMessage[]>(() => {
     if (data) {
-      return data.messages.map((message) => ({
-        id: String(message.id),
-        role: message.role,
-        text: message.text ?? "",
-      }))
+      // One message per assistant turn: an answer that calls tools is saved
+      // as a message per step, but streams as one, its parts in paragraphs
+      // (see `startReply`). Joined, it doesn't change shape when it's saved.
+      const turns: ChatMessage[] = []
+      for (const message of data.messages) {
+        const text = message.text ?? ""
+        const last = turns.at(-1)
+        if (message.role === "assistant" && last?.role === "assistant") {
+          last.text += `\n\n${text}`
+        } else {
+          turns.push({
+            id: String(message.id),
+            role: message.role,
+            text,
+            // Drafts get negative ids (see `startReply`).
+            draft: message.id < 0,
+          })
+        }
+      }
+      return turns
     }
+    // The same two drafts `startReply` adds, so nothing moves when they do.
     return pending === null
       ? []
-      : [{ id: "pending", role: "user", text: pending }]
+      : [
+          { id: "pending", role: "user", text: pending, draft: true },
+          { id: "pending-answer", role: "assistant", text: "", draft: true },
+        ]
   }, [data, pending])
 
   return {
     messages,
-    tool: reply.tool,
+    steps: reply.steps,
     error:
       createError ??
       reply.error ??
