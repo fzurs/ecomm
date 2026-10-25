@@ -1,7 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Option } from "@workspace/data-table/types/data-table"
 import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +26,10 @@ import { formatPrice } from "@/lib/utils"
 import { EmptyCell } from "@/components/empty-cell"
 import { useRowActions } from "@/context/row-actions-provider"
 import {
-  productStatusIcons,
+  ProductStatusBadge,
   productStatusOptions,
 } from "../_lib/product-status"
+import Link from "next/link"
 
 const featuredIcons = {
   true: (
@@ -54,7 +54,10 @@ export function getProductColumns({
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => <TableCellViewer product={row.original} />,
+      // cell: ({ row }) => <TableCellViewer product={row.original} />,
+      cell: ({ row }) => (
+        <Link href={`/products/${row.original.slug}`}>{row.original.name}</Link>
+      ),
       enableHiding: false,
       meta: { variant: "text" },
     },
@@ -69,10 +72,7 @@ export function getProductColumns({
       header: "Status",
       cell: ({ row }) =>
         row.original.status && (
-          <Badge variant="outline" className="capitalize">
-            {productStatusIcons[row.original.status]}{" "}
-            {row.original.status.replaceAll("_", " ")}
-          </Badge>
+          <ProductStatusBadge status={row.original.status} />
         ),
       meta: {
         thClassName: "pl-4",

@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { ProductStatus } from "@workspace/api-client"
 import { zProductStatus } from "@workspace/api-client/zod"
+import { Badge } from "@workspace/ui/components/badge"
 import { capitalize } from "@/lib/utils"
 
 // Colored through `stroke`, not `color`: select and menu items set `color` on
@@ -23,6 +24,14 @@ export const productStatusIcons: Record<ProductStatus, React.JSX.Element> = {
     <PackageXIcon className="stroke-orange-500 dark:stroke-orange-400" />
   ),
   discontinued: <ArchiveXIcon className="stroke-red-500 dark:stroke-red-400" />,
+}
+
+export function ProductStatusBadge({ status }: { status: ProductStatus }) {
+  return (
+    <Badge variant="outline" className="capitalize">
+      {productStatusIcons[status]} {status.replaceAll("_", " ")}
+    </Badge>
+  )
 }
 
 export const productStatusOptions = zProductStatus.options.map((status) => ({

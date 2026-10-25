@@ -10,5 +10,7 @@ export async function invalidateProducts(queryClient: QueryClient) {
     queryClient.invalidateQueries({
       queryKey: productsListChoicesQueryKey(),
     }),
+    // Every product detail: keys match partially, so `_id` alone covers any slug.
+    queryClient.invalidateQueries({ queryKey: [{ _id: "productsRetrieve" }] }),
   ])
 }
