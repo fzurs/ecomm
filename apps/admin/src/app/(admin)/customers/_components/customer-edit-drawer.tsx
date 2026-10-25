@@ -46,14 +46,14 @@ function CustomerEditDrawerContent({
           Changes are saved to the customer&apos;s profile.
         </DrawerDescription>
       </DrawerHeader>
-      <div className="overflow-auto px-4 pt-2">
+      <div className="flex-1 scroll-fade overflow-auto p-4">
         <CustomerEditForm form={form} />
       </div>
       <DrawerFooter>
         <form.AppForm>
           <form.SubmitButton>Save changes</form.SubmitButton>
         </form.AppForm>
-        <DrawerClose render={<Button variant="secondary" />}>Close</DrawerClose>
+        <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
       </DrawerFooter>
     </>
   )

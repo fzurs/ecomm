@@ -58,14 +58,14 @@ function CategoryEditDrawerContent({
           Changes apply to every product in this category.
         </DrawerDescription>
       </DrawerHeader>
-      <div className="overflow-auto p-4">
+      <div className="flex-1 scroll-fade overflow-auto p-4">
         <CategoryEditForm form={form} />
       </div>
       <DrawerFooter>
         <form.AppForm>
           <form.SubmitButton>Save changes</form.SubmitButton>
         </form.AppForm>
-        <DrawerClose render={<Button variant="secondary" />}>Close</DrawerClose>
+        <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
       </DrawerFooter>
     </>
   )

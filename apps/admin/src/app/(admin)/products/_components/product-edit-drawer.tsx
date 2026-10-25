@@ -77,7 +77,7 @@ function ProductEditDrawerContent({
         onScroll={(e) => {
           scrollTopRef.current = e.currentTarget.scrollTop
         }}
-        className="overflow-auto p-4"
+        className="flex-1 scroll-fade overflow-y-auto p-4"
       >
         <ProductEditForm form={form} product={product} />
       </div>
@@ -85,7 +85,7 @@ function ProductEditDrawerContent({
         <form.AppForm>
           <form.SubmitButton>Save changes</form.SubmitButton>
         </form.AppForm>
-        <DrawerClose render={<Button variant="secondary" />}>Close</DrawerClose>
+        <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
       </DrawerFooter>
     </>
   )
