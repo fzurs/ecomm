@@ -146,7 +146,6 @@ async function startReply(
   setReply(id, { isStreaming: true, tool: null, error: null, controller })
 
   const { queryKey } = assistantConversationsRetrieveOptions({ path: { id } })
-  await queryClient.cancelQueries({ queryKey })
   const now = new Date().toISOString()
   const answerId = --draftId
   const draft = (role: MessageRole, id: number): Message => ({
@@ -168,11 +167,16 @@ async function startReply(
           : message
       )
     )
+  // Synchronously, so the chat never renders the conversation without them
+  // (a new one is opened right after this call).
   update((messages) => [
     ...messages,
     { ...draft("user", --draftId), text },
     draft("assistant", answerId),
   ])
+  // A fetch in flight would drop the drafts. The cancel reverts to the data
+  // set above: setQueryData also updates what a cancel reverts to.
+  queryClient.cancelQueries({ queryKey })
 
   try {
     for await (const { event, data } of streamReply(
@@ -230,9 +234,16 @@ export function useConversation(
   const queryClient = useQueryClient()
   const reply = useReply(conversation)
   const createConversation = useMutation(assistantConversationsCreateMutation())
-  // The first message of a new conversation, shown while it's created.
+  // The first message of a new conversation, shown while it's created. It
+  // stays after that: the page shows it until the conversation's URL takes
+  // over, and the side panel drops it when its conversation changes.
   const [pending, setPending] = useState<string | null>(null)
   const [createError, setCreateError] = useState<string | null>(null)
+  const [previous, setPrevious] = useState(conversation)
+  if (conversation !== previous) {
+    setPrevious(conversation)
+    setPending(null)
+  }
   const query = useQuery({
     ...assistantConversationsRetrieveOptions({
       path: { id: conversation ?? 0 },
@@ -263,9 +274,8 @@ export function useConversation(
       startReply(queryClient, created.id, text, page)
       onCreate?.(created.id)
     } catch {
-      setCreateError("The conversation couldn't be created. Try again.")
-    } finally {
       setPending(null)
+      setCreateError("The conversation couldn't be created. Try again.")
     }
   }
 
