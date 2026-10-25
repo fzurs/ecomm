@@ -1,6 +1,6 @@
 "use client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Order, OrderStatus } from "@workspace/api-client"
+import { Order } from "@workspace/api-client"
 import {
   invoicesCreateMutation,
   invoicesListQueryKey,
@@ -27,36 +27,14 @@ import {
   Trash2Icon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
 import { useRowActions } from "@/context/row-actions-provider"
-import { useOptimisticOrderUpdate } from "../_hooks/use-optimistic-order"
+import { useOptimisticOrderStatusUpdate } from "../_hooks/use-optimistic-order"
 import { OrderStatusRadioGroup } from "./order-status-radio-group"
 
 export function OrderRowActions({ item: order }: { item: Order }) {
   const { openAction } = useRowActions<Order>()
 
-  const updateMutation = useOptimisticOrderUpdate(order)
-  const [status, setStatus] = useState<OrderStatus>(order.status || "pending")
-  const onStatusChange = React.useCallback(
-    (value: OrderStatus) => {
-      if (value === status) return
-      if (updateMutation.isPending) return
-
-      setStatus(value)
-      const previous = status
-
-      updateMutation.mutate(
-        {
-          path: { number: order.number },
-          body: { status: value },
-        },
-        {
-          onError: () => setStatus(previous),
-        }
-      )
-    },
-    [order.number, status, updateMutation]
-  )
+  const { status, setStatus } = useOptimisticOrderStatusUpdate(order)
 
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -108,7 +86,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
               <DropdownMenuSubContent>
                 <OrderStatusRadioGroup
                   value={status}
-                  onValueChange={onStatusChange}
+                  onValueChange={setStatus}
                 />
               </DropdownMenuSubContent>
             </DropdownMenuPortal>

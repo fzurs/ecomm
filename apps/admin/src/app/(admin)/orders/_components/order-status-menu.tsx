@@ -1,5 +1,5 @@
 "use client"
-import { Order, OrderStatus } from "@workspace/api-client"
+import { Order } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { CircleDashedIcon } from "lucide-react"
-import { useOptimisticOrderDetailUpdate } from "../_hooks/use-optimistic-order"
+import { useOptimisticOrderStatusUpdate } from "../_hooks/use-optimistic-order"
 import { OrderStatusRadioGroup } from "./order-status-radio-group"
 
 export function OrderStatusMenu({
@@ -17,14 +17,7 @@ export function OrderStatusMenu({
   order: Order
   size?: React.ComponentProps<typeof Button>["size"]
 }) {
-  const { mutate, isPending } = useOptimisticOrderDetailUpdate(order)
-
-  const status: OrderStatus = order.status || "pending"
-
-  const onStatusChange = (value: OrderStatus) => {
-    if (value === status || isPending) return
-    mutate({ path: { number: order.number }, body: { status: value } })
-  }
+  const { status, setStatus } = useOptimisticOrderStatusUpdate(order)
 
   return (
     <DropdownMenu>
@@ -33,7 +26,7 @@ export function OrderStatusMenu({
         Change status
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <OrderStatusRadioGroup value={status} onValueChange={onStatusChange} />
+        <OrderStatusRadioGroup value={status} onValueChange={setStatus} />
       </DropdownMenuContent>
     </DropdownMenu>
   )
