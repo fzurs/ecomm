@@ -5,14 +5,16 @@ import {
 } from "@/context/row-actions-provider"
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Customer } from "@workspace/api-client"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
-import { Maximize2Icon, MailIcon, XIcon } from "lucide-react"
+import { Maximize2Icon, MailIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
@@ -22,15 +24,6 @@ import * as React from "react"
 import { CustomerDetails } from "./customer-details"
 import { CustomerEditButton } from "./customer-buttons"
 import { CustomerEditDrawerContent } from "./customer-edit-drawer"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@workspace/ui/components/breadcrumb"
-import { DialogClose } from "@workspace/ui/components/dialog"
-import { Separator } from "@workspace/ui/components/separator"
 import Link from "next/link"
 
 export function CustomerViewDrawer() {
@@ -57,29 +50,6 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
 
   return (
     <>
-      <div className="flex h-(--header-height) items-center justify-between gap-4 border-b px-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>Customers</BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbPage>{customer.name}</BreadcrumbPage>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="flex h-4 items-center gap-2 text-muted-foreground">
-          <Link
-            href={`/customers/${customer.id}`}
-            className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
-          >
-            <Maximize2Icon />
-            <span className="sr-only">Open customer page</span>
-          </Link>
-          <Separator orientation="vertical" />
-          <DialogClose render={<Button size="icon-sm" variant="ghost" />}>
-            <XIcon />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-        </div>
-      </div>
       <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-start">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
@@ -103,10 +73,18 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
               size="sm"
               onClick={() => setEditOpen(true)}
             />
+            <Link
+              href={`/customers/${customer.id}`}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              <Maximize2Icon />
+              Open page
+            </Link>
           </div>
         </div>
       </DrawerHeader>
-      <div className="overflow-auto p-4 pt-8">
+      {/* flex-1 keeps the footer at the bottom of the drawer. */}
+      <div className="flex-1 scroll-fade overflow-y-auto p-4 pt-8">
         <div className="flex flex-col gap-2">
           <div className="typeset">
             <h3>Customer details</h3>
@@ -114,6 +92,9 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
           <CustomerDetails customer={customer} />
         </div>
       </div>
+      <DrawerFooter>
+        <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
+      </DrawerFooter>
       {/* Rendered inside the view's content, so Base UI stacks it as nested. */}
       <Drawer
         swipeDirection={isMobile ? "down" : "right"}

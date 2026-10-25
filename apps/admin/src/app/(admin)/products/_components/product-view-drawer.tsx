@@ -6,14 +6,16 @@ import {
 import { useState } from "react"
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@workspace/ui/components/drawer"
 import { Product } from "@workspace/api-client"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
-import { Maximize2Icon, PackageIcon, XIcon } from "lucide-react"
+import { Maximize2Icon, PackageIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
@@ -24,15 +26,6 @@ import { ProductDescription } from "./product-description"
 import { ProductEditButton } from "./product-buttons"
 import { ProductEditDrawerContent } from "./product-edit-drawer"
 import { ProductPrice } from "./product-price"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@workspace/ui/components/breadcrumb"
-import { DialogClose } from "@workspace/ui/components/dialog"
-import { Separator } from "@workspace/ui/components/separator"
 import Link from "next/link"
 
 export function ProductViewDrawer() {
@@ -59,32 +52,6 @@ function ProductViewDrawerContent({ product }: { product: Product }) {
 
   return (
     <>
-      <div className="flex h-(--header-height) items-center justify-between gap-4 border-b px-4">
-        <Breadcrumb className="min-w-0">
-          {/* No wrapping: only the product name shrinks, with an ellipsis. */}
-          <BreadcrumbList className="flex-nowrap">
-            <BreadcrumbItem className="shrink-0">Products</BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbPage className="min-w-0 truncate">
-              {product.name}
-            </BreadcrumbPage>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="flex h-4 items-center gap-2 text-muted-foreground">
-          <Link
-            href={`/products/${product.slug}`}
-            className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
-          >
-            <Maximize2Icon />
-            <span className="sr-only">Open product page</span>
-          </Link>
-          <Separator orientation="vertical" />
-          <DialogClose render={<Button size="icon-sm" variant="ghost" />}>
-            <XIcon />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-        </div>
-      </div>
       <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-start">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
@@ -107,6 +74,13 @@ function ProductViewDrawerContent({ product }: { product: Product }) {
               size="sm"
               onClick={() => setEditOpen(true)}
             />
+            <Link
+              href={`/products/${product.slug}`}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              <Maximize2Icon />
+              Open page
+            </Link>
           </div>
         </div>
       </DrawerHeader>
@@ -126,6 +100,9 @@ function ProductViewDrawerContent({ product }: { product: Product }) {
           <ProductDetails product={product} />
         </div>
       </div>
+      <DrawerFooter>
+        <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
+      </DrawerFooter>
       {/* Rendered inside the view's content, so Base UI stacks it as nested. */}
       <Drawer
         swipeDirection={isMobile ? "down" : "right"}
