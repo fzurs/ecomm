@@ -46,7 +46,7 @@ export function OrderStatusFilter({ column }: { column?: Column<Order> }) {
         )
       }
     >
-      <ComboboxChips ref={anchor}>
+      <ComboboxChips ref={anchor} className="min-h-8 py-1">
         <ComboboxValue>
           {(values: StatusOption[]) => (
             <>

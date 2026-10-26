@@ -106,7 +106,10 @@ export default function OrdersPage() {
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
         <DataTable table={table}>
-          <DataTableAdvancedToolbar table={table}>
+          <DataTableAdvancedToolbar
+            table={table}
+            actions={<DataTableSortMenu table={table} />}
+          >
             <SearchInput
               className="flex min-w-64 flex-1"
               value={search}
@@ -115,7 +118,6 @@ export default function OrdersPage() {
               placeholder="Search by customer name or email..."
             />
             <OrderStatusFilter column={table.getColumn("status")} />
-            <DataTableSortMenu table={table} />
           </DataTableAdvancedToolbar>
         </DataTable>
         <OrderViewDrawer />

@@ -4,6 +4,7 @@ import { BrandsListData } from "@workspace/api-client"
 import { brandsListOptions } from "@workspace/api-client/query"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import { DataTable } from "@workspace/data-table/components/data-table"
+import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { SearchInput } from "@/components/search-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useOrdering } from "@/hooks/use-ordering"
@@ -36,12 +37,14 @@ export function BrandsTable() {
 
   return (
     <DataTable table={table}>
-      <SearchInput
-        value={search}
-        onValueChange={setSearch}
-        count={data?.count}
-        placeholder="Search brands..."
-      />
+      <DataTableAdvancedToolbar table={table}>
+        <SearchInput
+          value={search}
+          onValueChange={setSearch}
+          count={data?.count}
+          placeholder="Search brands..."
+        />
+      </DataTableAdvancedToolbar>
     </DataTable>
   )
 }

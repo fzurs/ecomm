@@ -6,6 +6,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@workspace/ui/components/input-group"
+import { cn } from "cn"
 import { SearchIcon } from "lucide-react"
 
 /**
@@ -29,8 +30,9 @@ export function SearchInput({
 }) {
   const showCount = value !== "" && count !== undefined
 
+  // h-8, like the size="sm" buttons of DataTableAdvancedToolbar.
   return (
-    <InputGroup className={className}>
+    <InputGroup className={cn("h-8", className)}>
       <InputGroupInput
         type="search"
         inputMode="search"
