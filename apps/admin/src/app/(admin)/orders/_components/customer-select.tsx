@@ -50,7 +50,8 @@ export function CustomerSelect({
         {/* inline-start addons go first (order-first), before the input text. */}
         {selectedCustomer && (
           <InputGroupAddon align="inline-start">
-            <Avatar size="sm">
+            {/* The height of the input's text line, like the other addons. */}
+            <Avatar className="size-5">
               {selectedCustomer.image && (
                 <AvatarImage src={selectedCustomer.image} />
               )}
