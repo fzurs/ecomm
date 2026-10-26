@@ -421,7 +421,8 @@ const OptionItem = memo(function OptionItem({
   option,
   onToggle,
 }: OptionItemProps) {
-  const { value, label, icon: Icon, selected, count } = option
+  // `count` is left out while the count badge is hidden.
+  const { value, label, icon: Icon, selected } = option
   const handleSelect = useCallback(() => {
     onToggle(value, !selected)
   }, [onToggle, value, selected])
@@ -441,6 +442,7 @@ const OptionItem = memo(function OptionItem({
           ))}
         <span>
           {label}
+          {/* Count badge, hidden for now.
           <sup
             className={cn(
               count == null && "hidden",
@@ -450,6 +452,7 @@ const OptionItem = memo(function OptionItem({
           >
             {typeof count === "number" ? (count < 100 ? count : "100+") : ""}
           </sup>
+          */}
         </span>
       </div>
     </CommandItem>

@@ -259,7 +259,8 @@ function QuickSearchFiltersImpl<TData>({
       {cols.map((column) => {
         const filter = filters.find((f) => f.columnId === column.id)
         const options = column.getOptions()
-        const optionsCount = column.getFacetedUniqueValues()
+        // Used by the count badge, hidden for now.
+        // const optionsCount = column.getFacetedUniqueValues()
 
         function handleOptionSelect(value: string, check: boolean) {
           if (check) actions.addFilterValue(column, [value])
@@ -270,7 +271,7 @@ function QuickSearchFiltersImpl<TData>({
           <React.Fragment key={column.id}>
             {options.map((v) => {
               const checked = Boolean(filter?.values.includes(v.value))
-              const count = optionsCount?.get(v.value) ?? 0
+              // const count = optionsCount?.get(v.value) ?? 0
 
               return (
                 <CommandItem
@@ -298,6 +299,7 @@ function QuickSearchFiltersImpl<TData>({
                       <ChevronRightIcon className="size-3.5 text-muted-foreground/75" />
                       <span>
                         {v.label}
+                        {/* Count badge, hidden for now.
                         <sup
                           className={cn(
                             !optionsCount && "hidden",
@@ -307,6 +309,7 @@ function QuickSearchFiltersImpl<TData>({
                         >
                           {count < 100 ? count : "100+"}
                         </sup>
+                        */}
                       </span>
                     </div>
                   </div>
