@@ -1,4 +1,5 @@
 import tempfile
+from datetime import datetime, timezone as dt_timezone
 
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -223,6 +224,47 @@ class OrderListTests(OrderTestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual([o['total'] for o in response.data['results']], expected)
         self.assertEqual(empty.total, 0)
+
+    def test_excludes_statuses(self):
+        Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        Order.objects.create(customer=self.customer, status=Order.Status.SHIPPED)
+        Order.objects.create(customer=self.customer, status=Order.Status.CANCELLED)
+        response = self.client.get(reverse('order-list'), {'status__not': ['paid', 'shipped']})
+        self.assertEqual([o['status'] for o in response.data['results']], ['cancelled'])
+
+    def test_filters_by_customer(self):
+        coyote = Customer.objects.create(name='Wile E. Coyote')
+        Order.objects.create(customer=self.customer)
+        Order.objects.create(customer=coyote)
+        for params, expected in (({'customer': [coyote.pk]}, ['Wile E. Coyote']),
+                                 ({'customer__not': [coyote.pk]}, ['ACME Inc'])):
+            with self.subTest(params=params):
+                response = self.client.get(reverse('order-list'), params)
+                self.assertEqual(
+                    [o['customer_detail']['name'] for o in response.data['results']], expected)
+
+    def test_filters_by_total(self):
+        product = self.create_product(price=100)
+        for quantity in (1, 2, 3):
+            order = Order.objects.create(customer=self.customer)
+            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+        Order.objects.create(customer=self.customer)
+        for params, expected in (({'total__gte': 200}, {200, 300}),
+                                 ({'total__range': '100,200'}, {100, 200}),
+                                 ({'total__not_range': '100,200'}, {0, 300}),
+                                 ({'total__not': 0}, {100, 200, 300})):
+            with self.subTest(params=params):
+                response = self.client.get(reverse('order-list'), params)
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+                self.assertEqual({o['total'] for o in response.data['results']}, expected)
+
+    def test_filters_by_created_day(self):
+        old = Order.objects.create(customer=self.customer)
+        Order.objects.create(customer=self.customer)
+        Order.objects.filter(pk=old.pk).update(
+            created_at=datetime(2026, 10, 3, 23, 30, tzinfo=dt_timezone.utc))
+        response = self.client.get(reverse('order-list'), {'created_at': '2026-10-03'})
+        self.assertEqual([o['number'] for o in response.data['results']], [old.number])
 
     def test_requires_a_session(self):
         self.client.logout()

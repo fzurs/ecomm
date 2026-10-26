@@ -1299,6 +1299,22 @@ export type OrdersListData = {
     body?: never;
     path?: never;
     query?: {
+        created_at?: string;
+        created_at__gt?: string;
+        created_at__gte?: string;
+        created_at__lt?: string;
+        created_at__lte?: string;
+        created_at__not?: string;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__not_range?: Array<string>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__range?: Array<string>;
+        customer?: Array<number>;
+        customer__not?: Array<number>;
         /**
          * Number of results to return per page.
          */
@@ -1323,6 +1339,28 @@ export type OrdersListData = {
          * * `cancelled` - Cancelled
          */
         status?: Array<'cancelled' | 'delivered' | 'paid' | 'pending' | 'shipped'>;
+        /**
+         * * `pending` - Pending
+         * * `paid` - Paid
+         * * `shipped` - Shipped
+         * * `delivered` - Delivered
+         * * `cancelled` - Cancelled
+         */
+        status__not?: Array<'cancelled' | 'delivered' | 'paid' | 'pending' | 'shipped'>;
+        total?: number;
+        total__gt?: number;
+        total__gte?: number;
+        total__lt?: number;
+        total__lte?: number;
+        total__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        total__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        total__range?: Array<number>;
     };
     url: '/orders/';
 };

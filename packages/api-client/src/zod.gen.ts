@@ -878,6 +878,16 @@ export const zInvoicesUpdatePath = z.object({
 export const zInvoicesUpdateResponse = zInvoice;
 
 export const zOrdersListQuery = z.object({
+    created_at: z.iso.date().optional(),
+    created_at__gt: z.iso.date().optional(),
+    created_at__gte: z.iso.date().optional(),
+    created_at__lt: z.iso.date().optional(),
+    created_at__lte: z.iso.date().optional(),
+    created_at__not: z.iso.date().optional(),
+    created_at__not_range: z.array(z.iso.date()).optional(),
+    created_at__range: z.array(z.iso.date()).optional(),
+    customer: z.array(z.int()).optional(),
+    customer__not: z.array(z.int()).optional(),
     limit: z.int().optional(),
     offset: z.int().optional(),
     ordering: z.string().optional(),
@@ -888,7 +898,22 @@ export const zOrdersListQuery = z.object({
         'paid',
         'pending',
         'shipped'
-    ])).optional()
+    ])).optional(),
+    status__not: z.array(z.enum([
+        'cancelled',
+        'delivered',
+        'paid',
+        'pending',
+        'shipped'
+    ])).optional(),
+    total: z.number().optional(),
+    total__gt: z.number().optional(),
+    total__gte: z.number().optional(),
+    total__lt: z.number().optional(),
+    total__lte: z.number().optional(),
+    total__not: z.number().optional(),
+    total__not_range: z.array(z.number()).optional(),
+    total__range: z.array(z.number()).optional()
 });
 
 export const zOrdersListResponse = zPaginatedOrderList;

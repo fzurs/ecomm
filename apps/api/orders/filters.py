@@ -1,14 +1,25 @@
 import django_filters
 from rest_framework.filters import OrderingFilter
-from .models import Order
+from config.filters import OperatorFilterSet
+from .models import Customer, Order
 
 
-class OrderFilter(django_filters.FilterSet):
+class OrderFilter(OperatorFilterSet):
+    # total is the items_total that OrderViewSet annotates.
+    operators = {
+        "total": ("number", "items_total"),
+        "created_at": "date",
+    }
+
+    # Option filters: the bare name is "any of", `__not` is "none of".
     status = django_filters.MultipleChoiceFilter(choices=Order.Status.choices)
+    status__not = django_filters.MultipleChoiceFilter(field_name="status", choices=Order.Status.choices, exclude=True)
+    customer = django_filters.ModelMultipleChoiceFilter(queryset=Customer.objects.all())
+    customer__not = django_filters.ModelMultipleChoiceFilter(field_name="customer", queryset=Customer.objects.all(), exclude=True)
 
     class Meta:
         model = Order
-        fields = ["status"]
+        fields = []
 
 
 class OrderOrdering(OrderingFilter):

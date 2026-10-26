@@ -583,6 +583,12 @@ export const invoicesUpdate = <ThrowOnError extends boolean = false>(options: Op
 });
 
 export const ordersList = <ThrowOnError extends boolean = false>(options?: Options<OrdersListData, ThrowOnError>): RequestResult<OrdersListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<OrdersListResponses, unknown, ThrowOnError>({
+    querySerializer: { parameters: {
+            created_at__not_range: { array: { explode: false } },
+            created_at__range: { array: { explode: false } },
+            total__not_range: { array: { explode: false } },
+            total__range: { array: { explode: false } }
+        } },
     responseType: 'json',
     security: [{
             in: 'cookie',
