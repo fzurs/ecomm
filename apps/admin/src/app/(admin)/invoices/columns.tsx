@@ -10,9 +10,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@workspace/ui/components/drawer"
-import { cn } from "cn"
 import { FileTextIcon } from "lucide-react"
 import { useState } from "react"
+import { StatusBadge } from "@/components/status"
 import { invoiceStatuses } from "./_lib/invoice-status"
 
 export const columns: ColumnDef<Invoice>[] = [
@@ -39,8 +39,9 @@ export const columns: ColumnDef<Invoice>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const { label, badge } = invoiceStatuses[row.original.status || "pending"]
-      return <Badge className={cn("h-6 rounded-md", badge)}>{label}</Badge>
+      return (
+        <StatusBadge {...invoiceStatuses[row.original.status || "pending"]} />
+      )
     },
     enableSorting: false,
   },
