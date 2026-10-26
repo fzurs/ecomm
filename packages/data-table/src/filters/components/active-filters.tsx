@@ -73,7 +73,7 @@ export function ActiveFilter<TData, TType extends ColumnDataType>({
   locale = "en",
 }: ActiveFilterProps<TData, TType>) {
   return (
-    <div className="flex h-7 items-center rounded-2xl border border-border bg-background text-xs shadow-xs">
+    <div className="flex h-8 items-center rounded-2xl border border-border bg-background text-xs shadow-xs">
       <FilterSubject column={column} />
       <Separator orientation="vertical" />
       <FilterOperator

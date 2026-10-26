@@ -13,7 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@workspace/ui/components/popover"
-import { cn } from "cn"
 import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from "lucide-react"
 import {
   isValidElement,
@@ -151,10 +150,7 @@ function FilterSelectorImpl<TData>({
     >
       <PopoverTrigger
         render={
-          <Button
-            variant="outline"
-            className={cn("h-7", hasFilters && "w-fit !px-2")}
-          />
+          <Button variant="outline" size={hasFilters ? "icon-sm" : "sm"} />
         }
       >
         <FilterIcon className="size-4" />

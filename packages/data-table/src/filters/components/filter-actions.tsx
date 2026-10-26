@@ -19,8 +19,9 @@ function __FilterActions({
 }: FilterActionsProps) {
   return (
     <Button
-      className={cn("h-7 !px-2", !hasFilters && "hidden")}
+      className={cn(!hasFilters && "hidden")}
       variant="destructive"
+      size="sm"
       onClick={actions?.removeAllFilters}
     >
       <FilterXIcon />

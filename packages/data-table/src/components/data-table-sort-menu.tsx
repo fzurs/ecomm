@@ -18,11 +18,11 @@ export function DataTableSortMenu<TData>({ table }: { table: Table<TData> }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" />}>
+      <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
         <ArrowUpDown />
         Sort
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-44" align="start">
+      <DropdownMenuContent className="w-44" align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Sort by</DropdownMenuLabel>
           {columns.map((column) => {

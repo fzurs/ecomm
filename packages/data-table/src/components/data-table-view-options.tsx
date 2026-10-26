@@ -22,7 +22,11 @@ export function DataTableViewOptions<TData>({
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" aria-label="Toggle columns visibility" />
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label="Toggle columns visibility"
+          />
         }
       >
         <Columns />

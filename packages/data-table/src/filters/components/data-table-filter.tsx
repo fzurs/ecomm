@@ -58,29 +58,29 @@ export function DataTableFilter<TData>({
     )
   }
 
+  // No wrapper: the selector, the chips and Clear join the container's flex
+  // row (DataTableAdvancedToolbar's left section), which wraps them.
   return (
-    <div className="flex w-full items-start justify-between gap-2">
-      <div className="flex w-full flex-1 gap-2 md:flex-wrap">
-        <FilterSelector
-          columns={columns}
-          filters={filters}
-          actions={actions}
-          strategy={strategy}
-          locale={locale}
-        />
-        <ActiveFilters
-          columns={columns}
-          filters={filters}
-          actions={actions}
-          strategy={strategy}
-          locale={locale}
-        />
-      </div>
+    <>
+      <FilterSelector
+        columns={columns}
+        filters={filters}
+        actions={actions}
+        strategy={strategy}
+        locale={locale}
+      />
+      <ActiveFilters
+        columns={columns}
+        filters={filters}
+        actions={actions}
+        strategy={strategy}
+        locale={locale}
+      />
       <FilterActions
         hasFilters={filters.length > 0}
         actions={actions}
         locale={locale}
       />
-    </div>
+    </>
   )
 }
