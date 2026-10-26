@@ -1414,16 +1414,53 @@ export type ProductsListData = {
     path?: never;
     query?: {
         brand?: Array<string>;
+        brand__not?: Array<string>;
         category?: Array<string>;
-        created_at_after?: string;
-        created_at_before?: string;
-        discount_percent_max?: number | null;
-        discount_percent_min?: number | null;
-        featured?: boolean;
+        category__not?: Array<string>;
+        created_at?: string;
+        created_at__gt?: string;
+        created_at__gte?: string;
+        created_at__lt?: string;
+        created_at__lte?: string;
+        created_at__not?: string;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__not_range?: Array<string>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__range?: Array<string>;
+        discount_percent?: number;
+        discount_percent__gt?: number;
+        discount_percent__gte?: number;
+        discount_percent__lt?: number;
+        discount_percent__lte?: number;
+        discount_percent__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        discount_percent__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        discount_percent__range?: Array<number>;
+        /**
+         * * `true` - Yes
+         * * `false` - No
+         */
+        featured?: Array<'false' | 'true'>;
+        /**
+         * * `true` - Yes
+         * * `false` - No
+         */
+        featured__not?: Array<'false' | 'true'>;
         /**
          * Number of results to return per page.
          */
         limit?: number;
+        name__icontains?: string;
+        name__not_icontains?: string;
         /**
          * The initial index from which to return the results.
          */
@@ -1432,8 +1469,20 @@ export type ProductsListData = {
          * Which field to use when ordering the results.
          */
         ordering?: string;
-        price_max?: number | null;
-        price_min?: number | null;
+        price?: number;
+        price__gt?: number;
+        price__gte?: number;
+        price__lt?: number;
+        price__lte?: number;
+        price__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        price__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        price__range?: Array<number>;
         /**
          * A search term.
          */
@@ -1446,6 +1495,14 @@ export type ProductsListData = {
          * * `discontinued` - Discontinued
          */
         status?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        /**
+         * * `draft` - Draft
+         * * `active` - Active
+         * * `inactive` - Inactive
+         * * `out_of_stock` - Out of stock
+         * * `discontinued` - Discontinued
+         */
+        status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
     };
     url: '/products/';
 };
@@ -1552,18 +1609,67 @@ export type ProductsListChoicesData = {
     path?: never;
     query?: {
         brand?: Array<string>;
+        brand__not?: Array<string>;
         category?: Array<string>;
-        created_at_after?: string;
-        created_at_before?: string;
-        discount_percent_max?: number | null;
-        discount_percent_min?: number | null;
-        featured?: boolean;
+        category__not?: Array<string>;
+        created_at?: string;
+        created_at__gt?: string;
+        created_at__gte?: string;
+        created_at__lt?: string;
+        created_at__lte?: string;
+        created_at__not?: string;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__not_range?: Array<string>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__range?: Array<string>;
+        discount_percent?: number;
+        discount_percent__gt?: number;
+        discount_percent__gte?: number;
+        discount_percent__lt?: number;
+        discount_percent__lte?: number;
+        discount_percent__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        discount_percent__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        discount_percent__range?: Array<number>;
+        /**
+         * * `true` - Yes
+         * * `false` - No
+         */
+        featured?: Array<'false' | 'true'>;
+        /**
+         * * `true` - Yes
+         * * `false` - No
+         */
+        featured__not?: Array<'false' | 'true'>;
+        name__icontains?: string;
+        name__not_icontains?: string;
         /**
          * Which field to use when ordering the results.
          */
         ordering?: string;
-        price_max?: number | null;
-        price_min?: number | null;
+        price?: number;
+        price__gt?: number;
+        price__gte?: number;
+        price__lt?: number;
+        price__lte?: number;
+        price__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        price__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        price__range?: Array<number>;
         /**
          * A search term.
          */
@@ -1576,6 +1682,14 @@ export type ProductsListChoicesData = {
          * * `discontinued` - Discontinued
          */
         status?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        /**
+         * * `draft` - Draft
+         * * `active` - Active
+         * * `inactive` - Inactive
+         * * `out_of_stock` - Out of stock
+         * * `discontinued` - Discontinued
+         */
+        status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
     };
     url: '/products/choices/';
 };

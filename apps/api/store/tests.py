@@ -1,5 +1,6 @@
 import io
 import tempfile
+from datetime import datetime, timezone as dt_timezone
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -7,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+from drf_spectacular.generators import SchemaGenerator
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -313,3 +315,63 @@ class SeedCommandTests(TestCase):
         counts = self.counts()
         self.seed('--reset')
         self.assertEqual(self.counts(), counts)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class ProductFilterTests(APITestCase):
+    def setUp(self):
+        acme = Brand.objects.create(name='ACME')
+        other = Brand.objects.create(name='Other')
+        self.hammer = Product.objects.create(
+            name='ACME Hammer', price=100, status='active', featured=True, brand=acme)
+        self.saw = Product.objects.create(name='Saw', price=300, status='draft', brand=other)
+        self.drill = Product.objects.create(name='Drill', price=500, status='archived')
+        Product.objects.filter(pk=self.hammer.pk).update(
+            created_at=datetime(2026, 10, 3, 23, 30, tzinfo=dt_timezone.utc))
+        Product.objects.filter(pk__in=[self.saw.pk, self.drill.pk]).update(
+            created_at=datetime(2026, 10, 5, 12, tzinfo=dt_timezone.utc))
+
+    def names(self, query):
+        response = self.client.get(reverse('product-list'), query)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        return {product['name'] for product in response.data['results']}
+
+    def test_text(self):
+        self.assertEqual(self.names({'name__icontains': 'hammer'}), {'ACME Hammer'})
+        self.assertEqual(self.names({'name__not_icontains': 'hammer'}), {'Saw', 'Drill'})
+
+    def test_number(self):
+        self.assertEqual(self.names({'price': 300}), {'Saw'})
+        self.assertEqual(self.names({'price__not': 300}), {'ACME Hammer', 'Drill'})
+        self.assertEqual(self.names({'price__lt': 300}), {'ACME Hammer'})
+        self.assertEqual(self.names({'price__gte': 300}), {'Saw', 'Drill'})
+        self.assertEqual(self.names({'price__range': '200,400'}), {'Saw'})
+        self.assertEqual(self.names({'price__not_range': '200,400'}), {'ACME Hammer', 'Drill'})
+
+    def test_date_compares_the_day(self):
+        self.assertEqual(self.names({'created_at': '2026-10-03'}), {'ACME Hammer'})
+        self.assertEqual(self.names({'created_at__gte': '2026-10-04'}), {'Saw', 'Drill'})
+        self.assertEqual(self.names({'created_at__not_range': '2026-10-01,2026-10-03'}), {'Saw', 'Drill'})
+
+    def test_option(self):
+        self.assertEqual(self.names({'status': ['active', 'draft']}), {'ACME Hammer', 'Saw'})
+        self.assertEqual(self.names({'status__not': ['active', 'draft']}), {'Drill'})
+        self.assertEqual(self.names({'brand': ['acme']}), {'ACME Hammer'})
+        self.assertEqual(self.names({'brand__not': ['acme']}), {'Saw', 'Drill'})
+
+    def test_boolean(self):
+        self.assertEqual(self.names({'featured': ['true']}), {'ACME Hammer'})
+        self.assertEqual(self.names({'featured__not': ['true']}), {'Saw', 'Drill'})
+        self.assertEqual(len(self.names({'featured': ['true', 'false']})), 3)
+
+
+class ProductFilterSchemaTests(SimpleTestCase):
+    def test_range_is_an_array_param(self):
+        schema = SchemaGenerator().get_schema(request=None, public=True)
+        params = {
+            param['name']: param
+            for param in schema['paths']['/products/']['get']['parameters']
+        }
+        self.assertEqual(params['price__range']['schema']['type'], 'array')
+        self.assertIn('status__not', params)
+        self.assertIn('created_at__gte', params)

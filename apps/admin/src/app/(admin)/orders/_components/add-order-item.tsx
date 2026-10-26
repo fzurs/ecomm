@@ -48,7 +48,7 @@ export function AddOrderItem({
     productsListChoicesOptions({
       query: {
         status: [zProductStatus.enum.active],
-        price_min: 1,
+        price__gte: 1,
       },
     })
   )

@@ -660,6 +660,14 @@ export const ordersUpdate = <ThrowOnError extends boolean = false>(options: Opti
 });
 
 export const productsList = <ThrowOnError extends boolean = false>(options?: Options<ProductsListData, ThrowOnError>): RequestResult<ProductsListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ProductsListResponses, unknown, ThrowOnError>({
+    querySerializer: { parameters: {
+            created_at__not_range: { array: { explode: false } },
+            created_at__range: { array: { explode: false } },
+            discount_percent__not_range: { array: { explode: false } },
+            discount_percent__range: { array: { explode: false } },
+            price__not_range: { array: { explode: false } },
+            price__range: { array: { explode: false } }
+        } },
     responseType: 'json',
     security: [{
             in: 'cookie',
@@ -752,6 +760,14 @@ export const productsGenerateSkuCreate = <ThrowOnError extends boolean = false>(
 });
 
 export const productsListChoices = <ThrowOnError extends boolean = false>(options?: Options<ProductsListChoicesData, ThrowOnError>): RequestResult<ProductsListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ProductsListChoicesResponses, unknown, ThrowOnError>({
+    querySerializer: { parameters: {
+            created_at__not_range: { array: { explode: false } },
+            created_at__range: { array: { explode: false } },
+            discount_percent__not_range: { array: { explode: false } },
+            discount_percent__range: { array: { explode: false } },
+            price__not_range: { array: { explode: false } },
+            price__range: { array: { explode: false } }
+        } },
     responseType: 'json',
     security: [{
             in: 'cookie',
