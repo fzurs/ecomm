@@ -17,10 +17,12 @@ import {
   toQueryParams,
   useDataTableFilters,
 } from "@workspace/data-table/filters"
+import { SearchInput } from "@/components/search-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useFiltersState } from "@/hooks/use-filters-state"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
+import { useSearch } from "@/hooks/use-search"
 import { useProductFilterOptions } from "../_hooks/use-product-filter-options"
 import { productFilterColumns } from "../_lib/product-filters"
 import { productColumns } from "./product-columns"
@@ -34,12 +36,13 @@ export function ProductsTable() {
 
   const pagination = usePagination()
   const ordering = useOrdering()
-  const [filters, setFilters] = useFiltersState()
+  const [search, setSearch] = useSearch()
+  const [filters, setFilters] = useFiltersState(productFilterColumns)
   const filterOptions = useProductFilterOptions()
 
   const queryFilters = useMemo<ProductsListData["query"]>(
-    () => ({ ...toQueryParams(filters), ordering }),
-    [filters, ordering]
+    () => ({ ...toQueryParams(filters), ordering, search }),
+    [filters, ordering, search]
   )
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
@@ -93,6 +96,13 @@ export function ProductsTable() {
   return (
     <DataTable table={table}>
       <DataTableAdvancedToolbar table={table}>
+        <SearchInput
+          className="w-64"
+          value={search}
+          onValueChange={setSearch}
+          count={data?.count}
+          placeholder="Search products..."
+        />
         <DataTableFilter {...dataTableFilters} />
       </DataTableAdvancedToolbar>
     </DataTable>

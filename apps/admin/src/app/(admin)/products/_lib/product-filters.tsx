@@ -7,7 +7,6 @@ import {
   PercentIcon,
   StarIcon,
   TagIcon,
-  TextIcon,
   WarehouseIcon,
 } from "lucide-react"
 import { featuredIcons } from "../_components/product-columns"
@@ -16,16 +15,10 @@ import { productStatusOptions } from "./product-status"
 const dtf = createColumnConfigHelper<Product>()
 
 // The column ids are the API params; the operator suffixes come from
-// `toQueryParams`. Category and brand options come from the API, so
+// `toQueryParams`. Text goes through the search box (name, SKU, brand...), not
+// a filter. Category and brand options come from the API, so
 // `ProductsTable` passes them to `useDataTableFilters`.
 export const productFilterColumns = [
-  dtf
-    .text()
-    .id("name")
-    .accessor((row) => row.name)
-    .displayName("Name")
-    .icon(TextIcon)
-    .build(),
   dtf
     .option()
     .id("status")
