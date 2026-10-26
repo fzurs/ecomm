@@ -34,7 +34,6 @@ import {
 } from "@workspace/data-table/filters"
 import { SearchInput } from "@/components/search-input"
 import { useSearch } from "@/hooks/use-search"
-import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
 import { OrderViewDrawer } from "./_components/order-view-drawer"
@@ -126,10 +125,7 @@ export default function OrdersPage() {
           table={table}
           onClearFilters={hasFilters ? clearFilters : undefined}
         >
-          <DataTableAdvancedToolbar
-            table={table}
-            actions={<DataTableSortMenu table={table} />}
-          >
+          <DataTableAdvancedToolbar table={table}>
             <SearchInput
               className="w-64"
               value={search}
