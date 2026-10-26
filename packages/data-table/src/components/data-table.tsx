@@ -37,7 +37,9 @@ export function DataTable<TData extends RowData>({
   onClearFilters?: () => void
 }) {
   return (
-    <div className="flex w-full flex-col justify-start gap-6">
+    // A container: the toolbar and the pagination adapt to the table's width,
+    // not the viewport's (the sidebar takes part of it).
+    <div className="@container/data-table flex w-full flex-col justify-start gap-6">
       {children}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-md border">

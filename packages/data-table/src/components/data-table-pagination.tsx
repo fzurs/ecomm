@@ -56,7 +56,7 @@ export function DataTablePagination<TData extends RowData>({
   return (
     <div
       className={cn(
-        "flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 lg:flex-row",
+        "flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 @3xl/data-table:flex-row",
         className
       )}
       {...props}
@@ -78,7 +78,7 @@ export function DataTablePagination<TData extends RowData>({
         )}
       </p>
 
-      <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6">
+      <div className="flex flex-col-reverse items-center gap-4 @xl/data-table:flex-row @xl/data-table:gap-6">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
           <Select
@@ -127,7 +127,10 @@ export function DataTablePagination<TData extends RowData>({
 
             {getPageItems(pageIndex, pageCount).map((item) =>
               typeof item === "number" ? (
-                <PaginationItem key={item} className="hidden md:block">
+                <PaginationItem
+                  key={item}
+                  className="hidden @2xl/data-table:block"
+                >
                   <Button
                     aria-label={`Go to page ${item + 1}`}
                     aria-current={item === pageIndex ? "page" : undefined}
@@ -140,12 +143,15 @@ export function DataTablePagination<TData extends RowData>({
                   </Button>
                 </PaginationItem>
               ) : (
-                <PaginationItem key={item} className="hidden md:block">
+                <PaginationItem
+                  key={item}
+                  className="hidden @2xl/data-table:block"
+                >
                   <PaginationEllipsis className="size-8" />
                 </PaginationItem>
               )
             )}
-            <PaginationItem className="px-2 text-sm font-medium whitespace-nowrap md:hidden">
+            <PaginationItem className="px-2 text-sm font-medium whitespace-nowrap @2xl/data-table:hidden">
               Page {pageIndex + 1} of {pageCount}
             </PaginationItem>
 
@@ -174,7 +180,7 @@ export function DataTablePagination<TData extends RowData>({
           </PaginationContent>
         </Pagination>
 
-        <label className="hidden items-center gap-2 text-sm font-medium whitespace-nowrap sm:flex">
+        <label className="hidden items-center gap-2 text-sm font-medium whitespace-nowrap @xl/data-table:flex">
           Go to
           <Input
             // Remounting resets the typed value when the page changes elsewhere.

@@ -25,7 +25,7 @@ function __FilterActions({
       onClick={actions?.removeAllFilters}
     >
       <FilterXIcon />
-      <span className="hidden md:block">{t("clear", locale)}</span>
+      <span className="hidden @2xl/data-table:block">{t("clear", locale)}</span>
     </Button>
   )
 }

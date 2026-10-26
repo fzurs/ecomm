@@ -30,9 +30,10 @@ export function SearchInput({
 }) {
   const showCount = value !== "" && count !== undefined
 
-  // h-8, like the size="sm" buttons of DataTableAdvancedToolbar.
+  // h-8, like the size="sm" buttons of DataTableAdvancedToolbar; max-w-full
+  // lets a fixed width (w-64) shrink on narrow screens.
   return (
-    <InputGroup className={cn("h-8", className)}>
+    <InputGroup className={cn("h-8 max-w-full", className)}>
       <InputGroupInput
         type="search"
         inputMode="search"

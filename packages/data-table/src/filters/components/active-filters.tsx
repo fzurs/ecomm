@@ -1,7 +1,6 @@
 import { Button } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
 import type {
   Column,
   ColumnDataType,
@@ -98,79 +97,6 @@ export function ActiveFilter<TData, TType extends ColumnDataType>({
       >
         <X className="size-4 -translate-x-0.5" />
       </Button>
-    </div>
-  )
-}
-
-export function ActiveFiltersMobileContainer({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [showLeftBlur, setShowLeftBlur] = useState(false)
-  const [showRightBlur, setShowRightBlur] = useState(true)
-
-  // Check if there's content to scroll and update blur states
-  const checkScroll = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } =
-        scrollContainerRef.current
-
-      // Show left blur if scrolled to the right
-      setShowLeftBlur(scrollLeft > 0)
-
-      // Show right blur if there's more content to scroll to the right
-      // Add a small buffer (1px) to account for rounding errors
-      setShowRightBlur(scrollLeft + clientWidth < scrollWidth - 1)
-    }
-  }
-
-  // Log blur states for debugging
-  // useEffect(() => {
-  //   console.log('left:', showLeftBlur, '  right:', showRightBlur)
-  // }, [showLeftBlur, showRightBlur])
-
-  // Set up ResizeObserver to monitor container size
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const resizeObserver = new ResizeObserver(() => {
-        checkScroll()
-      })
-      resizeObserver.observe(scrollContainerRef.current)
-      return () => {
-        resizeObserver.disconnect()
-      }
-    }
-  }, [])
-
-  // Update blur states when children change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    checkScroll()
-  }, [children])
-
-  return (
-    <div className="relative w-full overflow-x-hidden">
-      {/* Left blur effect */}
-      {showLeftBlur && (
-        <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-16 animate-in bg-gradient-to-r from-background to-transparent fade-in-0" />
-      )}
-
-      {/* Scrollable container */}
-      <div
-        ref={scrollContainerRef}
-        className="no-scrollbar flex gap-2 overflow-x-scroll"
-        onScroll={checkScroll}
-      >
-        {children}
-      </div>
-
-      {/* Right blur effect */}
-      {showRightBlur && (
-        <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-16 animate-in bg-gradient-to-l from-background to-transparent fade-in-0" />
-      )}
     </div>
   )
 }
