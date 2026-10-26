@@ -9,10 +9,7 @@ import {
   ordersListOptions,
   ordersListQueryKey,
 } from "@workspace/api-client/query"
-import { zOrderStatus } from "@workspace/api-client/zod"
-import { parseAsArrayOf, parseAsStringEnum } from "nuqs"
 import { orderColumns } from "./_components/order-columns"
-import { OrderStatusFilter } from "./_components/order-status-filter"
 import { useDataTable } from "@workspace/data-table/hooks/use-data-table"
 import {
   AppHeader,
@@ -26,16 +23,23 @@ import { useMemo } from "react"
 import { PlusIcon } from "lucide-react"
 import { OrdersListData } from "@workspace/api-client"
 import { useDebounce } from "@/hooks/use-debounce"
-import { useFilters } from "@/hooks/use-filters"
+import { useFiltersState } from "@/hooks/use-filters-state"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
+import {
+  DataTableFilter,
+  toQueryParams,
+  useDataTableFilters,
+} from "@workspace/data-table/filters"
 import { SearchInput } from "@/components/search-input"
 import { useSearch } from "@/hooks/use-search"
 import { DataTableSortMenu } from "@workspace/data-table/components/data-table-sort-menu"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
 import { OrderViewDrawer } from "./_components/order-view-drawer"
+import { useOrderFilterOptions } from "./_hooks/use-order-filter-options"
+import { orderFilterColumns } from "./_lib/order-filters"
 
 const DEBOUNCE_DELAY = 300
 
@@ -44,15 +48,13 @@ export default function OrdersPage() {
 
   const pagination = usePagination()
   const ordering = useOrdering()
-  const columnFilters = useFilters(orderColumns, {
-    status: parseAsArrayOf(parseAsStringEnum(zOrderStatus.options)),
-  })
-
   const [search, setSearch] = useSearch()
+  const [filters, setFilters] = useFiltersState(orderFilterColumns)
+  const filterOptions = useOrderFilterOptions()
 
   const queryFilters = useMemo<OrdersListData["query"]>(
-    () => ({ ...columnFilters, ordering, search }),
-    [columnFilters, ordering, search]
+    () => ({ ...toQueryParams(filters), ordering, search }),
+    [filters, ordering, search]
   )
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
@@ -93,6 +95,21 @@ export default function OrdersPage() {
     columns: orderColumns,
   })
 
+  const hasFilters = filters.length > 0 || search !== ""
+  const clearFilters = () => {
+    setFilters([])
+    setSearch("")
+  }
+
+  const dataTableFilters = useDataTableFilters({
+    strategy: "server",
+    data: data?.results ?? [],
+    columnsConfig: orderFilterColumns,
+    filters,
+    onFiltersChange: setFilters,
+    options: filterOptions,
+  })
+
   return (
     <RowActionsProvider>
       <AppHeader>
@@ -105,19 +122,22 @@ export default function OrdersPage() {
         </AppHeaderActions>
       </AppHeader>
       <main className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
-        <DataTable table={table}>
+        <DataTable
+          table={table}
+          onClearFilters={hasFilters ? clearFilters : undefined}
+        >
           <DataTableAdvancedToolbar
             table={table}
             actions={<DataTableSortMenu table={table} />}
           >
             <SearchInput
-              className="flex min-w-64 flex-1"
+              className="w-64"
               value={search}
               onValueChange={setSearch}
               count={data?.count}
-              placeholder="Search by customer name or email..."
+              placeholder="Search orders..."
             />
-            <OrderStatusFilter column={table.getColumn("status")} />
+            <DataTableFilter {...dataTableFilters} />
           </DataTableAdvancedToolbar>
         </DataTable>
         <OrderViewDrawer />

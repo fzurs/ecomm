@@ -15,7 +15,6 @@ import {
 } from "@workspace/ui/components/popover"
 import { format } from "date-fns"
 import Link from "next/link"
-import { orderStatusOptions } from "../_lib/order-status"
 import { OrderItemsTable } from "./order-items-table"
 import { OrderRowActions } from "./order-row-actions"
 import { OrderStatusBadge } from "./order-status-badge"
@@ -49,7 +48,6 @@ export const orderColumns = [
 
       return <OrderStatusBadge status={status} />
     },
-    meta: { variant: "multi-select", options: orderStatusOptions },
   },
   {
     accessorKey: "items",
@@ -115,7 +113,7 @@ export const orderColumns = [
     cell: ({ row }) => <OrderRowActions item={row.original} />,
     enableHiding: false,
   },
-] as const satisfies ColumnDef<Order>[]
+] satisfies ColumnDef<Order>[]
 
 function TableCellViewer({ order }: { order: Order }) {
   const { openAction } = useRowActions<Order>()

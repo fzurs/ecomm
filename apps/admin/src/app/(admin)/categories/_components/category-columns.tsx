@@ -37,7 +37,7 @@ export const categoryColumns = [
     enableHiding: false,
     meta: { align: "right" },
   },
-] as const satisfies ColumnDef<Category>[]
+] satisfies ColumnDef<Category>[]
 
 function TableCellViewer({ category }: { category: Category }) {
   const { openAction } = useRowActions<Category>()

@@ -14,7 +14,6 @@ import { DataTable } from "@workspace/data-table/components/data-table"
 import { DataTableAdvancedToolbar } from "@workspace/data-table/components/data-table-advanced-toolbar"
 import { SearchInput } from "@/components/search-input"
 import { useDebounce } from "@/hooks/use-debounce"
-import { useFilters } from "@/hooks/use-filters"
 import { useOrdering } from "@/hooks/use-ordering"
 import { usePagination } from "@/hooks/use-pagination"
 import { useSearch } from "@/hooks/use-search"
@@ -27,13 +26,11 @@ export function CategoriesTable() {
 
   const pagination = usePagination()
   const ordering = useOrdering()
-  const columnFilters = useFilters(categoryColumns)
-
   const [search, setSearch] = useSearch()
 
   const queryFilters = useMemo<CategoriesListData["query"]>(
-    () => ({ ...columnFilters, ordering, search }),
-    [columnFilters, search, ordering]
+    () => ({ ordering, search }),
+    [search, ordering]
   )
 
   const debouncedQueryFilters = useDebounce(queryFilters, DEBOUNCE_DELAY)
@@ -72,9 +69,13 @@ export function CategoriesTable() {
   const table = useDataTable({ data, columns: categoryColumns })
 
   return (
-    <DataTable table={table}>
+    <DataTable
+      table={table}
+      onClearFilters={search ? () => setSearch("") : undefined}
+    >
       <DataTableAdvancedToolbar table={table}>
         <SearchInput
+          className="w-64"
           value={search}
           onValueChange={setSearch}
           count={data?.count}

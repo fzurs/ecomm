@@ -36,9 +36,13 @@ export function BrandsTable() {
   const table = useDataTable({ data, columns: brandColumns })
 
   return (
-    <DataTable table={table}>
+    <DataTable
+      table={table}
+      onClearFilters={search ? () => setSearch("") : undefined}
+    >
       <DataTableAdvancedToolbar table={table}>
         <SearchInput
+          className="w-64"
           value={search}
           onValueChange={setSearch}
           count={data?.count}

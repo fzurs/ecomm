@@ -84,6 +84,12 @@ export function ProductsTable() {
     initialState: { columnVisibility },
   })
 
+  const hasFilters = filters.length > 0 || search !== ""
+  const clearFilters = () => {
+    setFilters([])
+    setSearch("")
+  }
+
   const dataTableFilters = useDataTableFilters({
     strategy: "server",
     data: data?.results ?? [],
@@ -94,7 +100,10 @@ export function ProductsTable() {
   })
 
   return (
-    <DataTable table={table}>
+    <DataTable
+      table={table}
+      onClearFilters={hasFilters ? clearFilters : undefined}
+    >
       <DataTableAdvancedToolbar table={table}>
         <SearchInput
           className="w-64"

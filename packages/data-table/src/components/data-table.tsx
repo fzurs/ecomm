@@ -26,12 +26,15 @@ const ariaSort = {
   desc: "descending",
 } as const
 
+/** `onClearFilters` shows a "Clear filters" button when there are no results. */
 export function DataTable<TData>({
   table,
   children,
+  onClearFilters,
 }: {
   table: TanstackTable<TData>
   children?: React.ReactNode
+  onClearFilters?: () => void
 }) {
   return (
     <div className="flex w-full flex-col justify-start gap-6">
@@ -115,11 +118,11 @@ export function DataTable<TData>({
                       <span className="text-lg text-muted-foreground">
                         No results.
                       </span>
-                      {table.getState().columnFilters.length > 0 && (
+                      {onClearFilters && (
                         <Button
                           size="sm"
                           variant="link"
-                          onClick={() => table.resetColumnFilters()}
+                          onClick={onClearFilters}
                         >
                           Clear filters
                         </Button>

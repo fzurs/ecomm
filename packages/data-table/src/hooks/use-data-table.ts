@@ -1,13 +1,6 @@
-import {
-  parseAsIndex,
-  parseAsInteger,
-  useQueryState,
-  useQueryStates,
-  UseQueryStatesKeysMap,
-} from "nuqs"
+import { parseAsIndex, parseAsInteger, useQueryState } from "nuqs"
 
 import {
-  ColumnFiltersState,
   functionalUpdate,
   getCoreRowModel,
   OnChangeFn,
@@ -19,7 +12,6 @@ import {
 
 import { useCallback, useEffect, useMemo } from "react"
 import { parseAsColumnSort } from "@workspace/data-table/lib/parsers"
-import { getColumnFilterParsers } from "../lib/column"
 
 const PAGE_KEY = "page"
 const PER_PAGE_KEY = "perPage"
@@ -33,7 +25,6 @@ type UseDataTableProps<TData> = Omit<
 > & {
   data?: { results: TData[]; count: number }
   queryKeys?: Partial<QueryKeys>
-  filterParsers?: UseQueryStatesKeysMap
 }
 
 export function useDataTable<TData extends { id: number }>({
@@ -41,7 +32,6 @@ export function useDataTable<TData extends { id: number }>({
   columns,
   initialState,
   queryKeys,
-  filterParsers,
   ...props
 }: UseDataTableProps<TData>) {
   const pageKey = queryKeys?.page ?? PAGE_KEY
@@ -94,38 +84,6 @@ export function useDataTable<TData extends { id: number }>({
     [setColumnSort, sorting]
   )
 
-  const columnFilterParsers = useMemo(
-    () => getColumnFilterParsers(columns),
-    [columns]
-  )
-  const [filters, setFilters] = useQueryStates({
-    ...columnFilterParsers,
-    ...filterParsers,
-  })
-
-  const columnFilters = useMemo<ColumnFiltersState>(
-    () =>
-      Object.entries(filters).flatMap(([id, value]) =>
-        value !== null ? [{ id, value }] : []
-      ),
-    [filters]
-  )
-
-  const onColumnFiltersChange = useCallback<OnChangeFn<ColumnFiltersState>>(
-    (updater) => {
-      const next = functionalUpdate(updater, columnFilters)
-
-      setFilters(
-        Object.keys(filters).reduce<Record<string, unknown>>((acc, id) => {
-          const filter = next.find((f) => f.id === id)
-          acc[id] = filter?.value ?? null
-          return acc
-        }, {})
-      )
-    },
-    [columnFilters, filters, setFilters]
-  )
-
   return useReactTable({
     ...props,
 
@@ -138,7 +96,7 @@ export function useDataTable<TData extends { id: number }>({
     rowCount: data?.count,
 
     initialState,
-    state: { pagination, sorting, columnFilters },
+    state: { pagination, sorting },
 
     manualPagination: true,
     onPaginationChange,
@@ -146,7 +104,8 @@ export function useDataTable<TData extends { id: number }>({
     manualSorting: true,
     onSortingChange,
 
+    // Filters live outside the table (DataTableFilter, in the URL) and go to
+    // the API: the table doesn't filter its rows.
     manualFiltering: true,
-    onColumnFiltersChange,
   })
 }
