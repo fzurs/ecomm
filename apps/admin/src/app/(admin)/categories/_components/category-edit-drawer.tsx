@@ -19,14 +19,7 @@ export function CategoryEditDrawer() {
   const { row, rootProps, closeAction } = useRowActionDialog<Category>("edit")
 
   return (
-    // Not modal and not dismissed by outside clicks: clicking another row swaps
-    // the category instead of closing and reopening the drawer.
-    <Drawer
-      swipeDirection={isMobile ? "down" : "right"}
-      modal={false}
-      disablePointerDismissal
-      {...rootProps}
-    >
+    <Drawer swipeDirection={isMobile ? "down" : "right"} {...rootProps}>
       <DrawerContent>
         {row && (
           // The key remounts the form when another category is opened.
