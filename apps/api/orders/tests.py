@@ -3,7 +3,9 @@ from datetime import datetime, timezone as dt_timezone
 
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.db import connection
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.db import IntegrityError, transaction
@@ -265,6 +267,19 @@ class OrderListTests(OrderTestCase):
             created_at=datetime(2026, 10, 3, 23, 30, tzinfo=dt_timezone.utc))
         response = self.client.get(reverse('order-list'), {'created_at': '2026-10-03'})
         self.assertEqual([o['number'] for o in response.data['results']], [old.number])
+
+    def test_list_queries_dont_grow_with_the_orders(self):
+        product = self.create_product()
+
+        def count_queries():
+            order = Order.objects.create(customer=Customer.objects.create(name=f'Customer {Order.objects.count()}'))
+            OrderItem.objects.create(order=order, product=product, quantity=2)
+            OrderItem.objects.create(order=order, product=self.create_product(f'Product {order.pk}'))
+            with CaptureQueriesContext(connection) as context:
+                self.client.get(reverse('order-list'))
+            return len(context.captured_queries)
+
+        self.assertEqual(count_queries(), count_queries())
 
     def test_requires_a_session(self):
         self.client.logout()

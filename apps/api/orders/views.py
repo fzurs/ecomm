@@ -11,8 +11,12 @@ from .serializers import OrderSerializer, OrderCreateSerializer, CustomerChoiceS
 
 class OrderViewSet(viewsets.ModelViewSet):
     # Order.total is a Python property, so the database can't order by it: items_total is the
-    # same sum computed in SQL.
-    queryset = Order.objects.annotate(
+    # same sum computed in SQL. The serializer reads the customer, the items with their product
+    # and the total (over the prefetched items) of each order: loading them here keeps the
+    # list at a fixed number of queries.
+    queryset = Order.objects.select_related("customer").prefetch_related(
+        "items__product",
+    ).annotate(
         items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0),
     ).order_by("-created_at")
     filter_backends = [DjangoFilterBackend, OrderOrdering, SearchFilter]
