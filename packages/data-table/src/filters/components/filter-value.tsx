@@ -201,7 +201,7 @@ export function FilterValueOptionDisplay<TData>({
         take(selected, 3).map(({ value, icon }) => {
           const Icon = icon!
           return isValidElement(Icon) ? (
-            Icon
+            cloneElement(Icon, { key: value })
           ) : (
             <Icon key={value} className="size-4" />
           )
