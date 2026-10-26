@@ -18,14 +18,13 @@ export const brandColumns: ColumnDef<Brand>[] = [
     header: "Name",
     cell: ({ row }) => <TableCellViewer brand={row.original} />,
     enableHiding: false,
-    meta: { thClassName: "pl-5" },
   },
   {
     id: "actions",
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
-    meta: { className: "text-right" },
+    meta: { align: "right" },
   },
 ]
 
@@ -33,7 +32,12 @@ function TableCellViewer({ brand }: { brand: Brand }) {
   const { openAction } = useRowActions<Brand>()
 
   return (
-    <Button size="sm" variant="link" onClick={() => openAction("edit", brand)}>
+    <Button
+      size="sm"
+      variant="link"
+      className="px-0"
+      onClick={() => openAction("edit", brand)}
+    >
       {brand.name}
     </Button>
   )

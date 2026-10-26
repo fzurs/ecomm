@@ -12,7 +12,19 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "cn"
 import { getColumnLabel } from "@workspace/data-table/lib/column"
+import type { ColumnAlign } from "../types/data-table"
 import { DataTableColumnHeader } from "./data-table-column-header"
+
+const alignClasses: Record<ColumnAlign, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+}
+
+const ariaSort = {
+  asc: "ascending",
+  desc: "descending",
+} as const
 
 export function DataTable<TData>({
   table,
@@ -30,27 +42,41 @@ export function DataTable<TData>({
             <TableHeader className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className={cn(
-                        "group/th text-muted-foreground",
-                        header.column.columnDef.meta?.thClassName
-                      )}
-                    >
-                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                        <DataTableColumnHeader
-                          column={header.column}
-                          title={getColumnLabel(header.column)}
-                        />
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    const { column } = header
+                    const align = column.columnDef.meta?.align ?? "left"
+                    const sorted = column.getIsSorted()
+                    return (
+                      <TableHead
+                        key={header.id}
+                        aria-sort={
+                          column.getCanSort()
+                            ? sorted
+                              ? ariaSort[sorted]
+                              : "none"
+                            : undefined
+                        }
+                        className={cn(
+                          "group/th text-muted-foreground",
+                          alignClasses[align]
+                        )}
+                      >
+                        {header.isPlaceholder ? null : column.getCanSort() ||
+                          column.getCanHide() ? (
+                          <DataTableColumnHeader
+                            column={column}
+                            title={getColumnLabel(column)}
+                            align={align}
+                          />
+                        ) : (
+                          flexRender(
+                            column.columnDef.header,
+                            header.getContext()
+                          )
+                        )}
+                      </TableHead>
+                    )
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
@@ -64,7 +90,12 @@ export function DataTable<TData>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={cell.column.columnDef.meta?.className}
+                        className={cn(
+                          alignClasses[
+                            cell.column.columnDef.meta?.align ?? "left"
+                          ],
+                          cell.column.columnDef.meta?.className
+                        )}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

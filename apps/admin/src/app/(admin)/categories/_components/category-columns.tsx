@@ -19,7 +19,6 @@ export const categoryColumns = [
     header: "Name",
     cell: ({ row }) => <TableCellViewer category={row.original} />,
     enableHiding: false,
-    meta: { thClassName: "pl-5" },
   },
   {
     accessorKey: "description",
@@ -36,7 +35,7 @@ export const categoryColumns = [
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
-    meta: { className: "text-right" },
+    meta: { align: "right" },
   },
 ] as const satisfies ColumnDef<Category>[]
 
@@ -47,6 +46,7 @@ function TableCellViewer({ category }: { category: Category }) {
     <Button
       size="sm"
       variant="link"
+      className="px-0"
       onClick={() => openAction("edit", category)}
     >
       {category.name}

@@ -21,9 +21,6 @@ export const columns: ColumnDef<Invoice>[] = [
     header: "Document",
     cell: ({ row }) => <TableCellViewer invoice={row.original} />,
     enableSorting: false,
-    meta: {
-      thClassName: "pl-5",
-    },
   },
   {
     accessorKey: "total_amount",
@@ -35,7 +32,7 @@ export const columns: ColumnDef<Invoice>[] = [
       })
       return `$ ${value}`
     },
-    meta: { className: "text-right", thClassName: "text-right" },
+    meta: { align: "right" },
     enableSorting: false,
   },
   {
@@ -56,8 +53,8 @@ function TableCellViewer({ invoice }: { invoice: Invoice }) {
 
   return (
     <Drawer swipeDirection="right">
-      <div className="flex items-center">
-        <DrawerTrigger render={<Button variant="link" />}>
+      <div className="flex items-center gap-2">
+        <DrawerTrigger render={<Button variant="link" className="px-0" />}>
           {invoice.document_name}
         </DrawerTrigger>
         {isRecent && (

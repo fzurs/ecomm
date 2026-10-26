@@ -4,6 +4,8 @@ import { dataTableConfig } from "../config/data-table"
 export type FilterParsers = typeof dataTableConfig.filterParsers
 export type FilterVariant = keyof FilterParsers
 
+export type ColumnAlign = "left" | "center" | "right"
+
 export type Option = {
   label: string
   value: string
@@ -16,7 +18,8 @@ declare module "@tanstack/react-table" {
   }
 
   interface ColumnMeta<TData extends RowData, TValue> {
-    thClassName?: string
+    /** Aligns the header and the cells together. */
+    align?: ColumnAlign
     className?: string
     variant?: FilterVariant
     options?: Option[]

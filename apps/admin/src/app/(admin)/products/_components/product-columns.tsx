@@ -55,7 +55,6 @@ export const productColumns = [
       row.original.status && (
         <ProductStatusBadge status={row.original.status} />
       ),
-    meta: { thClassName: "pl-4" },
   },
   {
     accessorKey: "featured",
@@ -71,8 +70,8 @@ export const productColumns = [
         <EmptyCell label="Not featured" />
       ),
     meta: {
-      thClassName: "text-center",
-      className: "text-center [&>svg]:size-4 [&>svg]:mx-auto",
+      align: "center",
+      className: "[&>svg]:size-4 [&>svg]:mx-auto",
     },
   },
   {
@@ -93,8 +92,8 @@ export const productColumns = [
     cell: ({ row }) =>
       formatPrice(row.original.price) ?? <EmptyCell label="No price" />,
     meta: {
-      thClassName: "text-right",
-      className: "text-right tabular-nums",
+      align: "right",
+      className: "tabular-nums",
     },
   },
   {
@@ -107,8 +106,8 @@ export const productColumns = [
         <EmptyCell label="No discount" />
       ),
     meta: {
-      thClassName: "text-right",
-      className: "text-right tabular-nums",
+      align: "right",
+      className: "tabular-nums",
     },
   },
   {
@@ -119,8 +118,8 @@ export const productColumns = [
       formatPrice(row.original.active_price) ?? <EmptyCell label="No price" />,
     enableSorting: false,
     meta: {
-      thClassName: "text-right",
-      className: "text-right tabular-nums",
+      align: "right",
+      className: "tabular-nums",
     },
   },
   {
@@ -144,7 +143,7 @@ export const productColumns = [
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <TableCellActions item={row.original} />,
     enableHiding: false,
-    meta: { className: "text-right" },
+    meta: { align: "right" },
   },
 ] satisfies ColumnDef<Product>[]
 

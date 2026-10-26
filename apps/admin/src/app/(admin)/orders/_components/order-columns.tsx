@@ -35,8 +35,8 @@ export const orderColumns = [
     header: "Total",
     cell: ({ row }) => formatPrice(row.original.total),
     meta: {
-      thClassName: "text-right",
-      className: "text-right font-semibold",
+      align: "right",
+      className: "font-semibold",
     },
     enableHiding: false,
   },
@@ -73,8 +73,7 @@ export const orderColumns = [
     },
     enableSorting: false,
     meta: {
-      thClassName: "text-center",
-      className: "text-center",
+      align: "center",
     },
   },
   {
