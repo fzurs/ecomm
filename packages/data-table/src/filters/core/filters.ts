@@ -192,9 +192,10 @@ export function getColumnOptions<TData, TType extends ColumnDataType, TVal>(
     return []
   }
 
-  if (strategy === "server" && !column.options) {
-    throw new Error("column options are required for server-side filtering")
-  }
+  // On the server strategy the options come from the API: until they load
+  // (a filter from the URL renders right away), there are none. bazza threw
+  // here, which took the whole page down.
+  if (strategy === "server" && !column.options) return []
 
   if (column.options) {
     return column.options

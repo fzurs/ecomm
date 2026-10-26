@@ -167,6 +167,9 @@ export function FilterValueOptionDisplay<TData>({
   const options = useMemo(() => column.getOptions(), [column])
   const selected = options.filter((o) => filter?.values.includes(o.value))
 
+  // The options may not have loaded yet (server strategy)
+  if (selected.length === 0) return <Ellipsis className="size-4" />
+
   // We display the selected options based on how many are selected
   //
   // If there is only one option selected, we display its icon and label
