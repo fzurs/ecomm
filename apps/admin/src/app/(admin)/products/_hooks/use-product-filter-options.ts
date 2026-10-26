@@ -4,26 +4,22 @@ import {
   categoriesListChoicesOptions,
 } from "@workspace/api-client/query"
 import { useMemo } from "react"
-import { getProductColumns } from "../_components/product-columns"
 
 function selectAsOption(data: { name: string; slug?: string }[]) {
   return data.map((item) => ({ label: item.name, value: String(item.slug) }))
 }
 
-/** The product columns, with the category and brand filter options loaded. */
-export function useProductColumns() {
-  const { data: categoryOptions } = useQuery({
+/** The category and brand filter options, loaded from the API. */
+export function useProductFilterOptions() {
+  const { data: category } = useQuery({
     ...categoriesListChoicesOptions(),
     select: selectAsOption,
   })
 
-  const { data: brandOptions } = useQuery({
+  const { data: brand } = useQuery({
     ...brandsListChoicesOptions(),
     select: selectAsOption,
   })
 
-  return useMemo(
-    () => getProductColumns({ categoryOptions, brandOptions }),
-    [categoryOptions, brandOptions]
-  )
+  return useMemo(() => ({ category, brand }), [category, brand])
 }
