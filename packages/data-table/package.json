@@ -28,6 +28,7 @@
     "react-dom": "^19.2.7"
   },
   "exports": {
+    "./filters": "./src/filters/index.tsx",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
     "./types/*": "./src/types/*.ts"
