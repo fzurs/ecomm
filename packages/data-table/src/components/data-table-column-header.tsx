@@ -1,6 +1,6 @@
 "use client"
 
-import type { Column } from "@tanstack/react-table"
+import type { Column, RowData } from "@tanstack/react-table"
 import { Button } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { cn } from "cn"
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeOffIcon } from "lucide-react"
-import type { ColumnAlign } from "../types/data-table"
+import type { ColumnAlign, DataTableFeatures } from "../types/data-table"
 
 // The negative margin cancels the button's padding, so the title lines up with
 // the cells' content. Right-aligned, the sort icon goes first to keep the title
@@ -29,12 +29,12 @@ const menuAlign = { left: "start", center: "center", right: "end" } as const
 // The header opens a menu to sort and hide the column. The sort icon shows on
 // hover of the header cell (`group/th`, set by DataTable), on keyboard focus,
 // while the menu is open, and always while the column is sorted.
-export function DataTableColumnHeader<TData, TValue>({
+export function DataTableColumnHeader<TData extends RowData, TValue>({
   column,
   title,
   align = "left",
 }: {
-  column: Column<TData, TValue>
+  column: Column<DataTableFeatures, TData, TValue>
   title?: string
   align?: ColumnAlign
 }) {

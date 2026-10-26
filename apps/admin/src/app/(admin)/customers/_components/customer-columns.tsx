@@ -1,6 +1,6 @@
 "use client"
 import { EmptyCell } from "@/components/empty-cell"
-import { ColumnDef } from "@tanstack/react-table"
+import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Customer } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -24,7 +24,7 @@ import {
   AvatarImage,
 } from "@workspace/ui/components/avatar"
 
-export const customerColumns: ColumnDef<Customer>[] = [
+export const customerColumns: DataTableColumnDef<Customer>[] = [
   {
     accessorKey: "name",
     header: "Name",

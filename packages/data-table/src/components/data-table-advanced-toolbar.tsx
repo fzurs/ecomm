@@ -1,5 +1,6 @@
-import { Table } from "@tanstack/react-table"
+import type { RowData } from "@tanstack/react-table"
 import { cn } from "cn"
+import type { DataTableInstance } from "../types/data-table"
 import { DataTableViewOptions } from "./data-table-view-options"
 
 /**
@@ -8,14 +9,14 @@ import { DataTableViewOptions } from "./data-table-view-options"
  * options. The actions stay on the first line when the filters wrap. Controls
  * go at the height of the `size="sm"` buttons (h-8).
  */
-export function DataTableAdvancedToolbar<TData>({
+export function DataTableAdvancedToolbar<TData extends RowData>({
   table,
   className,
   children,
   actions,
   ...props
 }: React.ComponentProps<"div"> & {
-  table: Table<TData>
+  table: DataTableInstance<TData>
   actions?: React.ReactNode
 }) {
   return (

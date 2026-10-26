@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table"
+import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Button } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -145,7 +145,7 @@ export const productColumns = [
     enableHiding: false,
     meta: { align: "right" },
   },
-] satisfies ColumnDef<Product>[]
+] satisfies DataTableColumnDef<Product>[]
 
 function TableCellViewer({ product }: { product: Product }) {
   const { openAction } = useRowActions<Product>()

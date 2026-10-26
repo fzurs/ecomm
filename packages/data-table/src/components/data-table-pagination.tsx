@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table"
+import type { RowData } from "@tanstack/react-table"
 import {
   ChevronLeft,
   ChevronRight,
@@ -24,21 +24,24 @@ import {
 } from "@workspace/ui/components/select"
 import { cn } from "cn"
 import { getPageItems } from "../lib/pagination"
+import type { DataTableInstance } from "../types/data-table"
 
 const numberFormat = new Intl.NumberFormat("en-US")
 
-interface DataTablePaginationProps<TData> extends React.ComponentProps<"div"> {
-  table: Table<TData>
+interface DataTablePaginationProps<
+  TData extends RowData,
+> extends React.ComponentProps<"div"> {
+  table: DataTableInstance<TData>
   pageSizeOptions?: number[]
 }
 
-export function DataTablePagination<TData>({
+export function DataTablePagination<TData extends RowData>({
   table,
   pageSizeOptions = [10, 20, 30, 40, 50],
   className,
   ...props
 }: DataTablePaginationProps<TData>) {
-  const { pageIndex, pageSize } = table.getState().pagination
+  const { pageIndex, pageSize } = table.state.pagination
   const pageCount = Math.max(table.getPageCount(), 1)
   const rowCount = table.getRowCount()
   const from = rowCount ? pageIndex * pageSize + 1 : 0

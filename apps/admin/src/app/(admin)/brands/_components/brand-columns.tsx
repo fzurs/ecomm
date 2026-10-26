@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table"
+import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Button } from "@workspace/ui/components/button"
 import { Brand } from "@workspace/api-client"
 import {
@@ -12,7 +12,7 @@ import {
 import { EditIcon, EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 import { useRowActions } from "@/context/row-actions-provider"
 
-export const brandColumns: ColumnDef<Brand>[] = [
+export const brandColumns: DataTableColumnDef<Brand>[] = [
   {
     accessorKey: "name",
     header: "Name",

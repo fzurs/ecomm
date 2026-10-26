@@ -2,16 +2,17 @@ import { parseAsIndex, parseAsInteger, useQueryState } from "nuqs"
 
 import {
   functionalUpdate,
-  getCoreRowModel,
   OnChangeFn,
   PaginationState,
   SortingState,
   TableOptions,
-  useReactTable,
+  useTable,
 } from "@tanstack/react-table"
 
 import { useCallback, useEffect, useMemo } from "react"
 import { parseAsColumnSort } from "@workspace/data-table/lib/parsers"
+import { dataTableFeatures } from "../lib/features"
+import type { DataTableFeatures } from "../types/data-table"
 
 const PAGE_KEY = "page"
 const PER_PAGE_KEY = "perPage"
@@ -19,9 +20,9 @@ const SORT_KEY = "sort"
 
 type QueryKeys = Record<"page" | "perPage" | "sort", string>
 
-type UseDataTableProps<TData> = Omit<
-  TableOptions<TData>,
-  "data" | "getCoreRowModel"
+type UseDataTableProps<TData extends { id: number }> = Omit<
+  TableOptions<DataTableFeatures, TData>,
+  "data" | "features"
 > & {
   data?: { results: TData[]; count: number }
   queryKeys?: Partial<QueryKeys>
@@ -84,13 +85,12 @@ export function useDataTable<TData extends { id: number }>({
     [setColumnSort, sorting]
   )
 
-  return useReactTable({
+  return useTable({
     ...props,
 
+    features: dataTableFeatures,
     data: data?.results ?? [],
     columns,
-
-    getCoreRowModel: getCoreRowModel(),
 
     getRowId: (item) => item.id.toString(),
     rowCount: data?.count,
@@ -103,9 +103,5 @@ export function useDataTable<TData extends { id: number }>({
 
     manualSorting: true,
     onSortingChange,
-
-    // Filters live outside the table (DataTableFilter, in the URL) and go to
-    // the API: the table doesn't filter its rows.
-    manualFiltering: true,
   })
 }

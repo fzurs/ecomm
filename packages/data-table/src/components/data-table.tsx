@@ -1,4 +1,4 @@
-import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
+import { flexRender, type RowData } from "@tanstack/react-table"
 
 import { DataTablePagination } from "./data-table-pagination"
 import {
@@ -12,7 +12,7 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "cn"
 import { getColumnLabel } from "@workspace/data-table/lib/column"
-import type { ColumnAlign } from "../types/data-table"
+import type { ColumnAlign, DataTableInstance } from "../types/data-table"
 import { DataTableColumnHeader } from "./data-table-column-header"
 
 const alignClasses: Record<ColumnAlign, string> = {
@@ -27,12 +27,12 @@ const ariaSort = {
 } as const
 
 /** `onClearFilters` shows a "Clear filters" button when there are no results. */
-export function DataTable<TData>({
+export function DataTable<TData extends RowData>({
   table,
   children,
   onClearFilters,
 }: {
-  table: TanstackTable<TData>
+  table: DataTableInstance<TData>
   children?: React.ReactNode
   onClearFilters?: () => void
 }) {
@@ -86,10 +86,7 @@ export function DataTable<TData>({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
+                  <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}

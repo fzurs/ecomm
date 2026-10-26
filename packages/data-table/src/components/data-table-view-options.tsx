@@ -1,6 +1,7 @@
 "use client"
 
-import type { Table } from "@tanstack/react-table"
+import type { RowData } from "@tanstack/react-table"
+
 import { Button } from "@workspace/ui/components/button"
 import { LockIcon, Settings2Icon } from "lucide-react"
 import {
@@ -13,13 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { getColumnLabel } from "../lib/column"
+import type { DataTableInstance } from "../types/data-table"
 
 // Lists every data column; display columns (no accessor, like the row actions)
 // are left out. The ones that can't be hidden show a lock instead of a check.
-export function DataTableViewOptions<TData>({
+export function DataTableViewOptions<TData extends RowData>({
   table,
 }: {
-  table: Table<TData>
+  table: DataTableInstance<TData>
 }) {
   const columns = table
     .getAllColumns()
@@ -39,7 +41,7 @@ export function DataTableViewOptions<TData>({
               <DropdownMenuCheckboxItem
                 key={column.id}
                 checked={column.getIsVisible()}
-                onCheckedChange={column.toggleVisibility}
+                onCheckedChange={(checked) => column.toggleVisibility(checked)}
               >
                 {getColumnLabel(column)}
               </DropdownMenuCheckboxItem>

@@ -1,6 +1,6 @@
 import { EmptyCell } from "@/components/empty-cell"
 import { formatPrice } from "@/lib/utils"
-import { ColumnDef } from "@tanstack/react-table"
+import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Order } from "@workspace/api-client"
 import {
   Avatar,
@@ -113,7 +113,7 @@ export const orderColumns = [
     cell: ({ row }) => <OrderRowActions item={row.original} />,
     enableHiding: false,
   },
-] satisfies ColumnDef<Order>[]
+] satisfies DataTableColumnDef<Order>[]
 
 function TableCellViewer({ order }: { order: Order }) {
   const { openAction } = useRowActions<Order>()

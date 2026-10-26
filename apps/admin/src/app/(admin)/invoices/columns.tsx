@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table"
+import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Invoice } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -15,7 +15,7 @@ import { useState } from "react"
 import { StatusBadge } from "@/components/status"
 import { invoiceStatuses } from "./_lib/invoice-status"
 
-export const columns: ColumnDef<Invoice>[] = [
+export const columns: DataTableColumnDef<Invoice>[] = [
   {
     accessorKey: "document_name",
     header: "Document",

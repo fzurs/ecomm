@@ -1,5 +1,5 @@
 import { EmptyCell } from "@/components/empty-cell"
-import { ColumnDef } from "@tanstack/react-table"
+import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Button } from "@workspace/ui/components/button"
 import { Category } from "@workspace/api-client"
 import {
@@ -37,7 +37,7 @@ export const categoryColumns = [
     enableHiding: false,
     meta: { align: "right" },
   },
-] satisfies ColumnDef<Category>[]
+] satisfies DataTableColumnDef<Category>[]
 
 function TableCellViewer({ category }: { category: Category }) {
   const { openAction } = useRowActions<Category>()
