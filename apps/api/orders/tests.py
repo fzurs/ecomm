@@ -169,6 +169,17 @@ class OrderCreateTests(OrderTestCase):
         response = self.post_order([{'product': self.create_product().pk}])
         self.assertEqual(response.data['status'], Order.Status.PENDING)
 
+    def test_can_start_paid_but_not_cancelled(self):
+        items = [{'product': self.create_product().pk}]
+        response = self.post_order(items, status=Order.Status.PAID)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['status'], Order.Status.PAID)
+        self.assertEqual(response.data['invoice_status'], 'not_invoiced')
+
+        response = self.post_order(items, status=Order.Status.CANCELLED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('status', response.data)
+
     def test_rejects_inactive_product(self):
         for product_status in (Product.Status.DRAFT, Product.Status.OUT_OF_STOCK):
             with self.subTest(status=product_status):

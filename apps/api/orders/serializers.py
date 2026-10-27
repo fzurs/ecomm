@@ -108,6 +108,12 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderCreateSerializer(OrderSerializer):
     items = OrderItemSerializer(many=True)
 
+    def validate_status(self, status):
+        # It may start charged (or already delivered), but not cancelled.
+        if status == Order.Status.CANCELLED:
+            raise serializers.ValidationError("An order can't be created cancelled.")
+        return status
+
     def create(self, validated_data):
         order = Order.objects.create_with_items(**validated_data)
         # A new order has no invoice: the instance isn't annotated like the viewset queryset.
