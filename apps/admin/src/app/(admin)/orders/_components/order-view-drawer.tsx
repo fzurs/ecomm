@@ -17,6 +17,11 @@ import { CalendarIcon, Maximize2Icon } from "lucide-react"
 import { format } from "date-fns"
 import Link from "next/link"
 import { OrderCustomerItem } from "./order-customer-item"
+import { OrderInvoiceButton, OrderInvoices } from "./order-invoices"
+import {
+  OrderInvoiceStatusBadge,
+  showsInvoiceStatus,
+} from "./order-invoice-status-badge"
 import { OrderItemsTable } from "./order-items-table"
 import { OrderStatusBadge } from "./order-status-badge"
 import { OrderStatusMenu } from "./order-status-menu"
@@ -55,10 +60,16 @@ function OrderViewDrawerContent({ row }: { row: Order }) {
                 {format(order.created_at, "MMMM dd, yyyy - p")}
               </DrawerDescription>
             </div>
-            {order.status && <OrderStatusBadge status={order.status} />}
+            <div className="flex items-center gap-2">
+              {order.status && <OrderStatusBadge status={order.status} />}
+              {showsInvoiceStatus(order) && (
+                <OrderInvoiceStatusBadge order={order} />
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <OrderStatusMenu order={order} size="sm" />
+            <OrderInvoiceButton order={order} size="sm" />
             <Link
               href={`/orders/${order.number}`}
               className={buttonVariants({ variant: "outline", size: "sm" })}
@@ -85,6 +96,12 @@ function OrderViewDrawerContent({ row }: { row: Order }) {
             <h3>Customer details</h3>
           </div>
           <OrderCustomerItem customer={order.customer_detail} />
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="typeset">
+            <h3>Invoices</h3>
+          </div>
+          <OrderInvoices order={order} />
         </div>
       </div>
       <DrawerFooter>

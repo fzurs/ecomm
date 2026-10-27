@@ -15,6 +15,7 @@ import {
 } from "@workspace/ui/components/popover"
 import { format } from "date-fns"
 import Link from "next/link"
+import { OrderInvoiceStatusBadge } from "./order-invoice-status-badge"
 import { OrderItemsTable } from "./order-items-table"
 import { OrderRowActions } from "./order-row-actions"
 import { OrderStatusBadge } from "./order-status-badge"
@@ -48,6 +49,12 @@ export const orderColumns = [
 
       return <OrderStatusBadge status={status} />
     },
+  },
+  {
+    accessorKey: "invoice_status",
+    header: "Invoice",
+    cell: ({ row }) => <OrderInvoiceStatusBadge order={row.original} />,
+    enableSorting: false,
   },
   {
     accessorKey: "items",

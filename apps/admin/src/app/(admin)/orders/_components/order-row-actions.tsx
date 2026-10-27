@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { useRowActions } from "@/context/row-actions-provider"
 import { useOptimisticOrderStatusUpdate } from "../_hooks/use-optimistic-order"
+import { canInvoice, invoiceActionLabel } from "../_lib/order-invoice-status"
 import { OrderStatusRadioGroup } from "./order-status-radio-group"
 
 export function OrderRowActions({ item: order }: { item: Order }) {
@@ -56,10 +57,10 @@ export function OrderRowActions({ item: order }: { item: Order }) {
             <PanelRightIcon />
             View details
           </DropdownMenuItem>
-          {order.status === "paid" && (
+          {canInvoice(order) && (
             <DropdownMenuItem onClick={() => openAction("invoice", order)}>
               <FileTextIcon />
-              Create invoice
+              {invoiceActionLabel(order)}
             </DropdownMenuItem>
           )}
           <DropdownMenuSub>

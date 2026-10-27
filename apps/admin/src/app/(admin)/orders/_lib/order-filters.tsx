@@ -4,8 +4,10 @@ import {
   CalendarIcon,
   CircleDotDashedIcon,
   DollarSignIcon,
+  FileTextIcon,
   UserIcon,
 } from "lucide-react"
+import { orderInvoiceStatusOptions } from "./order-invoice-status"
 import { orderStatusOptions } from "./order-status"
 
 const dtf = createColumnConfigHelper<Order>()
@@ -21,6 +23,14 @@ export const orderFilterColumns = [
     .displayName("Status")
     .icon(CircleDotDashedIcon)
     .options(orderStatusOptions)
+    .build(),
+  dtf
+    .option()
+    .id("invoice_status")
+    .accessor((row) => row.invoice_status)
+    .displayName("Invoice")
+    .icon(FileTextIcon)
+    .options(orderInvoiceStatusOptions)
     .build(),
   dtf
     .option()

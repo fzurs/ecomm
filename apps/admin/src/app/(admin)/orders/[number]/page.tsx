@@ -5,10 +5,17 @@ import { ordersRetrieveOptions } from "@workspace/api-client/query"
 import { format } from "date-fns"
 import { useParams } from "next/navigation"
 import { OrderItemsTable } from "../_components/order-items-table"
+import {
+  OrderInvoiceStatusBadge,
+  showsInvoiceStatus,
+} from "../_components/order-invoice-status-badge"
 import { OrderStatusBadge } from "../_components/order-status-badge"
 import { OrderStatusMenu } from "../_components/order-status-menu"
 import { OrderCustomerItem } from "../_components/order-customer-item"
-import { OrderInvoices } from "../_components/order-invoices"
+import {
+  OrderInvoiceButton,
+  OrderInvoices,
+} from "../_components/order-invoices"
 import { CalendarIcon } from "lucide-react"
 
 export default function OrdersDetailsPage() {
@@ -35,11 +42,17 @@ export default function OrdersDetailsPage() {
                 {format(order.created_at, "MMMM dd, yyyy - p")}
               </p>
             </div>
-            {order.status && <OrderStatusBadge status={order.status} />}
+            <div className="flex items-center gap-2">
+              {order.status && <OrderStatusBadge status={order.status} />}
+              {showsInvoiceStatus(order) && (
+                <OrderInvoiceStatusBadge order={order} />
+              )}
+            </div>
           </div>
 
-          <div>
+          <div className="flex flex-wrap gap-2">
             <OrderStatusMenu order={order} />
+            <OrderInvoiceButton order={order} />
           </div>
 
           <section className="flex flex-col gap-4">
