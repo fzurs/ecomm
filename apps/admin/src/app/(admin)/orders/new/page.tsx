@@ -10,7 +10,10 @@ import {
 export default function OrdersCreatePage() {
   const router = useRouter()
 
-  const form = useOrderCreateForm({ onSuccess: () => router.push("/orders") })
+  // To the new order: what follows (charging it, invoicing it) is done there.
+  const form = useOrderCreateForm({
+    onSuccess: (order) => router.push(`/orders/${order.number}`),
+  })
 
   return (
     <>

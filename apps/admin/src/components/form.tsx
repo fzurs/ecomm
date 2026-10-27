@@ -4,6 +4,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -310,15 +311,33 @@ export function FileField({ ...props }: React.ComponentProps<typeof Input>) {
   )
 }
 
+// The icon (e.g. a status dot) centered on the label: the select's item text
+// and value don't center their children vertically.
+function OptionLabel({
+  option,
+}: {
+  option: { label: string; icon?: React.JSX.Element }
+}) {
+  return (
+    <span className="flex items-center gap-2">
+      {option.icon}
+      {option.label}
+    </span>
+  )
+}
+
 export function SelectField({
   label,
   description,
   options,
   placeholder,
+  orientation = "vertical",
   ...props
 }: React.ComponentProps<typeof SelectTrigger> & {
   label: string
   description?: string
+  // Horizontal: the label and description beside the select, not above.
+  orientation?: "vertical" | "horizontal"
   // Numbers too: the field keeps the option value as is (e.g. an ARCA code).
   options: {
     label: string
@@ -332,45 +351,63 @@ export function SelectField({
 
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 
+  const select = (
+    <Select<string | number>
+      name={field.name}
+      items={options}
+      value={field.state.value as string | number}
+      onValueChange={field.handleChange}
+    >
+      <SelectTrigger
+        id={fieldId}
+        aria-invalid={isInvalid}
+        className="w-full"
+        {...props}
+      >
+        <SelectValue>
+          {(value) => {
+            // The icon is shown next to the selected label, as in the list.
+            const option = options.find((opt) => opt.value === value)
+            if (!option) return placeholder
+            return <OptionLabel option={option} />
+          }}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {options.map((opt) => (
+            <SelectItem key={String(opt.value)} value={opt.value}>
+              <OptionLabel option={opt} />
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
+
+  if (orientation === "horizontal") {
+    return (
+      // With a FieldContent, a horizontal Field aligns its children to the top
+      // (meant for checkboxes): the select is centered on the label instead.
+      <Field
+        data-invalid={isInvalid}
+        orientation="horizontal"
+        className="has-[>[data-slot=field-content]]:items-center"
+      >
+        <FieldContent>
+          <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {isInvalid && <FieldError errors={field.state.meta.errors} />}
+        </FieldContent>
+        {select}
+      </Field>
+    )
+  }
+
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
-      <Select<string | number>
-        name={field.name}
-        items={options}
-        value={field.state.value as string | number}
-        onValueChange={field.handleChange}
-      >
-        <SelectTrigger
-          id={fieldId}
-          aria-invalid={isInvalid}
-          className="w-full"
-          {...props}
-        >
-          <SelectValue>
-            {(value) => {
-              // The icon is shown next to the selected label, as in the list.
-              const option = options.find((opt) => opt.value === value)
-              if (!option) return placeholder
-              return (
-                <>
-                  {option.icon}
-                  {option.label}
-                </>
-              )
-            }}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {options.map((opt) => (
-              <SelectItem key={String(opt.value)} value={opt.value}>
-                {opt.icon} {opt.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      {select}
       {description && <FieldDescription>{description}</FieldDescription>}
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>

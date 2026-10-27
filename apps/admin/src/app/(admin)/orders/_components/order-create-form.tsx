@@ -22,11 +22,21 @@ import { Input } from "@workspace/ui/components/input"
 import Link from "next/link"
 import { applyServerErrors } from "@/lib/utils"
 import { orderFormSchema, OrderFormValues } from "../_lib/order-schema"
+import { orderStatusOptions } from "../_lib/order-status"
 import { AddOrderItem } from "./add-order-item"
 import { CustomerSelect } from "./customer-select"
 import { OrderItemsField } from "./order-items-field"
 
-const defaultValues: OrderFormValues = { customer: -1, items: [] }
+const defaultValues: OrderFormValues = {
+  customer: -1,
+  status: "pending",
+  items: [],
+}
+
+// The statuses an order can start in: charged ones skip changing it later.
+const initialStatusOptions = orderStatusOptions.filter(
+  (opt) => opt.value !== "cancelled"
+)
 
 const orderCreateFormOpts = formOptions({
   defaultValues,
@@ -70,10 +80,10 @@ export const OrderCreateForm = withForm({
         <form.Form>
           <FieldGroup>
             <FieldSet>
-              <FieldLegend>Customer details</FieldLegend>
+              <FieldLegend>Order details</FieldLegend>
               <FieldDescription>
-                Select the customer for this order and provide any additional
-                order information.
+                Select the customer, and the status if the order is already
+                charged.
               </FieldDescription>
               <FieldGroup>
                 <form.Field
@@ -96,6 +106,18 @@ export const OrderCreateForm = withForm({
                       </Field>
                     )
                   }}
+                />
+                <form.AppField
+                  name="status"
+                  children={(field) => (
+                    <field.SelectField
+                      label="Status"
+                      description="Paid orders can be invoiced right away."
+                      orientation="horizontal"
+                      options={initialStatusOptions}
+                      className="w-full max-w-xs"
+                    />
+                  )}
                 />
               </FieldGroup>
             </FieldSet>
