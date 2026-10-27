@@ -20,7 +20,6 @@ import { useRowActionDialog } from "@/context/row-actions-provider"
 import { voucherName } from "../_lib/voucher-type"
 import { ArcaMessages } from "./arca-messages"
 import { InvoiceActions } from "./invoice-actions"
-import { InvoiceAmounts } from "./invoice-amounts"
 import { InvoiceDetails } from "./invoice-details"
 import { InvoiceLinesTable } from "./invoice-lines-table"
 import { InvoiceStatusBadge } from "./invoice-status-badge"
@@ -82,8 +81,7 @@ function InvoiceViewDrawerContent({ row }: { row: Invoice }) {
               <div className="typeset">
                 <h3>Lines</h3>
               </div>
-              <InvoiceLinesTable lines={invoice.lines} />
-              <InvoiceAmounts invoice={invoice} />
+              <InvoiceLinesTable lines={invoice.lines} amounts={invoice} />
             </div>
           </>
         ) : (

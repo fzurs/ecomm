@@ -1,6 +1,6 @@
 import { formatPrice } from "@/lib/utils"
 import { vatRates } from "@/lib/fiscal"
-import { InvoiceLine } from "@workspace/api-client"
+import { InvoiceDetail, InvoiceLine } from "@workspace/api-client"
 import {
   Table,
   TableBody,
@@ -10,23 +10,33 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import React from "react"
+import { InvoiceAmountsFooter } from "./invoice-amounts"
 
+/** The lines of a voucher. With `amounts`, its authorized amounts go below. */
 export function InvoiceLinesTable({
   lines,
+  amounts,
   renderQuantity,
 }: {
   lines: InvoiceLine[]
+  amounts?: InvoiceDetail
   renderQuantity?: (line: InvoiceLine, index: number) => React.ReactNode
 }) {
+  // Prices are charged with IVA included, while the A and B footer starts
+  // from the net amount: say so, or the numbers don't seem to add up.
+  const vatIncluded = amounts?.letter !== "C" && (
+    <span className="font-normal text-muted-foreground"> (IVA incl.)</span>
+  )
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Description</TableHead>
           <TableHead className="text-center">Quantity</TableHead>
-          <TableHead className="text-right">Unit price</TableHead>
+          <TableHead className="text-right">Unit price{vatIncluded}</TableHead>
           <TableHead className="text-center">IVA</TableHead>
-          <TableHead className="text-right">Subtotal</TableHead>
+          <TableHead className="text-right">Subtotal{vatIncluded}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -36,7 +46,6 @@ export function InvoiceLinesTable({
             <TableCell className="text-center">
               {renderQuantity?.(line, index) ?? line.quantity}
             </TableCell>
-            {/* IVA included, as charged. */}
             <TableCell className="text-right">
               {formatPrice(line.unit_price)}
             </TableCell>
@@ -49,6 +58,7 @@ export function InvoiceLinesTable({
           </TableRow>
         ))}
       </TableBody>
+      {amounts && <InvoiceAmountsFooter invoice={amounts} labelSpan={4} />}
     </Table>
   )
 }

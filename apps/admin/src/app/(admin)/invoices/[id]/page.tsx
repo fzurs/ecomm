@@ -7,7 +7,6 @@ import { CalendarIcon } from "lucide-react"
 import { useParams } from "next/navigation"
 import { ArcaMessages } from "../_components/arca-messages"
 import { InvoiceActions } from "../_components/invoice-actions"
-import { InvoiceAmounts } from "../_components/invoice-amounts"
 import { InvoiceDetails } from "../_components/invoice-details"
 import { InvoiceLinesTable } from "../_components/invoice-lines-table"
 import { InvoiceStatusBadge } from "../_components/invoice-status-badge"
@@ -53,8 +52,7 @@ export default function InvoiceDetailPage() {
             <div className="typeset">
               <h2>Lines</h2>
             </div>
-            <InvoiceLinesTable lines={invoice.lines} />
-            <InvoiceAmounts invoice={invoice} />
+            <InvoiceLinesTable lines={invoice.lines} amounts={invoice} />
           </section>
           <section className="flex flex-col gap-4">
             <div className="typeset">

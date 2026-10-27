@@ -1,18 +1,23 @@
 import { formatPrice } from "@/lib/utils"
 import { vatRates } from "@/lib/fiscal"
 import { InvoiceDetail } from "@workspace/api-client"
-import { cn } from "cn"
+import {
+  TableCell,
+  TableFooter,
+  TableRow,
+} from "@workspace/ui/components/table"
 
 /**
- * The amounts as ARCA authorized them. A C voucher has no IVA breakdown; A and
- * B show the net amount and the IVA of each rate.
+ * The amounts as ARCA authorized them, as the footer of the lines table. A C
+ * voucher has no IVA breakdown; A and B show the net amount and the IVA of
+ * each rate. `labelSpan` is the number of columns before the subtotal.
  */
-export function InvoiceAmounts({
+export function InvoiceAmountsFooter({
   invoice,
-  className,
+  labelSpan,
 }: {
   invoice: InvoiceDetail
-  className?: string
+  labelSpan: number
 }) {
   const rows =
     invoice.letter === "C"
@@ -32,22 +37,28 @@ export function InvoiceAmounts({
         ].filter((row) => !row.optional || Number(row.value) > 0)
 
   return (
-    <dl
-      className={cn(
-        "ml-auto grid w-full max-w-xs grid-cols-[1fr_auto] gap-x-6 text-sm",
-        className
-      )}
-    >
+    <TableFooter>
       {rows.map((row) => (
-        <div key={row.label} className="contents">
-          <dt className="py-1 text-muted-foreground">{row.label}</dt>
-          <dd className="py-1 text-right">{formatPrice(row.value)}</dd>
-        </div>
+        <TableRow key={row.label} className="border-0 hover:bg-transparent">
+          <TableCell
+            colSpan={labelSpan}
+            className="py-1.5 text-right font-normal text-muted-foreground"
+          >
+            {row.label}
+          </TableCell>
+          <TableCell className="py-1.5 text-right font-normal">
+            {formatPrice(row.value)}
+          </TableCell>
+        </TableRow>
       ))}
-      <dt className="border-t py-2 font-semibold">Total</dt>
-      <dd className="border-t py-2 text-right font-semibold">
-        {formatPrice(invoice.total_amount)}
-      </dd>
-    </dl>
+      <TableRow className="hover:bg-transparent">
+        <TableCell colSpan={labelSpan} className="text-right font-semibold">
+          Total
+        </TableCell>
+        <TableCell className="text-right font-semibold">
+          {formatPrice(invoice.total_amount)}
+        </TableCell>
+      </TableRow>
+    </TableFooter>
   )
 }
