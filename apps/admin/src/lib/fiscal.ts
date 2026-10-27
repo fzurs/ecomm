@@ -48,6 +48,10 @@ export const vatConditions: Record<VatCondition, string> = {
   16: "Monotributo Trabajador Independiente Promovido",
 }
 
+// They get Factura A, which needs their CUIT: arca-client's `CONDICIONES_A`,
+// which the API checks when saving a customer.
+export const cuitRequiredVatConditions: VatCondition[] = [1, 6, 13, 16]
+
 export const vatRates: Record<VatRate, string> = {
   1: "Non-taxed",
   2: "Exempt",

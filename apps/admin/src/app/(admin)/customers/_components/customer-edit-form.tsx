@@ -10,7 +10,11 @@ import {
   FieldSeparator,
   FieldSet,
 } from "@workspace/ui/components/field"
-import { documentTypeOptions, vatConditionOptions } from "@/lib/fiscal"
+import {
+  cuitRequiredVatConditions,
+  documentTypeOptions,
+  vatConditionOptions,
+} from "@/lib/fiscal"
 import { applyServerErrors } from "@/lib/utils"
 import { invalidateCustomers } from "../_lib/invalidate-customers"
 import {
@@ -73,73 +77,97 @@ export const CustomerEditForm = withForm({
     return (
       <form.AppForm>
         <form.Form>
+          {/* The outer group spaces the sections and the separator. */}
           <FieldGroup>
-            <form.AppField
-              name="name"
-              children={(field) => <field.TextField label="Name" />}
-            />
-            <form.AppField
-              name="email"
-              children={(field) => <field.EmailField />}
-            />
-            <form.AppField
-              name="phone"
-              children={(field) => <field.TextField label="Phone" />}
-            />
-          </FieldGroup>
-          <FieldSeparator />
-          <FieldSet>
-            <FieldLegend>Billing</FieldLegend>
-            <FieldDescription>
-              The IVA condition decides the invoice: Factura A for responsables
-              inscriptos and monotributistas (with their CUIT), Factura B for
-              everyone else.
-            </FieldDescription>
-            <FieldGroup>
-              <form.AppField
-                name="vat_condition"
-                children={(field) => (
-                  <field.SelectField
-                    label="IVA condition"
-                    options={vatConditionOptions}
-                  />
-                )}
-              />
-              <div className="grid grid-cols-[8rem_1fr] items-start gap-4">
+            {/* The groups and order of the customer details. */}
+            <FieldSet>
+              <FieldLegend>Contact</FieldLegend>
+              <FieldGroup>
                 <form.AppField
-                  name="document_type"
+                  name="name"
+                  children={(field) => <field.TextField label="Name" />}
+                />
+                <div className="grid grid-cols-2 items-start gap-4">
+                  <form.AppField
+                    name="email"
+                    children={(field) => <field.EmailField />}
+                  />
+                  <form.AppField
+                    name="phone"
+                    children={(field) => <field.TextField label="Phone" />}
+                  />
+                </div>
+              </FieldGroup>
+            </FieldSet>
+            <FieldSeparator />
+            <FieldSet>
+              <FieldLegend>Billing</FieldLegend>
+              <FieldDescription>
+                The IVA condition decides the invoice letter: responsables
+                inscriptos and monotributistas get Factura A, everyone else
+                Factura B. A monotributista store issues Factura C to all.
+              </FieldDescription>
+              <FieldGroup>
+                <form.AppField
+                  name="vat_condition"
                   children={(field) => (
                     <field.SelectField
-                      label="Document"
-                      options={documentTypeOptions}
+                      label="IVA condition"
+                      options={vatConditionOptions}
+                    />
+                  )}
+                />
+                <div className="grid grid-cols-[8rem_1fr] items-start gap-4">
+                  <form.AppField
+                    name="document_type"
+                    children={(field) => (
+                      <field.SelectField
+                        label="Document"
+                        options={documentTypeOptions}
+                      />
+                    )}
+                  />
+                  {/* What the number needs depends on the IVA condition. */}
+                  <form.Subscribe
+                    selector={(state) => state.values.vat_condition}
+                    children={(vatCondition) => (
+                      <form.AppField
+                        name="document_number"
+                        children={(field) => (
+                          <field.TextField
+                            label="Number"
+                            description={
+                              cuitRequiredVatConditions.includes(vatCondition)
+                                ? "Required: their CUIT, for Factura A."
+                                : "Empty for an unidentified final consumer."
+                            }
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                </div>
+                <form.AppField
+                  name="legal_name"
+                  children={(field) => (
+                    <field.TextField
+                      label="Legal name"
+                      description="As on the invoice. Empty uses the name."
                     />
                   )}
                 />
                 <form.AppField
-                  name="document_number"
+                  name="address"
                   children={(field) => (
                     <field.TextField
-                      label="Number"
-                      description="Empty for an unidentified final consumer."
+                      label="Address"
+                      description="As on the invoice."
                     />
                   )}
                 />
-              </div>
-              <form.AppField
-                name="legal_name"
-                children={(field) => (
-                  <field.TextField
-                    label="Legal name"
-                    description="As on the invoice. Empty uses the name."
-                  />
-                )}
-              />
-              <form.AppField
-                name="address"
-                children={(field) => <field.TextField label="Address" />}
-              />
-            </FieldGroup>
-          </FieldSet>
+              </FieldGroup>
+            </FieldSet>
+          </FieldGroup>
         </form.Form>
       </form.AppForm>
     )

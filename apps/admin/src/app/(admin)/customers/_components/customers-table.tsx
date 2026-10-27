@@ -29,7 +29,15 @@ export function CustomersTable() {
     placeholderData: keepPreviousData,
   })
 
-  const table = useDataTable({ data, columns: customerColumns })
+  const table = useDataTable({
+    data,
+    columns: customerColumns,
+    // Hidden: what the list isn't scanned for. The view options show them,
+    // and the details have them all.
+    initialState: {
+      columnVisibility: { legal_name: false, phone: false, address: false },
+    },
+  })
 
   return (
     <DataTable
@@ -42,7 +50,7 @@ export function CustomersTable() {
           value={search}
           onValueChange={setSearch}
           count={data?.count}
-          placeholder="Search customers..."
+          placeholder="Search by name, email, CUIT..."
         />
       </DataTableAdvancedToolbar>
     </DataTable>

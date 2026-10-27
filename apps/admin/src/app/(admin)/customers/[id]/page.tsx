@@ -11,7 +11,10 @@ import {
 } from "@workspace/ui/components/avatar"
 import { MailIcon } from "lucide-react"
 import { CustomerEditDrawer } from "../_components/customer-edit-drawer"
-import { CustomerDetails } from "../_components/customer-details"
+import {
+  CustomerBillingDetails,
+  CustomerContactDetails,
+} from "../_components/customer-details"
 import { CustomerEditButton } from "../_components/customer-buttons"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 
@@ -54,12 +57,18 @@ export default function CustomerDetailsPage() {
               <CustomerEditButton customer={customer} />
             </div>
           </div>
-          {/* Details */}
+          {/* Details: the groups of the edit form */}
           <section className="flex flex-col gap-2">
             <div className="typeset">
-              <h2>Customer details</h2>
+              <h2>Contact</h2>
             </div>
-            <CustomerDetails customer={customer} />
+            <CustomerContactDetails customer={customer} />
+          </section>
+          <section className="flex flex-col gap-2">
+            <div className="typeset">
+              <h2>Billing</h2>
+            </div>
+            <CustomerBillingDetails customer={customer} />
           </section>
         </div>
       </main>

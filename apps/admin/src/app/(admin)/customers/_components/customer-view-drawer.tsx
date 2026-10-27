@@ -21,7 +21,10 @@ import {
   AvatarImage,
 } from "@workspace/ui/components/avatar"
 import * as React from "react"
-import { CustomerDetails } from "./customer-details"
+import {
+  CustomerBillingDetails,
+  CustomerContactDetails,
+} from "./customer-details"
 import { CustomerEditButton } from "./customer-buttons"
 import { CustomerEditDrawerContent } from "./customer-edit-drawer"
 import Link from "next/link"
@@ -84,12 +87,18 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
         </div>
       </DrawerHeader>
       {/* flex-1 keeps the footer at the bottom of the drawer. */}
-      <div className="flex-1 scroll-fade overflow-y-auto p-4 pt-8">
+      <div className="flex flex-1 scroll-fade flex-col gap-8 overflow-y-auto p-4 pt-8">
         <div className="flex flex-col gap-2">
           <div className="typeset">
-            <h3>Customer details</h3>
+            <h3>Contact</h3>
           </div>
-          <CustomerDetails customer={customer} />
+          <CustomerContactDetails customer={customer} />
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="typeset">
+            <h3>Billing</h3>
+          </div>
+          <CustomerBillingDetails customer={customer} />
         </div>
       </div>
       <DrawerFooter>

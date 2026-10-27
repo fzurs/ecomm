@@ -1,5 +1,6 @@
 "use client"
 import { EmptyCell } from "@/components/empty-cell"
+import { documentTypes, vatConditions } from "@/lib/fiscal"
 import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Customer } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -31,6 +32,47 @@ export const customerColumns: DataTableColumnDef<Customer>[] = [
     cell: ({ row }) => <TableCellViewer customer={row.original} />,
     enableHiding: false,
   },
+  // Who the customer is, then how they're invoiced, then contact. The ones
+  // hidden by default (`customers-table`) are next to what they complement.
+  // The API orders by name and email only.
+  {
+    accessorKey: "legal_name",
+    header: "Legal name",
+    cell: ({ row }) =>
+      row.original.legal_name || <EmptyCell label="Same as the name" />,
+    enableSorting: false,
+  },
+  {
+    accessorKey: "document_number",
+    header: "Document",
+    cell: ({ row }) => {
+      const { document_type, document_number } = row.original
+      if (!document_number) return <EmptyCell label="No document" />
+      return (
+        <span className="tabular-nums">
+          <span className="text-muted-foreground">
+            {documentTypes[document_type ?? 80]}
+          </span>{" "}
+          {document_number}
+        </span>
+      )
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "vat_condition",
+    header: "IVA condition",
+    cell: ({ row }) => {
+      const label = vatConditions[row.original.vat_condition ?? 5]
+      // Some of ARCA's names are long: truncated, whole on hover.
+      return (
+        <span className="block max-w-48 truncate" title={label}>
+          {label}
+        </span>
+      )
+    },
+    enableSorting: false,
+  },
   {
     accessorKey: "email",
     header: "Email",
@@ -42,6 +84,13 @@ export const customerColumns: DataTableColumnDef<Customer>[] = [
     header: "Phone",
     cell: ({ row }) => row.original.phone || <EmptyCell label="No phone" />,
     meta: { className: "text-muted-foreground font-medium" },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "address",
+    header: "Address",
+    cell: ({ row }) => row.original.address || <EmptyCell label="No address" />,
+    meta: { className: "text-muted-foreground" },
     enableSorting: false,
   },
   {
