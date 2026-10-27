@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 
 from orders.models import Customer, Order, OrderItem
@@ -150,6 +151,25 @@ class Invoice(models.Model):
     def __str__(self):
         number = self.display_number or _('not issued')
         return f'{self.type.label} {number} ({self.get_status_display()})'
+
+
+# Where an order is in its invoicing: the status of its invoice, or not invoiced yet.
+ORDER_INVOICE_STATUSES = [('not_invoiced', _('Not invoiced')), *Invoice.Status.choices]
+
+
+def order_invoice_status() -> models.Expression:
+    """The ORDER_INVOICE_STATUSES value of each order, to annotate an Order queryset. An order
+    has at most one invoice that isn't rejected (`one_invoice_per_order`): that one wins."""
+    invoices = Invoice.objects.filter(
+        order=models.OuterRef('pk'), associated_invoice=None,
+    ).order_by(
+        models.Case(models.When(status=Invoice.Status.REJECTED, then=1), default=0),
+        '-created_at',
+    )
+    return Coalesce(
+        models.Subquery(invoices.values('status')[:1]), models.Value('not_invoiced'),
+        output_field=models.CharField(),
+    )
 
 
 class InvoiceLine(models.Model):

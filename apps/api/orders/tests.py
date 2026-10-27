@@ -9,6 +9,7 @@ from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.db import IntegrityError, transaction
+from billing.models import Invoice, ReceptorDocumentType, VoucherType
 from store.models import Product
 from .models import Customer, Order, OrderItem
 
@@ -324,6 +325,76 @@ class OrderListTests(OrderTestCase):
         self.client.logout()
         response = self.client.get(reverse('order-list'))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class OrderInvoiceStatusTests(OrderTestCase):
+    def create_invoice(self, order, status, voucher_type=VoucherType.INVOICE_B, **kwargs):
+        return Invoice.objects.create(
+            order=order, point_of_sale=1, voucher_type=voucher_type, status=status,
+            receptor_name=self.customer.name,
+            receptor_document_type=ReceptorDocumentType.UNIDENTIFIED,
+            receptor_vat_condition=Customer.VatCondition.FINAL_CONSUMER, **kwargs)
+
+    def invoice_statuses(self, **params):
+        response = self.client.get(reverse('order-list'), params)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        return {o['number']: o['invoice_status'] for o in response.data['results']}
+
+    def test_shows_the_status_of_the_invoice(self):
+        orders = {s: Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+                  for s in ('not_invoiced', *Invoice.Status.values)}
+        for invoice_status, order in orders.items():
+            if invoice_status != 'not_invoiced':
+                self.create_invoice(order, invoice_status)
+        self.assertEqual(
+            self.invoice_statuses(), {o.number: s for s, o in orders.items()})
+
+    def test_a_live_invoice_wins_over_rejected_ones(self):
+        order = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        self.create_invoice(order, Invoice.Status.AUTHORIZED)
+        self.create_invoice(order, Invoice.Status.REJECTED)
+        self.assertEqual(self.invoice_statuses(), {order.number: 'authorized'})
+
+    def test_notes_dont_count(self):
+        order = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        invoice = self.create_invoice(order, Invoice.Status.AUTHORIZED)
+        self.create_invoice(order, Invoice.Status.REJECTED, associated_invoice=invoice,
+                            voucher_type=VoucherType.CREDIT_NOTE_B)
+        self.assertEqual(self.invoice_statuses(), {order.number: 'authorized'})
+
+    def test_filters_by_invoice_status(self):
+        pending = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        invoiced = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        self.create_invoice(invoiced, Invoice.Status.AUTHORIZED)
+        for params, expected in (({'invoice_status': ['not_invoiced']}, [pending.number]),
+                                 ({'invoice_status__not': ['not_invoiced']}, [invoiced.number])):
+            with self.subTest(params=params):
+                self.assertEqual(list(self.invoice_statuses(**params)), expected)
+
+    def test_filters_what_is_left_to_invoice(self):
+        to_invoice = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        unpaid = Order.objects.create(customer=self.customer, status=Order.Status.PENDING)
+        invoiced = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        self.create_invoice(invoiced, Invoice.Status.AUTHORIZED)
+        rejected = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        self.create_invoice(rejected, Invoice.Status.REJECTED)
+        for params, expected in (
+            ({'invoice_status': ['to_invoice']}, {to_invoice.number}),
+            ({'invoice_status': ['to_invoice', 'rejected']}, {to_invoice.number, rejected.number}),
+            ({'invoice_status__not': ['to_invoice']},
+             {unpaid.number, invoiced.number, rejected.number}),
+        ):
+            with self.subTest(params=params):
+                self.assertEqual(set(self.invoice_statuses(**params)), expected)
+
+    def test_detail_and_create_include_it(self):
+        order = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        self.create_invoice(order, Invoice.Status.PENDING)
+        response = self.client.get(reverse('order-detail', args=[order.number]))
+        self.assertEqual(response.data['invoice_status'], 'pending')
+        response = self.post_order([{'product': self.create_product().pk, 'quantity': 1}])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['invoice_status'], 'not_invoiced')
 
 
 class CustomerDestroyTests(OrderTestCase):

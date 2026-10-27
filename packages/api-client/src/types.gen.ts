@@ -268,6 +268,7 @@ export type Order = {
     readonly items: Array<OrderItem>;
     readonly total: number;
     customer_detail: CustomerSummary;
+    invoice_status: OrderInvoiceStatus;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
@@ -280,12 +281,22 @@ export type OrderCreate = {
     items: Array<OrderItem>;
     readonly total: number;
     customer_detail: CustomerSummary;
+    invoice_status: OrderInvoiceStatus;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
     readonly updated_at: string;
     customer: number;
 };
+
+/**
+ * * `not_invoiced` - Not invoiced
+ * * `pending` - Pending
+ * * `authorized` - Authorized
+ * * `rejected` - Rejected
+ * * `unverified` - Unverified
+ */
+export type OrderInvoiceStatus = 'not_invoiced' | 'pending' | 'authorized' | 'rejected' | 'unverified';
 
 export type OrderItem = {
     readonly id: number;
@@ -408,6 +419,7 @@ export type PatchedOrder = {
     readonly items?: Array<OrderItem>;
     readonly total?: number;
     customer_detail?: CustomerSummary;
+    invoice_status?: OrderInvoiceStatus;
     readonly number?: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at?: string;
@@ -1694,6 +1706,24 @@ export type OrdersListData = {
         created_at__range?: Array<string>;
         customer?: Array<number>;
         customer__not?: Array<number>;
+        /**
+         * * `to_invoice` - To invoice
+         * * `not_invoiced` - Not invoiced
+         * * `pending` - Pending
+         * * `authorized` - Authorized
+         * * `rejected` - Rejected
+         * * `unverified` - Unverified
+         */
+        invoice_status?: Array<'authorized' | 'not_invoiced' | 'pending' | 'rejected' | 'to_invoice' | 'unverified'>;
+        /**
+         * * `to_invoice` - To invoice
+         * * `not_invoiced` - Not invoiced
+         * * `pending` - Pending
+         * * `authorized` - Authorized
+         * * `rejected` - Rejected
+         * * `unverified` - Unverified
+         */
+        invoice_status__not?: Array<'authorized' | 'not_invoiced' | 'pending' | 'rejected' | 'to_invoice' | 'unverified'>;
         /**
          * Number of results to return per page.
          */

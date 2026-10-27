@@ -1,6 +1,7 @@
 from arca_client.certificates import is_valid_cuit, normalize_cuit
 from arca_client.wsfe import CONDICIONES_A
 from rest_framework import serializers
+from billing.models import ORDER_INVOICE_STATUSES
 from .models import Order, OrderItem, Customer
 from store.models import Product
 
@@ -68,6 +69,8 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(read_only=True, many=True)
     total = serializers.IntegerField(read_only=True)
     customer_detail = CustomerSummarySerializer(source="customer", read_only=True)
+    # Annotated by OrderViewSet.
+    invoice_status = serializers.ChoiceField(choices=ORDER_INVOICE_STATUSES, read_only=True)
 
     class Meta:
         model = Order
@@ -78,4 +81,7 @@ class OrderCreateSerializer(OrderSerializer):
     items = OrderItemSerializer(many=True)
 
     def create(self, validated_data):
-        return Order.objects.create_with_items(**validated_data)
+        order = Order.objects.create_with_items(**validated_data)
+        # A new order has no invoice: the instance isn't annotated like the viewset queryset.
+        order.invoice_status = "not_invoiced"
+        return order

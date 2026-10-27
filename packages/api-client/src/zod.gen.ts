@@ -134,6 +134,21 @@ export const zConversationDetail = z.object({
 });
 
 /**
+ * * `not_invoiced` - Not invoiced
+ * * `pending` - Pending
+ * * `authorized` - Authorized
+ * * `rejected` - Rejected
+ * * `unverified` - Unverified
+ */
+export const zOrderInvoiceStatus = z.enum([
+    'not_invoiced',
+    'pending',
+    'authorized',
+    'rejected',
+    'unverified'
+]);
+
+/**
  * * `pending` - Pending
  * * `paid` - Paid
  * * `shipped` - Shipped
@@ -393,6 +408,7 @@ export const zOrder = z.object({
     items: z.array(zOrderItem).readonly(),
     total: z.int().readonly(),
     customer_detail: zCustomerSummary,
+    invoice_status: zOrderInvoiceStatus,
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -408,6 +424,7 @@ export const zOrderCreate = z.object({
     items: z.array(zOrderItem),
     total: z.int().readonly(),
     customer_detail: zCustomerSummary,
+    invoice_status: zOrderInvoiceStatus,
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -430,6 +447,7 @@ export const zPatchedOrder = z.object({
     items: z.array(zOrderItem).readonly().optional(),
     total: z.int().readonly().optional(),
     customer_detail: zCustomerSummary.optional(),
+    invoice_status: zOrderInvoiceStatus.optional(),
     number: z.string().readonly().optional(),
     status: z.union([
         zOrderStatus,
@@ -1228,6 +1246,22 @@ export const zOrdersListQuery = z.object({
     created_at__range: z.array(z.iso.date()).optional(),
     customer: z.array(z.int()).optional(),
     customer__not: z.array(z.int()).optional(),
+    invoice_status: z.array(z.enum([
+        'authorized',
+        'not_invoiced',
+        'pending',
+        'rejected',
+        'to_invoice',
+        'unverified'
+    ])).optional(),
+    invoice_status__not: z.array(z.enum([
+        'authorized',
+        'not_invoiced',
+        'pending',
+        'rejected',
+        'to_invoice',
+        'unverified'
+    ])).optional(),
     limit: z.int().optional(),
     offset: z.int().optional(),
     ordering: z.string().optional(),

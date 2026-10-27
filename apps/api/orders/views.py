@@ -3,6 +3,7 @@ from django.db.models.functions import Coalesce
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from billing.models import order_invoice_status
 from config.viewsets import ChoicesMixin, choices_schema
 from .filters import OrderFilter, OrderOrdering
 from .models import Order, Customer
@@ -13,11 +14,12 @@ class OrderViewSet(viewsets.ModelViewSet):
     # Order.total is a Python property, so the database can't order by it: items_total is the
     # same sum computed in SQL. The serializer reads the customer, the items with their product
     # and the total (over the prefetched items) of each order: loading them here keeps the
-    # list at a fixed number of queries.
+    # list at a fixed number of queries. invoice_status is a subquery for the same reason.
     queryset = Order.objects.select_related("customer").prefetch_related(
         "items__product",
     ).annotate(
         items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0),
+        invoice_status=order_invoice_status(),
     ).order_by("-created_at")
     filter_backends = [DjangoFilterBackend, OrderOrdering, SearchFilter]
     filterset_class = OrderFilter
