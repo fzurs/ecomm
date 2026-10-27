@@ -40,7 +40,7 @@ Todo cambio en models/serializers/views que afecte a la API tiene que seguirse d
 Nunca editar a mano `packages/api-client/src/**/*.gen.ts`. La skill `/regen-api` corre este flujo.
 
 ## Secretos y datos personales
-- `apps/api/*.pem` (certificado/clave de ARCA), `apps/api/.env`, `db.env` y `apps/api/media/` son
+- `apps/api/certs/` (certificado/clave de ARCA), `apps/api/.env`, `db.env` y `apps/api/media/` son
   solo locales. Nunca commitearlos ni mostrar su contenido.
 - Nunca poner CUIT/CAE reales en código ni en tests; usar valores ficticios (ej. CUIT `20123456786`).
 

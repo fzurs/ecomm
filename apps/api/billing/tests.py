@@ -39,7 +39,7 @@ User = get_user_model()
 
 # Fictitious, with a valid check digit.
 CUIT = '20123456786'
-# What the PDF prints of the issuer; the homologation tests keep the real ARCA_CUIT.
+# What the PDF prints of the issuer; the homologation tests use the certificate's CUIT.
 PDF_ISSUER = dict(
     ARCA_ISSUER_LEGAL_NAME='Ecomm SRL',
     ARCA_ISSUER_ADDRESS='Calle Falsa 123, CABA',

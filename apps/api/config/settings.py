@@ -14,6 +14,8 @@ from pathlib import Path
 import environ
 import os
 
+from arca_client import certificate_paths
+
 env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,10 +25,13 @@ WORKDIR = BASE_DIR.parent.parent
 environ.Env.read_env(os.path.join(WORKDIR, "db.env"))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-ARCA_CUIT = env("ARCA_CUIT")
-ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH", default="certificate.pem")
-ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH", default="private-key.pem")
 ARCA_ENVIRONMENT = env("ARCA_ENVIRONMENT", default="homologacion")
+# Where arca-setup saves them: certs/<environment>/ecomm.crt|.key
+_arca_cert, _arca_key = certificate_paths("ecomm", ARCA_ENVIRONMENT, BASE_DIR / "certs")
+ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH", default=str(_arca_cert))
+ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH", default=str(_arca_key))
+# Empty: the CUIT is read from the certificate (billing.arca.issuer_cuit).
+ARCA_CUIT = env("ARCA_CUIT", default="")
 ARCA_POINT_OF_SALE = env.int("ARCA_POINT_OF_SALE", default=1)
 # "responsable_inscripto" emits Factura A or B (by the customer's IVA condition);
 # "monotributo", Factura C.
@@ -96,6 +101,7 @@ SPECTACULAR_SETTINGS = {
         "ProductStatus": "orders.models.Product.Status",
         "OrderStatus": "orders.models.Order.Status",
         "InvoiceStatus": "billing.models.Invoice.Status",
+        "OrderInvoiceStatus": "billing.models.ORDER_INVOICE_STATUSES",
         "VoucherType": "billing.models.VoucherType",
         "VoucherKind": "billing.models.VoucherKind",
         "ReceptorDocumentType": "billing.models.ReceptorDocumentType",

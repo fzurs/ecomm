@@ -17,6 +17,7 @@ from arca_client import (
 from django.conf import settings
 
 from .amounts import to_items
+from .arca import issuer_cuit
 from .models import Invoice
 from .rules import InvoicingError
 
@@ -58,8 +59,9 @@ def issuer() -> Emisor:
 def authorized_voucher(invoice: Invoice) -> ComprobanteAutorizado:
     """The voucher as ARCA authorized it, from the saved fields."""
     associated = invoice.associated_invoice
+    cuit = issuer_cuit()
     return ComprobanteAutorizado(
-        cuit=int(settings.ARCA_CUIT),
+        cuit=cuit,
         punto_venta=invoice.point_of_sale,
         tipo=CbteTipo(invoice.voucher_type),
         numero=invoice.number,
@@ -81,7 +83,7 @@ def authorized_voucher(invoice: Invoice) -> ComprobanteAutorizado:
             tipo=CbteTipo(associated.voucher_type),
             punto_venta=associated.point_of_sale,
             numero=associated.number,
-            cuit=int(settings.ARCA_CUIT),
+            cuit=cuit,
             fecha=associated.issue_date,
         )] if associated else [],
     )

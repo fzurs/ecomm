@@ -34,6 +34,7 @@ npm-debug.log*
 # Misc
 .DS_Store
 *.pem
+apps/api/certs/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

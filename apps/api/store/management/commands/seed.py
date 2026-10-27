@@ -10,6 +10,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from billing import services
+from billing.arca import issuer_cuit
 from billing.rules import InvoicingError
 from billing.models import Invoice, InvoiceSequenceLock
 from billing.sample import SAMPLE_POINT_OF_SALE, SampleWSFE
@@ -131,7 +132,7 @@ class Command(BaseCommand):
     @override_settings(
         ARCA_POINT_OF_SALE=SAMPLE_POINT_OF_SALE, ARCA_ISSUER_VAT_CONDITION='responsable_inscripto')
     def load_invoices(self, rows, orders):
-        wsfe = SampleWSFE(cuit=int(settings.ARCA_CUIT))
+        wsfe = SampleWSFE(cuit=issuer_cuit())
         for row in rows:
             where = f'invoice of order #{row["order"]}'
             if not 1 <= row['order'] <= len(orders):

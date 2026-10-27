@@ -1,9 +1,24 @@
 from datetime import datetime, timezone
 from functools import cache
 
-from arca_client import WSAA, WSFE, AccessTicket, Environment
+from arca_client import WSAA, WSFE, AccessTicket, Environment, cuit_from_certificate
 from django.conf import settings
 from django.core.cache import BaseCache, caches
+from django.core.exceptions import ImproperlyConfigured
+
+
+def issuer_cuit() -> int:
+    """La CUIT emisora: `ARCA_CUIT` si está, si no la del certificado (igual que `WSFE`)."""
+    if settings.ARCA_CUIT:
+        return int(settings.ARCA_CUIT)
+    try:
+        cuit = cuit_from_certificate(settings.ARCA_CERTIFICATE_PATH)
+    except FileNotFoundError:
+        raise ImproperlyConfigured(
+            f'No ARCA certificate at {settings.ARCA_CERTIFICATE_PATH}; set ARCA_CUIT or add it.')
+    if not cuit:
+        raise ImproperlyConfigured('The ARCA certificate has no CUIT; set ARCA_CUIT.')
+    return int(cuit)
 
 
 class DjangoTicketCache:
@@ -37,4 +52,4 @@ def get_wsfe() -> WSFE:
         env=Environment(settings.ARCA_ENVIRONMENT),
         cache=DjangoTicketCache(caches["arca"]),
     )
-    return WSFE(wsaa, cuit=settings.ARCA_CUIT)
+    return WSFE(wsaa, cuit=issuer_cuit())

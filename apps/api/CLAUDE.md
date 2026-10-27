@@ -2,8 +2,10 @@
 
 ## Settings
 - `config/settings.py` lee `/workspace/ecomm/db.env` (opcional) y `apps/api/.env` con
-  django-environ. `ARCA_CUIT` es obligatorio; las rutas del certificado/clave y `ARCA_ENVIRONMENT`
-  tienen valores por defecto.
+  django-environ. El certificado y la clave van en `certs/<ARCA_ENVIRONMENT>/ecomm.crt|.key`
+  (`certificate_paths` de arca-client, donde los guarda `arca-setup` con carpeta base
+  `apps/api/certs` y alias `ecomm`; `ARCA_CERTIFICATE_PATH` / `ARCA_PRIVATE_KEY_PATH` los pisan).
+  `ARCA_CUIT` es opcional: `billing.arca.issuer_cuit()` la lee del certificado si falta.
 - Facturación: `ARCA_POINT_OF_SALE` (1), `ARCA_ISSUER_VAT_CONDITION` (`responsable_inscripto`, que
   emite A/B, o `monotributo`, que emite C) y los datos del emisor para el PDF:
   `ARCA_ISSUER_LEGAL_NAME`, `ARCA_ISSUER_ADDRESS`, `ARCA_ISSUER_ACTIVITY_START` (AAAA-MM-DD) y

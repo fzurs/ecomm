@@ -6,9 +6,8 @@ from arca_client import (
     CondicionIVAReceptor,
     DocTipo,
 )
-from django.conf import settings
-
 from . import amounts
+from .arca import issuer_cuit
 from .models import Invoice, VoucherType
 from .rules import check_supported
 
@@ -57,6 +56,6 @@ class ARCAElectronicInvoicingAdapter:
             tipo=CbteTipo(invoice.voucher_type),
             punto_venta=invoice.point_of_sale,
             numero=invoice.number,
-            cuit=int(settings.ARCA_CUIT),
+            cuit=issuer_cuit(),
             fecha=invoice.issue_date,
         )

@@ -1,4 +1,4 @@
-arca-client[pdf] @ git+https://github.com/fzurs/arca-client@60b8e8775e9224f2b950ec1acf60fccd04a01dfb
+arca-client[pdf] @ git+https://github.com/fzurs/arca-client@e3e1159092bdf73cc6600e43673e85c98f1f6e91
 annotated-types==0.8.0
 anthropic==2.3.0
 anyio==4.15.1
