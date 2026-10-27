@@ -2,6 +2,7 @@ import { Product } from "@workspace/api-client"
 import { cn } from "cn"
 import { format } from "date-fns"
 import {
+  BadgePercentIcon,
   BanknoteIcon,
   BarcodeIcon,
   CalendarIcon,
@@ -21,30 +22,41 @@ export function ProductDetails({
   className,
   ...props
 }: { product: Product } & React.ComponentProps<"dl">) {
+  // The order of the edit form: general, organization, publishing, pricing.
   const rows = [
     { label: "SKU", value: product.sku, icon: BarcodeIcon },
+    { label: "Category", value: product.category?.name, icon: LayoutGridIcon },
+    { label: "Brand", value: product.brand?.name, icon: TagIcon },
     {
       label: "Status",
       value: product.status && <ProductStatusBadge status={product.status} />,
       icon: CircleDashedIcon,
     },
-    { label: "Category", value: product.category?.name, icon: LayoutGridIcon },
-    { label: "Brand", value: product.brand?.name, icon: TagIcon },
+    {
+      label: "Featured",
+      value: product.featured ? "Yes" : "No",
+      icon: StarIcon,
+    },
     { label: "Price", value: formatPrice(product.price), icon: BanknoteIcon },
     {
       label: "Discount",
       value: product.discount_percent != null && `${product.discount_percent}%`,
       icon: PercentIcon,
     },
+    // Only with a discount: otherwise it's the price.
+    ...(product.discount_percent != null
+      ? [
+          {
+            label: "Final price",
+            value: formatPrice(product.active_price),
+            icon: BadgePercentIcon,
+          },
+        ]
+      : []),
     {
       label: "IVA",
       value: product.vat_rate != null && vatRates[product.vat_rate],
       icon: ReceiptTextIcon,
-    },
-    {
-      label: "Featured",
-      value: product.featured ? "Yes" : "No",
-      icon: StarIcon,
     },
     {
       label: "Created",

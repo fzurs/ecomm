@@ -22,6 +22,7 @@ import {
   StarIcon,
   Trash2Icon,
 } from "lucide-react"
+import { vatRates } from "@/lib/fiscal"
 import { formatPrice } from "@/lib/utils"
 import { EmptyCell } from "@/components/empty-cell"
 import { useRowActions } from "@/context/row-actions-provider"
@@ -120,6 +121,20 @@ export const productColumns = [
     meta: {
       align: "right",
       className: "tabular-nums",
+    },
+  },
+  {
+    accessorKey: "vat_rate",
+    header: "IVA",
+    cell: ({ row }) =>
+      row.original.vat_rate != null ? (
+        vatRates[row.original.vat_rate]
+      ) : (
+        <EmptyCell label="No IVA" />
+      ),
+    meta: {
+      align: "right",
+      className: "tabular-nums text-muted-foreground",
     },
   },
   {

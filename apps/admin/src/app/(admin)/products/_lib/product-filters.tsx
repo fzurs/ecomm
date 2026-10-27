@@ -5,10 +5,12 @@ import {
   CircleDotDashedIcon,
   DollarSignIcon,
   PercentIcon,
+  ReceiptTextIcon,
   StarIcon,
   TagIcon,
   WarehouseIcon,
 } from "lucide-react"
+import { vatRateOptions } from "@/lib/fiscal"
 import { featuredIcons } from "../_components/product-columns"
 import { productStatusOptions } from "./product-status"
 
@@ -67,6 +69,19 @@ export const productFilterColumns = [
     .icon(PercentIcon)
     .min(0)
     .max(100)
+    .build(),
+  dtf
+    .option()
+    .id("vat_rate")
+    .accessor((row) => String(row.vat_rate ?? ""))
+    .displayName("IVA")
+    .icon(ReceiptTextIcon)
+    .options(
+      vatRateOptions.map(({ value, label }) => ({
+        value: String(value),
+        label,
+      }))
+    )
     .build(),
   dtf
     .date()

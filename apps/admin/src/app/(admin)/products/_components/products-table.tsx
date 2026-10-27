@@ -29,7 +29,8 @@ import { productColumns } from "./product-columns"
 
 const DEBOUNCE_DELAY = 300
 
-const columnVisibility = { sku: false, description: false }
+// Most products share the IVA rate (21%): its column is hidden, its filter isn't.
+const columnVisibility = { sku: false, vat_rate: false, description: false }
 
 export function ProductsTable() {
   const queryClient = useQueryClient()
