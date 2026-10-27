@@ -78,6 +78,7 @@ class OrderSerializer(serializers.ModelSerializer):
     customer_detail = CustomerSummarySerializer(source="customer", read_only=True)
     # Annotated by OrderViewSet.
     invoice_status = serializers.ChoiceField(choices=ORDER_INVOICE_STATUSES, read_only=True)
+    invoice_id = serializers.IntegerField(read_only=True, allow_null=True)
     # The statuses the order can't move to, and why: the admin disables them.
     status_locks = serializers.SerializerMethodField()
     # Why the order can't be deleted, or null.
@@ -111,5 +112,6 @@ class OrderCreateSerializer(OrderSerializer):
         order = Order.objects.create_with_items(**validated_data)
         # A new order has no invoice: the instance isn't annotated like the viewset queryset.
         order.invoice_status = "not_invoiced"
+        order.invoice_id = None
         order.invoice_uncredited = False
         return order

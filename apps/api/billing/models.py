@@ -160,19 +160,28 @@ LIVE_STATUSES = [Invoice.Status.PENDING, Invoice.Status.AUTHORIZED, Invoice.Stat
 ORDER_INVOICE_STATUSES = [('not_invoiced', _('Not invoiced')), *Invoice.Status.choices]
 
 
-def order_invoice_status() -> models.Expression:
-    """The ORDER_INVOICE_STATUSES value of each order, to annotate an Order queryset. An order
-    has at most one invoice that isn't rejected (`one_invoice_per_order`): that one wins."""
-    invoices = Invoice.objects.filter(
+def _order_invoice():
+    """The invoice of each order (OuterRef), as a one-row queryset. An order has at most one
+    invoice that isn't rejected (`one_invoice_per_order`): that one wins."""
+    return Invoice.objects.filter(
         order=models.OuterRef('pk'), associated_invoice=None,
     ).order_by(
         models.Case(models.When(status=Invoice.Status.REJECTED, then=1), default=0),
         '-created_at',
-    )
+    )[:1]
+
+
+def order_invoice_status() -> models.Expression:
+    """The ORDER_INVOICE_STATUSES value of each order, to annotate an Order queryset."""
     return Coalesce(
-        models.Subquery(invoices.values('status')[:1]), models.Value('not_invoiced'),
+        models.Subquery(_order_invoice().values('status')), models.Value('not_invoiced'),
         output_field=models.CharField(),
     )
+
+
+def order_invoice_id() -> models.Expression:
+    """The id of the invoice of each order (the one `order_invoice_status` reads), or null."""
+    return models.Subquery(_order_invoice().values('pk'))
 
 
 class InvoiceLine(models.Model):

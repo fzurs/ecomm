@@ -269,6 +269,7 @@ export type Order = {
     readonly total: number;
     customer_detail: CustomerSummary;
     invoice_status: OrderInvoiceStatus;
+    readonly invoice_id: number | null;
     readonly status_locks: Array<OrderStatusLock>;
     readonly delete_lock: string | null;
     readonly number: string;
@@ -284,6 +285,7 @@ export type OrderCreate = {
     readonly total: number;
     customer_detail: CustomerSummary;
     invoice_status: OrderInvoiceStatus;
+    readonly invoice_id: number | null;
     readonly status_locks: Array<OrderStatusLock>;
     readonly delete_lock: string | null;
     readonly number: string;
@@ -429,6 +431,7 @@ export type PatchedOrder = {
     readonly total?: number;
     customer_detail?: CustomerSummary;
     invoice_status?: OrderInvoiceStatus;
+    readonly invoice_id?: number | null;
     readonly status_locks?: Array<OrderStatusLock>;
     readonly delete_lock?: string | null;
     readonly number?: string;

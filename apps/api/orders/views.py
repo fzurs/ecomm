@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from billing import services as billing
-from billing.models import order_invoice_status, order_invoice_uncredited
+from billing.models import order_invoice_id, order_invoice_status, order_invoice_uncredited
 from billing.rules import order_delete_lock
 from config.exceptions import Conflict
 from config.viewsets import ChoicesMixin, choices_schema
@@ -17,13 +17,14 @@ class OrderViewSet(viewsets.ModelViewSet):
     # Order.total is a Python property, so the database can't order by it: items_total is the
     # same sum computed in SQL. The serializer reads the customer, the items with their product
     # and the total (over the prefetched items) of each order: loading them here keeps the
-    # list at a fixed number of queries. invoice_status and
+    # list at a fixed number of queries. invoice_status, invoice_id and
     # invoice_uncredited (for the status locks) are subqueries for the same reason.
     queryset = Order.objects.select_related("customer").prefetch_related(
         "items__product",
     ).annotate(
         items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0),
         invoice_status=order_invoice_status(),
+        invoice_id=order_invoice_id(),
         invoice_uncredited=order_invoice_uncredited(),
     ).order_by("-created_at")
     filter_backends = [DjangoFilterBackend, OrderOrdering, SearchFilter]

@@ -351,9 +351,16 @@ class OrderInvoiceStatusTests(OrderTestCase):
 
     def test_a_live_invoice_wins_over_rejected_ones(self):
         order = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
-        self.create_invoice(order, Invoice.Status.AUTHORIZED)
+        invoice = self.create_invoice(order, Invoice.Status.AUTHORIZED)
         self.create_invoice(order, Invoice.Status.REJECTED)
         self.assertEqual(self.invoice_statuses(), {order.number: 'authorized'})
+        response = self.client.get(reverse('order-detail', args=[order.number]))
+        self.assertEqual(response.data['invoice_id'], invoice.pk)
+
+    def test_invoice_id_is_null_without_an_invoice(self):
+        order = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
+        response = self.client.get(reverse('order-detail', args=[order.number]))
+        self.assertIsNone(response.data['invoice_id'])
 
     def test_notes_dont_count(self):
         order = Order.objects.create(customer=self.customer, status=Order.Status.PAID)
