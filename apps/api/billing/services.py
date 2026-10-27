@@ -14,20 +14,20 @@ from orders.models import Order
 from . import amounts
 from .adapter import ARCAElectronicInvoicingAdapter
 from .arca import get_wsfe
-from .models import Invoice, InvoiceLine, InvoiceSequenceLock, InvoiceVat, VoucherKind, VoucherType
+from .models import (
+    LIVE_STATUSES, Invoice, InvoiceLine, InvoiceSequenceLock, InvoiceVat, VoucherKind, VoucherType,
+)
 from .rules import InvoicingError, check_supported, invoice_letter, receptor_for
 
 logger = logging.getLogger(__name__)
 
-# Notes in these states count against what is left to credit: a rejected one never existed.
-LIVE_STATUSES = [Invoice.Status.PENDING, Invoice.Status.AUTHORIZED, Invoice.Status.UNVERIFIED]
 
 
 # Building vouchers. Nothing here calls ARCA: `preview` shows what `create_*` would emit.
 
 def build_invoice(order: Order, invoice: Invoice | None = None) -> tuple[Invoice, list[InvoiceLine]]:
     """The invoice of a paid order, unsaved. Pass `invoice` to rebuild a rejected one in place."""
-    if order.status != Order.Status.PAID:
+    if order.status not in Order.PAID_STATUSES:
         raise InvoicingError('The order must be paid before invoicing it.')
     active = order.invoices.filter(associated_invoice=None).exclude(status=Invoice.Status.REJECTED)
     if active.exists():
@@ -58,6 +58,14 @@ def build_invoice(order: Order, invoice: Invoice | None = None) -> tuple[Invoice
         raise InvoicingError(f'Order {order.number} has no items.')
     set_amounts(invoice, lines)
     return invoice, lines
+
+
+def delete_order(order: Order) -> None:
+    """Deletes the order with its rejected vouchers. With a live one, the PROTECT of
+    `Invoice.order` refuses it (see `rules.order_delete_lock`)."""
+    with transaction.atomic():
+        order.invoices.filter(status=Invoice.Status.REJECTED).delete()
+        order.delete()
 
 
 def credited_quantities(invoice: Invoice) -> dict[int, int]:

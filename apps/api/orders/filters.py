@@ -20,7 +20,8 @@ class OrderFilter(OperatorFilterSet):
     status__not = django_filters.MultipleChoiceFilter(field_name="status", choices=Order.Status.choices, exclude=True)
     customer = django_filters.ModelMultipleChoiceFilter(queryset=Customer.objects.all())
     customer__not = django_filters.ModelMultipleChoiceFilter(field_name="customer", queryset=Customer.objects.all(), exclude=True)
-    # The invoice_status that OrderViewSet annotates, plus to_invoice: paid and not invoiced.
+    # The invoice_status that OrderViewSet annotates, plus to_invoice: charged
+    # (Order.PAID_STATUSES) and not invoiced.
     invoice_status = django_filters.MultipleChoiceFilter(choices=INVOICE_STATUS_FILTER_CHOICES, method="filter_invoice_status")
     invoice_status__not = django_filters.MultipleChoiceFilter(choices=INVOICE_STATUS_FILTER_CHOICES, method="filter_invoice_status", exclude=True)
 
@@ -34,7 +35,7 @@ class OrderFilter(OperatorFilterSet):
         q = Q()
         for value in values:
             if value == "to_invoice":
-                q |= Q(status=Order.Status.PAID, invoice_status="not_invoiced")
+                q |= Q(status__in=Order.PAID_STATUSES, invoice_status="not_invoiced")
             else:
                 q |= Q(invoice_status=value)
         return queryset.exclude(q) if self.filters[name].exclude else queryset.filter(q)

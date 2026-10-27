@@ -1,7 +1,9 @@
 from arca_client.certificates import is_valid_cuit, normalize_cuit
 from arca_client.wsfe import CONDICIONES_A
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from billing.models import ORDER_INVOICE_STATUSES
+from billing.rules import order_delete_lock, order_status_locks
 from .models import Order, OrderItem, Customer
 from store.models import Product
 
@@ -65,16 +67,41 @@ class OrderItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['unit_price', 'vat_rate']
 
 
+class OrderStatusLockSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Order.Status.choices)
+    reason = serializers.CharField()
+
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(read_only=True, many=True)
     total = serializers.IntegerField(read_only=True)
     customer_detail = CustomerSummarySerializer(source="customer", read_only=True)
     # Annotated by OrderViewSet.
     invoice_status = serializers.ChoiceField(choices=ORDER_INVOICE_STATUSES, read_only=True)
+    # The statuses the order can't move to, and why: the admin disables them.
+    status_locks = serializers.SerializerMethodField()
+    # Why the order can't be deleted, or null.
+    delete_lock = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = serializers.ALL_FIELDS
+
+    @extend_schema_field(OrderStatusLockSerializer(many=True))
+    def get_status_locks(self, order):
+        return [{"status": status, "reason": reason}
+                for status, reason in order_status_locks(order).items()]
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_delete_lock(self, order):
+        return order_delete_lock(order)
+
+    def validate_status(self, status):
+        if self.instance and status != self.instance.status:
+            reason = order_status_locks(self.instance).get(status)
+            if reason:
+                raise serializers.ValidationError(reason)
+        return status
 
 
 class OrderCreateSerializer(OrderSerializer):
@@ -84,4 +111,5 @@ class OrderCreateSerializer(OrderSerializer):
         order = Order.objects.create_with_items(**validated_data)
         # A new order has no invoice: the instance isn't annotated like the viewset queryset.
         order.invoice_status = "not_invoiced"
+        order.invoice_uncredited = False
         return order

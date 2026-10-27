@@ -55,6 +55,13 @@
     `rejected` (se puede reemitir con `/emit/`; una factura se rearma desde la orden y el cliente);
   - corte sin `safe_to_retry` → `unverified` con el número intentado: **nunca reemitirlo**, solo
     `verify` (`get_voucher`) lo pasa a `authorized` o `rejected`.
+- Una orden se factura en cualquier estado cobrado (`Order.PAID_STATUSES`: paid, shipped,
+  delivered). Con factura vigente (`LIVE_STATUSES`) no vuelve a `pending`, ni aunque esté
+  acreditada (la orden tiene una sola factura: no podría facturarse de nuevo), y no pasa a
+  `cancelled` hasta que notas de crédito acrediten todas sus líneas. La regla está en
+  `rules.order_status_locks`: `OrderSerializer` la valida y la expone en `status_locks`.
+  Con factura vigente la orden tampoco se borra (409, `rules.order_delete_lock`, expuesto en
+  `delete_lock`); sus comprobantes rechazados se borran con ella (`services.delete_order`).
 - Nunca reintentar una emisión a ciegas: puede duplicar el comprobante. Los importes son
   `Decimal`, nunca `float`. Solo se borra un comprobante `rejected`.
 

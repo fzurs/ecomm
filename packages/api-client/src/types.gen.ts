@@ -269,6 +269,8 @@ export type Order = {
     readonly total: number;
     customer_detail: CustomerSummary;
     invoice_status: OrderInvoiceStatus;
+    readonly status_locks: Array<OrderStatusLock>;
+    readonly delete_lock: string | null;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
@@ -282,6 +284,8 @@ export type OrderCreate = {
     readonly total: number;
     customer_detail: CustomerSummary;
     invoice_status: OrderInvoiceStatus;
+    readonly status_locks: Array<OrderStatusLock>;
+    readonly delete_lock: string | null;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
@@ -316,6 +320,11 @@ export type OrderItem = {
  * * `cancelled` - Cancelled
  */
 export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+
+export type OrderStatusLock = {
+    status: OrderStatus;
+    reason: string;
+};
 
 export type PaginatedBrandList = {
     count: number;
@@ -420,6 +429,8 @@ export type PatchedOrder = {
     readonly total?: number;
     customer_detail?: CustomerSummary;
     invoice_status?: OrderInvoiceStatus;
+    readonly status_locks?: Array<OrderStatusLock>;
+    readonly delete_lock?: string | null;
     readonly number?: string;
     status?: OrderStatus | BlankEnum;
     readonly created_at?: string;

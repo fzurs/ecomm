@@ -163,6 +163,11 @@ export const zOrderStatus = z.enum([
     'cancelled'
 ]);
 
+export const zOrderStatusLock = z.object({
+    status: zOrderStatus,
+    reason: z.string()
+});
+
 export const zPaginatedBrandList = z.object({
     count: z.int(),
     next: z.url().nullish(),
@@ -409,6 +414,8 @@ export const zOrder = z.object({
     total: z.int().readonly(),
     customer_detail: zCustomerSummary,
     invoice_status: zOrderInvoiceStatus,
+    status_locks: z.array(zOrderStatusLock).readonly(),
+    delete_lock: z.string().readonly().nullable(),
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -425,6 +432,8 @@ export const zOrderCreate = z.object({
     total: z.int().readonly(),
     customer_detail: zCustomerSummary,
     invoice_status: zOrderInvoiceStatus,
+    status_locks: z.array(zOrderStatusLock).readonly(),
+    delete_lock: z.string().readonly().nullable(),
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -448,6 +457,8 @@ export const zPatchedOrder = z.object({
     total: z.int().readonly().optional(),
     customer_detail: zCustomerSummary.optional(),
     invoice_status: zOrderInvoiceStatus.optional(),
+    status_locks: z.array(zOrderStatusLock).readonly().optional(),
+    delete_lock: z.string().readonly().nullish(),
     number: z.string().readonly().optional(),
     status: z.union([
         zOrderStatus,

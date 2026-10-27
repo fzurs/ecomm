@@ -4,9 +4,9 @@ from arca_client.certificates import is_valid_cuit, normalize_cuit
 from arca_client.wsfe import CONDICIONES_A
 from django.conf import settings
 
-from orders.models import Customer
+from orders.models import Customer, Order
 
-from .models import ReceptorDocumentType, VoucherKind, VoucherType
+from .models import LIVE_STATUSES, ReceptorDocumentType, VoucherKind, VoucherType
 
 # What arca-client 0.2.0 can emit. B and C notes are missing (see its README, "Limitaciones
 # conocidas"): when it adds them, add them here and to the adapter.
@@ -93,3 +93,26 @@ def receptor_for(customer: Customer, letter: str) -> dict:
         'receptor_vat_condition': condition,
         'receptor_address': customer.address,
     }
+
+
+def order_status_locks(order: Order) -> dict[str, str]:
+    """{status: why the order can't move to it}, from what its invoice says. Needs the
+    `invoice_status` and `invoice_uncredited` annotations of the orders viewset. Shipping and
+    delivering stay free: the invoice doesn't change with them."""
+    locks = {}
+    if order.invoice_status in LIVE_STATUSES:
+        # A fully credited invoice still exists, and an order has a single invoice: an unpaid
+        # order could never be invoiced again.
+        locks[Order.Status.PENDING] = 'The order is invoiced: it was charged.'
+    if order.invoice_uncredited:
+        locks[Order.Status.CANCELLED] = 'Credit the whole invoice before cancelling the order.'
+    return locks
+
+
+def order_delete_lock(order: Order) -> str | None:
+    """Why the order can't be deleted, or None. Needs the `invoice_status` annotation. Its
+    vouchers point to it: a live one is a fiscal record, credited or not. Rejected ones never
+    existed in ARCA, and `services.delete_order` deletes them with the order."""
+    if order.invoice_status in LIVE_STATUSES:
+        return "The order is invoiced: invoices can't be deleted, only credited."
+    return None

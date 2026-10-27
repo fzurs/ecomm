@@ -153,6 +153,9 @@ class Invoice(models.Model):
         return f'{self.type.label} {number} ({self.get_status_display()})'
 
 
+# A voucher in these states exists, or may exist, in ARCA: a rejected one never existed.
+LIVE_STATUSES = [Invoice.Status.PENDING, Invoice.Status.AUTHORIZED, Invoice.Status.UNVERIFIED]
+
 # Where an order is in its invoicing: the status of its invoice, or not invoiced yet.
 ORDER_INVOICE_STATUSES = [('not_invoiced', _('Not invoiced')), *Invoice.Status.choices]
 
@@ -215,3 +218,18 @@ class InvoiceSequenceLock(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['point_of_sale', 'voucher_type'], name='unique_invoice_sequence_lock')]
+
+
+def order_invoice_uncredited() -> models.Expression:
+    """Whether each order has a live invoice with quantities that live credit notes don't
+    credit yet, to annotate an Order queryset. While it does, the order was charged."""
+    credited = InvoiceLine.objects.filter(
+        credited_line=models.OuterRef('pk'), invoice__status__in=LIVE_STATUSES,
+    ).values('credited_line').annotate(quantity=models.Sum('quantity')).values('quantity')
+    uncredited = InvoiceLine.objects.filter(
+        invoice__order=models.OuterRef('pk'), invoice__associated_invoice=None,
+        invoice__status__in=LIVE_STATUSES,
+    ).annotate(
+        credited=Coalesce(models.Subquery(credited), 0),
+    ).filter(quantity__gt=models.F('credited'))
+    return models.Exists(uncredited)

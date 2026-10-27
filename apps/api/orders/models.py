@@ -81,7 +81,10 @@ class Order(models.Model):
         DELIVERED = 'delivered', _('Delivered')
         CANCELLED = 'cancelled', _('Cancelled')
 
-    number = models.CharField(max_length=20, unique=True, editable=False)
+    # Charged: what can be invoiced.
+    PAID_STATUSES = [Status.PAID, Status.SHIPPED, Status.DELIVERED]
+
+    number =models.CharField(max_length=20, unique=True, editable=False)
 
     customer = models.ForeignKey(
         Customer, on_delete=models.PROTECT, related_name='orders')

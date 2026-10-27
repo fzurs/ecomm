@@ -430,6 +430,90 @@ class InvoiceAPITests(FixturesMixin, APITestCase):
         self.assertEqual(ids(order=invoice.order_id, kind='invoice'), [invoice.pk])
 
 
+class OrderStatusLockTests(FixturesMixin, APITestCase):
+    """What an order's invoice says about the statuses it can move to (`order_status_locks`)."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        patcher = mock.patch('billing.services.get_wsfe', return_value=FakeWSFE())
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def set_status(self, order, new_status):
+        return self.client.patch(
+            reverse('order-detail', args=[order.number]), {'status': new_status}, format='json')
+
+    def locks(self, order):
+        response = self.client.get(reverse('order-detail', args=[order.number]))
+        return {lock['status']: lock['reason'] for lock in response.json()['status_locks']}
+
+    def test_an_invoiced_order_keeps_moving_forward(self):
+        order = services.create_invoice(self.make_order()).order
+        for new_status in ('shipped', 'delivered', 'paid'):
+            with self.subTest(new_status=new_status):
+                response = self.set_status(order, new_status)
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.json())
+
+    def test_an_invoiced_order_cant_go_back_to_pending_or_be_cancelled(self):
+        order = services.create_invoice(self.make_order()).order
+        self.assertEqual(set(self.locks(order)), {'pending', 'cancelled'})
+        for new_status in ('pending', 'cancelled'):
+            with self.subTest(new_status=new_status):
+                response = self.set_status(order, new_status)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.json()['status'], [self.locks(order)[new_status]])
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PAID)
+
+    def test_a_rejected_invoice_locks_nothing(self):
+        order = self.make_order()
+        services.reject(services.save_draft(*services.build_invoice(order)), 'Rejected')
+        self.assertEqual(self.locks(order), {})
+        self.assertEqual(self.set_status(order, 'cancelled').status_code, status.HTTP_200_OK)
+
+    def test_a_fully_credited_order_can_be_cancelled_but_not_unpaid(self):
+        invoice = services.create_invoice(self.make_order(self.registered(), items=((100, 2),)))
+        line = invoice.lines.get()
+        services.create_credit_note(invoice, [(line, 1)])
+        self.assertIn('cancelled', self.locks(invoice.order))
+
+        services.create_credit_note(invoice)
+        self.assertEqual(set(self.locks(invoice.order)), {'pending'})
+        response = self.set_status(invoice.order, 'cancelled')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.json())
+
+    def test_an_invoiced_order_cant_be_deleted(self):
+        invoice = services.create_invoice(self.make_order(self.registered()))
+        services.create_credit_note(invoice)
+        order = invoice.order
+        detail = self.client.get(reverse('order-detail', args=[order.number])).json()
+        self.assertIsNotNone(detail['delete_lock'])
+
+        response = self.client.delete(reverse('order-detail', args=[order.number]))
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json()['detail'], detail['delete_lock'])
+        self.assertTrue(Order.objects.filter(pk=order.pk).exists())
+
+    def test_deleting_an_order_deletes_its_rejected_invoices(self):
+        order = self.make_order()
+        rejected = services.reject(services.save_draft(*services.build_invoice(order)), 'Rejected')
+        detail = self.client.get(reverse('order-detail', args=[order.number])).json()
+        self.assertIsNone(detail['delete_lock'])
+
+        response = self.client.delete(reverse('order-detail', args=[order.number]))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Order.objects.filter(pk=order.pk).exists())
+        self.assertFalse(Invoice.objects.filter(pk=rejected.pk).exists())
+
+    def test_a_shipped_order_can_be_invoiced(self):
+        order = self.make_order(status=Order.Status.SHIPPED)
+        response = self.client.get(reverse('order-list'), {'invoice_status': ['to_invoice']})
+        self.assertEqual([o['number'] for o in response.json()['results']], [order.number])
+        self.assertEqual(services.create_invoice(order).status, Invoice.Status.AUTHORIZED)
+
+
 class DjangoTicketCacheTests(SimpleTestCase):
     def setUp(self):
         self.cache = DjangoTicketCache(LocMemCache("arca-tests", {}))
