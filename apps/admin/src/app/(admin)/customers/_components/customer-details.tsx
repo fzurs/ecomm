@@ -1,6 +1,13 @@
 import { Customer } from "@workspace/api-client"
 import { cn } from "cn"
-import { PhoneIcon, IdCardIcon } from "lucide-react"
+import {
+  BuildingIcon,
+  IdCardIcon,
+  LandmarkIcon,
+  MapPinIcon,
+  PhoneIcon,
+} from "lucide-react"
+import { documentTypes, formatDocument, vatConditions } from "@/lib/fiscal"
 
 export function CustomerDetails({
   customer,
@@ -10,10 +17,22 @@ export function CustomerDetails({
   const rows = [
     { label: "Phone", value: customer.phone, icon: PhoneIcon },
     {
-      label: "CUIT",
-      value: customer.document_number,
+      label: "Document",
+      value:
+        customer.document_number &&
+        formatDocument(
+          documentTypes[customer.document_type ?? 80],
+          customer.document_number
+        ),
       icon: IdCardIcon,
     },
+    {
+      label: "IVA condition",
+      value: vatConditions[customer.vat_condition ?? 5],
+      icon: LandmarkIcon,
+    },
+    { label: "Legal name", value: customer.legal_name, icon: BuildingIcon },
+    { label: "Address", value: customer.address, icon: MapPinIcon },
   ]
   return (
     <dl

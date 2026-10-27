@@ -49,7 +49,12 @@
   `new/page.tsx`, y las carpetas privadas `_components/`, `_hooks/`, `_lib/`.
 - `customers`, `products`, `brands` y `categories` también siguen este patrón, con row actions
   vía `RowActionsProvider`.
-- `invoices` todavía usa `columns.tsx` suelto. Migrarla al patrón nuevo solo cuando se pide.
+- `invoices` no tiene alta: las facturas se emiten desde las row actions de una orden pagada (con
+  vista previa, `order-invoice-dialog.tsx`) y las notas desde una factura autorizada
+  (`invoices/[id]/credit-note`, `debit-note`). Emitir devuelve 2xx también si ARCA rechaza: el
+  resultado está en el `status` del comprobante (`toastEmission`).
+- Las etiquetas de los códigos de ARCA (documento, condición de IVA, alícuota) están en
+  `src/lib/fiscal.ts`; `SelectField` acepta opciones numéricas para esos enums.
 - Las secciones nuevas necesitan una entrada en `src/components/app-sidebar.tsx`. `/new-admin-section` arma una.
 
 ## UI

@@ -36,6 +36,7 @@ export function OrderItemsField({
           product_detail: product as Product,
           quantity: orderItem.quantity,
           unit_price: unitPrice,
+          vat_rate: product?.vat_rate ?? 5,
         }
       }),
     [orderItems, products]

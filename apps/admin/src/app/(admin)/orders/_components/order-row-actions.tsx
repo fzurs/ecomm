@@ -1,11 +1,7 @@
 "use client"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { Order } from "@workspace/api-client"
-import {
-  invoicesCreateMutation,
-  invoicesListQueryKey,
-  ordersRetrieveOptions,
-} from "@workspace/api-client/query"
+import { ordersRetrieveOptions } from "@workspace/api-client/query"
 import { Button } from "@workspace/ui/components/button"
 import {
   DropdownMenu,
@@ -26,7 +22,6 @@ import {
   PanelRightIcon,
   Trash2Icon,
 } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { useRowActions } from "@/context/row-actions-provider"
 import { useOptimisticOrderStatusUpdate } from "../_hooks/use-optimistic-order"
 import { OrderStatusRadioGroup } from "./order-status-radio-group"
@@ -37,16 +32,6 @@ export function OrderRowActions({ item: order }: { item: Order }) {
   const { status, setStatus } = useOptimisticOrderStatusUpdate(order)
 
   const queryClient = useQueryClient()
-  const router = useRouter()
-  const createInvoiceMutation = useMutation({
-    ...invoicesCreateMutation(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: invoicesListQueryKey() })
-      router.push("/invoices")
-    },
-  })
-  const createInvoice = () =>
-    createInvoiceMutation.mutate({ body: { order: order.id } })
 
   // Warms the detail query the view drawer reads.
   const prefetchDetails = (open: boolean) => {
@@ -72,7 +57,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
             View details
           </DropdownMenuItem>
           {order.status === "paid" && (
-            <DropdownMenuItem onClick={createInvoice}>
+            <DropdownMenuItem onClick={() => openAction("invoice", order)}>
               <FileTextIcon />
               Create invoice
             </DropdownMenuItem>

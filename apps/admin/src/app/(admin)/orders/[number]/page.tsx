@@ -8,6 +8,7 @@ import { OrderItemsTable } from "../_components/order-items-table"
 import { OrderStatusBadge } from "../_components/order-status-badge"
 import { OrderStatusMenu } from "../_components/order-status-menu"
 import { OrderCustomerItem } from "../_components/order-customer-item"
+import { OrderInvoices } from "../_components/order-invoices"
 import { CalendarIcon } from "lucide-react"
 
 export default function OrdersDetailsPage() {
@@ -56,6 +57,12 @@ export default function OrdersDetailsPage() {
               <h2>Customer details</h2>
             </div>
             <OrderCustomerItem customer={order.customer_detail} />
+          </section>
+          <section className="flex flex-col gap-4">
+            <div className="typeset">
+              <h2>Invoices</h2>
+            </div>
+            <OrderInvoices order={order} />
           </section>
         </div>
       </main>

@@ -8,9 +8,11 @@ import {
   CircleDashedIcon,
   LayoutGridIcon,
   PercentIcon,
+  ReceiptTextIcon,
   StarIcon,
   TagIcon,
 } from "lucide-react"
+import { vatRates } from "@/lib/fiscal"
 import { formatPrice } from "@/lib/utils"
 import { ProductStatusBadge } from "./product-status-badge"
 
@@ -33,6 +35,11 @@ export function ProductDetails({
       label: "Discount",
       value: product.discount_percent != null && `${product.discount_percent}%`,
       icon: PercentIcon,
+    },
+    {
+      label: "IVA",
+      value: product.vat_rate != null && vatRates[product.vat_rate],
+      icon: ReceiptTextIcon,
     },
     {
       label: "Featured",

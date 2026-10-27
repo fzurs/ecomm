@@ -15,6 +15,7 @@ export const productFormSchema = zProductWritable
     featured: true,
     price: true,
     discount_percent: true,
+    vat_rate: true,
   })
   .extend({ name: z.string().trim().min(1, "Name is required").max(255) })
 
@@ -41,5 +42,6 @@ export function toProductFormValues(product: Product): ProductFormValues {
     featured: product.featured ?? false,
     price: product.price ?? null,
     discount_percent: product.discount_percent ?? null,
+    vat_rate: product.vat_rate ?? 5,
   }
 }

@@ -10,6 +10,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 import { productStatusOptions } from "../_lib/product-status"
+import { vatRateOptions } from "@/lib/fiscal"
 import { invalidateProducts } from "../_lib/invalidate-products"
 import {
   previewActivePrice,
@@ -57,6 +58,7 @@ const defaultValues: ProductEditFormValues = {
   featured: false,
   price: null,
   discount_percent: null,
+  vat_rate: 5,
   imageFile: null,
   clearImage: false,
 }
@@ -309,6 +311,16 @@ export const ProductEditForm = withForm({
                 )}
               </form.Subscribe>
             </div>
+            <form.AppField
+              name="vat_rate"
+              children={(field) => (
+                <field.SelectField
+                  label="IVA"
+                  description="The price includes it. Invoices discriminate it by rate."
+                  options={vatRateOptions}
+                />
+              )}
+            />
           </FieldGroup>
         </form.Form>
       </form.AppForm>

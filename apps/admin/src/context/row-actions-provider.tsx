@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useState } from "react"
 
-export type RowAction = "edit" | "delete" | "view"
+export type RowAction = "edit" | "delete" | "view" | "invoice"
 
 type RowActionsContextType<T> = {
   action: RowAction | null

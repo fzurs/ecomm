@@ -319,7 +319,12 @@ export function SelectField({
 }: React.ComponentProps<typeof SelectTrigger> & {
   label: string
   description?: string
-  options: { label: string; value: string; icon?: React.JSX.Element }[]
+  // Numbers too: the field keeps the option value as is (e.g. an ARCA code).
+  options: {
+    label: string
+    value: string | number
+    icon?: React.JSX.Element
+  }[]
   placeholder?: string
 }) {
   const field = useFieldContext()
@@ -330,10 +335,10 @@ export function SelectField({
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
-      <Select
+      <Select<string | number>
         name={field.name}
         items={options}
-        value={field.state.value as string}
+        value={field.state.value as string | number}
         onValueChange={field.handleChange}
       >
         <SelectTrigger
@@ -359,7 +364,7 @@ export function SelectField({
         <SelectContent>
           <SelectGroup>
             {options.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
+              <SelectItem key={String(opt.value)} value={opt.value}>
                 {opt.icon} {opt.label}
               </SelectItem>
             ))}

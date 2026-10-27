@@ -36,6 +36,7 @@ import { SearchInput } from "@/components/search-input"
 import { useSearch } from "@/hooks/use-search"
 import { RowActionsProvider } from "@/context/row-actions-provider"
 import { OrderDeleteAlertDialog } from "./_components/order-delete-alert-dialog"
+import { OrderInvoiceRowDialog } from "./_components/order-invoice-dialog"
 import { OrderViewDrawer } from "./_components/order-view-drawer"
 import { useOrderFilterOptions } from "./_hooks/use-order-filter-options"
 import { orderFilterColumns } from "./_lib/order-filters"
@@ -138,6 +139,7 @@ export default function OrdersPage() {
         </DataTable>
         <OrderViewDrawer />
         <OrderDeleteAlertDialog />
+        <OrderInvoiceRowDialog />
       </main>
     </RowActionsProvider>
   )
