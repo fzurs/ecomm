@@ -3,6 +3,7 @@ import { toast } from "sonner"
 import { getServerErrorMessage } from "@/lib/utils"
 import { Order, OrderStatus, PaginatedOrderList } from "@workspace/api-client"
 import {
+  invoicesListQueryKey,
   ordersDestroyMutation,
   ordersListQueryKey,
   ordersPartialUpdateMutation,
@@ -97,6 +98,11 @@ export function useOptimisticOrderDestroy(order: Order) {
       queryClient.setQueryData(queryKey, onMutateResult?.previousData)
       toast.error(getServerErrorMessage(error))
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        // Its rejected invoices are deleted with it.
+        queryClient.invalidateQueries({ queryKey: invoicesListQueryKey() }),
+      ]),
   })
 }

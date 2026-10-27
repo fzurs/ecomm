@@ -15,6 +15,7 @@ import { FileTextIcon } from "lucide-react"
 import { useState } from "react"
 import { RelatedVouchers } from "../../invoices/_components/related-vouchers"
 import { canInvoice, invoiceActionLabel } from "../_lib/order-invoice-status"
+import { isPaid } from "../_lib/order-status"
 import { OrderInvoiceDialog } from "./order-invoice-dialog"
 
 /** Opens the invoice dialog of the order, when it can be invoiced. */
@@ -52,12 +53,12 @@ export function OrderInvoices({ order }: { order: Order }) {
           </EmptyMedia>
           <EmptyTitle>Not invoiced yet</EmptyTitle>
           <EmptyDescription>
-            {order.status === "paid"
+            {isPaid(order)
               ? "The invoice is emitted to ARCA. You'll see what it will contain before emitting it."
               : "Only paid orders are invoiced. Change its status to paid to invoice it."}
           </EmptyDescription>
         </EmptyHeader>
-        {order.status === "paid" && (
+        {isPaid(order) && (
           <EmptyContent>
             <OrderInvoiceButton order={order} variant="outline" />
           </EmptyContent>

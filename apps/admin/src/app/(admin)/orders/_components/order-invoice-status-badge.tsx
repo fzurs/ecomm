@@ -5,12 +5,13 @@ import {
   orderInvoiceStatuses,
   toInvoiceStatus,
 } from "../_lib/order-invoice-status"
+import { isPaid } from "../_lib/order-status"
 
 /** The status of the order's invoice. What's left to invoice stands out; an
  * unpaid order isn't due yet. */
 export function OrderInvoiceStatusBadge({ order }: { order: Order }) {
   if (order.invoice_status === "not_invoiced") {
-    return order.status === "paid" ? (
+    return isPaid(order) ? (
       <StatusBadge {...toInvoiceStatus} />
     ) : (
       <EmptyCell label="Not invoiced" />
@@ -22,5 +23,5 @@ export function OrderInvoiceStatusBadge({ order }: { order: Order }) {
 /** Whether the badge has something to say outside a table cell, where the
  * dash of an unpaid order means nothing. */
 export function showsInvoiceStatus(order: Order) {
-  return order.invoice_status !== "not_invoiced" || order.status === "paid"
+  return order.invoice_status !== "not_invoiced" || isPaid(order)
 }

@@ -1,6 +1,7 @@
 import { Order, OrderInvoiceStatus } from "@workspace/api-client"
 import { zOrderInvoiceStatus } from "@workspace/api-client/zod"
 import { StatusDefinition, statusOptions } from "@/components/status"
+import { isPaid } from "./order-status"
 
 // Keyed by the generated enum: the status of the order's invoice, or none yet.
 // The colors match `invoiceStatuses`.
@@ -32,7 +33,7 @@ export const orderInvoiceStatusOptions = [
 /** A paid order without an invoice, or whose invoice ARCA rejected. */
 export function canInvoice(order: Order) {
   return (
-    order.status === "paid" &&
+    isPaid(order) &&
     (order.invoice_status === "not_invoiced" ||
       order.invoice_status === "rejected")
   )

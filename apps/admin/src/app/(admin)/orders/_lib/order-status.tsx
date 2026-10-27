@@ -1,4 +1,4 @@
-import { OrderStatus } from "@workspace/api-client"
+import { Order, OrderStatus } from "@workspace/api-client"
 import { zOrderStatus } from "@workspace/api-client/zod"
 import { StatusDefinition, statusOptions } from "@/components/status"
 
@@ -10,6 +10,13 @@ export const orderStatuses: Record<OrderStatus, StatusDefinition> = {
   shipped: { label: "Shipped", color: "violet" },
   delivered: { label: "Delivered", color: "green" },
   cancelled: { label: "Cancelled", color: "red" },
+}
+
+// Charged: what can be invoiced (`Order.PAID_STATUSES` in the API).
+const paidStatuses: OrderStatus[] = ["paid", "shipped", "delivered"]
+
+export function isPaid(order: Order) {
+  return !!order.status && paidStatuses.includes(order.status)
 }
 
 // In the API's order, for menus and filters.

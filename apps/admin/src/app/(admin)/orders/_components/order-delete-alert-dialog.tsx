@@ -48,6 +48,8 @@ function OrderDeleteAlertDialogContent({
         <AlertDialogDescription>
           This action cannot be undone. This will permanently delete the order
           and remove all associated data.
+          {item.invoice_status === "rejected" &&
+            " Its rejected invoice is deleted too: ARCA never authorized it."}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

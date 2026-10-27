@@ -73,6 +73,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
                 <OrderStatusRadioGroup
                   value={status}
                   onValueChange={setStatus}
+                  locks={order.status_locks}
                 />
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
@@ -80,12 +81,22 @@ export function OrderRowActions({ item: order }: { item: Order }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          {/* The reason under the label, as the status locks: a disabled
+              item gets no hover for a tooltip. */}
           <DropdownMenuItem
             variant="destructive"
+            disabled={!!order.delete_lock}
             onClick={() => openAction("delete", order)}
           >
             <Trash2Icon />
-            Delete
+            <span className="flex flex-col">
+              Delete
+              {order.delete_lock && (
+                <span className="max-w-56 text-xs text-muted-foreground">
+                  {order.delete_lock}
+                </span>
+              )}
+            </span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

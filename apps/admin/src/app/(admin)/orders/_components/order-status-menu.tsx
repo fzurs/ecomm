@@ -26,7 +26,11 @@ export function OrderStatusMenu({
         Change status
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <OrderStatusRadioGroup value={status} onValueChange={setStatus} />
+        <OrderStatusRadioGroup
+          value={status}
+          onValueChange={setStatus}
+          locks={order.status_locks}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )
