@@ -4,6 +4,11 @@ export type ClientOptions = {
     baseURL: `${string}://schema.yml` | (string & {});
 };
 
+export type ArcaMessage = {
+    code: number;
+    msg: string;
+};
+
 export type BlankEnum = '';
 
 export type Brand = {
@@ -47,6 +52,15 @@ export type ConversationDetail = {
     readonly messages: Array<Message>;
 };
 
+export type CreditNoteCreate = {
+    lines?: Array<CreditNoteLine>;
+};
+
+export type CreditNoteLine = {
+    line: number;
+    quantity: number;
+};
+
 export type Customer = {
     readonly id: number;
     name: string;
@@ -54,6 +68,9 @@ export type Customer = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string | null;
+    vat_condition?: VatCondition;
+    legal_name?: string;
+    address?: string;
     image?: string | null;
 };
 
@@ -68,6 +85,17 @@ export type CustomerSummary = {
     name: string;
     email?: string;
     image?: string | null;
+};
+
+export type DebitNoteCreate = {
+    lines: Array<DebitNoteLine>;
+};
+
+export type DebitNoteLine = {
+    description: string;
+    quantity: number;
+    unit_price: string;
+    vat_rate: VatRate;
 };
 
 /**
@@ -86,21 +114,135 @@ export type DocumentTypeEnum = 80 | 86 | 87 | 96 | 89 | 90 | 94 | 91 | 0 | 30;
 
 export type Invoice = {
     readonly id: number;
-    order: number;
+    voucher_type: VoucherType;
+    readonly letter: string;
+    kind: VoucherKind;
+    readonly display_number: string | null;
+    readonly issue_date: string | null;
     readonly total_amount: string;
+    status: InvoiceStatus;
+    readonly order: number;
+    readonly order_number: string;
+    customer: CustomerChoice;
+    readonly point_of_sale: number;
+    readonly number: number | null;
+    readonly associated_invoice: number | null;
+    readonly receptor_name: string;
+    receptor_document_type: ReceptorDocumentType;
+    readonly receptor_document_number: string;
+    receptor_vat_condition: VatCondition;
+    readonly receptor_address: string;
     readonly net_amount: string;
     readonly vat_amount: string;
-    readonly document_name: string;
+    readonly exempt_amount: string;
+    readonly non_taxed_amount: string;
+    readonly cae: string;
+    readonly cae_expiration_date: string | null;
+    readonly error_message: string;
     readonly created_at: string;
+    readonly updated_at: string;
+    readonly notes_unavailable_reason: string | null;
+};
+
+export type InvoiceCreate = {
+    order: number;
+};
+
+export type InvoiceDetail = {
+    readonly id: number;
+    voucher_type: VoucherType;
+    readonly letter: string;
+    kind: VoucherKind;
+    readonly display_number: string | null;
+    readonly issue_date: string | null;
+    readonly total_amount: string;
     status: InvoiceStatus;
+    readonly order: number;
+    readonly order_number: string;
+    customer: CustomerChoice;
+    readonly point_of_sale: number;
+    readonly number: number | null;
+    associated_invoice: InvoiceSummary | null;
+    readonly receptor_name: string;
+    receptor_document_type: ReceptorDocumentType;
+    readonly receptor_document_number: string;
+    receptor_vat_condition: VatCondition;
+    readonly receptor_address: string;
+    readonly net_amount: string;
+    readonly vat_amount: string;
+    readonly exempt_amount: string;
+    readonly non_taxed_amount: string;
+    readonly cae: string;
+    readonly cae_expiration_date: string | null;
+    readonly error_message: string;
+    readonly created_at: string;
+    readonly updated_at: string;
+    readonly notes_unavailable_reason: string | null;
+    readonly notes: Array<InvoiceSummary>;
+    readonly lines: Array<InvoiceLine>;
+    readonly vat: Array<InvoiceVat>;
+    readonly arca_errors: Array<ArcaMessage>;
+    readonly observations: Array<ArcaMessage>;
+    readonly credit_available: string;
+};
+
+export type InvoiceLine = {
+    readonly id: number;
+    order_item?: number | null;
+    credited_line?: number | null;
+    description: string;
+    quantity: number;
+    unit_price: string;
+    vat_rate: VatRate;
+    readonly subtotal: string;
+    readonly credited_quantity: number;
+};
+
+export type InvoicePreview = {
+    voucher_type: VoucherType;
+    readonly letter: string;
+    kind: VoucherKind;
+    readonly order: number;
+    readonly order_number: string;
+    customer: CustomerChoice;
+    readonly point_of_sale: number;
+    readonly receptor_name: string;
+    receptor_document_type: ReceptorDocumentType;
+    readonly receptor_document_number: string;
+    receptor_vat_condition: VatCondition;
+    readonly receptor_address: string;
+    readonly net_amount: string;
+    readonly vat_amount: string;
+    readonly exempt_amount: string;
+    readonly non_taxed_amount: string;
+    readonly total_amount: string;
+    readonly lines: Array<InvoiceLine>;
 };
 
 /**
  * * `pending` - Pending
- * * `success` - Success
- * * `error` - Error
+ * * `authorized` - Authorized
+ * * `rejected` - Rejected
+ * * `unverified` - Unverified
  */
-export type InvoiceStatus = 'pending' | 'success' | 'error';
+export type InvoiceStatus = 'pending' | 'authorized' | 'rejected' | 'unverified';
+
+export type InvoiceSummary = {
+    readonly id: number;
+    voucher_type: VoucherType;
+    readonly letter: string;
+    kind: VoucherKind;
+    readonly display_number: string | null;
+    readonly issue_date: string | null;
+    readonly total_amount: string;
+    status: InvoiceStatus;
+};
+
+export type InvoiceVat = {
+    rate: VatRate;
+    base: string;
+    amount: string;
+};
 
 export type Login = {
     username?: string;
@@ -152,6 +294,7 @@ export type OrderItem = {
     product: number;
     quantity?: number;
     readonly unit_price: number;
+    vat_rate: VatRate;
 };
 
 /**
@@ -254,18 +397,10 @@ export type PatchedCustomer = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string | null;
+    vat_condition?: VatCondition;
+    legal_name?: string;
+    address?: string;
     image?: string | null;
-};
-
-export type PatchedInvoice = {
-    readonly id?: number;
-    order?: number;
-    readonly total_amount?: string;
-    readonly net_amount?: string;
-    readonly vat_amount?: string;
-    readonly document_name?: string;
-    readonly created_at?: string;
-    status?: InvoiceStatus;
 };
 
 export type PatchedOrder = {
@@ -296,6 +431,7 @@ export type PatchedProduct = {
     featured?: boolean;
     price?: number | null;
     discount_percent?: number | null;
+    vat_rate?: VatRate;
     readonly created_at?: string;
 };
 
@@ -335,6 +471,7 @@ export type Product = {
     featured?: boolean;
     price?: number | null;
     discount_percent?: number | null;
+    vat_rate?: VatRate;
     readonly created_at: string;
 };
 
@@ -345,6 +482,7 @@ export type ProductChoice = {
     price?: number | null;
     discount_percent?: number | null;
     readonly active_price: number | null;
+    vat_rate?: VatRate;
     image?: string | null;
 };
 
@@ -366,6 +504,14 @@ export type ProductSummary = {
     readonly active_price: number | null;
     image?: string | null;
 };
+
+/**
+ * * `80` - CUIT
+ * * `86` - CUIL
+ * * `96` - DNI
+ * * `99` - Sin identificar
+ */
+export type ReceptorDocumentType = 80 | 86 | 96 | 99;
 
 export type RestAuthDetail = {
     readonly detail: string;
@@ -390,6 +536,53 @@ export type UserDetails = {
     first_name?: string;
     last_name?: string;
 };
+
+/**
+ * * `1` - IVA Responsable Inscripto
+ * * `4` - IVA Sujeto Exento
+ * * `5` - Consumidor Final
+ * * `6` - Responsable Monotributo
+ * * `7` - Sujeto No Categorizado
+ * * `8` - Proveedor del Exterior
+ * * `9` - Cliente del Exterior
+ * * `10` - IVA Liberado - Ley N° 19.640
+ * * `13` - Monotributista Social
+ * * `15` - IVA No Alcanzado
+ * * `16` - Monotributo Trabajador Independiente Promovido
+ */
+export type VatCondition = 1 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 13 | 15 | 16;
+
+/**
+ * * `1` - Non-taxed
+ * * `2` - Exempt
+ * * `3` - 0%
+ * * `4` - 10.5%
+ * * `5` - 21%
+ * * `6` - 27%
+ * * `8` - 5%
+ * * `9` - 2.5%
+ */
+export type VatRate = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 9;
+
+/**
+ * * `invoice` - Invoice
+ * * `credit_note` - Credit note
+ * * `debit_note` - Debit note
+ */
+export type VoucherKind = 'invoice' | 'credit_note' | 'debit_note';
+
+/**
+ * * `1` - Factura A
+ * * `2` - Nota de Débito A
+ * * `3` - Nota de Crédito A
+ * * `6` - Factura B
+ * * `7` - Nota de Débito B
+ * * `8` - Nota de Crédito B
+ * * `11` - Factura C
+ * * `12` - Nota de Débito C
+ * * `13` - Nota de Crédito C
+ */
+export type VoucherType = 1 | 2 | 3 | 6 | 7 | 8 | 11 | 12 | 13;
 
 export type BrandWritable = {
     slug?: string;
@@ -423,6 +616,9 @@ export type CustomerWritable = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string | null;
+    vat_condition?: VatCondition;
+    legal_name?: string;
+    address?: string;
     image?: string | null;
 };
 
@@ -438,7 +634,24 @@ export type CustomerSummaryWritable = {
 };
 
 export type InvoiceWritable = {
-    order: number;
+    [key: string]: unknown;
+};
+
+export type InvoiceDetailWritable = {
+    [key: string]: unknown;
+};
+
+export type InvoiceLineWritable = {
+    order_item?: number | null;
+    credited_line?: number | null;
+    description: string;
+    quantity: number;
+    unit_price: string;
+    vat_rate: VatRate;
+};
+
+export type InvoicePreviewWritable = {
+    [key: string]: unknown;
 };
 
 export type MessageWritable = {
@@ -528,11 +741,10 @@ export type PatchedCustomerWritable = {
     phone?: string;
     document_type?: DocumentTypeEnum;
     document_number?: string | null;
+    vat_condition?: VatCondition;
+    legal_name?: string;
+    address?: string;
     image?: string | null;
-};
-
-export type PatchedInvoiceWritable = {
-    order?: number;
 };
 
 export type PatchedOrderWritable = {
@@ -552,6 +764,7 @@ export type PatchedProductWritable = {
     featured?: boolean;
     price?: number | null;
     discount_percent?: number | null;
+    vat_rate?: VatRate;
 };
 
 /**
@@ -578,6 +791,7 @@ export type ProductWritable = {
     featured?: boolean;
     price?: number | null;
     discount_percent?: number | null;
+    vat_rate?: VatRate;
 };
 
 export type ProductChoiceWritable = {
@@ -585,6 +799,7 @@ export type ProductChoiceWritable = {
     slug?: string;
     price?: number | null;
     discount_percent?: number | null;
+    vat_rate?: VatRate;
     image?: string | null;
 };
 
@@ -1189,6 +1404,42 @@ export type InvoicesListData = {
     body?: never;
     path?: never;
     query?: {
+        created_at?: string;
+        created_at__gt?: string;
+        created_at__gte?: string;
+        created_at__lt?: string;
+        created_at__lte?: string;
+        created_at__not?: string;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__not_range?: Array<string>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        created_at__range?: Array<string>;
+        customer?: Array<number>;
+        customer__not?: Array<number>;
+        issue_date?: string;
+        issue_date__gt?: string;
+        issue_date__gte?: string;
+        issue_date__lt?: string;
+        issue_date__lte?: string;
+        issue_date__not?: string;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        issue_date__not_range?: Array<string>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        issue_date__range?: Array<string>;
+        /**
+         * * `invoice` - Invoice
+         * * `credit_note` - Credit note
+         * * `debit_note` - Debit note
+         */
+        kind?: Array<'credit_note' | 'debit_note' | 'invoice'>;
         /**
          * Number of results to return per page.
          */
@@ -1197,6 +1448,67 @@ export type InvoicesListData = {
          * The initial index from which to return the results.
          */
         offset?: number;
+        order?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * * `pending` - Pending
+         * * `authorized` - Authorized
+         * * `rejected` - Rejected
+         * * `unverified` - Unverified
+         */
+        status?: Array<'authorized' | 'pending' | 'rejected' | 'unverified'>;
+        /**
+         * * `pending` - Pending
+         * * `authorized` - Authorized
+         * * `rejected` - Rejected
+         * * `unverified` - Unverified
+         */
+        status__not?: Array<'authorized' | 'pending' | 'rejected' | 'unverified'>;
+        total_amount?: number;
+        total_amount__gt?: number;
+        total_amount__gte?: number;
+        total_amount__lt?: number;
+        total_amount__lte?: number;
+        total_amount__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        total_amount__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        total_amount__range?: Array<number>;
+        /**
+         * * `1` - Factura A
+         * * `2` - Nota de Débito A
+         * * `3` - Nota de Crédito A
+         * * `6` - Factura B
+         * * `7` - Nota de Débito B
+         * * `8` - Nota de Crédito B
+         * * `11` - Factura C
+         * * `12` - Nota de Débito C
+         * * `13` - Nota de Crédito C
+         */
+        voucher_type?: Array<1 | 11 | 12 | 13 | 2 | 3 | 6 | 7 | 8>;
+        /**
+         * * `1` - Factura A
+         * * `2` - Nota de Débito A
+         * * `3` - Nota de Crédito A
+         * * `6` - Factura B
+         * * `7` - Nota de Débito B
+         * * `8` - Nota de Crédito B
+         * * `11` - Factura C
+         * * `12` - Nota de Débito C
+         * * `13` - Nota de Crédito C
+         */
+        voucher_type__not?: Array<1 | 11 | 12 | 13 | 2 | 3 | 6 | 7 | 8>;
     };
     url: '/invoices/';
 };
@@ -1208,14 +1520,14 @@ export type InvoicesListResponses = {
 export type InvoicesListResponse = InvoicesListResponses[keyof InvoicesListResponses];
 
 export type InvoicesCreateData = {
-    body: InvoiceWritable;
+    body: InvoiceCreate;
     path?: never;
     query?: never;
     url: '/invoices/';
 };
 
 export type InvoicesCreateResponses = {
-    201: Invoice;
+    201: InvoiceDetail;
 };
 
 export type InvoicesCreateResponse = InvoicesCreateResponses[keyof InvoicesCreateResponses];
@@ -1254,13 +1566,13 @@ export type InvoicesRetrieveData = {
 };
 
 export type InvoicesRetrieveResponses = {
-    200: Invoice;
+    200: InvoiceDetail;
 };
 
 export type InvoicesRetrieveResponse = InvoicesRetrieveResponses[keyof InvoicesRetrieveResponses];
 
-export type InvoicesPartialUpdateData = {
-    body?: PatchedInvoiceWritable;
+export type InvoicesCreditNoteData = {
+    body?: CreditNoteCreate;
     path: {
         /**
          * A unique integer value identifying this invoice.
@@ -1268,17 +1580,17 @@ export type InvoicesPartialUpdateData = {
         id: number;
     };
     query?: never;
-    url: '/invoices/{id}/';
+    url: '/invoices/{id}/credit-note/';
 };
 
-export type InvoicesPartialUpdateResponses = {
-    200: Invoice;
+export type InvoicesCreditNoteResponses = {
+    201: InvoiceDetail;
 };
 
-export type InvoicesPartialUpdateResponse = InvoicesPartialUpdateResponses[keyof InvoicesPartialUpdateResponses];
+export type InvoicesCreditNoteResponse = InvoicesCreditNoteResponses[keyof InvoicesCreditNoteResponses];
 
-export type InvoicesUpdateData = {
-    body: InvoiceWritable;
+export type InvoicesDebitNoteData = {
+    body: DebitNoteCreate;
     path: {
         /**
          * A unique integer value identifying this invoice.
@@ -1286,14 +1598,81 @@ export type InvoicesUpdateData = {
         id: number;
     };
     query?: never;
-    url: '/invoices/{id}/';
+    url: '/invoices/{id}/debit-note/';
 };
 
-export type InvoicesUpdateResponses = {
-    200: Invoice;
+export type InvoicesDebitNoteResponses = {
+    201: InvoiceDetail;
 };
 
-export type InvoicesUpdateResponse = InvoicesUpdateResponses[keyof InvoicesUpdateResponses];
+export type InvoicesDebitNoteResponse = InvoicesDebitNoteResponses[keyof InvoicesDebitNoteResponses];
+
+export type InvoicesEmitData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/emit/';
+};
+
+export type InvoicesEmitResponses = {
+    200: InvoiceDetail;
+};
+
+export type InvoicesEmitResponse = InvoicesEmitResponses[keyof InvoicesEmitResponses];
+
+export type InvoicesPdfData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/pdf/';
+};
+
+export type InvoicesPdfResponses = {
+    200: Blob | File;
+};
+
+export type InvoicesPdfResponse = InvoicesPdfResponses[keyof InvoicesPdfResponses];
+
+export type InvoicesVerifyData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this invoice.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/invoices/{id}/verify/';
+};
+
+export type InvoicesVerifyResponses = {
+    200: InvoiceDetail;
+};
+
+export type InvoicesVerifyResponse = InvoicesVerifyResponses[keyof InvoicesVerifyResponses];
+
+export type InvoicesPreviewData = {
+    body: InvoiceCreate;
+    path?: never;
+    query?: never;
+    url: '/invoices/preview/';
+};
+
+export type InvoicesPreviewResponses = {
+    200: InvoicePreview;
+};
+
+export type InvoicesPreviewResponse = InvoicesPreviewResponses[keyof InvoicesPreviewResponses];
 
 export type OrdersListData = {
     body?: never;

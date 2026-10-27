@@ -1,3 +1,5 @@
+from arca_client.certificates import is_valid_cuit, normalize_cuit
+from arca_client.wsfe import CONDICIONES_A
 from rest_framework import serializers
 from .models import Order, OrderItem, Customer
 from store.models import Product
@@ -7,6 +9,25 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = serializers.ALL_FIELDS
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        get = lambda field: attrs[field] if field in attrs else getattr(self.instance, field, None)
+        document_type, number = get("document_type"), get("document_number")
+        vat_condition = get("vat_condition") or Customer.VatCondition.FINAL_CONSUMER
+
+        if number:
+            number = normalize_cuit(number)
+            if "document_number" in attrs:
+                attrs["document_number"] = number
+            tax_id = document_type in (Customer.DocumentType.CUIT, Customer.DocumentType.CUIL)
+            if tax_id and not is_valid_cuit(number):
+                raise serializers.ValidationError({"document_number": "Not a valid CUIT/CUIL."})
+        # They get Factura A, which needs the CUIT.
+        if vat_condition in CONDICIONES_A and not (document_type == Customer.DocumentType.CUIT and number):
+            raise serializers.ValidationError(
+                {"document_number": f"A {Customer.VatCondition(vat_condition).label} customer needs a CUIT."})
+        return attrs
 
 
 # The serializers below leave out phone and document_number: only the customer detail needs them.
@@ -40,7 +61,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         exclude = ['order']
-        read_only_fields = ['unit_price']
+        read_only_fields = ['unit_price', 'vat_rate']
 
 
 class OrderSerializer(serializers.ModelSerializer):

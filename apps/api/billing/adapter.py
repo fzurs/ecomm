@@ -1,6 +1,16 @@
-from arca_client import WSFE, CbteTipo, ComprobanteAutorizado, CondicionIVAReceptor, DocTipo
+from arca_client import (
+    WSFE,
+    CbteTipo,
+    ComprobanteAsociado,
+    ComprobanteAutorizado,
+    CondicionIVAReceptor,
+    DocTipo,
+)
+from django.conf import settings
 
-from billing.models import Invoice
+from . import amounts
+from .models import Invoice, VoucherType
+from .rules import check_supported
 
 
 class ARCAElectronicInvoicingAdapter:
@@ -8,26 +18,45 @@ class ARCAElectronicInvoicingAdapter:
         self.wsfe = wsfe
 
     def create_voucher(self, invoice: Invoice) -> ComprobanteAutorizado:
-        """Emite la factura C y devuelve el comprobante autorizado.
+        """Emits the voucher and returns it authorized.
 
-        ARCA asigna el número (último autorizado + 1); viene en ``numero``.
+        ARCA assigns the number (last authorized + 1); it comes in ``numero``.
         """
-        if invoice.invoice_type != CbteTipo.FACTURA_C:
-            raise ValueError(f"Tipo de comprobante no soportado: {invoice.invoice_type}")
+        check_supported(invoice.type)
+        kwargs = {
+            'punto_venta': invoice.point_of_sale,
+            **amounts.voucher_amounts(invoice.lines.all(), invoice.letter),
+            'doc_nro': int(invoice.receptor_document_number or 0),
+            'condicion_iva_receptor': CondicionIVAReceptor(invoice.receptor_vat_condition),
+        }
+        # Factura A and its notes always go to a CUIT: arca-client doesn't take doc_tipo there.
+        if invoice.letter != 'A':
+            kwargs['doc_tipo'] = DocTipo(invoice.receptor_document_type)
 
-        customer = invoice.order.customer
-        if customer.document_number:
-            doc_tipo = DocTipo(customer.document_type)
-            doc_nro = int(customer.document_number)
-        else:
-            doc_tipo = DocTipo.CONSUMIDOR_FINAL
-            doc_nro = 0
+        match invoice.type:
+            case VoucherType.INVOICE_A:
+                return self.wsfe.create_invoice_a(**kwargs)
+            case VoucherType.INVOICE_B:
+                return self.wsfe.create_invoice_b(**kwargs)
+            case VoucherType.INVOICE_C:
+                return self.wsfe.create_invoice_c(**kwargs)
+            case VoucherType.CREDIT_NOTE_A:
+                return self.wsfe.create_credit_note_a(asociado=self.associated(invoice), **kwargs)
+            case VoucherType.DEBIT_NOTE_A:
+                return self.wsfe.create_debit_note_a(asociado=self.associated(invoice), **kwargs)
 
-        return self.wsfe.create_invoice_c(
+    def get_voucher(self, invoice: Invoice) -> ComprobanteAutorizado | None:
+        """The voucher ARCA has with the invoice's number, if any. Emits nothing."""
+        return self.wsfe.get_voucher(
+            invoice.point_of_sale, CbteTipo(invoice.voucher_type), invoice.number)
+
+    @staticmethod
+    def associated(note: Invoice) -> ComprobanteAsociado:
+        invoice = note.associated_invoice
+        return ComprobanteAsociado(
+            tipo=CbteTipo(invoice.voucher_type),
             punto_venta=invoice.point_of_sale,
-            importe_total=invoice.total_amount,
-            doc_tipo=doc_tipo,
-            doc_nro=doc_nro,
-            # TODO: tomar la condición frente al IVA del cliente cuando el modelo la tenga.
-            condicion_iva_receptor=CondicionIVAReceptor.CONSUMIDOR_FINAL,
+            numero=invoice.number,
+            cuit=int(settings.ARCA_CUIT),
+            fecha=invoice.issue_date,
         )

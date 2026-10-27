@@ -2,6 +2,11 @@
 
 import * as z from 'zod';
 
+export const zArcaMessage = z.object({
+    code: z.int(),
+    msg: z.string()
+});
+
 export const zBlankEnum = z.enum(['']);
 
 export const zBrand = z.object({
@@ -35,6 +40,15 @@ export const zConversation = z.object({
     title: z.string().readonly(),
     created_at: z.iso.datetime().readonly(),
     updated_at: z.iso.datetime().readonly()
+});
+
+export const zCreditNoteLine = z.object({
+    line: z.int(),
+    quantity: z.int().gte(1)
+});
+
+export const zCreditNoteCreate = z.object({
+    lines: z.array(zCreditNoteLine).optional()
 });
 
 export const zCustomerChoice = z.object({
@@ -75,37 +89,22 @@ export const zDocumentTypeEnum = z.union([
     z.literal(30)
 ]);
 
-export const zCustomer = z.object({
-    id: z.int().readonly(),
-    name: z.string().max(255),
-    email: z.email().max(254).optional(),
-    phone: z.string().max(20).optional(),
-    document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20).nullish(),
-    image: z.url().nullish()
+export const zInvoiceCreate = z.object({
+    order: z.int()
 });
 
 /**
  * * `pending` - Pending
- * * `success` - Success
- * * `error` - Error
+ * * `authorized` - Authorized
+ * * `rejected` - Rejected
+ * * `unverified` - Unverified
  */
 export const zInvoiceStatus = z.enum([
     'pending',
-    'success',
-    'error'
+    'authorized',
+    'rejected',
+    'unverified'
 ]);
-
-export const zInvoice = z.object({
-    id: z.int().readonly(),
-    order: z.int(),
-    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
-    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
-    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
-    document_name: z.string().readonly(),
-    created_at: z.iso.datetime().readonly(),
-    status: zInvoiceStatus
-});
 
 export const zLogin = z.object({
     username: z.string().optional(),
@@ -170,20 +169,6 @@ export const zPaginatedConversationList = z.object({
     results: z.array(zConversation)
 });
 
-export const zPaginatedCustomerList = z.object({
-    count: z.int(),
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-    results: z.array(zCustomer)
-});
-
-export const zPaginatedInvoiceList = z.object({
-    count: z.int(),
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-    results: z.array(zInvoice)
-});
-
 export const zPasswordChange = z.object({
     new_password1: z.string().max(128),
     new_password2: z.string().max(128)
@@ -219,27 +204,6 @@ export const zPatchedCategory = z.object({
     description: z.string().nullish()
 });
 
-export const zPatchedCustomer = z.object({
-    id: z.int().readonly().optional(),
-    name: z.string().max(255).optional(),
-    email: z.email().max(254).optional(),
-    phone: z.string().max(20).optional(),
-    document_type: zDocumentTypeEnum.optional(),
-    document_number: z.string().max(20).nullish(),
-    image: z.url().nullish()
-});
-
-export const zPatchedInvoice = z.object({
-    id: z.int().readonly().optional(),
-    order: z.int().optional(),
-    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly().optional(),
-    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly().optional(),
-    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly().optional(),
-    document_name: z.string().readonly().optional(),
-    created_at: z.iso.datetime().readonly().optional(),
-    status: zInvoiceStatus.optional()
-});
-
 /**
  * User model w/o password
  */
@@ -249,16 +213,6 @@ export const zPatchedUserDetails = z.object({
     email: z.email().readonly().optional(),
     first_name: z.string().max(150).optional(),
     last_name: z.string().max(150).optional()
-});
-
-export const zProductChoice = z.object({
-    id: z.int().readonly(),
-    name: z.string().max(255),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
-    price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_percent: z.int().gte(1).lte(99).nullish(),
-    active_price: z.int().readonly().nullable(),
-    image: z.url().nullish()
 });
 
 /**
@@ -276,51 +230,6 @@ export const zProductStatus = z.enum([
     'discontinued'
 ]);
 
-export const zPatchedProduct = z.object({
-    id: z.int().readonly().optional(),
-    brand: zBrand.nullish(),
-    brand_id: z.int().nullish(),
-    category: zCategory.nullish(),
-    category_id: z.int().nullish(),
-    active_price: z.int().readonly().nullish(),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
-    name: z.string().max(255).optional(),
-    sku: z.string().max(255).nullish(),
-    description: z.string().nullish(),
-    image: z.url().nullish(),
-    status: zProductStatus.optional(),
-    featured: z.boolean().optional(),
-    price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_percent: z.int().gte(1).lte(99).nullish(),
-    created_at: z.iso.datetime().readonly().optional()
-});
-
-export const zProduct = z.object({
-    id: z.int().readonly(),
-    brand: zBrand.nullable(),
-    brand_id: z.int().nullish(),
-    category: zCategory.nullable(),
-    category_id: z.int().nullish(),
-    active_price: z.int().readonly().nullable(),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
-    name: z.string().max(255),
-    sku: z.string().max(255).nullish(),
-    description: z.string().nullish(),
-    image: z.url().nullish(),
-    status: zProductStatus.optional(),
-    featured: z.boolean().optional(),
-    price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_percent: z.int().gte(1).lte(99).nullish(),
-    created_at: z.iso.datetime().readonly()
-});
-
-export const zPaginatedProductList = z.object({
-    count: z.int(),
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-    results: z.array(zProduct)
-});
-
 export const zProductSummary = z.object({
     id: z.int().readonly(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -331,13 +240,152 @@ export const zProductSummary = z.object({
     image: z.url().nullish()
 });
 
+/**
+ * * `80` - CUIT
+ * * `86` - CUIL
+ * * `96` - DNI
+ * * `99` - Sin identificar
+ */
+export const zReceptorDocumentType = z.union([
+    z.literal(80),
+    z.literal(86),
+    z.literal(96),
+    z.literal(99)
+]);
+
+export const zRestAuthDetail = z.object({
+    detail: z.string().readonly()
+});
+
+/**
+ * User model w/o password
+ */
+export const zUserDetails = z.object({
+    pk: z.int().readonly(),
+    username: z.string().max(150).regex(/^[\w.@+-]+$/),
+    email: z.email().readonly(),
+    first_name: z.string().max(150).optional(),
+    last_name: z.string().max(150).optional()
+});
+
+/**
+ * * `1` - IVA Responsable Inscripto
+ * * `4` - IVA Sujeto Exento
+ * * `5` - Consumidor Final
+ * * `6` - Responsable Monotributo
+ * * `7` - Sujeto No Categorizado
+ * * `8` - Proveedor del Exterior
+ * * `9` - Cliente del Exterior
+ * * `10` - IVA Liberado - Ley N° 19.640
+ * * `13` - Monotributista Social
+ * * `15` - IVA No Alcanzado
+ * * `16` - Monotributo Trabajador Independiente Promovido
+ */
+export const zVatCondition = z.union([
+    z.literal(1),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10),
+    z.literal(13),
+    z.literal(15),
+    z.literal(16)
+]);
+
+export const zCustomer = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    email: z.email().max(254).optional(),
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20).nullish(),
+    vat_condition: zVatCondition.optional(),
+    legal_name: z.string().max(255).optional(),
+    address: z.string().max(255).optional(),
+    image: z.url().nullish()
+});
+
+export const zPaginatedCustomerList = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(zCustomer)
+});
+
+export const zPatchedCustomer = z.object({
+    id: z.int().readonly().optional(),
+    name: z.string().max(255).optional(),
+    email: z.email().max(254).optional(),
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20).nullish(),
+    vat_condition: zVatCondition.optional(),
+    legal_name: z.string().max(255).optional(),
+    address: z.string().max(255).optional(),
+    image: z.url().nullish()
+});
+
+/**
+ * * `1` - Non-taxed
+ * * `2` - Exempt
+ * * `3` - 0%
+ * * `4` - 10.5%
+ * * `5` - 21%
+ * * `6` - 27%
+ * * `8` - 5%
+ * * `9` - 2.5%
+ */
+export const zVatRate = z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(8),
+    z.literal(9)
+]);
+
+export const zDebitNoteLine = z.object({
+    description: z.string().max(255),
+    quantity: z.int().gte(1),
+    unit_price: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/),
+    vat_rate: zVatRate
+});
+
+export const zDebitNoteCreate = z.object({
+    lines: z.array(zDebitNoteLine)
+});
+
+export const zInvoiceLine = z.object({
+    id: z.int().readonly(),
+    order_item: z.int().nullish(),
+    credited_line: z.int().nullish(),
+    description: z.string().max(255),
+    quantity: z.int().gte(0).lte(2147483647),
+    unit_price: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/),
+    vat_rate: zVatRate,
+    subtotal: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    credited_quantity: z.int().readonly()
+});
+
+export const zInvoiceVat = z.object({
+    rate: zVatRate,
+    base: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/),
+    amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/)
+});
+
 export const zOrderItem = z.object({
     id: z.int().readonly(),
     subtotal: z.int().readonly(),
     product_detail: zProductSummary,
     product: z.int(),
     quantity: z.int().gte(0).lte(2147483647).optional(),
-    unit_price: z.int().readonly()
+    unit_price: z.int().readonly(),
+    vat_rate: zVatRate
 });
 
 export const zOrder = z.object({
@@ -392,19 +440,205 @@ export const zPatchedOrder = z.object({
     customer: z.int().optional()
 });
 
-export const zRestAuthDetail = z.object({
-    detail: z.string().readonly()
+export const zPatchedProduct = z.object({
+    id: z.int().readonly().optional(),
+    brand: zBrand.nullish(),
+    brand_id: z.int().nullish(),
+    category: zCategory.nullish(),
+    category_id: z.int().nullish(),
+    active_price: z.int().readonly().nullish(),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    name: z.string().max(255).optional(),
+    sku: z.string().max(255).nullish(),
+    description: z.string().nullish(),
+    image: z.url().nullish(),
+    status: zProductStatus.optional(),
+    featured: z.boolean().optional(),
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    vat_rate: zVatRate.optional(),
+    created_at: z.iso.datetime().readonly().optional()
+});
+
+export const zProduct = z.object({
+    id: z.int().readonly(),
+    brand: zBrand.nullable(),
+    brand_id: z.int().nullish(),
+    category: zCategory.nullable(),
+    category_id: z.int().nullish(),
+    active_price: z.int().readonly().nullable(),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    name: z.string().max(255),
+    sku: z.string().max(255).nullish(),
+    description: z.string().nullish(),
+    image: z.url().nullish(),
+    status: zProductStatus.optional(),
+    featured: z.boolean().optional(),
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    vat_rate: zVatRate.optional(),
+    created_at: z.iso.datetime().readonly()
+});
+
+export const zPaginatedProductList = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(zProduct)
+});
+
+export const zProductChoice = z.object({
+    id: z.int().readonly(),
+    name: z.string().max(255),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    active_price: z.int().readonly().nullable(),
+    vat_rate: zVatRate.optional(),
+    image: z.url().nullish()
 });
 
 /**
- * User model w/o password
+ * * `invoice` - Invoice
+ * * `credit_note` - Credit note
+ * * `debit_note` - Debit note
  */
-export const zUserDetails = z.object({
-    pk: z.int().readonly(),
-    username: z.string().max(150).regex(/^[\w.@+-]+$/),
-    email: z.email().readonly(),
-    first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional()
+export const zVoucherKind = z.enum([
+    'invoice',
+    'credit_note',
+    'debit_note'
+]);
+
+/**
+ * * `1` - Factura A
+ * * `2` - Nota de Débito A
+ * * `3` - Nota de Crédito A
+ * * `6` - Factura B
+ * * `7` - Nota de Débito B
+ * * `8` - Nota de Crédito B
+ * * `11` - Factura C
+ * * `12` - Nota de Débito C
+ * * `13` - Nota de Crédito C
+ */
+export const zVoucherType = z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(11),
+    z.literal(12),
+    z.literal(13)
+]);
+
+export const zInvoice = z.object({
+    id: z.int().readonly(),
+    voucher_type: zVoucherType,
+    letter: z.string().readonly(),
+    kind: zVoucherKind,
+    display_number: z.string().readonly().nullable(),
+    issue_date: z.iso.date().readonly().nullable(),
+    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    status: zInvoiceStatus,
+    order: z.int().readonly(),
+    order_number: z.string().readonly(),
+    customer: zCustomerChoice,
+    point_of_sale: z.int().readonly(),
+    number: z.int().readonly().nullable(),
+    associated_invoice: z.int().readonly().nullable(),
+    receptor_name: z.string().readonly(),
+    receptor_document_type: zReceptorDocumentType,
+    receptor_document_number: z.string().readonly(),
+    receptor_vat_condition: zVatCondition,
+    receptor_address: z.string().readonly(),
+    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    exempt_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    non_taxed_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    cae: z.string().readonly(),
+    cae_expiration_date: z.iso.date().readonly().nullable(),
+    error_message: z.string().readonly(),
+    created_at: z.iso.datetime().readonly(),
+    updated_at: z.iso.datetime().readonly(),
+    notes_unavailable_reason: z.string().readonly().nullable()
+});
+
+export const zInvoicePreview = z.object({
+    voucher_type: zVoucherType,
+    letter: z.string().readonly(),
+    kind: zVoucherKind,
+    order: z.int().readonly(),
+    order_number: z.string().readonly(),
+    customer: zCustomerChoice,
+    point_of_sale: z.int().readonly(),
+    receptor_name: z.string().readonly(),
+    receptor_document_type: zReceptorDocumentType,
+    receptor_document_number: z.string().readonly(),
+    receptor_vat_condition: zVatCondition,
+    receptor_address: z.string().readonly(),
+    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    exempt_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    non_taxed_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    lines: z.array(zInvoiceLine).readonly()
+});
+
+export const zInvoiceSummary = z.object({
+    id: z.int().readonly(),
+    voucher_type: zVoucherType,
+    letter: z.string().readonly(),
+    kind: zVoucherKind,
+    display_number: z.string().readonly().nullable(),
+    issue_date: z.iso.date().readonly().nullable(),
+    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    status: zInvoiceStatus
+});
+
+export const zInvoiceDetail = z.object({
+    id: z.int().readonly(),
+    voucher_type: zVoucherType,
+    letter: z.string().readonly(),
+    kind: zVoucherKind,
+    display_number: z.string().readonly().nullable(),
+    issue_date: z.iso.date().readonly().nullable(),
+    total_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    status: zInvoiceStatus,
+    order: z.int().readonly(),
+    order_number: z.string().readonly(),
+    customer: zCustomerChoice,
+    point_of_sale: z.int().readonly(),
+    number: z.int().readonly().nullable(),
+    associated_invoice: zInvoiceSummary.nullable(),
+    receptor_name: z.string().readonly(),
+    receptor_document_type: zReceptorDocumentType,
+    receptor_document_number: z.string().readonly(),
+    receptor_vat_condition: zVatCondition,
+    receptor_address: z.string().readonly(),
+    net_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    vat_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    exempt_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    non_taxed_amount: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly(),
+    cae: z.string().readonly(),
+    cae_expiration_date: z.iso.date().readonly().nullable(),
+    error_message: z.string().readonly(),
+    created_at: z.iso.datetime().readonly(),
+    updated_at: z.iso.datetime().readonly(),
+    notes_unavailable_reason: z.string().readonly().nullable(),
+    notes: z.array(zInvoiceSummary).readonly(),
+    lines: z.array(zInvoiceLine).readonly(),
+    vat: z.array(zInvoiceVat).readonly(),
+    arca_errors: z.array(zArcaMessage).readonly(),
+    observations: z.array(zArcaMessage).readonly(),
+    credit_available: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/).readonly()
+});
+
+export const zPaginatedInvoiceList = z.object({
+    count: z.int(),
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+    results: z.array(zInvoice)
 });
 
 export const zBrandWritable = z.object({
@@ -437,6 +671,9 @@ export const zCustomerWritable = z.object({
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
     document_number: z.string().max(20).nullish(),
+    vat_condition: zVatCondition.optional(),
+    legal_name: z.string().max(255).optional(),
+    address: z.string().max(255).optional(),
     image: z.url().nullish()
 });
 
@@ -451,9 +688,20 @@ export const zCustomerSummaryWritable = z.object({
     image: z.url().nullish()
 });
 
-export const zInvoiceWritable = z.object({
-    order: z.int()
+export const zInvoiceWritable = z.record(z.string(), z.unknown());
+
+export const zInvoiceDetailWritable = z.record(z.string(), z.unknown());
+
+export const zInvoiceLineWritable = z.object({
+    order_item: z.int().nullish(),
+    credited_line: z.int().nullish(),
+    description: z.string().max(255),
+    quantity: z.int().gte(0).lte(2147483647),
+    unit_price: z.string().regex(/^-?\d{0,10}(?:\.\d{0,2})?$/),
+    vat_rate: zVatRate
 });
+
+export const zInvoicePreviewWritable = z.record(z.string(), z.unknown());
 
 export const zMessageWritable = z.object({
     role: zMessageRole,
@@ -541,11 +789,10 @@ export const zPatchedCustomerWritable = z.object({
     phone: z.string().max(20).optional(),
     document_type: zDocumentTypeEnum.optional(),
     document_number: z.string().max(20).nullish(),
+    vat_condition: zVatCondition.optional(),
+    legal_name: z.string().max(255).optional(),
+    address: z.string().max(255).optional(),
     image: z.url().nullish()
-});
-
-export const zPatchedInvoiceWritable = z.object({
-    order: z.int().optional()
 });
 
 export const zPatchedOrderWritable = z.object({
@@ -567,7 +814,8 @@ export const zPatchedProductWritable = z.object({
     status: zProductStatus.optional(),
     featured: z.boolean().optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_percent: z.int().gte(1).lte(99).nullish()
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    vat_rate: zVatRate.optional()
 });
 
 /**
@@ -590,7 +838,8 @@ export const zProductWritable = z.object({
     status: zProductStatus.optional(),
     featured: z.boolean().optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
-    discount_percent: z.int().gte(1).lte(99).nullish()
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    vat_rate: zVatRate.optional()
 });
 
 export const zPaginatedProductListWritable = z.object({
@@ -605,6 +854,7 @@ export const zProductChoiceWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     price: z.int().gte(0).lte(2147483647).nullish(),
     discount_percent: z.int().gte(1).lte(99).nullish(),
+    vat_rate: zVatRate.optional(),
     image: z.url().nullish()
 });
 
@@ -836,15 +1086,83 @@ export const zCustomersListChoicesQuery = z.object({
 export const zCustomersListChoicesResponse = z.array(zCustomerChoice);
 
 export const zInvoicesListQuery = z.object({
+    created_at: z.iso.date().optional(),
+    created_at__gt: z.iso.date().optional(),
+    created_at__gte: z.iso.date().optional(),
+    created_at__lt: z.iso.date().optional(),
+    created_at__lte: z.iso.date().optional(),
+    created_at__not: z.iso.date().optional(),
+    created_at__not_range: z.array(z.iso.date()).optional(),
+    created_at__range: z.array(z.iso.date()).optional(),
+    customer: z.array(z.int()).optional(),
+    customer__not: z.array(z.int()).optional(),
+    issue_date: z.iso.date().optional(),
+    issue_date__gt: z.iso.date().optional(),
+    issue_date__gte: z.iso.date().optional(),
+    issue_date__lt: z.iso.date().optional(),
+    issue_date__lte: z.iso.date().optional(),
+    issue_date__not: z.iso.date().optional(),
+    issue_date__not_range: z.array(z.iso.date()).optional(),
+    issue_date__range: z.array(z.iso.date()).optional(),
+    kind: z.array(z.enum([
+        'credit_note',
+        'debit_note',
+        'invoice'
+    ])).optional(),
     limit: z.int().optional(),
-    offset: z.int().optional()
+    offset: z.int().optional(),
+    order: z.int().optional(),
+    ordering: z.string().optional(),
+    search: z.string().optional(),
+    status: z.array(z.enum([
+        'authorized',
+        'pending',
+        'rejected',
+        'unverified'
+    ])).optional(),
+    status__not: z.array(z.enum([
+        'authorized',
+        'pending',
+        'rejected',
+        'unverified'
+    ])).optional(),
+    total_amount: z.number().optional(),
+    total_amount__gt: z.number().optional(),
+    total_amount__gte: z.number().optional(),
+    total_amount__lt: z.number().optional(),
+    total_amount__lte: z.number().optional(),
+    total_amount__not: z.number().optional(),
+    total_amount__not_range: z.array(z.number()).optional(),
+    total_amount__range: z.array(z.number()).optional(),
+    voucher_type: z.array(z.union([
+        z.literal(1),
+        z.literal(11),
+        z.literal(12),
+        z.literal(13),
+        z.literal(2),
+        z.literal(3),
+        z.literal(6),
+        z.literal(7),
+        z.literal(8)
+    ])).optional(),
+    voucher_type__not: z.array(z.union([
+        z.literal(1),
+        z.literal(11),
+        z.literal(12),
+        z.literal(13),
+        z.literal(2),
+        z.literal(3),
+        z.literal(6),
+        z.literal(7),
+        z.literal(8)
+    ])).optional()
 });
 
 export const zInvoicesListResponse = zPaginatedInvoiceList;
 
-export const zInvoicesCreateBody = zInvoiceWritable;
+export const zInvoicesCreateBody = zInvoiceCreate;
 
-export const zInvoicesCreateResponse = zInvoice;
+export const zInvoicesCreateResponse = zInvoiceDetail;
 
 export const zInvoicesDestroyPath = z.object({
     id: z.int()
@@ -859,23 +1177,45 @@ export const zInvoicesRetrievePath = z.object({
     id: z.int()
 });
 
-export const zInvoicesRetrieveResponse = zInvoice;
+export const zInvoicesRetrieveResponse = zInvoiceDetail;
 
-export const zInvoicesPartialUpdateBody = zPatchedInvoiceWritable;
+export const zInvoicesCreditNoteBody = zCreditNoteCreate;
 
-export const zInvoicesPartialUpdatePath = z.object({
+export const zInvoicesCreditNotePath = z.object({
     id: z.int()
 });
 
-export const zInvoicesPartialUpdateResponse = zInvoice;
+export const zInvoicesCreditNoteResponse = zInvoiceDetail;
 
-export const zInvoicesUpdateBody = zInvoiceWritable;
+export const zInvoicesDebitNoteBody = zDebitNoteCreate;
 
-export const zInvoicesUpdatePath = z.object({
+export const zInvoicesDebitNotePath = z.object({
     id: z.int()
 });
 
-export const zInvoicesUpdateResponse = zInvoice;
+export const zInvoicesDebitNoteResponse = zInvoiceDetail;
+
+export const zInvoicesEmitPath = z.object({
+    id: z.int()
+});
+
+export const zInvoicesEmitResponse = zInvoiceDetail;
+
+export const zInvoicesPdfPath = z.object({
+    id: z.int()
+});
+
+export const zInvoicesPdfResponse = z.string();
+
+export const zInvoicesVerifyPath = z.object({
+    id: z.int()
+});
+
+export const zInvoicesVerifyResponse = zInvoiceDetail;
+
+export const zInvoicesPreviewBody = zInvoiceCreate;
+
+export const zInvoicesPreviewResponse = zInvoicePreview;
 
 export const zOrdersListQuery = z.object({
     created_at: z.iso.date().optional(),

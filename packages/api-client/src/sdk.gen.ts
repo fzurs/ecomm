@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponses, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponses, AuthPasswordResetCreateData, AuthPasswordResetCreateResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, AuthUserUpdateData, AuthUserUpdateResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesListData, InvoicesListResponses, InvoicesPartialUpdateData, InvoicesPartialUpdateResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesUpdateData, InvoicesUpdateResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthLoginCreateData, AuthLoginCreateResponses, AuthLogoutCreateData, AuthLogoutCreateResponses, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponses, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponses, AuthPasswordResetCreateData, AuthPasswordResetCreateResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, AuthUserUpdateData, AuthUserUpdateResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -506,6 +506,14 @@ export const customersListChoices = <ThrowOnError extends boolean = false>(optio
 });
 
 export const invoicesList = <ThrowOnError extends boolean = false>(options?: Options<InvoicesListData, ThrowOnError>): RequestResult<InvoicesListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<InvoicesListResponses, unknown, ThrowOnError>({
+    querySerializer: { parameters: {
+            created_at__not_range: { array: { explode: false } },
+            created_at__range: { array: { explode: false } },
+            issue_date__not_range: { array: { explode: false } },
+            issue_date__range: { array: { explode: false } },
+            total_amount__not_range: { array: { explode: false } },
+            total_amount__range: { array: { explode: false } }
+        } },
     responseType: 'json',
     security: [{
             in: 'cookie',
@@ -552,14 +560,17 @@ export const invoicesRetrieve = <ThrowOnError extends boolean = false>(options: 
     ...options
 });
 
-export const invoicesPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<InvoicesPartialUpdateData, ThrowOnError>): RequestResult<InvoicesPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<InvoicesPartialUpdateResponses, unknown, ThrowOnError>({
+/**
+ * Emits a credit note for the given lines, or for everything left to credit.
+ */
+export const invoicesCreditNote = <ThrowOnError extends boolean = false>(options: Options<InvoicesCreditNoteData, ThrowOnError>): RequestResult<InvoicesCreditNoteResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesCreditNoteResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/invoices/{id}/',
+    url: '/invoices/{id}/credit-note/',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -567,14 +578,71 @@ export const invoicesPartialUpdate = <ThrowOnError extends boolean = false>(opti
     }
 });
 
-export const invoicesUpdate = <ThrowOnError extends boolean = false>(options: Options<InvoicesUpdateData, ThrowOnError>): RequestResult<InvoicesUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<InvoicesUpdateResponses, unknown, ThrowOnError>({
+export const invoicesDebitNote = <ThrowOnError extends boolean = false>(options: Options<InvoicesDebitNoteData, ThrowOnError>): RequestResult<InvoicesDebitNoteResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesDebitNoteResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
         }],
-    url: '/invoices/{id}/',
+    url: '/invoices/{id}/debit-note/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Emits a rejected voucher again.
+ */
+export const invoicesEmit = <ThrowOnError extends boolean = false>(options: Options<InvoicesEmitData, ThrowOnError>): RequestResult<InvoicesEmitResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesEmitResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/emit/',
+    ...options
+});
+
+export const invoicesPdf = <ThrowOnError extends boolean = false>(options: Options<InvoicesPdfData, ThrowOnError>): RequestResult<InvoicesPdfResponses, unknown, ThrowOnError> => (options.client ?? client).get<InvoicesPdfResponses, unknown, ThrowOnError>({
+    responseType: 'blob',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/pdf/',
+    ...options
+});
+
+/**
+ * Asks ARCA whether an unverified voucher was authorized.
+ */
+export const invoicesVerify = <ThrowOnError extends boolean = false>(options: Options<InvoicesVerifyData, ThrowOnError>): RequestResult<InvoicesVerifyResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesVerifyResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{id}/verify/',
+    ...options
+});
+
+/**
+ * What creating the invoice of the order would emit. Doesn't call ARCA.
+ */
+export const invoicesPreview = <ThrowOnError extends boolean = false>(options: Options<InvoicesPreviewData, ThrowOnError>): RequestResult<InvoicesPreviewResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesPreviewResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/invoices/preview/',
     ...options,
     headers: {
         'Content-Type': 'application/json',

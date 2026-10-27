@@ -4,8 +4,8 @@ import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOption
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesDestroy, invoicesList, invoicesPartialUpdate, invoicesRetrieve, invoicesUpdate, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesListData, InvoicesListResponse, InvoicesPartialUpdateData, InvoicesPartialUpdateResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesUpdateData, InvoicesUpdateResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -801,10 +801,13 @@ export const invoicesRetrieveOptions = (options: Options<InvoicesRetrieveData>) 
     queryKey: invoicesRetrieveQueryKey(options)
 });
 
-export const invoicesPartialUpdateMutation = (options?: Partial<Options<InvoicesPartialUpdateData>>): UseMutationOptions<InvoicesPartialUpdateResponse, AxiosError<DefaultError>, Options<InvoicesPartialUpdateData>> => {
-    const mutationOptions: UseMutationOptions<InvoicesPartialUpdateResponse, AxiosError<DefaultError>, Options<InvoicesPartialUpdateData>> = {
+/**
+ * Emits a credit note for the given lines, or for everything left to credit.
+ */
+export const invoicesCreditNoteMutation = (options?: Partial<Options<InvoicesCreditNoteData>>): UseMutationOptions<InvoicesCreditNoteResponse, AxiosError<DefaultError>, Options<InvoicesCreditNoteData>> => {
+    const mutationOptions: UseMutationOptions<InvoicesCreditNoteResponse, AxiosError<DefaultError>, Options<InvoicesCreditNoteData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await invoicesPartialUpdate({
+            const { data } = await invoicesCreditNote({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -815,10 +818,76 @@ export const invoicesPartialUpdateMutation = (options?: Partial<Options<Invoices
     return mutationOptions;
 };
 
-export const invoicesUpdateMutation = (options?: Partial<Options<InvoicesUpdateData>>): UseMutationOptions<InvoicesUpdateResponse, AxiosError<DefaultError>, Options<InvoicesUpdateData>> => {
-    const mutationOptions: UseMutationOptions<InvoicesUpdateResponse, AxiosError<DefaultError>, Options<InvoicesUpdateData>> = {
+export const invoicesDebitNoteMutation = (options?: Partial<Options<InvoicesDebitNoteData>>): UseMutationOptions<InvoicesDebitNoteResponse, AxiosError<DefaultError>, Options<InvoicesDebitNoteData>> => {
+    const mutationOptions: UseMutationOptions<InvoicesDebitNoteResponse, AxiosError<DefaultError>, Options<InvoicesDebitNoteData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await invoicesUpdate({
+            const { data } = await invoicesDebitNote({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Emits a rejected voucher again.
+ */
+export const invoicesEmitMutation = (options?: Partial<Options<InvoicesEmitData>>): UseMutationOptions<InvoicesEmitResponse, AxiosError<DefaultError>, Options<InvoicesEmitData>> => {
+    const mutationOptions: UseMutationOptions<InvoicesEmitResponse, AxiosError<DefaultError>, Options<InvoicesEmitData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await invoicesEmit({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const invoicesPdfQueryKey = (options: Options<InvoicesPdfData>) => createQueryKey('invoicesPdf', options);
+
+export const invoicesPdfOptions = (options: Options<InvoicesPdfData>) => queryOptions<InvoicesPdfResponse, AxiosError<DefaultError>, InvoicesPdfResponse, ReturnType<typeof invoicesPdfQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await invoicesPdf({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: invoicesPdfQueryKey(options)
+});
+
+/**
+ * Asks ARCA whether an unverified voucher was authorized.
+ */
+export const invoicesVerifyMutation = (options?: Partial<Options<InvoicesVerifyData>>): UseMutationOptions<InvoicesVerifyResponse, AxiosError<DefaultError>, Options<InvoicesVerifyData>> => {
+    const mutationOptions: UseMutationOptions<InvoicesVerifyResponse, AxiosError<DefaultError>, Options<InvoicesVerifyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await invoicesVerify({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * What creating the invoice of the order would emit. Doesn't call ARCA.
+ */
+export const invoicesPreviewMutation = (options?: Partial<Options<InvoicesPreviewData>>): UseMutationOptions<InvoicesPreviewResponse, AxiosError<DefaultError>, Options<InvoicesPreviewData>> => {
+    const mutationOptions: UseMutationOptions<InvoicesPreviewResponse, AxiosError<DefaultError>, Options<InvoicesPreviewData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await invoicesPreview({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

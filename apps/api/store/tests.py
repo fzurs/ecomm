@@ -3,7 +3,7 @@ import tempfile
 from datetime import datetime, timezone as dt_timezone
 
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import SimpleTestCase, TestCase, override_settings
@@ -12,6 +12,8 @@ from drf_spectacular.generators import SchemaGenerator
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from billing.models import Invoice
+from billing.sample import SAMPLE_POINT_OF_SALE
 from orders.models import Customer, Order, OrderItem
 
 from .images import generate_customer_image, generate_product_image
@@ -292,7 +294,7 @@ class SeedCommandTests(TestCase):
         call_command('seed', *args, stdout=io.StringIO())
 
     def counts(self):
-        return [model.objects.count() for model in (Brand, Category, Product, Customer, Order, OrderItem)]
+        return [model.objects.count() for model in (Brand, Category, Product, Customer, Order, OrderItem, Invoice)]
 
     def test_loads_data_through_the_models(self):
         self.seed()
@@ -315,6 +317,26 @@ class SeedCommandTests(TestCase):
         counts = self.counts()
         self.seed('--reset')
         self.assertEqual(self.counts(), counts)
+
+    def test_loads_sample_invoices_on_their_own_point_of_sale(self):
+        self.seed()
+        invoices = Invoice.objects.all()
+        self.assertTrue(invoices.exists())
+        self.assertFalse(invoices.exclude(point_of_sale=SAMPLE_POINT_OF_SALE).exists())
+        self.assertEqual(
+            set(invoices.values_list('status', flat=True)),
+            {Invoice.Status.AUTHORIZED, Invoice.Status.REJECTED, Invoice.Status.UNVERIFIED},
+        )
+        self.assertTrue(invoices.exclude(associated_invoice=None).exists())
+        # Backdated with their order.
+        invoice = invoices.filter(status=Invoice.Status.AUTHORIZED).select_related('order').first()
+        self.assertEqual(invoice.issue_date, invoice.order.created_at.date())
+
+    def test_reset_keeps_invoices_emitted_to_arca(self):
+        self.seed()
+        Invoice.objects.filter(pk=Invoice.objects.first().pk).update(point_of_sale=1)
+        with self.assertRaisesMessage(CommandError, 'emitted to ARCA'):
+            self.seed('--reset')
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

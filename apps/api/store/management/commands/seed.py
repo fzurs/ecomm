@@ -1,13 +1,18 @@
 import json
 from datetime import timedelta
+from decimal import Decimal
 from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.test.utils import override_settings
 from django.utils import timezone
 
-from billing.models import Invoice
+from billing import services
+from billing.rules import InvoicingError
+from billing.models import Invoice, InvoiceSequenceLock
+from billing.sample import SAMPLE_POINT_OF_SALE, SampleWSFE
 from orders.models import Customer, Order, OrderItem
 from store.models import Brand, Category, Product
 
@@ -25,7 +30,7 @@ def lookup(model, names: dict, name: str, where: str):
 
 
 class Command(BaseCommand):
-    help = 'Loads development data (brands, categories, products, customers and orders) from a JSON file.'
+    help = 'Loads development data (brands, categories, products, customers, orders and sample invoices) from a JSON file.'
 
     def add_arguments(self, parser):
         parser.add_argument('path', nargs='?', type=Path, default=DEFAULT_PATH)
@@ -43,9 +48,15 @@ class Command(BaseCommand):
             self.load(data)
 
     def reset(self):
-        # Invoices hold real ARCA numbering: never delete them from here.
-        if Invoice.objects.exists():
-            raise CommandError('There are invoices: --reset would delete their orders. Remove them by hand first.')
+        # Invoices emitted to ARCA hold real numbering: never delete them from here. The seed's
+        # samples (on their own point of sale) can go.
+        if Invoice.objects.exclude(point_of_sale=SAMPLE_POINT_OF_SALE).exists():
+            raise CommandError(
+                'There are invoices emitted to ARCA: --reset would delete their orders. Remove them by hand first.')
+        # Notes first: they protect their invoice and the lines they credit.
+        Invoice.objects.exclude(associated_invoice=None).delete()
+        Invoice.objects.all().delete()
+        InvoiceSequenceLock.objects.filter(point_of_sale=SAMPLE_POINT_OF_SALE).delete()
         OrderItem.objects.all().delete()
         Order.objects.all().delete()
         for model in (Product, Customer):
@@ -93,6 +104,7 @@ class Command(BaseCommand):
             self.stdout.write('Order: skipped, there are orders already (use --reset to recreate them)')
             return
         now = timezone.now()
+        orders = []
         for number, row in enumerate(rows, start=1):
             where = f'order #{number}'
             items = [
@@ -107,4 +119,53 @@ class Command(BaseCommand):
             # `created_at` is auto_now_add, so it can only be backdated with an update.
             created_at = now - timedelta(days=row.get('days_ago', 0))
             Order.objects.filter(pk=order.pk).update(created_at=created_at, updated_at=created_at)
+            order.created_at = created_at
+            orders.append(order)
         self.stdout.write(f'Order: {len(rows)}')
+
+        self.load_invoices(data.get('invoices', []), orders)
+
+    # Made-up vouchers, emitted with `SampleWSFE` (no ARCA) on their own point of sale, as a
+    # responsable inscripto: A and B invoices, notes, and the rejected and unverified states.
+    # Their CAE and numbers are fictitious; emitting or verifying one again does call ARCA.
+    @override_settings(
+        ARCA_POINT_OF_SALE=SAMPLE_POINT_OF_SALE, ARCA_ISSUER_VAT_CONDITION='responsable_inscripto')
+    def load_invoices(self, rows, orders):
+        wsfe = SampleWSFE(cuit=int(settings.ARCA_CUIT))
+        for row in rows:
+            where = f'invoice of order #{row["order"]}'
+            if not 1 <= row['order'] <= len(orders):
+                raise CommandError(f'Unknown order in {where}')
+            order = orders[row['order'] - 1]
+            # Invoiced when it was paid; it may have shipped since.
+            status, order.status = order.status, Order.Status.PAID
+            wsfe.fail = row.get('result')
+            try:
+                invoice = services.create_invoice(order, wsfe)
+            except InvoicingError as e:
+                raise CommandError(f"Can't create the {where}: {e}")
+            finally:
+                order.status, wsfe.fail = status, None
+            self.backdate(invoice, order.created_at)
+
+            for note in row.get('notes', []):
+                invoice.refresh_from_db()
+                lines = note.get('lines')
+                if note['kind'] == 'credit_note':
+                    if lines is not None:
+                        by_description = {line.description: line for line in invoice.lines.all()}
+                        lines = [(by_description[line['product']], line['quantity']) for line in lines]
+                    created = services.create_credit_note(invoice, lines, wsfe)
+                else:
+                    lines = [{**line, 'unit_price': Decimal(line['unit_price'])} for line in lines]
+                    created = services.create_debit_note(invoice, lines, wsfe)
+                self.backdate(created, order.created_at + timedelta(days=note.get('days_after', 0)))
+        self.stdout.write(f'Invoice: {Invoice.objects.count()}')
+
+    @staticmethod
+    def backdate(invoice, when):
+        # Like orders, `created_at` can only be backdated with an update.
+        fields = {'created_at': when, 'updated_at': when}
+        if invoice.status == Invoice.Status.AUTHORIZED:
+            fields |= {'issue_date': when.date(), 'cae_expiration_date': when.date() + timedelta(days=10)}
+        Invoice.objects.filter(pk=invoice.pk).update(**fields)

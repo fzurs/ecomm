@@ -43,6 +43,26 @@
         {"role": "user", "page": "/customers", "text": "¿Qué compró Sarah Davis ayer?"},
         {"role": "assistant", "text": "El pedido **{order:18}**, que ya está pagado:\n\n- Initech 4-Channel Oscilloscope 200MHz: $ 901.600 (con 8% de descuento)\n- Acme True RMS Multimeter: $ 76.000\n\nEn total, **$ 977.600**."}
       ]
+    },
+    {
+      "title": "Facturas con problemas",
+      "days_ago": 1,
+      "messages": [
+        {"role": "user", "page": "/invoices", "text": "¿Hay facturas con problemas?"},
+        {"role": "assistant", "text": "Sí, dos facturas B no quedaron autorizadas:\n\n| Pedido | Cliente | Estado | Total |\n|---|---|---|---|\n| {order:9} | Jessica Wilson | Rechazada | $ 95.500 |\n| {order:10} | Ashley Miller | Sin verificar (00099-00000005) | $ 36.200 |\n\nARCA rechazó la de Jessica Wilson con el error 10016 (el número o la fecha no se corresponden con el próximo a autorizar): se puede emitir de nuevo. La de Ashley Miller perdió la conexión con ARCA y no se sabe si quedó autorizada."},
+        {"role": "user", "page": "/invoices", "text": "¿Qué hago con la de Ashley Miller?"},
+        {"role": "assistant", "text": "No la emitas de nuevo: podría quedar duplicada. Verificala con ARCA desde su detalle. En este caso su número, 00099-00000005, ya lo tiene la Factura B autorizada de Emily Smith ({order:14}), así que ARCA nunca la recibió: al verificarla va a quedar rechazada y ahí sí la podés emitir otra vez."}
+      ]
+    },
+    {
+      "title": "Comprobantes de Southern Automation",
+      "days_ago": 4,
+      "messages": [
+        {"role": "user", "page": "/orders/{order:2}", "text": "¿Qué comprobantes tiene este pedido?"},
+        {"role": "assistant", "text": "El pedido **{order:2}** de Southern Automation SRL tiene tres, todos autorizados:\n\n| Comprobante | Número | Total |\n|---|---|---|\n| Factura A | 00099-00000001 | $ 822.000 |\n| Nota de Crédito A | 00099-00000001 | $ 102.400 |\n| Nota de Débito A | 00099-00000001 | $ 18.150 |\n\nLa nota de crédito devuelve 2 Umbrella DIN Rail PSU 24V 5A, y la de débito cobra intereses por pago fuera de término."},
+        {"role": "user", "page": "/orders/{order:2}", "text": "¿Cuánto queda por acreditar?"},
+        {"role": "assistant", "text": "**$ 719.600**: las otras 8 Umbrella DIN Rail PSU 24V 5A ($ 51.200 cada una) y las 20 Stark PT100 RTD Probe Class A ($ 15.500 cada una). La nota de débito no cambia ese saldo."}
+      ]
     }
   ]
 }

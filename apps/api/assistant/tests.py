@@ -1,7 +1,7 @@
 import io
 import json
 import tempfile
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -13,7 +13,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from billing.models import Invoice
+from billing.models import Invoice, ReceptorDocumentType, VoucherType
 from orders.models import Customer, Order
 from store.models import Brand, Category, Product
 from .models import Conversation, Message
@@ -36,9 +36,11 @@ def create_orders():
 def create_invoice(order):
     # A made-up CAE: never a real one in tests.
     return Invoice.objects.create(
-        order=order, point_of_sale=1, invoice_type=11, invoice_number=1, net_amount='16528.93',
-        vat_amount='3471.07', total_amount='20000.00', cae='70000000000001', cae_expiration_date='20261105',
-        status=Invoice.Status.SUCCESS,
+        order=order, point_of_sale=1, voucher_type=VoucherType.INVOICE_B, number=1,
+        receptor_name=order.customer.name, receptor_document_type=ReceptorDocumentType.UNIDENTIFIED,
+        receptor_vat_condition=Customer.VatCondition.FINAL_CONSUMER, net_amount='16528.93',
+        vat_amount='3471.07', total_amount='20000.00', cae='70000000000001',
+        cae_expiration_date=date(2026, 11, 5), status=Invoice.Status.AUTHORIZED,
     )
 
 
@@ -111,9 +113,10 @@ class ToolTests(TestCase):
         result = self.run_tool('get_invoice', {'id': invoice.id})
         self.assertEqual(result, {
             **result, 'order': self.order.number, 'net_amount': '16528.93', 'vat_amount': '3471.07',
-            'total_amount': '20000.00', 'cae': '70000000000001', 'cae_expiration_date': '20261105',
+            'total_amount': '20000.00', 'cae': '70000000000001', 'cae_expiration_date': '2026-11-05',
         })
-        self.assertEqual(result['customer']['name'], 'Juan Pérez')
+        self.assertEqual(result['customer'], 'Juan Pérez')
+        self.assertEqual(result['number'], '00001-00000001')
 
     def test_list_invoices_filters_by_order_and_customer(self):
         invoice = create_invoice(self.order)
@@ -382,6 +385,9 @@ class SeedConversationsTests(TestCase):
         self.assertFalse(Message.objects.filter(text__contains='{order:').exists())
 
     def test_needs_the_orders_of_the_seed(self):
+        # The seed's invoices protect their orders; notes protect their invoice.
+        Invoice.objects.exclude(associated_invoice=None).delete()
+        Invoice.objects.all().delete()
         Order.objects.all().delete()
         with self.assertRaisesMessage(CommandError, 'run `seed` first'):
             self.seed()
@@ -412,6 +418,20 @@ class SeedConversationsTests(TestCase):
         count = Message.objects.count()
         self.seed('--reset')
         self.assertEqual(Message.objects.count(), count)
+
+    def test_keeps_the_users_own_conversations(self):
+        own = Conversation.objects.create(user=self.user, title='Mi consulta')
+        self.seed()
+        self.assertGreater(self.user.assistant_conversations.count(), 1)
+        self.seed('--reset')
+        self.assertTrue(Conversation.objects.filter(pk=own.pk).exists())
+
+    def test_adds_the_missing_ones(self):
+        self.seed()
+        count = Conversation.objects.count()
+        self.user.assistant_conversations.get(title='Pedidos pendientes').delete()
+        self.seed()
+        self.assertEqual(Conversation.objects.count(), count)
 
     def test_needs_the_user_when_there_are_several(self):
         User.objects.create(username='other', is_staff=True)

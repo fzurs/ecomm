@@ -31,7 +31,7 @@ class ProductChoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "name", "slug", "price", "discount_percent", "active_price", "image"]
+        fields = ["id", "name", "slug", "price", "discount_percent", "active_price", "vat_rate", "image"]
 
 
 class ProductSerializer(serializers.ModelSerializer):

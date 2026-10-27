@@ -6,6 +6,22 @@ from django.utils.text import slugify
 from .images import generate_product_image, to_png
 
 
+class VatRate(models.IntegerChoices):
+    """IVA of a product, as ARCA's IVA type ids (FEParamGetTiposIva). Prices include it.
+
+    3 to 9 are `arca_client.Alicuota`; 1 and 2 are not rates: they go as `no_gravado` and
+    `exento` on the voucher.
+    """
+    NON_TAXED = 1, 'Non-taxed'
+    EXEMPT = 2, 'Exempt'
+    VAT_0 = 3, '0%'
+    VAT_10_5 = 4, '10.5%'
+    VAT_21 = 5, '21%'
+    VAT_27 = 6, '27%'
+    VAT_5 = 8, '5%'
+    VAT_2_5 = 9, '2.5%'
+
+
 def build_sku(name: str, pk: int) -> str:
     """
     "<first 5 letters or digits of the name>-<pk padded to 4 digits>", e.g. "ACMEH-0042".
@@ -68,6 +84,7 @@ class Product(NamedSlugModel):
     price = models.PositiveIntegerField(default=0, blank=True, null=True)
     discount_percent = models.PositiveSmallIntegerField(
         blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(99)])
+    vat_rate = models.PositiveSmallIntegerField(choices=VatRate.choices, default=VatRate.VAT_21)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

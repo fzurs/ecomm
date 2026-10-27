@@ -10,7 +10,7 @@ import jsonschema
 from django.db.models import Count, DateField, F, Max, Q, Sum
 from django.db.models.functions import Coalesce, TruncDate, TruncMonth, TruncWeek
 
-from billing.models import Invoice
+from billing.models import Invoice, VoucherKind, VoucherType
 from orders.models import Customer, Order, OrderItem
 from store.models import Brand, Category, Product
 
@@ -49,14 +49,16 @@ def _order_summary(order):
 def _invoice_summary(invoice):
     return {
         'id': invoice.id,
+        'type': invoice.get_voucher_type_display(),
+        'kind': invoice.kind,
+        'number': invoice.display_number,
         'order': invoice.order.number,
         'customer': invoice.order.customer.name,
-        'point_of_sale': invoice.point_of_sale,
-        'invoice_type': invoice.invoice_type,
-        'invoice_number': invoice.invoice_number,
+        'issue_date': invoice.issue_date and invoice.issue_date.isoformat(),
         'total_amount': str(invoice.total_amount),
         'status': invoice.status,
         'error_message': invoice.error_message,
+        'associated_invoice': invoice.associated_invoice_id,
         'created_at': invoice.created_at.isoformat(),
     }
 
@@ -102,7 +104,8 @@ def get_order(number):
         'total': sum(item.subtotal for item in items),
         'invoices': [{
             'id': invoice.id,
-            'invoice_number': invoice.invoice_number,
+            'type': invoice.get_voucher_type_display(),
+            'number': invoice.display_number,
             'status': invoice.status,
             'total_amount': str(invoice.total_amount),
         } for invoice in order.invoices.all()],
@@ -264,10 +267,12 @@ def unsold_products(date_from, date_to, status=None, category=None, brand=None, 
     }
 
 
-def list_invoices(status=None, order=None, customer=None, date_from=None, date_to=None, offset=0):
+def list_invoices(status=None, kind=None, order=None, customer=None, date_from=None, date_to=None, offset=0):
     invoices = Invoice.objects.select_related('order__customer').order_by('-created_at')
     if status:
         invoices = invoices.filter(status=status)
+    if kind:
+        invoices = invoices.filter(voucher_type__in=[t for t in VoucherType if t.kind == kind])
     if order:
         invoices = invoices.filter(order__number=order)
     if customer:
@@ -285,19 +290,32 @@ def get_invoice(id):
         invoice = Invoice.objects.select_related('order__customer').get(pk=id)
     except Invoice.DoesNotExist:
         raise ToolError(f'There is no invoice {id}.')
-    customer = invoice.order.customer
     return {
         **_invoice_summary(invoice),
-        'customer': {
-            'id': customer.id,
-            'name': customer.name,
-            'document_type': customer.get_document_type_display(),
-            'document_number': customer.document_number,
+        'customer_id': invoice.order.customer_id,
+        'receptor': {
+            'name': invoice.receptor_name,
+            'document_type': invoice.get_receptor_document_type_display(),
+            'document_number': invoice.receptor_document_number,
+            'vat_condition': invoice.get_receptor_vat_condition_display(),
         },
         'net_amount': str(invoice.net_amount),
         'vat_amount': str(invoice.vat_amount),
+        'exempt_amount': str(invoice.exempt_amount),
+        'non_taxed_amount': str(invoice.non_taxed_amount),
+        'vat': [{'rate': vat.get_rate_display(), 'base': str(vat.base), 'amount': str(vat.amount)}
+                for vat in invoice.vat.all()],
+        'lines': [{
+            'description': line.description,
+            'quantity': line.quantity,
+            'unit_price': str(line.unit_price),
+            'vat_rate': line.get_vat_rate_display(),
+        } for line in invoice.lines.all()],
+        'notes': [_invoice_summary(note) for note in invoice.notes.select_related('order__customer')],
         'cae': invoice.cae,
-        'cae_expiration_date': invoice.cae_expiration_date,
+        'cae_expiration_date': invoice.cae_expiration_date and invoice.cae_expiration_date.isoformat(),
+        'arca_errors': invoice.arca_errors,
+        'observations': invoice.observations,
         'updated_at': invoice.updated_at.isoformat(),
     }
 
@@ -413,9 +431,12 @@ TOOLS = [
     }),
     (list_invoices, {
         'name': 'list_invoices',
-        'description': f'Lists invoices, newest first (at most {LIMIT}), with the total count.',
+        'description': f'Lists ARCA vouchers (invoices, credit notes and debit notes), newest first '
+                       f'(at most {LIMIT}), with the total count. Rejected ones can be emitted again; '
+                       f'unverified ones lost the connection to ARCA and must be verified, never re-emitted.',
         'input_schema': _schema({
             'status': {'type': 'string', 'enum': Invoice.Status.values},
+            'kind': {'type': 'string', 'enum': VoucherKind.values},
             'order': {'type': 'string', 'description': 'The order number, e.g. ORD-000042.'},
             'customer': {'type': 'string', 'description': 'Part of the customer name or email.'},
             'date_from': DATE,
@@ -425,8 +446,9 @@ TOOLS = [
     }),
     (get_invoice, {
         'name': 'get_invoice',
-        'description': 'An invoice with its customer, net, VAT and total amounts (ARS), and its CAE and '
-                       'CAE expiration date (YYYYMMDD) once ARCA authorized it.',
+        'description': 'A voucher (invoice, credit or debit note) with its receptor, lines, net, VAT per '
+                       'rate and total amounts (ARS), its notes, ARCA errors and observations, and its CAE '
+                       'and CAE expiration date once ARCA authorized it.',
         'input_schema': _schema({
             'id': {'type': 'integer', 'description': 'The invoice id, as in the page /invoices/{id}.'},
         }, required=['id']),

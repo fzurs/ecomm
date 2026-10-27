@@ -39,6 +39,7 @@
       "brand": "Acme",
       "category": "Microcontrollers",
       "price": 18500,
+      "vat_rate": 4,
       "status": "active",
       "discount_percent": 10,
       "featured": true,
@@ -49,6 +50,7 @@
       "brand": "Initech",
       "category": "Microcontrollers",
       "price": 9800,
+      "vat_rate": 4,
       "status": "active",
       "featured": false,
       "description": "Dual-core Cortex-M0+ at 133 MHz, 264 KB SRAM, 2 MB QSPI flash, 26 GPIO."
@@ -58,6 +60,7 @@
       "brand": "Globex",
       "category": "Microcontrollers",
       "price": 14200,
+      "vat_rate": 4,
       "status": "active",
       "featured": false,
       "description": "Cortex-M4F at 100 MHz with FPU, 512 KB flash and USB-C."
@@ -67,6 +70,7 @@
       "brand": "Hooli",
       "category": "Microcontrollers",
       "price": 165000,
+      "vat_rate": 4,
       "status": "active",
       "featured": true,
       "description": "Quad-core Cortex-A76 at 2.4 GHz, 8 GB LPDDR4X, PCIe 2.0 x1, dual 4K HDMI."
@@ -76,6 +80,7 @@
       "brand": "Stark",
       "category": "Microcontrollers",
       "price": 22000,
+      "vat_rate": 4,
       "status": "out_of_stock",
       "featured": false,
       "description": "MCP2518FD controller with isolated transceiver, up to 8 Mbit/s."
@@ -235,6 +240,7 @@
       "brand": "Umbrella",
       "category": "Sensors",
       "price": 6800,
+      "vat_rate": 4,
       "status": "active",
       "featured": false,
       "description": "Temperature, humidity and pressure over I2C/SPI, ±1 hPa accuracy."
@@ -244,6 +250,7 @@
       "brand": "Acme",
       "category": "Sensors",
       "price": 39000,
+      "vat_rate": 4,
       "status": "active",
       "discount_percent": 12,
       "featured": false,
@@ -254,6 +261,7 @@
       "brand": "Hooli",
       "category": "Sensors",
       "price": 9500,
+      "vat_rate": 4,
       "status": "inactive",
       "featured": false
     },
@@ -262,6 +270,7 @@
       "brand": "Stark",
       "category": "Sensors",
       "price": 15500,
+      "vat_rate": 4,
       "status": "active",
       "featured": false,
       "description": "3-wire, -50 to 250 °C, 6 mm stainless steel sheath."
@@ -343,21 +352,30 @@
       "email": "purchasing@southernauto.example.com",
       "phone": "+54 11 5555-0201",
       "document_type": 80,
-      "document_number": "30712345671"
+      "document_number": "30712345671",
+      "vat_condition": 1,
+      "legal_name": "Southern Automation S.R.L.",
+      "address": "Av. Corrientes 1234, CABA"
     },
     {
       "name": "Delta Robotics SA",
       "email": "admin@deltarobotics.example.com",
       "phone": "+54 223 555-0202",
       "document_type": 80,
-      "document_number": "30709876542"
+      "document_number": "30709876542",
+      "vat_condition": 1,
+      "legal_name": "Delta Robotics S.A.",
+      "address": "Av. Colón 2550, Mar del Plata"
     },
     {
       "name": "Ruiz Engineering",
       "email": "contact@ruizeng.example.com",
       "phone": "+54 11 5555-0203",
       "document_type": 80,
-      "document_number": "20234567897"
+      "document_number": "20234567897",
+      "vat_condition": 6,
+      "legal_name": "Ruiz, Martín",
+      "address": "Gorriti 4321, CABA"
     },
     {
       "name": "Ashley Miller",
@@ -371,7 +389,10 @@
       "email": "orders@northwind.example.com",
       "phone": "+54 11 5555-0106",
       "document_type": 80,
-      "document_number": "30711223343"
+      "document_number": "30711223343",
+      "vat_condition": 4,
+      "legal_name": "Fundación Northwind Labs",
+      "address": "Av. Belgrano 980, CABA"
     },
     {
       "name": "Emma Johnson",
@@ -727,6 +748,93 @@
           "quantity": 1
         }
       ]
+    }
+  ],
+  "invoices": [
+    {
+      "order": 1
+    },
+    {
+      "order": 2,
+      "notes": [
+        {
+          "kind": "credit_note",
+          "days_after": 6,
+          "lines": [
+            {
+              "product": "Umbrella DIN Rail PSU 24V 5A",
+              "quantity": 2
+            }
+          ]
+        },
+        {
+          "kind": "debit_note",
+          "days_after": 10,
+          "lines": [
+            {
+              "description": "Intereses por pago fuera de término",
+              "quantity": 1,
+              "unit_price": "18150.00",
+              "vat_rate": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 3
+    },
+    {
+      "order": 4,
+      "notes": [
+        {
+          "kind": "credit_note",
+          "days_after": 4
+        }
+      ]
+    },
+    {
+      "order": 6
+    },
+    {
+      "order": 7
+    },
+    {
+      "order": 8
+    },
+    {
+      "order": 9,
+      "result": "rejected"
+    },
+    {
+      "order": 10,
+      "result": "unverified"
+    },
+    {
+      "order": 13
+    },
+    {
+      "order": 14
+    },
+    {
+      "order": 15,
+      "notes": [
+        {
+          "kind": "debit_note",
+          "days_after": 2,
+          "lines": [
+            {
+              "description": "Envío a Mar del Plata",
+              "quantity": 1,
+              "unit_price": "24200.00",
+              "vat_rate": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 16
     }
   ]
 }

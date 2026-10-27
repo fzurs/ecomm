@@ -27,7 +27,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('path', nargs='?', type=Path, default=DEFAULT_PATH)
         parser.add_argument('--user', help='The staff user they belong to (needed when there are several).')
-        parser.add_argument('--reset', action='store_true', help="Delete the user's conversations before loading.")
+        parser.add_argument('--reset', action='store_true',
+                            help="Recreate the user's seeded conversations (the rest are kept).")
 
     def handle(self, *args, path, user, reset, **options):
         try:
@@ -36,20 +37,22 @@ class Command(BaseCommand):
             raise CommandError(f"Can't read {path}: {e}")
         user = self.get_user(user)
 
+        rows = data.get('conversations', [])
         with transaction.atomic():
+            # The title is the natural key: the user's own conversations are never touched.
+            seeded = user.assistant_conversations.filter(title__in=[row['title'] for row in rows])
             if reset:
-                user.assistant_conversations.all().delete()
-                self.stdout.write(f'Conversations of {user} deleted')
-            # Conversations have no natural key, so they are only created when the user has none.
-            if user.assistant_conversations.exists():
-                self.stdout.write(f'Conversation: skipped, {user} has conversations already (use --reset)')
-                return
-            rows = data.get('conversations', [])
+                deleted = seeded.count()
+                seeded.delete()
+                self.stdout.write(f'Seeded conversations of {user} deleted: {deleted}')
+            existing = set(seeded.values_list('title', flat=True))
             # `seed` creates its orders in order, so the nth by id is the nth of dev.json.
             orders = list(Order.objects.order_by('pk').values_list('number', flat=True))
             for number, row in enumerate(rows, start=1):
-                self.load(user, row, orders, f'conversation #{number}')
-        self.stdout.write(f'Conversation: {len(rows)} for {user}')
+                if row['title'] not in existing:
+                    self.load(user, row, orders, f'conversation #{number}')
+        skipped = f', {len(existing)} skipped (already there, use --reset)' if existing else ''
+        self.stdout.write(f'Conversation: {len(rows) - len(existing)} for {user}{skipped}')
 
     def get_user(self, username):
         staff = get_user_model().objects.filter(is_staff=True)

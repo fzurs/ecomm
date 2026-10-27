@@ -31,6 +31,45 @@ class CustomerNameTests(APITestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CustomerFiscalDataTests(APITestCase):
+    def setUp(self):
+        self.client.force_login(User.objects.create(username='admin'))
+
+    def post(self, **data):
+        return self.client.post(reverse('customer-list'), {'name': 'Acme SA', **data})
+
+    def test_cuit_is_normalized(self):
+        response = self.post(document_type=Customer.DocumentType.CUIT, document_number='20-12345678-6',
+                             vat_condition=Customer.VatCondition.REGISTERED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        self.assertEqual(response.json()['document_number'], '20123456786')
+
+    def test_invalid_cuit_is_rejected(self):
+        response = self.post(document_type=Customer.DocumentType.CUIT, document_number='20123456780')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('document_number', response.json())
+
+    def test_registered_customer_needs_cuit(self):
+        response = self.post(document_type=Customer.DocumentType.DNI, document_number='30123456',
+                             vat_condition=Customer.VatCondition.REGISTERED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('CUIT', response.json()['document_number'][0])
+
+    def test_partial_update_checks_the_saved_document(self):
+        customer = Customer.objects.create(name='Acme SA', document_type=Customer.DocumentType.DNI,
+                                           document_number='30123456')
+        response = self.client.patch(reverse('customer-detail', args=[customer.pk]),
+                                     {'vat_condition': Customer.VatCondition.REGISTERED})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_item_copies_the_product_vat_rate(self):
+        product = Product.objects.create(name='Libro', price=1000, vat_rate=4)
+        order = Order.objects.create_with_items(customer=Customer.objects.create(name='Ana'),
+                                                items=[{'product': product}])
+        self.assertEqual(order.items.get().vat_rate, 4)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CustomerChoicesTests(APITestCase):
     def setUp(self):
         Customer.objects.create(name='Juan Pérez')

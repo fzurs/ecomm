@@ -27,6 +27,18 @@ ARCA_CUIT = env("ARCA_CUIT")
 ARCA_CERTIFICATE_PATH = BASE_DIR / env("ARCA_CERTIFICATE_PATH", default="certificate.pem")
 ARCA_PRIVATE_KEY_PATH = BASE_DIR / env("ARCA_PRIVATE_KEY_PATH", default="private-key.pem")
 ARCA_ENVIRONMENT = env("ARCA_ENVIRONMENT", default="homologacion")
+ARCA_POINT_OF_SALE = env.int("ARCA_POINT_OF_SALE", default=1)
+# "responsable_inscripto" emits Factura A or B (by the customer's IVA condition);
+# "monotributo", Factura C.
+ARCA_ISSUER_VAT_CONDITION = env("ARCA_ISSUER_VAT_CONDITION", default="responsable_inscripto")
+if ARCA_ISSUER_VAT_CONDITION not in ("responsable_inscripto", "monotributo"):
+    raise environ.ImproperlyConfigured(
+        "ARCA_ISSUER_VAT_CONDITION must be responsable_inscripto or monotributo")
+# Issuer data printed on the invoice PDF. The PDF endpoint fails while any is missing.
+ARCA_ISSUER_LEGAL_NAME = env("ARCA_ISSUER_LEGAL_NAME", default="")
+ARCA_ISSUER_ADDRESS = env("ARCA_ISSUER_ADDRESS", default="")
+ARCA_ISSUER_ACTIVITY_START = env("ARCA_ISSUER_ACTIVITY_START", default="")  # YYYY-MM-DD
+ARCA_ISSUER_GROSS_INCOME = env("ARCA_ISSUER_GROSS_INCOME", default="")  # Ingresos Brutos
 
 # Admin assistant (Claude). Without a key the assistant endpoints answer with an error.
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
@@ -84,6 +96,11 @@ SPECTACULAR_SETTINGS = {
         "ProductStatus": "orders.models.Product.Status",
         "OrderStatus": "orders.models.Order.Status",
         "InvoiceStatus": "billing.models.Invoice.Status",
+        "VoucherType": "billing.models.VoucherType",
+        "VoucherKind": "billing.models.VoucherKind",
+        "ReceptorDocumentType": "billing.models.ReceptorDocumentType",
+        "VatRate": "store.models.VatRate",
+        "VatCondition": "orders.models.Customer.VatCondition",
         "MessageRole": "assistant.models.Message.Role",
     },
 }
