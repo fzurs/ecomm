@@ -17,7 +17,7 @@ from billing.sample import SAMPLE_POINT_OF_SALE
 from orders.models import Customer, Order, OrderItem
 
 from .images import generate_customer_image, generate_product_image
-from .models import Brand, Category, Product, build_sku
+from .models import Brand, Category, Product, VatRate, build_sku
 from .serializers import BrandChoiceSerializer, CategoryChoiceSerializer, ProductChoiceSerializer
 
 
@@ -385,6 +385,13 @@ class ProductFilterTests(APITestCase):
         self.assertEqual(self.names({'featured': ['true']}), {'ACME Hammer'})
         self.assertEqual(self.names({'featured__not': ['true']}), {'Saw', 'Drill'})
         self.assertEqual(len(self.names({'featured': ['true', 'false']})), 3)
+
+    def test_vat_rate(self):
+        Product.objects.filter(pk=self.saw.pk).update(vat_rate=VatRate.VAT_10_5)
+        self.assertEqual(self.names({'vat_rate': [VatRate.VAT_10_5]}), {'Saw'})
+        self.assertEqual(self.names({'vat_rate__not': [VatRate.VAT_10_5]}), {'ACME Hammer', 'Drill'})
+        response = self.client.get(reverse('product-list'), {'ordering': 'vat_rate'})
+        self.assertEqual(response.data['results'][0]['name'], 'Saw')
 
 
 class ProductFilterSchemaTests(SimpleTestCase):

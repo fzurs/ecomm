@@ -1,6 +1,6 @@
 import django_filters
 from config.filters import OperatorFilterSet
-from .models import Product, Category, Brand
+from .models import Product, Category, Brand, VatRate
 from rest_framework.filters import OrderingFilter
 
 
@@ -28,6 +28,8 @@ class ProductFilter(OperatorFilterSet):
     status__not = django_filters.MultipleChoiceFilter(field_name="status", choices=Product.Status.choices, exclude=True)
     featured = django_filters.TypedMultipleChoiceFilter(choices=BOOLEAN_CHOICES, coerce=parse_boolean)
     featured__not = django_filters.TypedMultipleChoiceFilter(field_name="featured", choices=BOOLEAN_CHOICES, coerce=parse_boolean, exclude=True)
+    vat_rate = django_filters.TypedMultipleChoiceFilter(choices=VatRate.choices, coerce=int)
+    vat_rate__not = django_filters.TypedMultipleChoiceFilter(field_name="vat_rate", choices=VatRate.choices, coerce=int, exclude=True)
 
     class Meta:
         model = Product

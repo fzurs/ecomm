@@ -1964,6 +1964,28 @@ export type ProductsListData = {
          * * `discontinued` - Discontinued
          */
         status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        /**
+         * * `1` - Non-taxed
+         * * `2` - Exempt
+         * * `3` - 0%
+         * * `4` - 10.5%
+         * * `5` - 21%
+         * * `6` - 27%
+         * * `8` - 5%
+         * * `9` - 2.5%
+         */
+        vat_rate?: Array<1 | 2 | 3 | 4 | 5 | 6 | 8 | 9>;
+        /**
+         * * `1` - Non-taxed
+         * * `2` - Exempt
+         * * `3` - 0%
+         * * `4` - 10.5%
+         * * `5` - 21%
+         * * `6` - 27%
+         * * `8` - 5%
+         * * `9` - 2.5%
+         */
+        vat_rate__not?: Array<1 | 2 | 3 | 4 | 5 | 6 | 8 | 9>;
     };
     url: '/products/';
 };
@@ -2151,6 +2173,28 @@ export type ProductsListChoicesData = {
          * * `discontinued` - Discontinued
          */
         status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        /**
+         * * `1` - Non-taxed
+         * * `2` - Exempt
+         * * `3` - 0%
+         * * `4` - 10.5%
+         * * `5` - 21%
+         * * `6` - 27%
+         * * `8` - 5%
+         * * `9` - 2.5%
+         */
+        vat_rate?: Array<1 | 2 | 3 | 4 | 5 | 6 | 8 | 9>;
+        /**
+         * * `1` - Non-taxed
+         * * `2` - Exempt
+         * * `3` - 0%
+         * * `4` - 10.5%
+         * * `5` - 21%
+         * * `6` - 27%
+         * * `8` - 5%
+         * * `9` - 2.5%
+         */
+        vat_rate__not?: Array<1 | 2 | 3 | 4 | 5 | 6 | 8 | 9>;
     };
     url: '/products/choices/';
 };

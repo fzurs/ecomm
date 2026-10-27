@@ -19,7 +19,7 @@ class ProductViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
     search_fields = ["name", "sku", "description", "category__name", "brand__name"]
     # Category and Brand are ordered by {model}__name, in ProductFilter
     ordering_fields = ["name", "category", "brand", "status",
-                       "featured", "price", "discount_percent", "created_at"]
+                       "featured", "price", "discount_percent", "vat_rate", "created_at"]
     lookup_field = "slug"
 
     @action(detail=True, methods=['post'], url_path='generate-sku')

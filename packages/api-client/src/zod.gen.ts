@@ -1391,6 +1391,26 @@ export const zProductsListQuery = z.object({
         'draft',
         'inactive',
         'out_of_stock'
+    ])).optional(),
+    vat_rate: z.array(z.union([
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+        z.literal(6),
+        z.literal(8),
+        z.literal(9)
+    ])).optional(),
+    vat_rate__not: z.array(z.union([
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+        z.literal(6),
+        z.literal(8),
+        z.literal(9)
     ])).optional()
 });
 
@@ -1487,6 +1507,26 @@ export const zProductsListChoicesQuery = z.object({
         'draft',
         'inactive',
         'out_of_stock'
+    ])).optional(),
+    vat_rate: z.array(z.union([
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+        z.literal(6),
+        z.literal(8),
+        z.literal(9)
+    ])).optional(),
+    vat_rate__not: z.array(z.union([
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+        z.literal(6),
+        z.literal(8),
+        z.literal(9)
     ])).optional()
 });
 
