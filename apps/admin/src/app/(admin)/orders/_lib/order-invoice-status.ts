@@ -30,6 +30,14 @@ export const orderInvoiceStatusOptions = [
   ...statusOptions(zOrderInvoiceStatus.options, orderInvoiceStatuses),
 ]
 
+/** It has an invoice that exists, or may exist, in ARCA (not a rejected one). */
+export function isInvoiced(order: Order) {
+  return (
+    order.invoice_status !== "not_invoiced" &&
+    order.invoice_status !== "rejected"
+  )
+}
+
 /** A paid order without an invoice, or whose invoice ARCA rejected. */
 export function canInvoice(order: Order) {
   return (

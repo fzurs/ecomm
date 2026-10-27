@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { Order } from "@workspace/api-client"
 import { invoicesListOptions } from "@workspace/api-client/query"
-import { Button } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
 import {
   Empty,
   EmptyContent,
@@ -11,20 +11,66 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@workspace/ui/components/empty"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip"
 import { FileTextIcon } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 import { RelatedVouchers } from "../../invoices/_components/related-vouchers"
-import { canInvoice, invoiceActionLabel } from "../_lib/order-invoice-status"
+import {
+  canInvoice,
+  invoiceActionLabel,
+  isInvoiced,
+} from "../_lib/order-invoice-status"
 import { isPaid } from "../_lib/order-status"
 import { OrderInvoiceDialog } from "./order-invoice-dialog"
 
-/** Opens the invoice dialog of the order, when it can be invoiced. */
+/**
+ * Always there, as the row action: it opens the invoice once there is one,
+ * invoices the order when it can, and else says why it can't.
+ */
 export function OrderInvoiceButton({
   order,
   ...props
 }: { order: Order } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false)
-  if (!canInvoice(order)) return null
+
+  if (isInvoiced(order) && order.invoice_id) {
+    return (
+      <Link
+        href={`/invoices/${order.invoice_id}`}
+        className={buttonVariants({ variant: "outline", size: props.size })}
+      >
+        <FileTextIcon />
+        View invoice
+      </Link>
+    )
+  }
+  if (!canInvoice(order)) {
+    // A cancelled order won't be invoiced: nothing to point to.
+    if (order.status === "cancelled") return null
+    return (
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="outline"
+              size={props.size}
+              disabled
+              focusableWhenDisabled
+            />
+          }
+        >
+          <FileTextIcon />
+          Create invoice
+        </TooltipTrigger>
+        <TooltipContent>Only paid orders are invoiced.</TooltipContent>
+      </Tooltip>
+    )
+  }
 
   return (
     <>
@@ -55,7 +101,9 @@ export function OrderInvoices({ order }: { order: Order }) {
           <EmptyDescription>
             {isPaid(order)
               ? "The invoice is emitted to ARCA. You'll see what it will contain before emitting it."
-              : "Only paid orders are invoiced. Change its status to paid to invoice it."}
+              : order.status === "cancelled"
+                ? "The order is cancelled: it isn't invoiced."
+                : "Only paid orders are invoiced. Change its status to paid to invoice it."}
           </EmptyDescription>
         </EmptyHeader>
         {isPaid(order) && (

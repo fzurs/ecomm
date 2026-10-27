@@ -1,6 +1,7 @@
 import { EmptyCell } from "@/components/empty-cell"
 import { StatusBadge } from "@/components/status"
 import { Order } from "@workspace/api-client"
+import Link from "next/link"
 import {
   orderInvoiceStatuses,
   toInvoiceStatus,
@@ -17,7 +18,17 @@ export function OrderInvoiceStatusBadge({ order }: { order: Order }) {
       <EmptyCell label="Not invoiced" />
     )
   }
-  return <StatusBadge {...orderInvoiceStatuses[order.invoice_status]} />
+  // Links to the invoice, wherever the badge is.
+  return (
+    <StatusBadge
+      {...orderInvoiceStatuses[order.invoice_status]}
+      render={
+        order.invoice_id ? (
+          <Link href={`/invoices/${order.invoice_id}`} />
+        ) : undefined
+      }
+    />
+  )
 }
 
 /** Whether the badge has something to say outside a table cell, where the
