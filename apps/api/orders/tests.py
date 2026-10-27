@@ -97,6 +97,20 @@ class CustomerChoicesTests(APITestCase):
         self.assertEqual(set(response.json()[0]), {'id', 'name', 'image'})
 
 
+class CustomerSearchTests(APITestCase):
+    def setUp(self):
+        self.client.force_login(User.objects.create(username='admin'))
+        Customer.objects.create(name='Acme', legal_name='Acme Sociedad Anónima',
+                                document_number='20123456786')
+        Customer.objects.create(name='Ana Gómez')
+
+    def test_searches_by_document_and_legal_name(self):
+        for search in ('20123456786', 'sociedad'):
+            with self.subTest(search=search):
+                response = self.client.get(reverse('customer-list'), {'search': search})
+                self.assertEqual([c['name'] for c in response.json()['results']], ['Acme'])
+
+
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class OrderCustomerDetailTests(APITestCase):
     def setUp(self):

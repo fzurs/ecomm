@@ -54,4 +54,5 @@ class CustomerViewSet(ChoicesMixin, viewsets.ModelViewSet):
     choices_serializer_class = CustomerChoiceSerializer
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['name', 'email']
-    search_fields = ['name', 'email']
+    # Also by what the admin table shows of their billing: CUIT and legal name.
+    search_fields = ['name', 'email', 'document_number', 'legal_name']
