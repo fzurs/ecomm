@@ -51,7 +51,7 @@ export function OrderItemsField({
       renderActions={(index) => (
         <Button
           type="button"
-          variant="destructive"
+          variant="ghost"
           size="icon-xs"
           aria-label="Remove item"
           onClick={() => removeOrderItem(index)}

@@ -10,11 +10,14 @@ import {
   FieldDescription,
   FieldError,
   FieldGroup,
+  FieldLabel,
   FieldLegend,
+  FieldSeparator,
   FieldSet,
 } from "@workspace/ui/components/field"
 import { PlusIcon, XIcon } from "lucide-react"
 import Link from "next/link"
+import * as React from "react"
 import { vatRateOptions } from "@/lib/fiscal"
 import { applyServerErrors, formatPrice } from "@/lib/utils"
 import { toastEmission } from "../_hooks/use-invoice-mutations"
@@ -103,53 +106,67 @@ export const DebitNoteForm = withForm({
                     </Button>
                   </div>
                   {field.state.value.map((_, index) => (
-                    <div
-                      key={index}
-                      className="grid items-start gap-4 @2xl/main:grid-cols-[1fr_6rem_9rem_9rem_auto]"
-                    >
-                      <form.AppField
-                        name={`lines[${index}].description`}
-                        children={(subField) => (
-                          <subField.TextField label="Description" />
-                        )}
-                      />
-                      <form.AppField
-                        name={`lines[${index}].quantity`}
-                        children={(subField) => (
-                          <subField.NumberField label="Quantity" min={1} />
-                        )}
-                      />
-                      <form.AppField
-                        name={`lines[${index}].unit_price`}
-                        children={(subField) => (
-                          <subField.TextField
-                            label="Unit price"
-                            inputMode="decimal"
-                            placeholder="0.00"
-                          />
-                        )}
-                      />
-                      <form.AppField
-                        name={`lines[${index}].vat_rate`}
-                        children={(subField) => (
-                          <subField.SelectField
-                            label="IVA"
-                            options={vatRateOptions}
-                          />
-                        )}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Remove line"
-                        className="@2xl/main:mt-6"
-                        disabled={field.state.value.length === 1}
-                        onClick={() => field.removeValue(index)}
-                      >
-                        <XIcon />
-                      </Button>
-                    </div>
+                    <React.Fragment key={index}>
+                      {index > 0 && (
+                        <FieldSeparator className="@2xl/main:hidden" />
+                      )}
+                      <div className="grid items-start gap-4 @2xl/main:grid-cols-[1fr_6rem_9rem_9rem_auto]">
+                        <form.AppField
+                          name={`lines[${index}].description`}
+                          children={(subField) => (
+                            <subField.TextField label="Description" />
+                          )}
+                        />
+                        <form.AppField
+                          name={`lines[${index}].quantity`}
+                          children={(subField) => (
+                            <subField.NumberField label="Quantity" min={1} />
+                          )}
+                        />
+                        <form.AppField
+                          name={`lines[${index}].unit_price`}
+                          children={(subField) => (
+                            <subField.TextField
+                              label="Unit price"
+                              inputMode="decimal"
+                              placeholder="0.00"
+                            />
+                          )}
+                        />
+                        <form.AppField
+                          name={`lines[${index}].vat_rate`}
+                          children={(subField) => (
+                            <subField.SelectField
+                              label="IVA"
+                              options={vatRateOptions}
+                            />
+                          )}
+                        />
+                        {/* The invisible label and the gap match a Field's, so the
+                      button lines up with the inputs. */}
+                        <div className="flex flex-col items-end gap-3 @2xl/main:items-start">
+                          <FieldLabel
+                            aria-hidden
+                            className="invisible hidden @2xl/main:flex"
+                          >
+                            Remove
+                          </FieldLabel>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="@2xl/main:size-9 @2xl/main:px-0"
+                            disabled={field.state.value.length === 1}
+                            onClick={() => field.removeValue(index)}
+                          >
+                            <XIcon />
+                            <span className="@2xl/main:sr-only">
+                              Remove line
+                            </span>
+                          </Button>
+                        </div>
+                      </div>
+                    </React.Fragment>
                   ))}
                   {!field.state.meta.isValid && (
                     <FieldError errors={field.state.meta.errors} />
