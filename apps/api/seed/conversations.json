@@ -63,6 +63,36 @@
         {"role": "user", "page": "/orders/{order:2}", "text": "¿Cuánto queda por acreditar?"},
         {"role": "assistant", "text": "**$ 719.600**: las otras 8 Umbrella DIN Rail PSU 24V 5A ($ 51.200 cada una) y las 20 Stark PT100 RTD Probe Class A ($ 15.500 cada una). La nota de débito no cambia ese saldo."}
       ]
+    },
+    {
+      "title": "Devolución de John Carter",
+      "days_ago": 3,
+      "messages": [
+        {"role": "user", "page": "/orders/{order:6}", "text": "¿Qué comprobantes tiene este pedido?"},
+        {"role": "assistant", "text": "El pedido **{order:6}** de John Carter tiene dos, los dos autorizados:\n\n| Comprobante | Número | Total |\n|---|---|---|\n| Factura B | 00099-00000003 | $ 103.000 |\n| Nota de Crédito B | 00099-00000001 | $ 54.000 |\n\nLa nota de crédito devuelve el Globex 16-Channel Logic Analyzer."},
+        {"role": "user", "page": "/orders/{order:6}", "text": "¿Le puedo hacer otra nota de crédito por las placas?"},
+        {"role": "assistant", "text": "Sí: quedan **$ 49.000** por acreditar, las 5 Initech RP2040 Pico Board ($ 9.800 cada una). Hacela desde el detalle de la Factura B 00099-00000003 con *Credit note*, eligiendo cuántas placas devuelve. Va a ser otra Nota de Crédito B, como la factura."}
+      ]
+    },
+    {
+      "title": "Envío de Emily Smith",
+      "days_ago": 2,
+      "messages": [
+        {"role": "user", "page": "/orders/{order:14}", "text": "¿Ya le cobramos el envío a Emily Smith?"},
+        {"role": "assistant", "text": "Sí, con la **Nota de Débito B 00099-00000001** por $ 12.100 (\"Envío a Córdoba\"), sobre la Factura B 00099-00000005 de la Stark Bench Power Supply 30V 5A por $ 189.000. Entre las dos le facturaste **$ 201.100**."},
+        {"role": "user", "page": "/orders/{order:14}", "text": "¿Por qué es B y no A?"},
+        {"role": "assistant", "text": "Porque Emily Smith es consumidora final (se identificó con DNI). Como responsable inscripto, la Factura A es solo para clientes responsables inscriptos o monotributistas con CUIT; al resto le corresponde la B, y sus notas de crédito y débito llevan la misma letra que la factura."}
+      ]
+    },
+    {
+      "title": "Notas de crédito B",
+      "days_ago": 0,
+      "messages": [
+        {"role": "user", "page": "/invoices", "text": "¿Qué notas de crédito le hicimos a consumidores finales?"},
+        {"role": "assistant", "text": "Dos **Notas de Crédito B**, las dos autorizadas:\n\n| Nota | Pedido | Cliente | Total | Acredita |\n|---|---|---|---|---|\n| 00099-00000001 | {order:6} | John Carter | $ 54.000 | El Globex 16-Channel Logic Analyzer (parcial) |\n| 00099-00000002 | {order:7} | Walk-in Customer | $ 16.800 | Toda la factura: 4 Acme Buck Converter 12-24V to 5V 3A |"},
+        {"role": "user", "page": "/invoices", "text": "¿Puedo cancelar el pedido de Walk-in Customer?"},
+        {"role": "assistant", "text": "Sí: la nota de crédito acreditó toda su Factura B 00099-00000004 y no queda nada por acreditar, así que el pedido {order:7} puede pasar a *Cancelled* desde su detalle. La factura y la nota siguen existiendo: un comprobante autorizado no se borra, solo se acredita."}
+      ]
     }
   ]
 }

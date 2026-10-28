@@ -794,10 +794,28 @@
       ]
     },
     {
-      "order": 6
+      "order": 6,
+      "notes": [
+        {
+          "kind": "credit_note",
+          "days_after": 5,
+          "lines": [
+            {
+              "product": "Globex 16-Channel Logic Analyzer",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
     },
     {
-      "order": 7
+      "order": 7,
+      "notes": [
+        {
+          "kind": "credit_note",
+          "days_after": 3
+        }
+      ]
     },
     {
       "order": 8
@@ -814,7 +832,21 @@
       "order": 13
     },
     {
-      "order": 14
+      "order": 14,
+      "notes": [
+        {
+          "kind": "debit_note",
+          "days_after": 1,
+          "lines": [
+            {
+              "description": "Envío a Córdoba",
+              "quantity": 1,
+              "unit_price": "12100.00",
+              "vat_rate": 5
+            }
+          ]
+        }
+      ]
     },
     {
       "order": 15,

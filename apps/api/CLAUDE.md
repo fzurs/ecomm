@@ -72,7 +72,7 @@
 - Es idempotente por nombre; las órdenes se crean solo si la tabla está vacía. Datos ficticios.
 - Las `invoices` de `dev.json` se emiten junto con las órdenes con `billing.sample.SampleWSFE`
   (sin ARCA, CAE inventado) en el punto de venta `SAMPLE_POINT_OF_SALE` (99), para que su
-  numeración no choque con la real: facturas A y B, notas, y los estados rechazado y sin verificar.
+  numeración no choque con la real: facturas A y B, notas de crédito y débito A y B (parciales y totales), y los estados rechazado y sin verificar.
   Reemitir o verificar una desde el admin sí llama a ARCA.
 - `--reset` borra todo antes, incluidos esos comprobantes de muestra, y se niega si hay alguno de
   otro punto de venta (emitido a ARCA).
