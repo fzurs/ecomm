@@ -1,4 +1,4 @@
-arca-client[pdf] @ git+https://github.com/fzurs/arca-client@e3e1159092bdf73cc6600e43673e85c98f1f6e91
+arca-client[pdf] @ git+https://github.com/fzurs/arca-client@f1019d05fd6c26ab9dcab59ebdc4d4240d43cf5b
 annotated-types==0.8.0
 anthropic==2.3.0
 anyio==4.15.1
@@ -52,7 +52,7 @@ sniffio==1.3.1
 sqlparse==0.5.3
 truststore==0.10.5
 typing-inspection==0.4.4
-typing_extensions==4.15.0
+typing_extensions==4.16.0
 tzdata==2025.3
 uritemplate==4.2.0
 urllib3==2.8.0

@@ -13,6 +13,7 @@ from arca_client import (
     CbteTipo,
     CondicionIVAReceptor,
     DocTipo,
+    Environment,
     WSFEConnectionError,
     WSFEError,
     neto_por_alicuota,
@@ -21,6 +22,7 @@ from arca_client.wsfe import Mensaje
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache.backends.locmem import LocMemCache
+from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -33,7 +35,7 @@ from . import amounts, services
 from .arca import DjangoTicketCache, get_wsfe
 from .models import Invoice, VoucherType
 from .pdf import invoice_pdf
-from .rules import InvoicingError, UnsupportedVoucher, invoice_letter, receptor_for
+from .rules import InvoicingError, invoice_letter, receptor_for
 from .sample import SampleWSFE
 
 User = get_user_model()
@@ -371,17 +373,50 @@ class InvoiceAPITests(FixturesMixin, APITestCase):
         self.assertEqual(response.json()['net_amount'], '1000.00')
         self.assertEqual(self.wsfe.calls[1][0], 'create_debit_note_a')
 
-    def test_b_notes_are_not_supported_yet(self):
+    def test_b_notes(self):
         invoice = self.invoice()
+        lines = [{'description': 'Envío', 'quantity': 1, 'unit_price': '1210.00', 'vat_rate': VatRate.VAT_21}]
 
-        response = self.client.post(reverse('invoice-credit-note', args=[invoice.pk]), {}, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('arca-client', response.json()['detail'])
         detail = self.client.get(reverse('invoice-detail', args=[invoice.pk])).json()
-        self.assertIn('arca-client', detail['notes_unavailable_reason'])
-        with self.assertRaises(UnsupportedVoucher):
-            services.build_debit_note(invoice, [])
+        self.assertIsNone(detail['notes_unavailable_reason'])
+        credit = self.client.post(reverse('invoice-credit-note', args=[invoice.pk]), {}, format='json')
+        debit = self.client.post(reverse('invoice-debit-note', args=[invoice.pk]), {'lines': lines}, format='json')
+
+        self.assertEqual(credit.status_code, status.HTTP_201_CREATED, credit.json())
+        self.assertEqual(credit.json()['voucher_type'], VoucherType.CREDIT_NOTE_B)
+        self.assertEqual(credit.json()['total_amount'], '24200.00')
+        self.assertEqual(debit.status_code, status.HTTP_201_CREATED, debit.json())
+        self.assertEqual(debit.json()['voucher_type'], VoucherType.DEBIT_NOTE_B)
+        self.assertEqual(debit.json()['net_amount'], '1000.00')
+        (credit_call, credit_kwargs), (debit_call, _) = self.wsfe.calls[1:]
+        self.assertEqual((credit_call, debit_call), ('create_credit_note_b', 'create_debit_note_b'))
+        self.assertEqual(credit_kwargs['asociado'].tipo, CbteTipo.FACTURA_B)
+        self.assertEqual(credit_kwargs['doc_tipo'], DocTipo.CONSUMIDOR_FINAL)
+
+    @override_settings(ARCA_ISSUER_VAT_CONDITION='monotributo')
+    def test_c_notes(self):
+        invoice = self.invoice()
+        lines = [{'description': 'Envío', 'quantity': 1, 'unit_price': '1210.00', 'vat_rate': VatRate.VAT_21}]
+
+        credit = self.client.post(reverse('invoice-credit-note', args=[invoice.pk]), {}, format='json')
+        debit = self.client.post(reverse('invoice-debit-note', args=[invoice.pk]), {'lines': lines}, format='json')
+
+        self.assertEqual(credit.status_code, status.HTTP_201_CREATED, credit.json())
+        self.assertEqual(credit.json()['voucher_type'], VoucherType.CREDIT_NOTE_C)
+        self.assertEqual(debit.status_code, status.HTTP_201_CREATED, debit.json())
+        self.assertEqual(debit.json()['voucher_type'], VoucherType.DEBIT_NOTE_C)
+        (credit_call, credit_kwargs), (debit_call, debit_kwargs) = self.wsfe.calls[1:]
+        self.assertEqual((credit_call, debit_call), ('create_credit_note_c', 'create_debit_note_c'))
+        self.assertEqual(credit_kwargs['asociado'].tipo, CbteTipo.FACTURA_C)
+        self.assertEqual(credit_kwargs['importe_total'], Decimal('24200'))
+        self.assertEqual(debit_kwargs['importe_total'], Decimal('1210'))
+
+    def test_no_notes_on_a_note(self):
+        note = services.create_credit_note(self.invoice())
+
+        detail = self.client.get(reverse('invoice-detail', args=[note.pk])).json()
+
+        self.assertEqual(detail['notes_unavailable_reason'], 'Notes are made on invoices.')
 
     def test_pdf(self):
         invoice = self.invoice(self.registered(), items=((12100, 2), (9999, 3)))
@@ -399,6 +434,17 @@ class InvoiceAPITests(FixturesMixin, APITestCase):
         response = self.client.get(reverse('invoice-pdf', args=[note.pk]))
 
         self.assertTrue(response.content.startswith(b'%PDF'))
+
+    def test_pdf_of_b_and_c_notes(self):
+        for condition in ('responsable_inscripto', 'monotributo'):
+            with self.subTest(condition), self.settings(ARCA_ISSUER_VAT_CONDITION=condition):
+                customer = self.make_customer(condition, document_number='')
+                note = services.create_credit_note(self.invoice(customer))
+
+                response = self.client.get(reverse('invoice-pdf', args=[note.pk]))
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertTrue(response.content.startswith(b'%PDF'))
 
     @override_settings(ARCA_ISSUER_LEGAL_NAME='')
     def test_pdf_needs_the_issuer(self):
@@ -577,6 +623,14 @@ class DjangoTicketCacheTests(SimpleTestCase):
         self.assertEqual(self.cache._cache.get(lock_key), "other")
 
 
+class ARCAHomologacionGuardTests(SimpleTestCase):
+    @override_settings(ARCA_ENVIRONMENT='produccion')
+    def test_refuses_production(self):
+        # Only setUpClass runs: no test method, so nothing is emitted even if the guard broke.
+        with self.assertRaisesMessage(ImproperlyConfigured, "not in 'produccion'"):
+            ARCAHomologacionTests.setUpClass()
+
+
 @unittest.skipUnless(
     os.environ.get("ARCA_INTEGRATION_TESTS"), "Definir ARCA_INTEGRATION_TESTS=1 para usar ARCA"
 )
@@ -584,8 +638,8 @@ class DjangoTicketCacheTests(SimpleTestCase):
 class ARCAHomologacionTests(FixturesMixin, TestCase):
     """Emite contra el ambiente de homologación de ARCA con el certificado configurado.
 
-    Cada corrida consume numeración: 6 comprobantes (Factura B x2, Factura A, Nota de Crédito A,
-    Nota de Débito A y Factura C). Las consultas (`verify`) no emiten nada.
+    Cada corrida consume numeración: 10 comprobantes (Factura B x2, Factura A y Factura C, más una
+    Nota de Crédito y una de Débito de cada letra). Las consultas (`verify`) no emiten nada.
     """
 
     # Ficticia, con dígito verificador válido. No puede ser la del emisor: ARCA la rechaza como
@@ -594,6 +648,12 @@ class ARCAHomologacionTests(FixturesMixin, TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # Never in production: these vouchers would be real, with fiscal validity. It fails instead
+        # of skipping, so a run that asked for it doesn't pass silently.
+        if settings.ARCA_ENVIRONMENT != Environment.HOMOLOGACION:
+            raise ImproperlyConfigured(
+                'ARCAHomologacionTests emits real vouchers: it only runs in homologación, '
+                f'not in {settings.ARCA_ENVIRONMENT!r}.')
         super().setUpClass()
         get_wsfe.cache_clear()
 
@@ -606,7 +666,7 @@ class ARCAHomologacionTests(FixturesMixin, TestCase):
         # The PDF checks its items against what ARCA authorized.
         self.assertTrue(invoice_pdf(voucher).startswith(b'%PDF'))
 
-    def test_factura_b_to_unidentified_final_consumer(self):
+    def test_factura_b_to_unidentified_final_consumer_with_notes(self):
         order = self.make_order(items=((16650, 2), (9800, 1, VatRate.VAT_10_5)))
 
         invoice = services.create_invoice(order)
@@ -616,6 +676,24 @@ class ARCAHomologacionTests(FixturesMixin, TestCase):
         self.assertEqual(invoice.total_amount, Decimal('43100.00'))
         self.assertEqual(
             sorted(invoice.vat.values_list('rate', flat=True)), [VatRate.VAT_10_5, VatRate.VAT_21])
+
+        # Partial: one unit of the first line.
+        line = invoice.lines.get(vat_rate=VatRate.VAT_21)
+        credit = services.create_credit_note(invoice, [(line, 1)])
+
+        self.assertAuthorized(credit, VoucherType.CREDIT_NOTE_B)
+        self.assertEqual(credit.total_amount, Decimal('16650.00'))
+        associated = credit.arca_response['asociados'][0]
+        self.assertEqual((associated['tipo'], associated['numero']), (VoucherType.INVOICE_B, invoice.number))
+
+        debit = services.create_debit_note(invoice, [{
+            'description': 'Envío', 'quantity': 1,
+            'unit_price': Decimal('1210.00'), 'vat_rate': VatRate.VAT_21,
+        }])
+
+        self.assertAuthorized(debit, VoucherType.DEBIT_NOTE_B)
+        self.assertEqual(debit.total_amount, Decimal('1210.00'))
+        self.assertEqual(debit.vat_amount, Decimal('210.00'))
 
     def test_factura_b_to_identified_final_consumer(self):
         customer = self.make_customer(document_type=Customer.DocumentType.DNI, document_number='30123456')
@@ -662,13 +740,31 @@ class ARCAHomologacionTests(FixturesMixin, TestCase):
         self.assertEqual(debit.vat_amount, Decimal('210.00'))
 
     @override_settings(ARCA_ISSUER_VAT_CONDITION='monotributo')
-    def test_factura_c(self):
+    def test_factura_c_with_notes(self):
         invoice = services.create_invoice(self.make_order(items=((12100, 2), (5000, 1, VatRate.EXEMPT))))
 
         self.assertAuthorized(invoice, VoucherType.INVOICE_C)
         self.assertEqual(invoice.total_amount, Decimal('29200.00'))
         self.assertEqual(invoice.vat_amount, 0)
         self.assertFalse(invoice.vat.exists())
+
+        # Full: every line.
+        credit = services.create_credit_note(invoice)
+
+        self.assertAuthorized(credit, VoucherType.CREDIT_NOTE_C)
+        self.assertEqual(credit.total_amount, Decimal('29200.00'))
+        associated = credit.arca_response['asociados'][0]
+        self.assertEqual((associated['tipo'], associated['numero']), (VoucherType.INVOICE_C, invoice.number))
+        self.assertEqual(services.credit_available(invoice), 0)
+
+        debit = services.create_debit_note(invoice, [{
+            'description': 'Envío', 'quantity': 1,
+            'unit_price': Decimal('1210.00'), 'vat_rate': VatRate.VAT_21,
+        }])
+
+        self.assertAuthorized(debit, VoucherType.DEBIT_NOTE_C)
+        self.assertEqual(debit.total_amount, Decimal('1210.00'))
+        self.assertEqual(debit.vat_amount, 0)
 
     def test_verify(self):
         """Asks ARCA for vouchers without emitting: the last authorized B, and one that doesn't

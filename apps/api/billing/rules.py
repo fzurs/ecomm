@@ -8,14 +8,18 @@ from orders.models import Customer, Order
 
 from .models import LIVE_STATUSES, ReceptorDocumentType, VoucherKind, VoucherType
 
-# What arca-client 0.2.0 can emit. B and C notes are missing (see its README, "Limitaciones
-# conocidas"): when it adds them, add them here and to the adapter.
+# What arca-client can emit (see its README, "Limitaciones conocidas"): a type added here
+# needs its call in the adapter.
 SUPPORTED_TYPES = {
     VoucherType.INVOICE_A,
     VoucherType.INVOICE_B,
     VoucherType.INVOICE_C,
     VoucherType.CREDIT_NOTE_A,
     VoucherType.DEBIT_NOTE_A,
+    VoucherType.CREDIT_NOTE_B,
+    VoucherType.DEBIT_NOTE_B,
+    VoucherType.CREDIT_NOTE_C,
+    VoucherType.DEBIT_NOTE_C,
 }
 
 DOCUMENT_TYPES = {

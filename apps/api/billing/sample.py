@@ -82,6 +82,10 @@ class SampleWSFE:
     create_invoice_c = method('create_invoice_c', CbteTipo.FACTURA_C)
     create_credit_note_a = method('create_credit_note_a', CbteTipo.NOTA_CREDITO_A)
     create_debit_note_a = method('create_debit_note_a', CbteTipo.NOTA_DEBITO_A)
+    create_credit_note_b = method('create_credit_note_b', CbteTipo.NOTA_CREDITO_B)
+    create_debit_note_b = method('create_debit_note_b', CbteTipo.NOTA_DEBITO_B)
+    create_credit_note_c = method('create_credit_note_c', CbteTipo.NOTA_CREDITO_C)
+    create_debit_note_c = method('create_debit_note_c', CbteTipo.NOTA_DEBITO_C)
     del method
 
     def get_voucher(self, punto_venta, tipo, numero):

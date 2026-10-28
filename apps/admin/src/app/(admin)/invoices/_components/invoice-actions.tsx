@@ -76,7 +76,7 @@ function NoteLink({
   const { label, icon: Icon } = notes[kind]
   const reason = invoice.notes_unavailable_reason
 
-  // Disabled, with the reason (e.g. arca-client doesn't emit B notes yet).
+  // Disabled, with the reason (e.g. the voucher is itself a note).
   if (reason) {
     return (
       <Tooltip>

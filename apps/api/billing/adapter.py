@@ -43,6 +43,14 @@ class ARCAElectronicInvoicingAdapter:
                 return self.wsfe.create_credit_note_a(asociado=self.associated(invoice), **kwargs)
             case VoucherType.DEBIT_NOTE_A:
                 return self.wsfe.create_debit_note_a(asociado=self.associated(invoice), **kwargs)
+            case VoucherType.CREDIT_NOTE_B:
+                return self.wsfe.create_credit_note_b(asociado=self.associated(invoice), **kwargs)
+            case VoucherType.DEBIT_NOTE_B:
+                return self.wsfe.create_debit_note_b(asociado=self.associated(invoice), **kwargs)
+            case VoucherType.CREDIT_NOTE_C:
+                return self.wsfe.create_credit_note_c(asociado=self.associated(invoice), **kwargs)
+            case VoucherType.DEBIT_NOTE_C:
+                return self.wsfe.create_debit_note_c(asociado=self.associated(invoice), **kwargs)
 
     def get_voucher(self, invoice: Invoice) -> ComprobanteAutorizado | None:
         """The voucher ARCA has with the invoice's number, if any. Emits nothing."""

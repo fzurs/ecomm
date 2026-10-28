@@ -38,8 +38,8 @@
   y cada `OrderItem` lo copia al crearse, como `unit_price`.
 - `billing/rules.py` — qué comprobante corresponde: emisor monotributo → C; emisor RI → A si el
   cliente está en `CONDICIONES_A` (RI, monotributo; exige CUIT) y B si no. `SUPPORTED_TYPES` es lo
-  que arca-client 0.2.0 emite: **no hay notas B ni C** (se rechazan con 400); cuando arca-client
-  las sume, agregarlas ahí y en el adapter.
+  que arca-client emite: desde 0.4.0, facturas y notas de crédito/débito A, B y C. Un tipo nuevo
+  va ahí y en el adapter. Las notas se hacen solo sobre facturas (`note_support`).
 - `billing/amounts.py` — los importes salen de las líneas, igual que los calcula arca-client
   (neto por alícuota, IVA half even); el adapter y el PDF usan los mismos ítems (`to_items`), así
   el PDF cuadra con lo autorizado. Con IVA incluido, el total puede diferir en 1 centavo del cobrado
@@ -47,7 +47,7 @@
 - `billing/arca.py` — `get_wsfe()` arma el `WSFE` de arca-client de forma lazy (`@cache`) con
   `DjangoTicketCache` sobre `caches["arca"]`.
 - `billing/adapter.py` — traduce `Invoice` a llamadas de arca-client (`create_invoice_a/b/c`,
-  `create_credit_note_a`, `create_debit_note_a`, `get_voucher`).
+  `create_credit_note_a/b/c`, `create_debit_note_a/b/c`, `get_voucher`).
 - `billing/services.py` — `build_*` arma el comprobante sin guardarlo (lo usa `/invoices/preview/`);
   `emit` bloquea `InvoiceSequenceLock` (`select_for_update`) por punto de venta + tipo, relee el
   estado y guarda el resultado:
