@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query"
 import { useState } from "react"
 import { isAuthError, sessionQueryKey } from "@/hooks/use-auth"
+import { getErrorStatus } from "@/lib/utils"
 
 function createQueryClient() {
   // A 401/403 anywhere may mean the session expired: recheck the session, and
@@ -21,7 +22,18 @@ function createQueryClient() {
   }
 
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 5 * 60 * 1000 } },
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000,
+        // A 4xx (a missing object, a bad id in the URL) fails the same on
+        // every try: show it right away instead of after the retries.
+        retry: (failureCount, error) => {
+          const status = getErrorStatus(error)
+          if (status && status < 500) return false
+          return failureCount < 3
+        },
+      },
+    },
     queryCache: new QueryCache({
       onError: (error, query) => {
         // The session query reports its own state to the AuthGuard.

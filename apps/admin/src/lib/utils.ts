@@ -49,6 +49,11 @@ export function getServerErrorMessage(error: unknown) {
   return unexpectedErrorMessage(response)
 }
 
+/** HTTP status of a failed request; undefined for network and other errors. */
+export function getErrorStatus(error: unknown) {
+  return parseServerError(error).response?.status
+}
+
 type ServerErrorResponse = { status?: number; data?: unknown }
 
 function parseServerError(error: unknown) {
