@@ -13,9 +13,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from billing.models import Invoice, ReceptorDocumentType, VoucherType
+from billing import services
+from billing.models import Invoice, InvoiceVat, ReceptorDocumentType, VoucherType
+from billing.sample import SampleWSFE
 from orders.models import Customer, Order
-from store.models import Brand, Category, Product
+from store.models import Brand, Category, Product, VatRate
 from .models import Conversation, Message
 from .tools import LIMIT, run_tool
 
@@ -33,21 +35,26 @@ def create_orders():
     return paid
 
 
-def create_invoice(order):
+def create_invoice(order, **kwargs):
     # A made-up CAE: never a real one in tests.
-    return Invoice.objects.create(
-        order=order, point_of_sale=1, voucher_type=VoucherType.INVOICE_B, number=1,
-        receptor_name=order.customer.name, receptor_document_type=ReceptorDocumentType.UNIDENTIFIED,
-        receptor_vat_condition=Customer.VatCondition.FINAL_CONSUMER, net_amount='16528.93',
-        vat_amount='3471.07', total_amount='20000.00', cae='70000000000001',
-        cae_expiration_date=date(2026, 11, 5), status=Invoice.Status.AUTHORIZED,
-    )
+    return Invoice.objects.create(**{
+        'order': order, 'point_of_sale': 1, 'voucher_type': VoucherType.INVOICE_B, 'number': 1,
+        'issue_date': date(2026, 10, 26), 'receptor_name': order.customer.name,
+        'receptor_document_type': ReceptorDocumentType.UNIDENTIFIED,
+        'receptor_vat_condition': Customer.VatCondition.FINAL_CONSUMER, 'net_amount': '16528.93',
+        'vat_amount': '3471.07', 'total_amount': '20000.00', 'cae': '70000000000001',
+        'cae_expiration_date': date(2026, 11, 5), 'status': Invoice.Status.AUTHORIZED, **kwargs,
+    })
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ToolTests(TestCase):
     def setUp(self):
         self.order = create_orders()
+
+    def another_order(self):
+        # An order has a single live invoice.
+        return Order.objects.create_with_items(customer=self.order.customer, status=Order.Status.PAID, items=[])
 
     def run_tool(self, name, tool_input):
         content, is_error = run_tool(name, tool_input)
@@ -124,6 +131,88 @@ class ToolTests(TestCase):
             result = self.run_tool('list_invoices', tool_input)
             self.assertEqual([item['id'] for item in result['invoices']], [invoice.id])
         self.assertEqual(self.run_tool('list_invoices', {'order': 'ORD-999999'})['count'], 0)
+
+    def test_list_invoices_finds_a_number(self):
+        invoice = create_invoice(self.order)
+        create_invoice(self.order, number=2, status=Invoice.Status.REJECTED)
+        for number in ['00001-00000001', '1-1', '1']:
+            result = self.run_tool('list_invoices', {'number': number})
+            self.assertEqual([item['id'] for item in result['invoices']], [invoice.id], number)
+        self.assertEqual(self.run_tool('list_invoices', {'number': '00002-00000001'})['count'], 0)
+        content, is_error = run_tool('list_invoices', {'number': 'A-1'})
+        self.assertTrue(is_error)
+        self.assertIn('not a voucher number', content)
+
+    def test_list_invoices_finds_the_customer_by_cuit_legal_name_or_receptor(self):
+        Customer.objects.filter(pk=self.order.customer_id).update(
+            document_number='20123456786', legal_name='Pérez Hnos SRL')
+        invoice = create_invoice(self.order, receptor_name='Juan Pérez (antes)')
+        for customer in ['20123456786', 'hnos', '(antes)']:
+            result = self.run_tool('list_invoices', {'customer': customer})
+            self.assertEqual([item['id'] for item in result['invoices']], [invoice.id], customer)
+
+    def test_list_invoices_filters_by_issue_date(self):
+        invoice = create_invoice(self.order)  # issued 2026-10-26, created today
+        result = self.run_tool('list_invoices', {'date_from': '2026-10-26', 'date_to': '2026-10-26'})
+        self.assertEqual([item['id'] for item in result['invoices']], [invoice.id])
+        self.assertEqual(self.run_tool('list_invoices', {'date_from': '2026-10-27'})['count'], 0)
+
+    @override_settings(ARCA_CUIT='20111111112', ARCA_ISSUER_VAT_CONDITION='responsable_inscripto')
+    def test_get_invoice_shows_what_is_left_to_credit(self):
+        wsfe = SampleWSFE()
+        invoice = services.create_invoice(self.order, wsfe=wsfe)
+        line = invoice.lines.get()
+        note = services.create_credit_note(invoice, [(line, 1)], wsfe=wsfe)
+
+        result = self.run_tool('get_invoice', {'id': invoice.id})
+        self.assertEqual(result['credit_available'], '10000.00')
+        self.assertEqual(result['lines'][0]['credited_quantity'], 1)
+        self.assertIsNone(result['notes_unavailable_reason'])
+
+        result = self.run_tool('get_invoice', {'id': note.id})
+        self.assertIsNone(result['credit_available'])
+        self.assertNotIn('credited_quantity', result['lines'][0])
+        self.assertEqual(result['notes_unavailable_reason'], 'Notes are made on invoices.')
+
+    def test_get_invoice_says_why_a_rejected_one_has_no_notes(self):
+        invoice = create_invoice(self.order, status=Invoice.Status.REJECTED)
+        result = self.run_tool('get_invoice', {'id': invoice.id})
+        self.assertEqual(result['notes_unavailable_reason'], 'Notes can only be made on an authorized invoice.')
+
+    def test_invoicing_summary_subtracts_credit_notes(self):
+        invoice = create_invoice(self.order)
+        InvoiceVat.objects.create(invoice=invoice, rate=VatRate.VAT_21, base='16528.93', amount='3471.07')
+        note = create_invoice(
+            self.order, voucher_type=VoucherType.CREDIT_NOTE_B, associated_invoice=invoice,
+            net_amount='4132.23', vat_amount='867.77', total_amount='5000.00')
+        InvoiceVat.objects.create(invoice=note, rate=VatRate.VAT_21, base='4132.23', amount='867.77')
+        # Neither one never authorized nor one outside the range counts.
+        create_invoice(self.order, number=2, status=Invoice.Status.REJECTED)
+        create_invoice(self.another_order(), number=3, issue_date=date(2026, 9, 30))
+
+        result = self.run_tool('invoicing_summary', {
+            'date_from': '2026-10-01', 'date_to': '2026-10-31', 'group_by': 'voucher_type'})
+
+        self.assertEqual(result['totals'], {
+            'vouchers': 2, 'net': '12396.70', 'vat': '2603.30', 'exempt': '0.00', 'non_taxed': '0.00',
+            'total': '15000.00'})
+        self.assertEqual(result['vat'], [{'rate': str(VatRate.VAT_21.label), 'base': '12396.70', 'amount': '2603.30'}])
+        self.assertEqual([(group['group'], group['total']) for group in result['groups']], [
+            ('Factura B', '20000.00'), ('Nota de Crédito B', '-5000.00')])
+
+    def test_invoicing_summary_groups_by_month_in_date_order(self):
+        create_invoice(self.order, issue_date=date(2026, 10, 26))
+        create_invoice(self.another_order(), number=2, issue_date=date(2026, 9, 3))
+
+        result = self.run_tool('invoicing_summary', {
+            'date_from': '2026-01-01', 'date_to': '2026-12-31', 'group_by': 'month'})
+
+        self.assertEqual([group['group'] for group in result['groups']], ['2026-09-01', '2026-10-01'])
+
+    def test_search_customers_by_legal_name(self):
+        Customer.objects.filter(pk=self.order.customer_id).update(legal_name='Pérez Hnos SRL')
+        result = self.run_tool('search_customers', {'query': 'hnos'})
+        self.assertEqual([customer['id'] for customer in result['customers']], [self.order.customer_id])
 
     def test_sales_summary_groups_by_month_in_date_order(self):
         older = Order.objects.create_with_items(customer=self.order.customer, status=Order.Status.PAID,

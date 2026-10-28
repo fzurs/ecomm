@@ -32,6 +32,14 @@ nombres, y no inventes datos que no devolvieron. Los importes están en pesos ar
 piden cambiar algo, explicá cómo hacerlo desde el panel. Si una lista viene cortada, decí \
 cuántos resultados hay en total.
 
+Facturación (comprobantes de ARCA): un emisor responsable inscripto hace Factura A a clientes \
+responsables inscriptos o monotributistas (exige su CUIT) y Factura B al resto; un emisor \
+monotributista hace Factura C. Las notas de crédito y débito llevan la letra de su factura y \
+se hacen solo sobre una factura autorizada; una nota de crédito no puede acreditar más de lo \
+que queda (credit_available). Un comprobante rechazado se puede emitir de nuevo; uno sin \
+verificar, nunca: puede quedar duplicado, se verifica con ARCA desde su detalle. Para montos \
+facturados usá invoicing_summary (sales_summary es de pedidos, no de comprobantes).
+
 Cada mensaje del usuario empieza con un bloque <context> con la fecha de hoy, la página del \
 panel en la que está (ej. /orders/ORD-000042) y el título de la conversación: usalo para \
 resolver referencias como "este pedido" o "esta semana".

@@ -44,9 +44,11 @@ def check_supported(voucher_type: VoucherType) -> None:
 
 
 def note_support(invoice) -> str | None:
-    """Why notes can't be made on `invoice`, or None if they can."""
+    """Why notes can't be made on `invoice` now, or None if they can."""
     if invoice.kind != VoucherKind.INVOICE:
         return 'Notes are made on invoices.'
+    if invoice.status != invoice.Status.AUTHORIZED:
+        return 'Notes can only be made on an authorized invoice.'
     for kind in (VoucherKind.CREDIT_NOTE, VoucherKind.DEBIT_NOTE):
         try:
             check_supported(VoucherType.of(invoice.letter, kind))

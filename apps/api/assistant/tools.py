@@ -5,14 +5,17 @@ input and serializes the result.
 """
 import json
 from datetime import date
+from decimal import Decimal
 
 import jsonschema
-from django.db.models import Count, DateField, F, Max, Q, Sum
+from django.db.models import Case, Count, DateField, F, Max, Q, Sum, When
 from django.db.models.functions import Coalesce, TruncDate, TruncMonth, TruncWeek
 
-from billing.models import Invoice, VoucherKind, VoucherType
+from billing.models import Invoice, InvoiceVat, VoucherKind, VoucherType
+from billing.rules import note_support
+from billing.services import credit_available, credited_quantities
 from orders.models import Customer, Order, OrderItem
-from store.models import Brand, Category, Product
+from store.models import Brand, Category, Product, VatRate
 
 # Rows per list: enough to answer, few enough to keep the context small.
 LIMIT = 20
@@ -164,7 +167,8 @@ def list_brands(offset=0):
 
 def search_customers(query, offset=0):
     customers = Customer.objects.filter(
-        Q(name__icontains=query) | Q(email__icontains=query) | Q(document_number__icontains=query),
+        Q(name__icontains=query) | Q(email__icontains=query) | Q(document_number__icontains=query)
+        | Q(legal_name__icontains=query),
     ).annotate(order_count=Count('orders')).order_by('name')
     return {
         'count': customers.count(),
@@ -267,18 +271,46 @@ def unsold_products(date_from, date_to, status=None, category=None, brand=None, 
     }
 
 
-def list_invoices(status=None, kind=None, order=None, customer=None, date_from=None, date_to=None, offset=0):
+def _voucher_types(kind):
+    return [t for t in VoucherType if t.kind == kind]
+
+
+def _filter_number(invoices, number):
+    """`number` as printed (00001-00000012) or only the voucher number (12)."""
+    point_of_sale, _, value = number.strip().rpartition('-')
+    try:
+        invoices = invoices.filter(number=int(value))
+        if point_of_sale:
+            invoices = invoices.filter(point_of_sale=int(point_of_sale))
+    except ValueError:
+        raise ToolError(f'{number!r} is not a voucher number (e.g. 00001-00000012 or 12).')
+    return invoices
+
+
+def list_invoices(status=None, kind=None, number=None, order=None, customer=None, date_from=None,
+                  date_to=None, offset=0):
     invoices = Invoice.objects.select_related('order__customer').order_by('-created_at')
     if status:
         invoices = invoices.filter(status=status)
     if kind:
-        invoices = invoices.filter(voucher_type__in=[t for t in VoucherType if t.kind == kind])
+        invoices = invoices.filter(voucher_type__in=_voucher_types(kind))
+    if number:
+        invoices = _filter_number(invoices, number)
     if order:
         invoices = invoices.filter(order__number=order)
     if customer:
+        # The customer as it is now, and the receptor as it was invoiced.
         invoices = invoices.filter(
-            Q(order__customer__name__icontains=customer) | Q(order__customer__email__icontains=customer))
-    invoices = _date_range(invoices, 'created_at', date_from, date_to)
+            Q(order__customer__name__icontains=customer) | Q(order__customer__email__icontains=customer)
+            | Q(order__customer__legal_name__icontains=customer)
+            | Q(order__customer__document_number__icontains=customer)
+            | Q(receptor_name__icontains=customer) | Q(receptor_document_number__icontains=customer))
+    # The issue date; one never authorized has none, so its creation date.
+    invoices = invoices.annotate(date=Coalesce('issue_date', TruncDate('created_at')))
+    if date_from:
+        invoices = invoices.filter(date__gte=date.fromisoformat(date_from))
+    if date_to:
+        invoices = invoices.filter(date__lte=date.fromisoformat(date_to))
     return {
         'count': invoices.count(),
         'invoices': [_invoice_summary(invoice) for invoice in invoices[offset:offset + LIMIT]],
@@ -290,6 +322,8 @@ def get_invoice(id):
         invoice = Invoice.objects.select_related('order__customer').get(pk=id)
     except Invoice.DoesNotExist:
         raise ToolError(f'There is no invoice {id}.')
+    is_invoice = invoice.kind == VoucherKind.INVOICE
+    credited = credited_quantities(invoice) if is_invoice else {}
     return {
         **_invoice_summary(invoice),
         'customer_id': invoice.order.customer_id,
@@ -310,13 +344,64 @@ def get_invoice(id):
             'quantity': line.quantity,
             'unit_price': str(line.unit_price),
             'vat_rate': line.get_vat_rate_display(),
+            **({'credited_quantity': credited.get(line.pk, 0)} if is_invoice else {}),
         } for line in invoice.lines.all()],
         'notes': [_invoice_summary(note) for note in invoice.notes.select_related('order__customer')],
+        # What credit notes can still credit, at the lines' prices (IVA included).
+        'credit_available': str(credit_available(invoice)) if is_invoice else None,
+        'notes_unavailable_reason': note_support(invoice),
         'cae': invoice.cae,
         'cae_expiration_date': invoice.cae_expiration_date and invoice.cae_expiration_date.isoformat(),
         'arca_errors': invoice.arca_errors,
         'observations': invoice.observations,
         'updated_at': invoice.updated_at.isoformat(),
+    }
+
+
+INVOICING_GROUPS = {
+    'day': F('issue_date'),
+    'week': TruncWeek('issue_date', output_field=DateField()),
+    'month': TruncMonth('issue_date', output_field=DateField()),
+    'voucher_type': F('voucher_type'),
+    'customer': F('receptor_name'),
+}
+
+
+def _signed_sum(field, voucher_type='voucher_type'):
+    """Credit notes take back what their invoice charged: they subtract."""
+    return Coalesce(Sum(Case(
+        When(**{f'{voucher_type}__in': _voucher_types(VoucherKind.CREDIT_NOTE)}, then=-F(field)),
+        default=F(field),
+    )), Decimal(0))
+
+
+def _amounts(values):
+    return {key: str(value) if isinstance(value, Decimal) else value for key, value in values.items()}
+
+
+def invoicing_summary(date_from, date_to, group_by):
+    invoices = Invoice.objects.filter(
+        status=Invoice.Status.AUTHORIZED, issue_date__gte=date.fromisoformat(date_from),
+        issue_date__lte=date.fromisoformat(date_to),
+    )
+    amounts = {field: _signed_sum(f'{field}_amount')
+               for field in ('net', 'vat', 'exempt', 'non_taxed', 'total')}
+    totals = invoices.aggregate(vouchers=Count('id'), **amounts)
+    vat = InvoiceVat.objects.filter(invoice__in=invoices).values('rate').annotate(
+        base=_signed_sum('base', 'invoice__voucher_type'),
+        amount=_signed_sum('amount', 'invoice__voucher_type'),
+    ).order_by('rate')
+    groups = invoices.annotate(group=INVOICING_GROUPS[group_by]).values('group').annotate(
+        vouchers=Count('id'), **amounts)
+    groups = groups.order_by('group') if group_by in DATE_GROUPS else groups.order_by('-total')
+    return {
+        'totals': _amounts(totals),
+        'vat': [_amounts({**row, 'rate': str(VatRate(row['rate']).label)}) for row in vat],
+        'groups': [_amounts({
+            **group,
+            'group': str(VoucherType(group['group']).label) if group_by == 'voucher_type'
+            else group['group'] and str(group['group']),
+        }) for group in groups[:LIMIT]],
     }
 
 
@@ -387,7 +472,7 @@ TOOLS = [
     }),
     (search_customers, {
         'name': 'search_customers',
-        'description': f'Customers whose name, email or document number (CUIT, DNI...) contains the query '
+        'description': f'Customers whose name, legal name, email or document number (CUIT, DNI...) contains the query '
                        f'(at most {LIMIT}), with their id, contact details and order count.',
         'input_schema': _schema({
             'query': {'type': 'string', 'minLength': 1},
@@ -437,10 +522,14 @@ TOOLS = [
         'input_schema': _schema({
             'status': {'type': 'string', 'enum': Invoice.Status.values},
             'kind': {'type': 'string', 'enum': VoucherKind.values},
+            'number': {'type': 'string', 'description': 'The voucher number as printed, e.g. '
+                       '00001-00000012, or only the number after the point of sale, e.g. 12.'},
             'order': {'type': 'string', 'description': 'The order number, e.g. ORD-000042.'},
-            'customer': {'type': 'string', 'description': 'Part of the customer name or email.'},
-            'date_from': DATE,
-            'date_to': DATE,
+            'customer': {'type': 'string', 'description': 'Part of the customer name, legal name, email '
+                         'or document number (CUIT, DNI...), now or as it was invoiced.'},
+            'date_from': {**DATE, 'description': 'YYYY-MM-DD, inclusive: the issue date, or the creation '
+                          'date of a voucher never authorized.'},
+            'date_to': {**DATE, 'description': 'YYYY-MM-DD, inclusive.'},
             'offset': OFFSET,
         }),
     }),
@@ -448,10 +537,25 @@ TOOLS = [
         'name': 'get_invoice',
         'description': 'A voucher (invoice, credit or debit note) with its receptor, lines, net, VAT per '
                        'rate and total amounts (ARS), its notes, ARCA errors and observations, and its CAE '
-                       'and CAE expiration date once ARCA authorized it.',
+                       'and CAE expiration date once ARCA authorized it. For an invoice, how much of each '
+                       'line live credit notes credit and what is left to credit (credit_available). '
+                       'notes_unavailable_reason says why no credit or debit note can be made on it, or is '
+                       'null if they can.',
         'input_schema': _schema({
             'id': {'type': 'integer', 'description': 'The invoice id, as in the page /invoices/{id}.'},
         }, required=['id']),
+    }),
+    (invoicing_summary, {
+        'name': 'invoicing_summary',
+        'description': 'What was invoiced (ARS) in a range of issue dates, counting only vouchers ARCA '
+                       'authorized, with credit notes subtracting: net, VAT (IVA débito), exempt, non-taxed '
+                       f'and total amounts, in total, by VAT rate, and grouped (at most {LIMIT} groups): by '
+                       'day, week or month in date order, or by voucher type or receptor sorted by total.',
+        'input_schema': _schema({
+            'date_from': DATE,
+            'date_to': DATE,
+            'group_by': {'type': 'string', 'enum': list(INVOICING_GROUPS)},
+        }, required=['date_from', 'date_to', 'group_by']),
     }),
     (set_title, {
         'name': 'set_title',

@@ -73,8 +73,6 @@ class InvoiceSerializer(InvoiceSummarySerializer):
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_notes_unavailable_reason(self, invoice):
         """Why notes can't be made on this voucher now, or null if they can."""
-        if invoice.kind == VoucherKind.INVOICE and invoice.status != Invoice.Status.AUTHORIZED:
-            return "Notes can only be made on an authorized invoice."
         return note_support(invoice)
 
 
