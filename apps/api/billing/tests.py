@@ -1,5 +1,6 @@
 import os
 import tempfile
+import threading
 import unittest
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
@@ -516,7 +517,10 @@ class OrderStatusLockTests(FixturesMixin, APITestCase):
 
 class DjangoTicketCacheTests(SimpleTestCase):
     def setUp(self):
-        self.cache = DjangoTicketCache(LocMemCache("arca-tests", {}))
+        backend = LocMemCache("arca-tests", {})
+        # LocMemCache shares its storage by name: a lock left by one test would block the next.
+        self.addCleanup(backend.clear)
+        self.cache = DjangoTicketCache(backend)
 
     def make_ticket(self, expires_in: timedelta) -> AccessTicket:
         now = datetime.now(timezone.utc)
@@ -540,6 +544,37 @@ class DjangoTicketCacheTests(SimpleTestCase):
         self.cache.set("wsfe", self.make_ticket(timedelta(seconds=-1)))
 
         self.assertIsNone(self.cache.get("wsfe"))
+
+    def test_lock_waits_for_the_holder(self):
+        events = []
+
+        def contender():
+            with self.cache.lock("wsfe"):
+                events.append("contender")
+
+        with self.cache.lock("wsfe"):
+            thread = threading.Thread(target=contender)
+            thread.start()
+            thread.join(timeout=0.3)
+            events.append("holder")
+        thread.join(timeout=1)
+
+        self.assertEqual(events, ["holder", "contender"])
+
+    def test_lock_is_released(self):
+        with self.cache.lock("wsfe"):
+            pass
+
+        with self.cache.lock("wsfe"):  # would wait LOCK_TIMEOUT if still held
+            pass
+
+    def test_expired_lock_does_not_release_another_holder(self):
+        lock_key = "arca:access_ticket:wsfe:lock"
+        with self.cache.lock("wsfe"):
+            # Ours expired and another worker took it.
+            self.cache._cache.set(lock_key, "other")
+
+        self.assertEqual(self.cache._cache.get(lock_key), "other")
 
 
 @unittest.skipUnless(

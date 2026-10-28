@@ -1,5 +1,9 @@
+import time
+from collections.abc import Generator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from functools import cache
+from uuid import uuid4
 
 from arca_client import WSAA, WSFE, AccessTicket, Environment, cuit_from_certificate
 from django.conf import settings
@@ -25,12 +29,34 @@ class DjangoTicketCache:
     """Guarda los Tickets de Acceso en un cache de Django para compartirlos entre workers."""
 
     PREFIX = "arca:access_ticket"
+    # Más que el timeout del WSAA (30 s): si el proceso muere con el lock, vence solo.
+    LOCK_TIMEOUT = 60
+    LOCK_POLL_INTERVAL = 0.1
 
     def __init__(self, cache: BaseCache):
         self._cache = cache
 
     def _key(self, key: str) -> str:
         return f"{self.PREFIX}:{key}"
+
+    @contextmanager
+    def lock(self, key: str) -> Generator[None]:
+        """Serializa a los workers que piden un TA para `key`.
+
+        Así solo uno llama al WSAA y el resto lo lee del cache (si no, ARCA les responde
+        `coe.alreadyAuthenticated`). `add` es atómico (SET NX en Redis); la espera está
+        acotada por `LOCK_TIMEOUT`, que es lo que tarda en vencer un lock abandonado.
+        """
+        lock_key = f"{self._key(key)}:lock"
+        token = uuid4().hex
+        while not self._cache.add(lock_key, token, timeout=self.LOCK_TIMEOUT):
+            time.sleep(self.LOCK_POLL_INTERVAL)
+        try:
+            yield
+        finally:
+            # Solo si sigue siendo nuestro: pudo vencer y tomarlo otro worker.
+            if self._cache.get(lock_key) == token:
+                self._cache.delete(lock_key)
 
     def get(self, key: str) -> AccessTicket | None:
         data = self._cache.get(self._key(key))
