@@ -13,6 +13,7 @@ from billing import services
 from billing.arca import issuer_cuit
 from billing.rules import InvoicingError
 from billing.models import Invoice, InvoiceSequenceLock
+from billing.purge import PurgeRefused, bypass_invoice_guard, purge_invoices
 from billing.sample import SAMPLE_POINT_OF_SALE, SampleWSFE
 from orders.models import Customer, Order, OrderItem
 from store.models import Brand, Category, Product
@@ -36,8 +37,13 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('path', nargs='?', type=Path, default=DEFAULT_PATH)
         parser.add_argument('--reset', action='store_true', help='Delete the existing data before loading.')
+        parser.add_argument(
+            '--purge-homologation', action='store_true',
+            help='With --reset, also delete the vouchers emitted to ARCA homologacion (never in produccion).')
 
-    def handle(self, *args, path, reset, **options):
+    def handle(self, *args, path, reset, purge_homologation, **options):
+        if purge_homologation and not reset:
+            raise CommandError('--purge-homologation needs --reset.')
         try:
             data = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError) as e:
@@ -45,18 +51,18 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             if reset:
-                self.reset()
+                self.reset(purge_homologation)
             self.load(data)
 
-    def reset(self):
-        # Invoices emitted to ARCA hold real numbering: never delete them from here. The seed's
-        # samples (on their own point of sale) can go.
-        if Invoice.objects.exclude(point_of_sale=SAMPLE_POINT_OF_SALE).exists():
+    def reset(self, purge_homologation):
+        # Invoices emitted to ARCA hold real numbering: only homologation ones go, and only on
+        # request. The seed's samples (on their own point of sale) always can.
+        try:
+            purge_invoices(homologation=purge_homologation)
+        except PurgeRefused as e:
             raise CommandError(
-                'There are invoices emitted to ARCA: --reset would delete their orders. Remove them by hand first.')
-        # Notes first: they protect their invoice and the lines they credit.
-        Invoice.objects.exclude(associated_invoice=None).delete()
-        Invoice.objects.all().delete()
+                f'{e} --reset would delete their orders. In homologacion, --purge-homologation '
+                'deletes them too.')
         InvoiceSequenceLock.objects.filter(point_of_sale=SAMPLE_POINT_OF_SALE).delete()
         OrderItem.objects.all().delete()
         Order.objects.all().delete()
@@ -132,6 +138,8 @@ class Command(BaseCommand):
     @override_settings(
         ARCA_POINT_OF_SALE=SAMPLE_POINT_OF_SALE, ARCA_ISSUER_VAT_CONDITION='responsable_inscripto')
     def load_invoices(self, rows, orders):
+        # `backdate` changes the dates of authorized (sample) vouchers, which the database refuses.
+        bypass_invoice_guard()
         wsfe = SampleWSFE(cuit=issuer_cuit())
         for row in rows:
             where = f'invoice of order #{row["order"]}'

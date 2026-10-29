@@ -27,7 +27,9 @@ Responder en español. Código e identificadores en inglés, como el resto del r
 - `pnpm lint`, `pnpm typecheck`, `pnpm format`
 - `python apps/api/manage.py test [app]` — tests de la API
 - `python apps/api/manage.py makemigrations` / `migrate`
-- `python apps/api/manage.py seed [--reset]` — datos de desarrollo desde `apps/api/seed/dev.json`
+- `python apps/api/manage.py seed [--reset [--purge-homologation]]` — datos de desarrollo desde
+  `apps/api/seed/dev.json`; `--purge-homologation` borra también los comprobantes emitidos en
+  homologación (consultar antes: se pierde el registro de esa numeración)
 - `python apps/api/manage.py seed_conversations [--user USER] [--reset]` — conversaciones de ejemplo del
   asistente desde `apps/api/seed/conversations.json`
 

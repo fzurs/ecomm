@@ -286,12 +286,14 @@ def authorize(invoice: Invoice, result: ComprobanteAutorizado) -> None:
     invoice.arca_errors = []
     invoice.error_message = ''
     invoice.status = Invoice.Status.AUTHORIZED
-    invoice.save()
+    # The IVA goes in before the CAE: once the invoice has one, the database freezes its rows
+    # (migration 0011).
     invoice.vat.all().delete()
     InvoiceVat.objects.bulk_create(
         InvoiceVat(invoice=invoice, rate=int(iva.alicuota), base=iva.base_imponible, amount=iva.importe)
         for iva in result.iva
     )
+    invoice.save()
 
 
 def messages(items) -> list[dict]:

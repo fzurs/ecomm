@@ -22,8 +22,10 @@ from arca_client.wsfe import Mensaje
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache.backends.locmem import LocMemCache
+from django.contrib.admin.sites import site as admin_site
 from django.core.exceptions import ImproperlyConfigured
-from django.test import SimpleTestCase, TestCase, override_settings
+from django.db import IntegrityError, transaction
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -33,7 +35,8 @@ from store.models import Product, VatRate
 
 from . import amounts, services
 from .arca import DjangoTicketCache, get_wsfe
-from .models import Invoice, VoucherType
+from .models import Invoice, InvoiceLine, InvoiceVat, VoucherType
+from .purge import bypass_invoice_guard
 from .pdf import invoice_pdf
 from .rules import InvoicingError, invoice_letter, receptor_for
 from .sample import SampleWSFE
@@ -460,9 +463,60 @@ class InvoiceAPITests(FixturesMixin, APITestCase):
         response = self.client.delete(reverse('invoice-detail', args=[invoice.pk]))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        Invoice.objects.filter(pk=invoice.pk).update(status=Invoice.Status.REJECTED)
+        bypass_invoice_guard()  # as if ARCA had refused it
+        Invoice.objects.filter(pk=invoice.pk).update(status=Invoice.Status.REJECTED, cae='')
         response = self.client.delete(reverse('invoice-detail', args=[invoice.pk]))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def assertRefused(self, change):
+        with self.assertRaisesMessage(IntegrityError, 'has a CAE'), transaction.atomic():
+            change()
+
+    def test_database_refuses_deleting_a_voucher_with_cae(self):
+        invoice = self.invoice()
+        self.assertRefused(lambda: Invoice.objects.filter(pk=invoice.pk).delete())
+        self.assertRefused(lambda: Invoice.objects.filter(pk=invoice.pk)._raw_delete(using='default'))
+
+    def test_database_refuses_changing_what_arca_authorized(self):
+        invoice = self.invoice()
+        invoices = Invoice.objects.filter(pk=invoice.pk)
+        self.assertRefused(lambda: invoices.update(cae='70000000000000'))
+        self.assertRefused(lambda: invoices.update(total_amount=1))
+        self.assertRefused(lambda: invoices.update(status=Invoice.Status.REJECTED))
+        self.assertRefused(lambda: invoice.lines.update(quantity=5))
+        self.assertRefused(lambda: invoice.vat.all().delete())
+        self.assertRefused(lambda: InvoiceVat.objects.create(invoice=invoice, rate=VatRate.VAT_21, base=1, amount=0))
+        line = invoice.lines.first()
+        self.assertRefused(lambda: InvoiceLine.objects.create(
+            invoice=invoice, description='x', quantity=1, unit_price=1, vat_rate=line.vat_rate))
+        # What isn't ARCA's stays writable.
+        invoices.update(error_message='note', observations=[])
+
+    def test_notes_on_a_voucher_with_cae_still_work(self):
+        invoice = self.invoice()
+        note = services.create_credit_note(invoice)
+        self.assertEqual(note.status, Invoice.Status.AUTHORIZED)
+
+    def test_bypass_lets_the_transaction_delete_it(self):
+        invoice = self.invoice()
+        with transaction.atomic():
+            bypass_invoice_guard()
+            Invoice.objects.filter(pk=invoice.pk).delete()
+        self.assertFalse(Invoice.objects.filter(pk=invoice.pk).exists())
+
+    def test_django_admin_is_read_only(self):
+        request = RequestFactory().get('/')
+        request.user = User.objects.create(username='root', is_staff=True, is_superuser=True)
+        invoice_admin = admin_site._registry[Invoice]
+        invoice = self.invoice()
+        self.assertTrue(invoice_admin.has_view_permission(request, invoice))
+        self.assertFalse(invoice_admin.has_add_permission(request))
+        self.assertFalse(invoice_admin.has_change_permission(request, invoice))
+        self.assertFalse(invoice_admin.has_delete_permission(request, invoice))
+        item_inline = next(
+            inline for inline in admin_site._registry[Order].get_inline_instances(request, invoice.order))
+        self.assertFalse(item_inline.has_delete_permission(request, invoice.order))
+        self.assertTrue(item_inline.has_delete_permission(request, self.make_order(invoice.order.customer)))
 
     def test_filters(self):
         invoice = self.invoice(self.registered())

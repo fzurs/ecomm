@@ -15,6 +15,7 @@ from rest_framework.test import APITestCase
 
 from billing import services
 from billing.models import Invoice, InvoiceVat, ReceptorDocumentType, VoucherType
+from billing.purge import bypass_invoice_guard
 from billing.sample import SampleWSFE
 from orders.models import Customer, Order
 from store.models import Brand, Category, Product, VatRate
@@ -181,6 +182,7 @@ class ToolTests(TestCase):
 
     def test_invoicing_summary_subtracts_credit_notes(self):
         invoice = create_invoice(self.order)
+        bypass_invoice_guard()  # IVA added after the CAE, which only a fixture does
         InvoiceVat.objects.create(invoice=invoice, rate=VatRate.VAT_21, base='16528.93', amount='3471.07')
         note = create_invoice(
             self.order, voucher_type=VoucherType.CREDIT_NOTE_B, associated_invoice=invoice,

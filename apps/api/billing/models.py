@@ -188,7 +188,7 @@ class InvoiceLine(models.Model):
     invoice = models.ForeignKey(Invoice, models.CASCADE, related_name='lines')
     # The sold item, on invoice lines and on the credit note lines that return it.
     order_item = models.ForeignKey(
-        OrderItem, models.SET_NULL, null=True, blank=True, related_name='invoice_lines')
+        OrderItem, models.PROTECT, null=True, blank=True, related_name='invoice_lines')
     # On a credit note line, the invoice line it credits.
     credited_line = models.ForeignKey(
         'self', models.PROTECT, null=True, blank=True, related_name='credits')

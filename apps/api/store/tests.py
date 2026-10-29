@@ -13,6 +13,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from billing.models import Invoice
+from billing.purge import bypass_invoice_guard
 from billing.sample import SAMPLE_POINT_OF_SALE
 from orders.models import Customer, Order, OrderItem
 
@@ -332,11 +333,35 @@ class SeedCommandTests(TestCase):
         invoice = invoices.filter(status=Invoice.Status.AUTHORIZED).select_related('order').first()
         self.assertEqual(invoice.issue_date, invoice.order.created_at.date())
 
+    def emitted_to_arca(self):
+        bypass_invoice_guard()  # moves a sample voucher to a real point of sale
+        Invoice.objects.filter(pk=Invoice.objects.first().pk).update(point_of_sale=1)
+
     def test_reset_keeps_invoices_emitted_to_arca(self):
         self.seed()
-        Invoice.objects.filter(pk=Invoice.objects.first().pk).update(point_of_sale=1)
+        self.emitted_to_arca()
         with self.assertRaisesMessage(CommandError, 'emitted to ARCA'):
             self.seed('--reset')
+
+    @override_settings(ARCA_ENVIRONMENT='homologacion')
+    def test_reset_purges_homologation_vouchers_on_request(self):
+        self.seed()
+        counts = self.counts()
+        self.emitted_to_arca()
+        self.seed('--reset', '--purge-homologation')
+        self.assertEqual(self.counts(), counts)
+        self.assertFalse(Invoice.objects.exclude(point_of_sale=SAMPLE_POINT_OF_SALE).exists())
+
+    @override_settings(ARCA_ENVIRONMENT='produccion')
+    def test_never_purges_production_vouchers(self):
+        self.seed()
+        self.emitted_to_arca()
+        with self.assertRaisesMessage(CommandError, 'only deleted in homologacion'):
+            self.seed('--reset', '--purge-homologation')
+
+    def test_purge_needs_reset(self):
+        with self.assertRaisesMessage(CommandError, 'needs --reset'):
+            self.seed('--purge-homologation')
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

@@ -68,6 +68,13 @@
   `delete_lock`); sus comprobantes rechazados se borran con ella (`services.delete_order`).
 - Nunca reintentar una emisión a ciegas: puede duplicar el comprobante. Los importes son
   `Decimal`, nunca `float`. Solo se borra un comprobante `rejected`.
+- Un comprobante con CAE es inmutable en la base (triggers de la migración `0011`): no se borra,
+  no cambia lo que autorizó ARCA (números, montos, receptor, estado, `arca_response`) y sus
+  líneas e IVA quedan congelados; solo `error_message`, `arca_errors` y `observations` siguen
+  editables. Por eso `authorize` guarda el IVA antes que el CAE. El Django admin lo muestra de
+  solo lectura. `billing.purge.bypass_invoice_guard()` (`SET LOCAL`) lo saltea en la transacción
+  actual: solo para el seed y fixtures de tests; dentro de un `TestCase` dura hasta el final del
+  test.
 
 ## Datos de desarrollo
 - `python manage.py seed [path] [--reset]` carga `seed/dev.json` (brands, categorías, productos,
@@ -79,7 +86,8 @@
   numeración no choque con la real: facturas A y B, notas de crédito y débito A y B (parciales y totales), y los estados rechazado y sin verificar.
   Reemitir o verificar una desde el admin sí llama a ARCA.
 - `--reset` borra todo antes, incluidos esos comprobantes de muestra, y se niega si hay alguno de
-  otro punto de venta (emitido a ARCA).
+  otro punto de venta (emitido a ARCA). `--reset --purge-homologation` borra también esos, solo
+  con `ARCA_ENVIRONMENT=homologacion` (`billing.purge.purge_invoices`).
 - `python manage.py seed_conversations [path] [--user USER] [--reset]` carga `seed/conversations.json`
   para un usuario staff (`--user` hace falta si hay más de uno). El título es la clave: agrega las
   que le falten, `--reset` recrea las sembradas y las conversaciones propias del usuario no se tocan.
