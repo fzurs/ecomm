@@ -75,7 +75,8 @@ Las variables están documentadas en [`apps/api/.env.example`](apps/api/.env.exa
 - **Asistente**: necesita `ANTHROPIC_API_KEY`.
 - **Producción**: `config.settings.prod` (el default de `wsgi.py`) exige `SECRET_KEY`,
   `ALLOWED_HOSTS`, `ARCA_ENVIRONMENT` y las rutas del certificado de ARCA por entorno; ver la
-  sección "Producción" de [`apps/api/.env.example`](apps/api/.env.example).
+  sección "Producción" de [`apps/api/.env.example`](apps/api/.env.example). Cuentas, 2FA,
+  certificados y acceso a la base: [`docs/production.md`](docs/production.md).
 
 ## Comandos
 
