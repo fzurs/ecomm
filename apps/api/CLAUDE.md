@@ -17,8 +17,17 @@
 - Caches: `default` es locmem; `arca` es Redis (los tickets de acceso se comparten entre workers).
 
 ## Convenciones de la API
-- Defaults de DRF: `SessionAuthentication` + `IsAuthenticated`, `LimitOffsetPagination` (100),
-  `DjangoFilterBackend`. El admin se autentica con cookie de sesión + header CSRF.
+- Defaults de DRF: `SessionAuthentication` + `config.permissions.StaffModelPermissions`,
+  `LimitOffsetPagination` (100), `DjangoFilterBackend`. El admin se autentica con cookie de
+  sesión + header CSRF.
+- Permisos: solo staff, con el permiso de modelo del método (`view_` para leer, `add_` para POST,
+  también en las `@action`; emitir, reemitir, verificar y hacer notas es `billing.add_invoice`).
+  La tienda lee sin sesión vía `PublicReadMixin`. Los roles son grupos definidos en
+  `accounts/roles.py` (Administración, Facturación, Solo lectura) que `sync_roles` reescribe
+  después de cada `migrate`; un permiso nuevo se asigna ahí, no a mano. Las cuentas del día a día
+  se crean con `manage.py create_operator <user> [--role ...]` (staff, sin superusuario).
+  `/auth/user/` expone `is_staff` y `permissions` (solo lectura) para que el admin oculte acciones.
+- Tests: `config.testing.make_staff(role=...)` para loguear un usuario como los reales.
 - CORS y CSRF aceptan solo `FRONTEND_ORIGINS` (`config/settings/base.py`, variable `FRONTEND_ORIGINS`). Con credenciales habilitadas,
   nunca volver a `CORS_ALLOW_ALL_ORIGINS`: cualquier sitio podría leer la API con la sesión del
   admin. Un frontend nuevo se agrega a esa lista.

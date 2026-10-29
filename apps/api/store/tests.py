@@ -15,6 +15,7 @@ from rest_framework.test import APITestCase
 from billing.models import Invoice
 from billing.purge import bypass_invoice_guard
 from billing.sample import SAMPLE_POINT_OF_SALE
+from config.testing import make_staff
 from orders.models import Customer, Order, OrderItem
 
 from .images import generate_customer_image, generate_product_image
@@ -52,24 +53,24 @@ class GenerateSkuTests(APITestCase):
             Product(name='ACME Hammer').generate_sku()
 
     def test_api_create_generates_sku(self):
-        self.client.force_login(get_user_model().objects.create(username='admin'))
+        self.client.force_login(make_staff())
         response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json()['sku'], build_sku('ACME Hammer', response.json()['id']))
 
     def test_api_create_with_empty_sku_generates_it(self):
-        self.client.force_login(get_user_model().objects.create(username='admin'))
+        self.client.force_login(make_staff())
         response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer', 'sku': ''})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json()['sku'], build_sku('ACME Hammer', response.json()['id']))
 
     def test_api_create_keeps_given_sku(self):
-        self.client.force_login(get_user_model().objects.create(username='admin'))
+        self.client.force_login(make_staff())
         response = self.client.post(reverse('product-list'), {'name': 'ACME Hammer', 'sku': 'MY-SKU'})
         self.assertEqual(response.json()['sku'], 'MY-SKU')
 
     def test_generate_sku_endpoint(self):
-        self.client.force_login(get_user_model().objects.create(username='admin'))
+        self.client.force_login(make_staff())
         product = Product.objects.create(name='ACME Hammer', sku='OLD')
         response = self.client.post(reverse('product-generate-sku', args=[product.slug]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -246,7 +247,7 @@ class ActivePriceTests(SimpleTestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class DiscountPercentTests(APITestCase):
     def setUp(self):
-        self.client.force_login(get_user_model().objects.create(username='admin'))
+        self.client.force_login(make_staff())
 
     def test_api_returns_active_price(self):
         response = self.client.post(
@@ -270,7 +271,7 @@ class DiscountPercentTests(APITestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProductDestroyTests(APITestCase):
     def setUp(self):
-        self.client.force_login(get_user_model().objects.create(username='admin'))
+        self.client.force_login(make_staff())
         self.product = Product.objects.create(name='ACME Hammer', price=100)
 
     def test_deletes_unused_product(self):

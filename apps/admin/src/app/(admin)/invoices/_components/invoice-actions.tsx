@@ -14,6 +14,7 @@ import {
   SearchCheckIcon,
 } from "lucide-react"
 import Link from "next/link"
+import { useCan } from "@/hooks/use-auth"
 import {
   useEmitInvoice,
   useVerifyInvoice,
@@ -22,7 +23,10 @@ import { invoicePdfUrl } from "../_lib/invoice-pdf"
 
 type Size = "default" | "sm"
 
-/** What can be done with a voucher in its status, as buttons. */
+/**
+ * What can be done with a voucher in its status, as buttons. Emitting (notes,
+ * again, verifying) needs `billing.add_invoice`.
+ */
 export function InvoiceActions({
   invoice,
   size = "default",
@@ -30,6 +34,8 @@ export function InvoiceActions({
   invoice: Invoice | InvoiceDetail
   size?: Size
 }) {
+  const canEmit = useCan("billing.add_invoice")
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {invoice.status === "authorized" && (
@@ -43,16 +49,16 @@ export function InvoiceActions({
           PDF
         </a>
       )}
-      {invoice.kind === "invoice" && invoice.status === "authorized" && (
+      {canEmit && invoice.kind === "invoice" && invoice.status === "authorized" && (
         <>
           <NoteLink invoice={invoice} kind="credit-note" size={size} />
           <NoteLink invoice={invoice} kind="debit-note" size={size} />
         </>
       )}
-      {invoice.status === "rejected" && (
+      {canEmit && invoice.status === "rejected" && (
         <EmitButton invoice={invoice} size={size} />
       )}
-      {invoice.status === "unverified" && (
+      {canEmit && invoice.status === "unverified" && (
         <VerifyButton invoice={invoice} size={size} />
       )}
     </div>

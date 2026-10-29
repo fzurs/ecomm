@@ -225,14 +225,17 @@ export const zPatchedCategory = z.object({
 });
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export const zPatchedUserDetails = z.object({
     pk: z.int().readonly().optional(),
     username: z.string().max(150).regex(/^[\w.@+-]+$/).optional(),
     email: z.email().readonly().optional(),
     first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional()
+    last_name: z.string().max(150).optional(),
+    is_staff: z.boolean().readonly().optional(),
+    permissions: z.array(z.string()).readonly().optional()
 });
 
 /**
@@ -278,14 +281,17 @@ export const zRestAuthDetail = z.object({
 });
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export const zUserDetails = z.object({
     pk: z.int().readonly(),
     username: z.string().max(150).regex(/^[\w.@+-]+$/),
     email: z.email().readonly(),
     first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional()
+    last_name: z.string().max(150).optional(),
+    is_staff: z.boolean().readonly(),
+    permissions: z.array(z.string()).readonly()
 });
 
 /**
@@ -851,7 +857,8 @@ export const zPatchedProductWritable = z.object({
 });
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export const zPatchedUserDetailsWritable = z.object({
     username: z.string().max(150).regex(/^[\w.@+-]+$/).optional(),
@@ -899,7 +906,8 @@ export const zProductSummaryWritable = z.object({
 });
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export const zUserDetailsWritable = z.object({
     username: z.string().max(150).regex(/^[\w.@+-]+$/),

@@ -71,13 +71,14 @@ INSTALLED_APPS = [
     "orders",
     "billing",
     "assistant",
+    "accounts",
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication"
     ],
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_PERMISSION_CLASSES": ["config.permissions.StaffModelPermissions"],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
@@ -116,7 +117,10 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
 
 # Session auth only: don't create (and return) a DRF token on every login.
-REST_AUTH = {"TOKEN_MODEL": None}
+REST_AUTH = {
+    "TOKEN_MODEL": None,
+    "USER_DETAILS_SERIALIZER": "accounts.serializers.UserDetailsSerializer",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

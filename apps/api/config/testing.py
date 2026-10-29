@@ -1,0 +1,12 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+
+from accounts.roles import ADMINISTRATION
+
+
+def make_staff(username='admin', role=ADMINISTRATION, **fields):
+    """An admin account like the real ones: staff in a role, not a superuser."""
+    user = get_user_model().objects.create(username=username, is_staff=True, **fields)
+    if role:
+        user.groups.add(Group.objects.get(name=role))
+    return user

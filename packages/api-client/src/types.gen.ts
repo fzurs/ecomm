@@ -462,7 +462,8 @@ export type PatchedProduct = {
 };
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export type PatchedUserDetails = {
     /**
@@ -479,6 +480,13 @@ export type PatchedUserDetails = {
     readonly email?: string;
     first_name?: string;
     last_name?: string;
+    /**
+     * Staff status
+     *
+     * Designates whether the user can log into this admin site.
+     */
+    readonly is_staff?: boolean;
+    readonly permissions?: Array<string>;
 };
 
 export type Product = {
@@ -544,7 +552,8 @@ export type RestAuthDetail = {
 };
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export type UserDetails = {
     /**
@@ -561,6 +570,13 @@ export type UserDetails = {
     readonly email: string;
     first_name?: string;
     last_name?: string;
+    /**
+     * Staff status
+     *
+     * Designates whether the user can log into this admin site.
+     */
+    readonly is_staff: boolean;
+    readonly permissions: Array<string>;
 };
 
 /**
@@ -794,7 +810,8 @@ export type PatchedProductWritable = {
 };
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export type PatchedUserDetailsWritable = {
     /**
@@ -838,7 +855,8 @@ export type ProductSummaryWritable = {
 };
 
 /**
- * User model w/o password
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows. Both are read-only.
  */
 export type UserDetailsWritable = {
     /**

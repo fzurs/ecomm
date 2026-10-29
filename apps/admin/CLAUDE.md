@@ -11,7 +11,10 @@
   (`loading` / `authenticated` / `unauthenticated` / `error`), `useLogin()` y `useLogout()`. No
   usar `authUserRetrieveOptions` ni las mutations de auth directamente.
 - `(admin)/layout.tsx` envuelve todo en `AuthGuard` (`src/components/auth-guard.tsx`), que redirige
-  a `/login` solo ante 401/403; otros errores muestran un estado de error con reintento.
+  a `/login` solo ante 401/403; otros errores muestran un estado de error con reintento. Un usuario
+  logueado que no es staff ve "No access" y puede cerrar sesión.
+- Permisos: `useCan("app.codename")` (de `user.permissions`) oculta acciones que la API rechazaría,
+  ej. emitir comprobantes (`billing.add_invoice`). La API es la que valida; esto es solo UI.
 - Login y logout hacen `queryClient.clear()` para no mostrar datos de otra sesión, y redirigen
   con `router.replace`.
 - El `QueryClient` (`src/components/react-query-provider.tsx`) vuelve a pedir la sesión ante

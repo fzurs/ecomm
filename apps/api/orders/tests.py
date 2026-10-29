@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.db import IntegrityError, transaction
 from billing.models import Invoice, ReceptorDocumentType, VoucherType
+from config.testing import make_staff
 from store.models import Product
 from .models import Customer, Order, OrderItem
 
@@ -24,7 +25,7 @@ class CustomerNameTests(APITestCase):
             Customer.objects.create(name='Juan Pérez')
 
     def test_api_rejects_duplicate_name(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         Customer.objects.create(name='Juan Pérez')
         response = self.client.post(reverse('customer-list'), {'name': 'Juan Pérez'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -34,7 +35,7 @@ class CustomerNameTests(APITestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CustomerFiscalDataTests(APITestCase):
     def setUp(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
 
     def post(self, **data):
         return self.client.post(reverse('customer-list'), {'name': 'Acme SA', **data})
@@ -81,25 +82,25 @@ class CustomerChoicesTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_lists_all_unpaginated(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         response = self.client.get(reverse('customer-choices'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual({c['name'] for c in response.json()}, {'Juan Pérez', 'Ana Gómez'})
 
     def test_applies_search(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         response = self.client.get(reverse('customer-choices'), {'search': 'juan'})
         self.assertEqual([c['name'] for c in response.json()], ['Juan Pérez'])
 
     def test_leaves_out_contact_and_document(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         response = self.client.get(reverse('customer-choices'))
         self.assertEqual(set(response.json()[0]), {'id', 'name', 'image'})
 
 
 class CustomerSearchTests(APITestCase):
     def setUp(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         Customer.objects.create(name='Acme', legal_name='Acme Sociedad Anónima',
                                 document_number='20123456786')
         Customer.objects.create(name='Ana Gómez')
@@ -114,7 +115,7 @@ class CustomerSearchTests(APITestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class OrderCustomerDetailTests(APITestCase):
     def setUp(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         customer = Customer.objects.create(
             name='Juan Pérez', email='juan@example.com', phone='1155550000',
             document_number='20123456786')
@@ -140,7 +141,7 @@ class OrderCustomerDetailTests(APITestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class OrderTestCase(APITestCase):
     def setUp(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         self.customer = Customer.objects.create(name='ACME Inc')
 
     def create_product(self, name='ACME Hammer', price=100, status=Product.Status.ACTIVE):

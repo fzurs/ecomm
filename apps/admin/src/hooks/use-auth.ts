@@ -47,6 +47,15 @@ export function useSession() {
 }
 
 /**
+ * Whether the user has a Django permission ("app.codename", e.g.
+ * "billing.add_invoice"). Only hides what the API would refuse anyway.
+ */
+export function useCan(permission: string) {
+  const { user } = useSession()
+  return user?.permissions.includes(permission) ?? false
+}
+
+/**
  * Logs in and starts from an empty cache, so nothing from a previous session
  * is shown to the new user.
  */

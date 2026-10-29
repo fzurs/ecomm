@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRowActions } from "@/context/row-actions-provider"
+import { useCan } from "@/hooks/use-auth"
 import { useOptimisticOrderStatusUpdate } from "../_hooks/use-optimistic-order"
 import {
   canInvoice,
@@ -110,6 +111,7 @@ export function OrderRowActions({ item: order }: { item: Order }) {
  */
 function OrderInvoiceMenuItem({ order }: { order: Order }) {
   const { openAction } = useRowActions<Order>()
+  const canEmit = useCan("billing.add_invoice")
 
   if (isInvoiced(order) && order.invoice_id) {
     return (
@@ -121,6 +123,8 @@ function OrderInvoiceMenuItem({ order }: { order: Order }) {
       </DropdownMenuItem>
     )
   }
+  // Without the permission, nothing to offer.
+  if (!canEmit) return null
   if (canInvoice(order)) {
     return (
       <DropdownMenuItem onClick={() => openAction("invoice", order)}>

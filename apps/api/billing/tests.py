@@ -20,9 +20,9 @@ from arca_client import (
 )
 from arca_client.wsfe import Mensaje
 from django.conf import settings
+from django.contrib.admin.sites import site as admin_site
 from django.contrib.auth import get_user_model
 from django.core.cache.backends.locmem import LocMemCache
-from django.contrib.admin.sites import site as admin_site
 from django.core.exceptions import ImproperlyConfigured
 from django.db import IntegrityError, transaction
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
@@ -30,6 +30,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from config.testing import make_staff
 from orders.models import Customer, Order
 from store.models import Product, VatRate
 
@@ -181,7 +182,7 @@ class RulesTests(FixturesMixin, TestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp(), **ISSUER)
 class InvoiceAPITests(FixturesMixin, APITestCase):
     def setUp(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         self.wsfe = FakeWSFE()
         patcher = mock.patch('billing.services.get_wsfe', return_value=self.wsfe)
         patcher.start()
@@ -535,7 +536,7 @@ class OrderStatusLockTests(FixturesMixin, APITestCase):
     """What an order's invoice says about the statuses it can move to (`order_status_locks`)."""
 
     def setUp(self):
-        self.client.force_login(User.objects.create(username='admin'))
+        self.client.force_login(make_staff())
         patcher = mock.patch('billing.services.get_wsfe', return_value=FakeWSFE())
         patcher.start()
         self.addCleanup(patcher.stop)

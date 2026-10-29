@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession } from "@/hooks/use-auth"
+import { useLogout, useSession } from "@/hooks/use-auth"
 import { Button } from "@workspace/ui/components/button"
 import {
   Empty,
@@ -13,16 +13,21 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
-/** Renders its children only with a session; otherwise goes to /login. */
+/**
+ * Renders its children only with a staff session; otherwise goes to /login.
+ * A user that isn't staff (e.g. a store customer) gets no admin at all.
+ */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const { status, refetch } = useSession()
+  const { user, status, refetch } = useSession()
 
   React.useEffect(() => {
     if (status === "unauthenticated") router.replace("/login")
   }, [status, router])
 
-  if (status === "authenticated") return children
+  if (status === "authenticated") {
+    return user?.is_staff ? children : <NoAccess />
+  }
 
   if (status === "error") {
     return (
@@ -43,6 +48,30 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   return <FullPageSpinner />
+}
+
+function NoAccess() {
+  const logout = useLogout()
+
+  return (
+    <Empty className="min-h-svh">
+      <EmptyHeader>
+        <EmptyTitle>No access</EmptyTitle>
+        <EmptyDescription>
+          This account can&apos;t use the admin. Log in with a staff account.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button
+          variant="outline"
+          disabled={logout.isPending}
+          onClick={() => logout.mutate({})}
+        >
+          Log out
+        </Button>
+      </EmptyContent>
+    </Empty>
+  )
 }
 
 export function FullPageSpinner() {

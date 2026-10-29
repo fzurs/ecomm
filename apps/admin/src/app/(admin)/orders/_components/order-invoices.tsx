@@ -19,6 +19,7 @@ import {
 import { FileTextIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useCan } from "@/hooks/use-auth"
 import { RelatedVouchers } from "../../invoices/_components/related-vouchers"
 import {
   canInvoice,
@@ -30,13 +31,15 @@ import { OrderInvoiceDialog } from "./order-invoice-dialog"
 
 /**
  * Always there, as the row action: it opens the invoice once there is one,
- * invoices the order when it can, and else says why it can't.
+ * invoices the order when it can, and else says why it can't. Without
+ * `billing.add_invoice` it only opens the invoice.
  */
 export function OrderInvoiceButton({
   order,
   ...props
 }: { order: Order } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false)
+  const canEmit = useCan("billing.add_invoice")
 
   if (isInvoiced(order) && order.invoice_id) {
     return (
@@ -49,6 +52,7 @@ export function OrderInvoiceButton({
       </Link>
     )
   }
+  if (!canEmit) return null
   if (!canInvoice(order)) {
     // A cancelled order won't be invoiced: nothing to point to.
     if (order.status === "cancelled") return null

@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRowActions } from "@/context/row-actions-provider"
+import { useCan } from "@/hooks/use-auth"
 import {
   useEmitInvoice,
   useVerifyInvoice,
@@ -34,10 +35,12 @@ export function InvoiceRowActions({ item: invoice }: { item: Invoice }) {
   const queryClient = useQueryClient()
   const emit = useEmitInvoice()
   const verify = useVerifyInvoice()
+  const canEmit = useCan("billing.add_invoice")
+  const canDelete = useCan("billing.delete_invoice")
 
   const authorized = invoice.status === "authorized"
   const notesAvailable =
-    invoice.kind === "invoice" && !invoice.notes_unavailable_reason
+    canEmit && invoice.kind === "invoice" && !invoice.notes_unavailable_reason
 
   // Warms the detail query the view drawer reads.
   const prefetchDetails = (open: boolean) => {
@@ -92,7 +95,7 @@ export function InvoiceRowActions({ item: invoice }: { item: Invoice }) {
               </DropdownMenuItem>
             </>
           )}
-          {invoice.status === "rejected" && (
+          {canEmit && invoice.status === "rejected" && (
             <DropdownMenuItem
               disabled={emit.isPending}
               onClick={() => emit.mutate({ path: { id: invoice.id } })}
@@ -101,7 +104,7 @@ export function InvoiceRowActions({ item: invoice }: { item: Invoice }) {
               Emit again
             </DropdownMenuItem>
           )}
-          {invoice.status === "unverified" && (
+          {canEmit && invoice.status === "unverified" && (
             <DropdownMenuItem
               disabled={verify.isPending}
               onClick={() => verify.mutate({ path: { id: invoice.id } })}
@@ -112,7 +115,7 @@ export function InvoiceRowActions({ item: invoice }: { item: Invoice }) {
           )}
         </DropdownMenuGroup>
         {/* Only what ARCA never authorized can go. */}
-        {invoice.status === "rejected" && (
+        {canDelete && invoice.status === "rejected" && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
