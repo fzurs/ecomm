@@ -51,7 +51,8 @@ local_settings.py
 .env
 db.sqlite3
 
-### Media Files Django ###
+### Static and media files Django ###
+staticfiles/
 media/
 
 ### API SCHEMA ###

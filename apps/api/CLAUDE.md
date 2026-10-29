@@ -1,8 +1,12 @@
 # apps/api (Django + DRF)
 
 ## Settings
-- `config/settings.py` lee `/workspace/ecomm/db.env` (opcional) y `apps/api/.env` con
-  django-environ. El certificado y la clave van en `certs/<ARCA_ENVIRONMENT>/ecomm.crt|.key`
+- `config/settings/` tiene `base.py` (común), `dev.py` (default de `manage.py`: devcontainer y
+  tests) y `prod.py` (default de `wsgi.py`/`asgi.py`; exige `SECRET_KEY`, `ALLOWED_HOSTS`,
+  `ARCA_ENVIRONMENT` y rutas absolutas de certificado fuera del repo, y fuerza HTTPS). Un setting
+  nuevo va en `base.py` salvo que dependa del entorno. `base.py` lee `/workspace/ecomm/db.env`
+  (opcional) y `apps/api/.env` con django-environ.
+- En dev, el certificado y la clave van en `certs/<ARCA_ENVIRONMENT>/ecomm.crt|.key`
   (`certificate_paths` de arca-client, donde los guarda `arca-setup` con carpeta base
   `apps/api/certs` y alias `ecomm`; `ARCA_CERTIFICATE_PATH` / `ARCA_PRIVATE_KEY_PATH` los pisan).
   `ARCA_CUIT` es opcional: `billing.arca.issuer_cuit()` la lee del certificado si falta.
@@ -15,7 +19,7 @@
 ## Convenciones de la API
 - Defaults de DRF: `SessionAuthentication` + `IsAuthenticated`, `LimitOffsetPagination` (100),
   `DjangoFilterBackend`. El admin se autentica con cookie de sesión + header CSRF.
-- CORS y CSRF aceptan solo `FRONTEND_ORIGINS` (`config/settings.py`). Con credenciales habilitadas,
+- CORS y CSRF aceptan solo `FRONTEND_ORIGINS` (`config/settings/base.py`, variable `FRONTEND_ORIGINS`). Con credenciales habilitadas,
   nunca volver a `CORS_ALLOW_ALL_ORIGINS`: cualquier sitio podría leer la API con la sesión del
   admin. Un frontend nuevo se agrega a esa lista.
 - dj-rest-auth corre solo con sesión (`REST_AUTH = {"TOKEN_MODEL": None}`): el login responde 204

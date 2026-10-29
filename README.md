@@ -73,8 +73,9 @@ Las variables están documentadas en [`apps/api/.env.example`](apps/api/.env.exa
   En `apps/api/.env` van el ambiente (`homologacion` por defecto), el punto de venta, la condición
   del emisor y sus datos para el PDF. En homologación cada emisión consume numeración.
 - **Asistente**: necesita `ANTHROPIC_API_KEY`.
-- **Producción**: `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, la base de datos y `FRONTEND_ORIGINS`
-  tienen valores de desarrollo fijos en `apps/api/config/settings.py`.
+- **Producción**: `config.settings.prod` (el default de `wsgi.py`) exige `SECRET_KEY`,
+  `ALLOWED_HOSTS`, `ARCA_ENVIRONMENT` y las rutas del certificado de ARCA por entorno; ver la
+  sección "Producción" de [`apps/api/.env.example`](apps/api/.env.example).
 
 ## Comandos
 
