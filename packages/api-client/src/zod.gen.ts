@@ -7,6 +7,10 @@ export const zArcaMessage = z.object({
     msg: z.string()
 });
 
+export const zBackupCodes = z.object({
+    backup_codes: z.array(z.string())
+});
+
 export const zBlankEnum = z.enum(['']);
 
 export const zBrand = z.object({
@@ -106,6 +110,10 @@ export const zInvoiceStatus = z.enum([
     'unverified'
 ]);
 
+/**
+ * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
+ * asks for it and sends everything again.
+ */
 export const zLogin = z.object({
     username: z.string().optional(),
     email: z.email().optional(),
@@ -168,6 +176,10 @@ export const zOrderStatusLock = z.object({
     reason: z.string()
 });
 
+export const zOtpCode = z.object({
+    otp_code: z.string()
+});
+
 export const zPaginatedBrandList = z.object({
     count: z.int(),
     next: z.url().nullish(),
@@ -226,7 +238,7 @@ export const zPatchedCategory = z.object({
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export const zPatchedUserDetails = z.object({
     pk: z.int().readonly().optional(),
@@ -235,7 +247,10 @@ export const zPatchedUserDetails = z.object({
     first_name: z.string().max(150).optional(),
     last_name: z.string().max(150).optional(),
     is_staff: z.boolean().readonly().optional(),
-    permissions: z.array(z.string()).readonly().optional()
+    permissions: z.array(z.string()).readonly().optional(),
+    otp_enabled: z.boolean().readonly().optional(),
+    otp_verified: z.boolean().readonly().optional(),
+    otp_required: z.boolean().readonly().optional()
 });
 
 /**
@@ -280,9 +295,19 @@ export const zRestAuthDetail = z.object({
     detail: z.string().readonly()
 });
 
+export const zTwoFactorDisable = z.object({
+    otp_code: z.string(),
+    password: z.string()
+});
+
+export const zTwoFactorSetup = z.object({
+    otpauth_url: z.string(),
+    qr_svg: z.string()
+});
+
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export const zUserDetails = z.object({
     pk: z.int().readonly(),
@@ -291,7 +316,10 @@ export const zUserDetails = z.object({
     first_name: z.string().max(150).optional(),
     last_name: z.string().max(150).optional(),
     is_staff: z.boolean().readonly(),
-    permissions: z.array(z.string()).readonly()
+    permissions: z.array(z.string()).readonly(),
+    otp_enabled: z.boolean().readonly(),
+    otp_verified: z.boolean().readonly(),
+    otp_required: z.boolean().readonly()
 });
 
 /**
@@ -741,6 +769,17 @@ export const zInvoiceLineWritable = z.object({
 
 export const zInvoicePreviewWritable = z.record(z.string(), z.unknown());
 
+/**
+ * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
+ * asks for it and sends everything again.
+ */
+export const zLoginWritable = z.object({
+    username: z.string().optional(),
+    email: z.email().optional(),
+    password: z.string(),
+    otp_code: z.string().optional()
+});
+
 export const zMessageWritable = z.object({
     role: zMessageRole,
     text: z.string().optional()
@@ -858,7 +897,7 @@ export const zPatchedProductWritable = z.object({
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export const zPatchedUserDetailsWritable = z.object({
     username: z.string().max(150).regex(/^[\w.@+-]+$/).optional(),
@@ -907,7 +946,7 @@ export const zProductSummaryWritable = z.object({
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export const zUserDetailsWritable = z.object({
     username: z.string().max(150).regex(/^[\w.@+-]+$/),
@@ -941,7 +980,20 @@ export const zAssistantConversationsRetrievePath = z.object({
 
 export const zAssistantConversationsRetrieveResponse = zConversationDetail;
 
-export const zAuthLoginCreateBody = zLogin;
+export const zAuth2FaConfirmBody = zOtpCode;
+
+export const zAuth2FaConfirmResponse = zBackupCodes;
+
+export const zAuth2FaDisableBody = zTwoFactorDisable;
+
+/**
+ * No response body
+ */
+export const zAuth2FaDisableResponse = z.void();
+
+export const zAuth2FaSetupResponse = zTwoFactorSetup;
+
+export const zAuthLoginCreateBody = zLoginWritable;
 
 /**
  * No response body

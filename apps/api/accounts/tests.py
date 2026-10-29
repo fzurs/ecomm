@@ -1,16 +1,20 @@
 import io
+import time
 from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management import CommandError, call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django_otp.oath import TOTP
+from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from config.testing import make_staff
 
+from . import otp
 from .roles import ADMINISTRATION, INVOICING, READ_ONLY, sync_roles
 
 User = get_user_model()
@@ -100,3 +104,114 @@ class CreateOperatorTests(TestCase):
         make_staff('fede')
         with self.assertRaisesMessage(CommandError, 'already exists'):
             self.create('fede')
+
+
+def current_code(device: TOTPDevice) -> str:
+    totp = TOTP(device.bin_key, device.step, device.t0, device.digits, device.drift)
+    totp.time = time.time()
+    return f'{totp.token():0{device.digits}d}'
+
+
+# Throttling (a growing wait after each wrong code) would refuse the right code that follows a
+# wrong one; test_wrong_codes_are_throttled turns it back on.
+@override_settings(OTP_TOTP_THROTTLE_FACTOR=0, OTP_STATIC_THROTTLE_FACTOR=0)
+class TwoFactorTests(APITestCase):
+    password = 'una clave bien larga'
+
+    def setUp(self):
+        self.user = make_staff()
+        self.user.set_password(self.password)
+        self.user.save()
+
+    def enable(self):
+        """2FA on, as if set up from the admin: (device, backup codes)."""
+        device = otp.start_setup(self.user)
+        return device, otp.confirm_setup(device)
+
+    def login(self, **data):
+        return self.client.post(
+            reverse('rest_login'), {'username': 'admin', 'password': self.password, **data}, format='json')
+
+    def me(self):
+        return self.client.get(reverse('rest_user_details')).json()
+
+    def test_login_without_2fa_is_unchanged(self):
+        self.assertEqual(self.login().status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(self.me()['otp_enabled'])
+
+    def test_login_with_2fa_asks_for_the_code(self):
+        device, _ = self.enable()
+
+        response = self.login()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('otp_code', response.json())
+        self.assertEqual(self.client.get(reverse('rest_user_details')).status_code, status.HTTP_403_FORBIDDEN)
+
+        self.assertEqual(self.login(otp_code='000000').json()['otp_code'], ['Invalid code.'])
+
+        self.assertEqual(self.login(otp_code=current_code(device)).status_code, status.HTTP_204_NO_CONTENT)
+        me = self.me()
+        self.assertTrue(me['otp_enabled'])
+        self.assertTrue(me['otp_verified'])
+
+    def test_a_backup_code_works_once(self):
+        _, codes = self.enable()
+        self.assertEqual(len(codes), otp.BACKUP_CODES)
+        with self.assertLogs('audit', 'INFO'):
+            self.assertEqual(self.login(otp_code=codes[0]).status_code, status.HTTP_204_NO_CONTENT)
+        self.client.logout()
+        self.assertEqual(self.login(otp_code=codes[0]).status_code, status.HTTP_400_BAD_REQUEST)
+
+    @override_settings(OTP_TOTP_THROTTLE_FACTOR=1)
+    def test_wrong_codes_are_throttled(self):
+        device, codes = self.enable()
+        self.login(otp_code='000000')
+        self.assertEqual(self.login(otp_code=current_code(device)).status_code, status.HTTP_400_BAD_REQUEST)
+        # A backup code goes to its own device: the authenticator's failures don't block it.
+        self.assertEqual(self.login(otp_code=codes[0]).status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_setup_and_confirm_from_the_admin(self):
+        self.client.force_login(self.user)
+        setup = self.client.post(reverse('2fa-setup')).json()
+        self.assertTrue(setup['otpauth_url'].startswith('otpauth://totp/'))
+        self.assertTrue(setup['qr_svg'].startswith('<svg'))
+
+        device = TOTPDevice.objects.get(user=self.user)
+        self.assertFalse(device.confirmed)
+        wrong = self.client.post(reverse('2fa-confirm'), {'otp_code': '000000'}, format='json')
+        self.assertEqual(wrong.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.post(reverse('2fa-confirm'), {'otp_code': current_code(device)}, format='json')
+        self.assertEqual(len(response.json()['backup_codes']), otp.BACKUP_CODES)
+        self.assertTrue(self.me()['otp_verified'])
+        # Once on, it's turned off before setting it up again.
+        self.assertEqual(self.client.post(reverse('2fa-setup')).status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_disable_needs_the_password_and_a_code(self):
+        _, codes = self.enable()
+        self.client.force_login(self.user)
+        url = reverse('2fa-disable')
+        self.assertEqual(
+            self.client.post(url, {'password': 'otra', 'otp_code': codes[0]}, format='json').status_code,
+            status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            self.client.post(url, {'password': self.password, 'otp_code': '000000'}, format='json').status_code,
+            status.HTTP_400_BAD_REQUEST)
+        response = self.client.post(url, {'password': self.password, 'otp_code': codes[0]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(otp.enabled(self.user))
+
+    @override_settings(REQUIRE_2FA=True)
+    def test_where_required_staff_without_the_second_factor_gets_nothing(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('order-list'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.json()['detail'], 'Two-factor authentication required.')
+        self.assertEqual(self.client.get(reverse('conversation-list')).status_code, status.HTTP_403_FORBIDDEN)
+        # What it needs to set it up still answers.
+        self.assertTrue(self.me()['otp_required'])
+        self.assertEqual(self.client.post(reverse('2fa-setup')).status_code, status.HTTP_200_OK)
+
+        device = TOTPDevice.objects.get(user=self.user)
+        self.client.post(reverse('2fa-confirm'), {'otp_code': current_code(device)}, format='json')
+        self.assertEqual(self.client.get(reverse('order-list')).status_code, status.HTTP_200_OK)

@@ -27,6 +27,13 @@
   después de cada `migrate`; un permiso nuevo se asigna ahí, no a mano. Las cuentas del día a día
   se crean con `manage.py create_operator <user> [--role ...]` (staff, sin superusuario).
   `/auth/user/` expone `is_staff` y `permissions` (solo lectura) para que el admin oculte acciones.
+- 2FA (TOTP + 10 códigos de respaldo, django-otp; `accounts/otp.py`): con 2FA activo el login
+  (`accounts.views.LoginView`, que reemplaza el de dj-rest-auth con su mismo patrón `login/?$`)
+  falla en `otp_code` si falta o es inválido. Con `REQUIRE_2FA` (True en base/prod, False en dev
+  salvo `REQUIRE_2FA=true`) los permisos (`config.permissions.is_verified_staff`) rechazan sesiones
+  staff sin verificar; `/auth/2fa/setup|confirm|disable/` solo piden staff, para poder activarlo.
+  `/auth/user/` expone `otp_enabled`, `otp_verified` y `otp_required`. django-otp frena los
+  códigos erróneos con espera creciente por dispositivo: en tests, `OTP_*_THROTTLE_FACTOR=0`.
 - Tests: `config.testing.make_staff(role=...)` para loguear un usuario como los reales.
 - CORS y CSRF aceptan solo `FRONTEND_ORIGINS` (`config/settings/base.py`, variable `FRONTEND_ORIGINS`). Con credenciales habilitadas,
   nunca volver a `CORS_ALLOW_ALL_ORIGINS`: cualquier sitio podría leer la API con la sesión del

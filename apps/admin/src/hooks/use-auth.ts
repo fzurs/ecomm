@@ -2,6 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
+  auth2FaConfirmMutation,
+  auth2FaDisableMutation,
+  auth2FaSetupMutation,
   authLoginCreateMutation,
   authLogoutCreateMutation,
   authUserRetrieveOptions,
@@ -69,6 +72,35 @@ export function useLogin() {
       queryClient.clear()
       router.replace("/")
     },
+  })
+}
+
+/**
+ * Starts turning 2FA on: a new authenticator to scan (`qr_svg`), confirmed
+ * with `useTwoFactorConfirm`.
+ */
+export function useTwoFactorSetup() {
+  return useMutation(auth2FaSetupMutation())
+}
+
+/**
+ * Turns 2FA on with a code from the new authenticator. Returns the backup
+ * codes, which the API never shows again. The session is verified after it,
+ * but isn't refetched here: where 2FA is required, `AuthGuard` would let the
+ * user in before they saved the codes. Refetch it once they did.
+ */
+export function useTwoFactorConfirm() {
+  return useMutation(auth2FaConfirmMutation())
+}
+
+/** Turns 2FA off, with the password and a code. */
+export function useTwoFactorDisable() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...auth2FaDisableMutation(),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: sessionQueryKey }),
   })
 }
 

@@ -5,11 +5,12 @@ from drf_spectacular.utils import extend_schema
 class SessionLoginView(OpenApiViewExtension):
     """
     dj-rest-auth runs with sessions only (REST_AUTH TOKEN_MODEL None), so login
-    answers 204 without a token. drf-spectacular's bundled extension documents
+    (accounts.views.LoginView, which replaces theirs) answers 204 without a
+    token. drf-spectacular's bundled extension documents
     the TokenSerializer instead, which can't be built without a token model.
     """
 
-    target_class = "dj_rest_auth.views.LoginView"
+    target_class = "accounts.views.LoginView"
     priority = 1
 
     def view_replacement(self):

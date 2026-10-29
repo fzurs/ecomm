@@ -20,7 +20,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@workspace/ui/components/sidebar"
-import { EllipsisVerticalIcon, LogOutIcon } from "lucide-react"
+import { EllipsisVerticalIcon, LogOutIcon, ShieldCheckIcon } from "lucide-react"
+import Link from "next/link"
 
 export function NavUser({ user }: { user: UserDetails }) {
   const { isMobile } = useSidebar()
@@ -62,6 +63,10 @@ export function NavUser({ user }: { user: UserDetails }) {
               <ModeToggle className="shrink-0" />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link href="/account/security" />}>
+              <ShieldCheckIcon />
+              Security
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} variant="destructive">
               <LogOutIcon />
               Log out

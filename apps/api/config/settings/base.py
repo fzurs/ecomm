@@ -65,6 +65,9 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "dj_rest_auth",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
     "django_filters",
     "drf_spectacular",
     "store",
@@ -120,7 +123,14 @@ CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
 REST_AUTH = {
     "TOKEN_MODEL": None,
     "USER_DETAILS_SERIALIZER": "accounts.serializers.UserDetailsSerializer",
+    "LOGIN_SERIALIZER": "accounts.serializers.LoginSerializer",
 }
+
+# Two-factor authentication (accounts.otp). Required: the API refuses staff sessions that didn't
+# pass it (config.permissions), and the Django admin asks for the code.
+REQUIRE_2FA = True
+# The name authenticator apps show for the account.
+OTP_TOTP_ISSUER = env("OTP_TOTP_ISSUER", default="ecomm admin")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -129,6 +139,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

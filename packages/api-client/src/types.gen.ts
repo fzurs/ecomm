@@ -9,6 +9,10 @@ export type ArcaMessage = {
     msg: string;
 };
 
+export type BackupCodes = {
+    backup_codes: Array<string>;
+};
+
 export type BlankEnum = '';
 
 export type Brand = {
@@ -244,6 +248,10 @@ export type InvoiceVat = {
     amount: string;
 };
 
+/**
+ * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
+ * asks for it and sends everything again.
+ */
 export type Login = {
     username?: string;
     email?: string;
@@ -326,6 +334,10 @@ export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancel
 export type OrderStatusLock = {
     status: OrderStatus;
     reason: string;
+};
+
+export type OtpCode = {
+    otp_code: string;
 };
 
 export type PaginatedBrandList = {
@@ -463,7 +475,7 @@ export type PatchedProduct = {
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export type PatchedUserDetails = {
     /**
@@ -487,6 +499,18 @@ export type PatchedUserDetails = {
      */
     readonly is_staff?: boolean;
     readonly permissions?: Array<string>;
+    /**
+     * 2FA is on for the account.
+     */
+    readonly otp_enabled?: boolean;
+    /**
+     * This session passed the second factor.
+     */
+    readonly otp_verified?: boolean;
+    /**
+     * The API refuses staff sessions that did not pass the second factor.
+     */
+    readonly otp_required?: boolean;
 };
 
 export type Product = {
@@ -551,9 +575,25 @@ export type RestAuthDetail = {
     readonly detail: string;
 };
 
+export type TwoFactorDisable = {
+    otp_code: string;
+    password: string;
+};
+
+export type TwoFactorSetup = {
+    /**
+     * What the QR code holds, to type it by hand.
+     */
+    otpauth_url: string;
+    /**
+     * The QR code to scan, as an inline SVG.
+     */
+    qr_svg: string;
+};
+
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export type UserDetails = {
     /**
@@ -577,6 +617,18 @@ export type UserDetails = {
      */
     readonly is_staff: boolean;
     readonly permissions: Array<string>;
+    /**
+     * 2FA is on for the account.
+     */
+    readonly otp_enabled: boolean;
+    /**
+     * This session passed the second factor.
+     */
+    readonly otp_verified: boolean;
+    /**
+     * The API refuses staff sessions that did not pass the second factor.
+     */
+    readonly otp_required: boolean;
 };
 
 /**
@@ -696,6 +748,17 @@ export type InvoicePreviewWritable = {
     [key: string]: unknown;
 };
 
+/**
+ * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
+ * asks for it and sends everything again.
+ */
+export type LoginWritable = {
+    username?: string;
+    email?: string;
+    password: string;
+    otp_code?: string;
+};
+
 export type MessageWritable = {
     role: MessageRole;
     text?: string;
@@ -811,7 +874,7 @@ export type PatchedProductWritable = {
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export type PatchedUserDetailsWritable = {
     /**
@@ -856,7 +919,7 @@ export type ProductSummaryWritable = {
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows. Both are read-only.
+ * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export type UserDetailsWritable = {
     /**
@@ -941,8 +1004,50 @@ export type AssistantConversationsRetrieveResponses = {
 
 export type AssistantConversationsRetrieveResponse = AssistantConversationsRetrieveResponses[keyof AssistantConversationsRetrieveResponses];
 
+export type Auth2FaConfirmData = {
+    body: OtpCode;
+    path?: never;
+    query?: never;
+    url: '/auth/2fa/confirm/';
+};
+
+export type Auth2FaConfirmResponses = {
+    200: BackupCodes;
+};
+
+export type Auth2FaConfirmResponse = Auth2FaConfirmResponses[keyof Auth2FaConfirmResponses];
+
+export type Auth2FaDisableData = {
+    body: TwoFactorDisable;
+    path?: never;
+    query?: never;
+    url: '/auth/2fa/disable/';
+};
+
+export type Auth2FaDisableResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type Auth2FaDisableResponse = Auth2FaDisableResponses[keyof Auth2FaDisableResponses];
+
+export type Auth2FaSetupData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/2fa/setup/';
+};
+
+export type Auth2FaSetupResponses = {
+    200: TwoFactorSetup;
+};
+
+export type Auth2FaSetupResponse = Auth2FaSetupResponses[keyof Auth2FaSetupResponses];
+
 export type AuthLoginCreateData = {
-    body: Login;
+    body: LoginWritable;
     path?: never;
     query?: never;
     url: '/auth/login/';

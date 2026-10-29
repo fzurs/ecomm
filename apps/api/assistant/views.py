@@ -3,9 +3,11 @@ import json
 from django.conf import settings
 from django.http import StreamingHttpResponse
 from drf_spectacular.utils import extend_schema
-from rest_framework import mixins, permissions, status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from config.permissions import IsVerifiedStaff
 from .models import Conversation
 from .serializers import ConversationDetailSerializer, ConversationSerializer, ReplySerializer
 from .service import reply
@@ -20,7 +22,7 @@ def sse(events):
 # their own conversations.
 class ConversationViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
                           mixins.DestroyModelMixin, viewsets.GenericViewSet):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsVerifiedStaff]
 
     queryset = Conversation.objects.all()
 
