@@ -34,7 +34,13 @@
   staff sin verificar; `/auth/2fa/setup|confirm|disable/` solo piden staff, para poder activarlo.
   `/auth/user/` expone `otp_enabled`, `otp_verified` y `otp_required`. django-otp frena los
   códigos erróneos con espera creciente por dispositivo: en tests, `OTP_*_THROTTLE_FACTOR=0`.
-- Tests: `config.testing.make_staff(role=...)` para loguear un usuario como los reales.
+- Auditoría: django-auditlog guarda cada cambio por ORM (no `update()` ni `bulk_create`) con el
+  usuario del request (`AuditlogMiddleware`) en su `LogEntry`. Los modelos se registran en el
+  `ready()` de cada app; uno nuevo con datos de negocio se registra ahí. Los logins, logouts y
+  fallos (`accounts/audit.py`), el 2FA, `create_operator` y el purge del seed van al logger
+  `audit`; cada autorización de ARCA, al logger `billing`. El seed corre con `disable_auditlog()`.
+- Tests: `config.testing.make_staff(role=...)` para loguear un usuario como los reales. El
+  `TEST_RUNNER` (`config.testing.TestRunner`) calla los logs INFO de `billing` y `audit`.
 - CORS y CSRF aceptan solo `FRONTEND_ORIGINS` (`config/settings/base.py`, variable `FRONTEND_ORIGINS`). Con credenciales habilitadas,
   nunca volver a `CORS_ALLOW_ALL_ORIGINS`: cualquier sitio podría leer la API con la sesión del
   admin. Un frontend nuevo se agrega a esa lista.

@@ -19,6 +19,7 @@ from arca_client import (
     neto_por_alicuota,
 )
 from arca_client.wsfe import Mensaje
+from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.admin.sites import site as admin_site
 from django.contrib.auth import get_user_model
@@ -497,6 +498,15 @@ class InvoiceAPITests(FixturesMixin, APITestCase):
         invoice = self.invoice()
         note = services.create_credit_note(invoice)
         self.assertEqual(note.status, Invoice.Status.AUTHORIZED)
+
+    def test_the_emission_is_audited_with_who_emitted_it(self):
+        with self.assertLogs('billing', 'INFO') as logs:
+            invoice = self.invoice()
+        self.assertIn(f'CAE {invoice.cae}', logs.output[-1])
+        entry = LogEntry.objects.get_for_object(invoice).filter(
+            action=LogEntry.Action.UPDATE, changes__has_key='cae').get()
+        self.assertEqual(entry.actor.username, 'admin')
+        self.assertNotIn('arca_response', entry.changes_dict)
 
     def test_bypass_lets_the_transaction_delete_it(self):
         invoice = self.invoice()

@@ -2,6 +2,7 @@ import io
 import time
 from unittest import mock
 
+from auditlog.models import LogEntry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management import CommandError, call_command
@@ -13,6 +14,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from config.testing import make_staff
+from orders.models import Customer
 
 from . import otp
 from .roles import ADMINISTRATION, INVOICING, READ_ONLY, sync_roles
@@ -215,3 +217,35 @@ class TwoFactorTests(APITestCase):
         device = TOTPDevice.objects.get(user=self.user)
         self.client.post(reverse('2fa-confirm'), {'otp_code': current_code(device)}, format='json')
         self.assertEqual(self.client.get(reverse('order-list')).status_code, status.HTTP_200_OK)
+
+
+class AuditTests(APITestCase):
+    def test_changes_through_the_api_record_who_made_them(self):
+        user = make_staff()
+        self.client.force_login(user)
+        response = self.client.post(reverse('customer-list'), {'name': 'Ana Gómez'}, format='json')
+        customer = Customer.objects.get(pk=response.json()['id'])
+        self.client.patch(reverse('customer-detail', args=[customer.pk]), {'name': 'Ana María Gómez'}, format='json')
+
+        entries = LogEntry.objects.get_for_object(customer).order_by('timestamp')
+        self.assertEqual([entry.action for entry in entries], [LogEntry.Action.CREATE, LogEntry.Action.UPDATE])
+        self.assertEqual({entry.actor for entry in entries}, {user})
+        self.assertEqual(entries.last().changes_dict['name'], ['Ana Gómez', 'Ana María Gómez'])
+
+    def test_role_changes_are_recorded(self):
+        user = make_staff(role=READ_ONLY)
+        user.groups.add(Group.objects.get(name=ADMINISTRATION))
+        self.assertTrue(LogEntry.objects.get_for_object(user).filter(changes__has_key='groups').exists())
+
+    def test_logins_and_failures_go_to_the_audit_log(self):
+        user = make_staff()
+        user.set_password('una clave bien larga')
+        user.save()
+        login = reverse('rest_login')
+        with self.assertLogs('audit', 'INFO') as logs:
+            self.client.post(login, {'username': 'admin', 'password': 'otra'}, format='json')
+            self.client.post(login, {'username': 'admin', 'password': 'una clave bien larga'}, format='json')
+        self.assertIn('login failed: admin', logs.output[0])
+        self.assertIn('login: admin from 127.0.0.1', logs.output[1])
+        # Never the password.
+        self.assertNotIn('una clave', ' '.join(logs.output))

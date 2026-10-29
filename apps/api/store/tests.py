@@ -2,6 +2,7 @@ import io
 import tempfile
 from datetime import datetime, timezone as dt_timezone
 
+from auditlog.models import LogEntry
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -307,6 +308,11 @@ class SeedCommandTests(TestCase):
         item = OrderItem.objects.select_related('order', 'product').first()
         self.assertTrue(item.order.number.startswith('ORD-'))
         self.assertEqual(item.unit_price, item.product.active_price)
+
+    def test_stays_out_of_the_audit_log(self):
+        before = LogEntry.objects.count()  # the roles migrate created
+        self.seed()
+        self.assertEqual(LogEntry.objects.count(), before)
 
     def test_is_idempotent(self):
         self.seed()

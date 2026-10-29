@@ -11,5 +11,7 @@ ALLOWED_HOSTS = ["*"]
 
 DJANGO_ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")  # noqa: F405
 
+TEST_RUNNER = "config.testing.TestRunner"
+
 # 2FA works but is optional; REQUIRE_2FA=true tries the production flow.
 REQUIRE_2FA = env.bool("REQUIRE_2FA", default=False)  # noqa: F405

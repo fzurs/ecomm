@@ -294,6 +294,7 @@ def authorize(invoice: Invoice, result: ComprobanteAutorizado) -> None:
         for iva in result.iva
     )
     invoice.save()
+    logger.info('Authorized %s, CAE %s (invoice %s, order %s)', invoice, invoice.cae, invoice.pk, invoice.order_id)
 
 
 def messages(items) -> list[dict]:

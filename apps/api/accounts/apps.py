@@ -7,7 +7,16 @@ class AccountsConfig(AppConfig):
     name = 'accounts'
 
     def ready(self):
+        from auditlog.registry import auditlog
+        from django.contrib.auth import get_user_model
+        from django.contrib.auth.models import Group
+
+        from . import audit  # noqa: F401  (connects the login signals)
         from .roles import sync_roles
+
+        auditlog.register(
+            get_user_model(), exclude_fields=['password', 'last_login'], m2m_fields={'groups'})
+        auditlog.register(Group, m2m_fields={'permissions'})
 
         # After every migrate. accounts goes last in INSTALLED_APPS, so the permissions of the
         # other apps exist by then.

@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "django_otp",
     "django_otp.plugins.otp_totp",
     "django_otp.plugins.otp_static",
+    "auditlog",
     "django_filters",
     "drf_spectacular",
     "store",
@@ -140,6 +141,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django_otp.middleware.OTPMiddleware",
+    "auditlog.middleware.AuditlogMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

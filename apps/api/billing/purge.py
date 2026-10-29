@@ -1,10 +1,16 @@
 """Deleting vouchers with a CAE, which the database refuses (migration 0011). Only the
 development seed does it: its sample vouchers and, on request, the homologation ones."""
+import getpass
+import logging
+
 from django.conf import settings
 from django.db import connection
 
 from .models import Invoice
 from .sample import SAMPLE_POINT_OF_SALE
+
+
+audit = logging.getLogger('audit')
 
 
 class PurgeRefused(Exception):
@@ -30,6 +36,9 @@ def purge_invoices(*, homologation: bool) -> None:
             raise PurgeRefused(
                 f'ARCA_ENVIRONMENT is {settings.ARCA_ENVIRONMENT}: vouchers emitted to ARCA are '
                 'only deleted in homologacion.')
+    emitted = Invoice.objects.exclude(point_of_sale=SAMPLE_POINT_OF_SALE).count()
+    if emitted:
+        audit.warning('purge: %d homologacion vouchers deleted by OS user %s', emitted, getpass.getuser())
     bypass_invoice_guard()
     # Notes first: they protect their invoice and the lines they credit.
     Invoice.objects.exclude(associated_invoice=None).delete()

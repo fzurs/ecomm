@@ -3,6 +3,7 @@ from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
 
+from auditlog.context import disable_auditlog
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -49,7 +50,8 @@ class Command(BaseCommand):
         except (OSError, json.JSONDecodeError) as e:
             raise CommandError(f"Can't read {path}: {e}")
 
-        with transaction.atomic():
+        # Development data: nobody's changes, so they stay out of the audit log.
+        with transaction.atomic(), disable_auditlog():
             if reset:
                 self.reset(purge_homologation)
             self.load(data)
