@@ -108,13 +108,16 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-# The frontends (web, admin). With credentials allowed, CORS must list them
-# explicitly: allowing every origin would let any site read the API with the
-# admin's session cookie.
+# The frontends (web, admin): the origins CSRF accepts unsafe requests from. Their browsers reach
+# the API through each app's own /api (docs/architecture/auth.md), so the cookies are theirs.
 FRONTEND_ORIGINS = env.list(
     "FRONTEND_ORIGINS", default=["http://localhost:3000", "http://localhost:3001"])
 
-CORS_ALLOWED_ORIGINS = FRONTEND_ORIGINS
+# No browser calls the API from another origin: the admin goes through its /api, and the store
+# fetches on its server. Only a future browser client on another origin goes here. With
+# credentials allowed, list origins explicitly: allowing every origin would let any site read
+# the API with a session cookie.
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
 CORS_ALLOW_CREDENTIALS = True
 

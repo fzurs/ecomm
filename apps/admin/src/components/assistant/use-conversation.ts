@@ -13,7 +13,7 @@ import {
   assistantConversationsRetrieveOptions,
 } from "@workspace/api-client/query"
 import type { Message, MessageRole } from "@workspace/api-client"
-import Cookies from "js-cookie"
+import { csrfHeader } from "@/lib/csrf"
 import { useMemo, useState, useSyncExternalStore } from "react"
 import { sessionQueryKey } from "@/hooks/use-auth"
 
@@ -47,7 +47,7 @@ async function* streamReply(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": Cookies.get("csrftoken") ?? "",
+        ...csrfHeader(),
       },
       body: JSON.stringify(body),
       signal,

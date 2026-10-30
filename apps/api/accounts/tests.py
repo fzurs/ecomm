@@ -11,7 +11,7 @@ from django_otp.oath import TOTP
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 
 from config.testing import make_staff
 from orders.models import Customer
@@ -257,3 +257,33 @@ class AuditTests(APITestCase):
         self.assertIn('login: admin from 127.0.0.1', logs.output[1])
         # Never the password.
         self.assertNotIn('una clave', ' '.join(logs.output))
+
+
+class CsrfTests(APITestCase):
+    """The test client skips CSRF by default: this one checks it, as a browser would face it."""
+
+    def setUp(self):
+        self.client = APIClient(enforce_csrf_checks=True)
+        self.client.force_login(make_staff())
+
+    def create_customer(self, **headers):
+        return self.client.post(reverse('customer-list'), {'name': 'Ana Gómez'}, format='json', headers=headers)
+
+    def test_a_write_with_the_session_but_no_token_is_refused(self):
+        response = self.create_customer()
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('CSRF', response.json()['detail'])
+
+    def test_the_session_endpoint_sets_the_token_the_writes_need(self):
+        self.client.get(reverse('rest_user_details'))
+        token = self.client.cookies['csrftoken'].value
+        self.assertEqual(self.create_customer(**{'X-CSRFToken': token}).status_code, status.HTTP_201_CREATED)
+
+    def test_another_origin_is_refused_even_with_the_token(self):
+        self.client.get(reverse('rest_user_details'))
+        token = self.client.cookies['csrftoken'].value
+        response = self.create_customer(**{'X-CSRFToken': token, 'Origin': 'https://sitio-malo.example'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_reads_need_no_token(self):
+        self.assertEqual(self.client.get(reverse('customer-list')).status_code, status.HTTP_200_OK)

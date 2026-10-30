@@ -1,5 +1,8 @@
 import segno
 from dj_rest_auth.views import LoginView as BaseLoginView
+from dj_rest_auth.views import UserDetailsView as BaseUserDetailsView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django_otp import login as otp_login
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from drf_spectacular.utils import extend_schema
@@ -27,6 +30,14 @@ class LoginView(BaseLoginView):
         if device is not None:
             self.user.otp_device = device
         super().process_login()
+
+
+# The admin reads the session from here when it loads: it also (re)sets the csrftoken cookie, which
+# Django otherwise only sets on login. Without it (cleared, expired) every POST would fail with
+# "CSRF cookie not set" until logging in again.
+@method_decorator(ensure_csrf_cookie, name='get')
+class UserDetailsView(BaseUserDetailsView):
+    pass
 
 
 # Turning 2FA on and off. Staff only, but not verified staff: an account without 2FA has to

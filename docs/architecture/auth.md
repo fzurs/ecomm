@@ -13,7 +13,8 @@ Cómo se autentican el admin (`apps/admin`) y la tienda (`apps/web`) contra la A
    - el CSRF funciona con cualquier dominio de deploy, porque el JS lee `csrftoken` de su propio
      origen;
    - las sesiones del staff (admin) y de los clientes (tienda) quedan separadas por dominio;
-   - CORS no hace falta para el navegador.
+   - CORS no hace falta: `CORS_ALLOWED_ORIGINS` está vacío (la tienda hace fetch en su servidor,
+     donde CORS no aplica).
 3. **`proxy.ts` solo hace chequeos optimistas**, como recomienda la guía de autenticación de
    Next 16: mira si existe la cookie y redirige, sin consultar la API. La validación real
    (sesión válida, staff, 2FA, permisos) la hace Django en cada request.
@@ -39,6 +40,13 @@ Cómo se autentican el admin (`apps/admin`) y la tienda (`apps/web`) contra la A
 - **Media**: las URLs de imágenes que arma la API apuntan al host de Django, no pasan por `/api`.
   En producción, media tiene que servirse desde una URL pública (la de la API o un CDN con
   `MEDIA_URL` absoluta).
+- **CSRF**:
+  - `/auth/user/` repone `csrftoken` en cada GET (`ensure_csrf_cookie`), así una cookie borrada o
+    vencida no deja la sesión sin poder escribir.
+  - El admin arma el header con `csrfHeader()` (`src/lib/csrf.ts`), lo use el cliente generado o
+    un `fetch`.
+  - `accounts.tests.CsrfTests` lo prueba con el chequeo activo: los tests de DRF lo saltean por
+    defecto.
 - **SameSite**: queda el default de Django, `Lax`. La misma API atiende al admin y a la tienda, y
   la tienda va a necesitar `Lax` para el login con Google.
 
@@ -62,6 +70,11 @@ Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
   (`HEADLESS_SERVE_SPECIFICATION`), porque no sale del schema de drf-spectacular. Hay que sumarlo a
   `/regen-api`.
 - Los usuarios con 2FA lo vuelven a configurar.
+- **Pendiente: CSRF en el login.** Hoy el login no exige el token: DRF solo lo pide con sesión.
+  Eso deja abierto el "login CSRF", en el que otro sitio te loguea en una cuenta suya. allauth
+  headless sí lo exige en el login. Al migrar, verificar que el admin pida la sesión, que pone
+  `csrftoken`, antes de mostrar el formulario, y sumar a `CsrfTests` un login sin token que dé
+  403.
 
 ## Fase 3: cuentas en la tienda
 

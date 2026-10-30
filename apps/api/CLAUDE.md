@@ -41,9 +41,14 @@
   `audit`; cada autorización de ARCA, al logger `billing`. El seed corre con `disable_auditlog()`.
 - Tests: `config.testing.make_staff(role=...)` para loguear un usuario como los reales. El
   `TEST_RUNNER` (`config.testing.TestRunner`) calla los logs INFO de `billing` y `audit`.
-- CORS y CSRF aceptan solo `FRONTEND_ORIGINS` (`config/settings/base.py`, variable `FRONTEND_ORIGINS`). Con credenciales habilitadas,
-  nunca volver a `CORS_ALLOW_ALL_ORIGINS`: cualquier sitio podría leer la API con la sesión del
-  admin. Un frontend nuevo se agrega a esa lista.
+- CSRF acepta escrituras solo desde `FRONTEND_ORIGINS` (`config/settings/base.py`); un frontend
+  nuevo se agrega ahí. CORS está vacío (`CORS_ALLOWED_ORIGINS`): ningún navegador llama a la API
+  desde otro origen (el admin pasa por su `/api`, la tienda hace fetch en su servidor). Si alguna
+  vez hace falta, listar orígenes explícitos, nunca `CORS_ALLOW_ALL_ORIGINS`: con credenciales,
+  cualquier sitio podría leer la API con una sesión.
+- `/auth/user/` (`accounts.views.UserDetailsView`) repone la cookie `csrftoken` en cada GET
+  (`ensure_csrf_cookie`); Django sola la pone solo al loguear. Los tests de DRF no chequean CSRF:
+  `accounts.tests.CsrfTests` usa `APIClient(enforce_csrf_checks=True)`.
 - dj-rest-auth corre solo con sesión (`REST_AUTH = {"TOKEN_MODEL": None}`): el login responde 204
   y no crea tokens. `config/schema.py` documenta ese 204 para drf-spectacular; sin esa extensión
   `generate:schema` falla, porque el `TokenSerializer` no tiene modelo.
