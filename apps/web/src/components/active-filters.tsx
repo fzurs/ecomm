@@ -2,19 +2,25 @@
 import { Button } from "@workspace/ui/components/button"
 import { XIcon } from "lucide-react"
 import { useQueryStates } from "nuqs"
+import { useRouter } from "next/navigation"
 import { useBrands } from "@/components/brands-provider"
+import { useListingCategory } from "@/hooks/use-listing-category"
 import { productParams } from "@/lib/product-params"
 
 /**
- * What narrows the listing (the search, brands, "In stock", "On sale"), each
- * with a click to take it out. Nothing when nothing does.
+ * What narrows the listing (the category, the search, brands, "In stock", "On
+ * sale"), each with a click to take it out. Nothing when nothing does.
  */
 export function ActiveFilters() {
   const brands = useBrands()
+  const { current: category, goTo } = useListingCategory()
+  const router = useRouter()
   const [{ search, brand, in_stock: inStock, on_sale: onSale }, setParams] =
     useQueryStates(productParams, { shallow: false })
 
   const chips = [
+    // The category is the page: taking it out goes to the whole catalog.
+    category && { label: category.name, remove: () => goTo(null) },
     search && {
       label: `“${search}”`,
       remove: () => setParams({ search: null, page: null }),
@@ -57,13 +63,15 @@ export function ActiveFilters() {
           variant="ghost"
           size="xs"
           onClick={() =>
-            setParams({
-              search: null,
-              brand: null,
-              in_stock: null,
-              on_sale: null,
-              page: null,
-            })
+            category
+              ? router.push("/")
+              : setParams({
+                  search: null,
+                  brand: null,
+                  in_stock: null,
+                  on_sale: null,
+                  page: null,
+                })
           }
         >
           Clear all

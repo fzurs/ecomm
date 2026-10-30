@@ -11,6 +11,7 @@ import { Toggle } from "@workspace/ui/components/toggle"
 import { BadgePercentIcon, PackageCheckIcon } from "lucide-react"
 import { useQueryStates } from "nuqs"
 import { useBrands } from "@/components/brands-provider"
+import { useListingCategory } from "@/hooks/use-listing-category"
 import { productParams, type Sort, SORTS } from "@/lib/product-params"
 
 const sortItems = Object.entries(SORTS).map(([value, { label }]) => ({
@@ -28,6 +29,7 @@ export function ProductFilters() {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      <CategoryFilter />
       <BrandFilter />
       <Toggle
         variant="outline"
@@ -72,6 +74,38 @@ export function ProductFilters() {
         </SelectContent>
       </Select>
     </div>
+  )
+}
+
+// The listing's category: choosing another goes to its page.
+const ALL_CATEGORIES = "all"
+
+function CategoryFilter() {
+  const { categories, current, goTo } = useListingCategory()
+  const items = [
+    { value: ALL_CATEGORIES, label: "All categories" },
+    ...categories.map(({ slug = "", name }) => ({ value: slug, label: name })),
+  ]
+
+  return (
+    <Select
+      items={items}
+      value={current?.slug ?? ALL_CATEGORIES}
+      onValueChange={(value) => goTo(value === ALL_CATEGORIES ? null : value)}
+    >
+      <SelectTrigger size="sm" aria-label="Category" className="min-w-40">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   )
 }
 

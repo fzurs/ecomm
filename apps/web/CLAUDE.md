@@ -35,6 +35,9 @@
     `next.config.mjs` redirige las viejas `/brands/...`. `ActiveFilters` muestra lo que filtra,
     con un click para sacarlo. En una categoría, su filtro le gana a la URL
     (`{ ...productsQuery(params), ...filters }`).
+  - La categoría, en cambio, es una página (`/<slug>`), con su URL, título y prerender. El selector
+    de la barra y su chip navegan entre categorías conservando la búsqueda y los filtros
+    (`useListingCategory`); no hay `?category=`, así cada categoría tiene una sola URL.
   - En un listado el buscador del header filtra mientras se escribe (`listsProducts()` de
     `src/lib/navigation.ts`, por la ruta). En las demás páginas, Enter busca en la home.
 - Layout de `(shop)`: `SiteHeader` (logo, `MainNav` con los menús de categorías y marcas y "On
