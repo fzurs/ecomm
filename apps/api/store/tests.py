@@ -159,7 +159,7 @@ class PublicReadPermissionTests(APITestCase):
 
     def setUp(self):
         self.objects = {
-            'product': Product.objects.create(name='ACME Hammer'),
+            'product': Product.objects.create(name='ACME Hammer', status=Product.Status.ACTIVE),
             'category': Category.objects.create(name='Tools'),
             'brand': Brand.objects.create(name='ACME'),
         }
@@ -200,8 +200,10 @@ class ChoicesTests(APITestCase):
 
     def setUp(self):
         for model in self.models.values():
-            model.objects.create(name='ACME Hammer')
-            model.objects.create(name='Saw')
+            # Products for sale: the others aren't public.
+            fields = {'status': Product.Status.ACTIVE} if model is Product else {}
+            model.objects.create(name='ACME Hammer', **fields)
+            model.objects.create(name='Saw', **fields)
 
     def test_lists_all_unpaginated_with_choice_fields(self):
         for basename in self.models:
@@ -223,10 +225,60 @@ class ChoicesTests(APITestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProductSearchTests(APITestCase):
     def test_searches_by_sku(self):
-        Product.objects.create(name='ACME Hammer', sku='HAM-0001')
-        Product.objects.create(name='ACME Saw', sku='SAW-0002')
+        Product.objects.create(name='ACME Hammer', sku='HAM-0001', status=Product.Status.ACTIVE)
+        Product.objects.create(name='ACME Saw', sku='SAW-0002', status=Product.Status.ACTIVE)
         response = self.client.get(reverse('product-list'), {'search': 'saw-0002'})
         self.assertEqual([p['name'] for p in response.json()['results']], ['ACME Saw'])
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class PublicProductsTests(APITestCase):
+    """Without a session (the store) only products for sale are visible. Staff see them all."""
+
+    def setUp(self):
+        for status_ in Product.Status:
+            Product.objects.create(name=f'ACME {status_.label}', status=status_)
+
+    def names(self):
+        response = self.client.get(reverse('product-list'), {'ordering': 'name'})
+        return [p['name'] for p in response.json()['results']]
+
+    def test_anonymous_see_only_products_for_sale(self):
+        self.assertEqual(self.names(), ['ACME Active', 'ACME Out of stock'])
+        self.assertEqual(
+            {p['name'] for p in self.client.get(reverse('product-choices')).json()},
+            {'ACME Active', 'ACME Out of stock'})
+        draft = reverse('product-detail', args=[Product.objects.get(status='draft').slug])
+        self.assertEqual(self.client.get(draft).status_code, status.HTTP_404_NOT_FOUND)
+        # Asking for them doesn't help.
+        response = self.client.get(reverse('product-list'), {'status': 'draft'})
+        self.assertEqual(response.json()['results'], [])
+
+    def test_staff_see_them_all(self):
+        self.client.force_login(make_staff())
+        self.assertEqual(len(self.names()), len(Product.Status))
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class ProductOrderingTests(APITestCase):
+    def setUp(self):
+        Product.objects.create(name='A', price=1000, status=Product.Status.ACTIVE)
+        Product.objects.create(name='B', price=1200, discount_percent=25, status=Product.Status.ACTIVE)  # 900
+        Product.objects.create(name='C', price=950, status=Product.Status.ACTIVE)
+
+    def ordered(self, ordering):
+        response = self.client.get(reverse('product-list'), {'ordering': ordering})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return [p['name'] for p in response.json()['results']]
+
+    def test_by_the_price_with_the_discount(self):
+        self.assertEqual(self.ordered('active_price'), ['B', 'C', 'A'])
+        self.assertEqual(self.ordered('-active_price'), ['A', 'C', 'B'])
+        self.assertEqual(self.ordered('price'), ['C', 'A', 'B'])
+
+    def test_ignores_unknown_fields(self):
+        self.assertEqual(self.ordered('nope'), self.ordered(''))
+        self.assertEqual(self.ordered('nope,name'), ['A', 'B', 'C'])
 
 
 class ActivePriceTests(SimpleTestCase):
@@ -374,6 +426,8 @@ class SeedCommandTests(TestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProductFilterTests(APITestCase):
     def setUp(self):
+        # The admin's filters, over every status: only staff see drafts.
+        self.client.force_login(make_staff())
         acme = Brand.objects.create(name='ACME')
         other = Brand.objects.create(name='Other')
         self.hammer = Product.objects.create(

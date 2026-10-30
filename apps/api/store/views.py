@@ -1,3 +1,4 @@
+from django.db.models import Case, F, IntegerField, When
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -17,10 +18,24 @@ class ProductViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
                        DjangoFilterBackend, ProductOrdering]
     filterset_class = ProductFilter
     search_fields = ["name", "sku", "description", "category__name", "brand__name"]
-    # Category and Brand are ordered by {model}__name, in ProductFilter
-    ordering_fields = ["name", "category", "brand", "status",
-                       "featured", "price", "discount_percent", "vat_rate", "created_at"]
+    # Category and Brand are ordered by {model}__name, and active_price by final_price, in
+    # ProductOrdering
+    ordering_fields = ["name", "category", "brand", "status", "featured", "price", "active_price",
+                       "discount_percent", "vat_rate", "created_at"]
     lookup_field = "slug"
+
+    def get_queryset(self):
+        # `active_price` in the database, to order by it (the model's property can't).
+        discounted = (F("price") * (100 - F("discount_percent")) + 50) / 100
+        queryset = super().get_queryset().annotate(final_price=Case(
+            When(discount_percent__isnull=False, price__gt=0, then=discounted),
+            default=F("price"),
+            output_field=IntegerField(),
+        ))
+        # The store reads without a session: it sees only what's for sale.
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(status__in=Product.PUBLIC_STATUSES)
+        return queryset
 
     @action(detail=True, methods=['post'], url_path='generate-sku')
     def generate_sku(self, request, **kwargs):

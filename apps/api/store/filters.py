@@ -37,16 +37,24 @@ class ProductFilter(OperatorFilterSet):
 
 
 class ProductOrdering(OrderingFilter):
+    """The view's `ordering_fields`, validated by DRF, with the ones that aren't a column mapped to
+    what orders them. The pk last, so equal values (e.g. the same price) don't change places
+    between pages."""
+
+    lookups = {
+        'category': 'category__name',
+        'brand': 'brand__name',
+        # Annotated by ProductViewSet.get_queryset.
+        'active_price': 'final_price',
+    }
+
     def get_ordering(self, request, queryset, view):
-        params = request.query_params.get(self.ordering_param)
-        if params:
-            fields = [param.strip() for param in params.split(",")]
-            mapping = {
-                'category': 'category__name',
-                '-category': '-category__name',
-                'brand': 'brand__name',
-                '-brand': '-brand__name'
-            }
-            fields = [mapping.get(f, f) for f in fields]
-            return fields
-        return self.get_default_ordering(view)
+        ordering = super().get_ordering(request, queryset, view)
+        if not ordering:
+            return ordering
+        fields = []
+        for field in ordering:
+            descending = field.startswith('-')
+            name = field.removeprefix('-')
+            fields.append(('-' if descending else '') + self.lookups.get(name, name))
+        return [*fields, 'pk']

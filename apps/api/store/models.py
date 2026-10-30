@@ -67,6 +67,9 @@ class Product(NamedSlugModel):
         OUT_OF_STOCK = ('out_of_stock', 'Out of stock')
         DISCONTINUED = ('discontinued', 'Discontinued')
 
+    # What the store shows. The rest (drafts, inactive, discontinued) only staff see.
+    PUBLIC_STATUSES = [Status.ACTIVE, Status.OUT_OF_STOCK]
+
     sku = models.CharField('SKU', max_length=255, blank=True, null=True)
 
     description = models.TextField(blank=True, null=True)
