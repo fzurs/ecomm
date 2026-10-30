@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
-import { PageTitle } from "@/components/page-title"
 import { ProductList } from "@/components/product-list"
 import { ProductGridSkeleton } from "@/components/products-grid"
 import { getAllCategories, getCategory } from "@/lib/cache"
@@ -32,11 +31,10 @@ export default async function CategoryPage({
 
   return (
     <>
-      <PageTitle
-        crumbs={[{ title: "Home", href: "/" }]}
-        title={category.name}
-        description={category.description}
-      />
+      <div className="typeset">
+        <h1>{category.name}</h1>
+        {category.description && <p>{category.description}</p>}
+      </div>
       <Suspense fallback={<ProductGridSkeleton />}>
         <ProductList
           pathname={`/${slug}`}

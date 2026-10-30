@@ -1,4 +1,3 @@
-import { PageTitle } from "@/components/page-title"
 import { ProductList } from "@/components/product-list"
 import { ProductGridSkeleton } from "@/components/products-grid"
 import { Suspense } from "react"
@@ -6,7 +5,9 @@ import { Suspense } from "react"
 export default function ProductsPage({ searchParams }: PageProps<"/">) {
   return (
     <>
-      <PageTitle title="All products" />
+      <div className="typeset">
+        <h1>All products</h1>
+      </div>
       <Suspense fallback={<ProductGridSkeleton />}>
         <ProductList pathname="/" searchParams={searchParams} />
       </Suspense>

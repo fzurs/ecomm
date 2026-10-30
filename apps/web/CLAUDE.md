@@ -42,9 +42,14 @@
     `src/lib/navigation.ts`, por la ruta). En las demás páginas, Enter busca en la home.
 - Layout de `(shop)`: `SiteHeader` (logo, `MainNav` con los menús de categorías y marcas y "On
   sale", el buscador y `UserNav`; en el celular, `MobileNav` en un `Sheet`) y `SiteFooter` (con
-  `"use cache"`). No hay sidebar. Cada página pone su título y breadcrumbs con `PageTitle`
-  (`src/components/page-title.tsx`), en el contenido. Los links de ayuda y los legales del footer
-  (botón de arrepentimiento, Data fiscal) son placeholders.
+  `"use cache"`). No hay sidebar ni breadcrumbs. Cada página pone su título en el contenido.
+  El producto linkea a su marca y categoría. Los links de ayuda y los legales del footer (botón
+  de arrepentimiento, Data fiscal) son placeholders.
+- Bloques de texto (el `h1` y la descripción de cada página, la descripción del producto,
+  páginas de contenido) en `<div className="typeset">`, como el admin
+  (`packages/ui/src/styles/typeset.css`). Los componentes (tarjetas, precios, header, footer,
+  filtros, forms, `Empty`) no: tienen su propia tipografía, y `typeset` les sumaría márgenes y
+  subrayados (`not-typeset` excluye uno que quede adentro).
 - Las páginas con slug (categoría, producto) tienen `generateStaticParams` (se
   prerenderizan en el build) y `generateMetadata` (título "%s · Acme Store").
 - Precios con `formatPrice` (`src/lib/format.ts`, es-AR como el admin). Imágenes con
