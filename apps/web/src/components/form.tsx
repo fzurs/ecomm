@@ -7,7 +7,16 @@ import {
   FieldLabel,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { Textarea } from "@workspace/ui/components/textarea"
 import * as React from "react"
 import { useFormStatus } from "react-dom"
 
@@ -45,6 +54,89 @@ export function TextField({
         aria-invalid={!!error || undefined}
         {...props}
       />
+      {description && <FieldDescription>{description}</FieldDescription>}
+      <FieldError>{error}</FieldError>
+    </Field>
+  )
+}
+
+/** A labelled textarea with its error, like `TextField`. */
+export function TextareaField({
+  label,
+  name,
+  error,
+  description,
+  ...props
+}: React.ComponentProps<typeof Textarea> & {
+  label: string
+  name: string
+  error?: string
+  description?: React.ReactNode
+}) {
+  return (
+    <Field data-invalid={!!error || undefined}>
+      <FieldLabel htmlFor={name}>{label}</FieldLabel>
+      <Textarea
+        key={String(props.defaultValue ?? "")}
+        id={name}
+        name={name}
+        aria-invalid={!!error || undefined}
+        {...props}
+      />
+      {description && <FieldDescription>{description}</FieldDescription>}
+      <FieldError>{error}</FieldError>
+    </Field>
+  )
+}
+
+/**
+ * A labelled select with its error. Controlled (`value`, `onValueChange`):
+ * React resets the form after the action, and a select keeps what was chosen.
+ * Its `name` sends the value with the form.
+ */
+export function SelectField<T extends string | number>({
+  label,
+  name,
+  items,
+  value,
+  onValueChange,
+  error,
+  description,
+}: {
+  label: string
+  name: string
+  items: { value: T; label: string }[]
+  value: T
+  onValueChange: (value: T) => void
+  error?: string
+  description?: React.ReactNode
+}) {
+  return (
+    <Field data-invalid={!!error || undefined}>
+      <FieldLabel htmlFor={name}>{label}</FieldLabel>
+      <Select<T>
+        name={name}
+        items={items}
+        value={value}
+        onValueChange={(next) => next !== null && onValueChange(next)}
+      >
+        <SelectTrigger
+          id={name}
+          aria-invalid={!!error || undefined}
+          className="w-full"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {items.map((item) => (
+              <SelectItem key={String(item.value)} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
       {description && <FieldDescription>{description}</FieldDescription>}
       <FieldError>{error}</FieldError>
     </Field>

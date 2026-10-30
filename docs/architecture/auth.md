@@ -171,9 +171,36 @@ Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
   números, parecidas al usuario). Sin usuario aplica el mínimo del staff. El registro valida sin
   usuario, así que `AccountAdapter.clean_password` le pasa un cliente.
 
-## Fase 4: carrito y checkout
+## Fase 4 (hecha): carrito y checkout
 
-- Un modelo `Cart` en Django, asociado a la sesión (anónimo) o al usuario. Al ingresar, se fusiona
-  con el del usuario (signal de login de allauth).
-- **Compra como invitado:** el checkout crea el `Customer` con los datos que se cargan.
-  `Customer.user` (OneToOne opcional) vincula al cliente con su cuenta cuando la tiene.
+- **Carrito** (`apps/api/checkout`): `Cart` y `CartItem` en Django.
+  - El de un invitado está en su sesión (`cart_id`). Crearlo le da a la sesión los 30 días de
+    los clientes (`CUSTOMER_SESSION_AGE`), así el carrito sobrevive al cierre del navegador.
+  - El de un cliente es de su cuenta (`Cart.user`). Al ingresar, el del invitado pasa a la cuenta,
+    o se suma al que ya tenía (`user_logged_in` de Django, que allauth dispara en todos sus
+    logins). Al salir, queda en la cuenta.
+  - Solo entran productos a la venta: activos y con precio (`services.is_purchasable`). Uno que
+    deja de estarlo queda en el carrito marcado como no disponible, fuera del total, y el
+    checkout pide sacarlo.
+- **Compra como invitado:** el checkout crea un `Customer` con los datos que se cargan, uno por
+  compra. Un email escrito en el checkout no prueba nada, así que nunca se suma a la cuenta de
+  otro. Con sesión, `Customer.user` vincula al cliente con su cuenta: se crea en la primera compra
+  y las siguientes lo actualizan.
+- **La orden** queda `pending`, con los precios del momento (`OrderItem` los copia) y
+  `Order.shipping_address`. El cliente recibe un mail. La puede ver en `/orders/<número>` si es
+  suya: la de su cuenta, o la de un invitado en la misma sesión (`placed_orders`). La de otro da
+  404.
+- **Todavía no hay pago:** el mail y la página dicen que se arregla por email. Integrar un medio
+  de pago (ej. Mercado Pago) es lo que sigue.
+- **API** (`/cart/`, `/cart/items/`, `/checkout/`, `/my/orders/`): acepta invitados y exige CSRF
+  también sin sesión (`config.authentication.CsrfSessionAuthentication`; la de DRF lo hace solo
+  con usuarios logueados).
+- **Tienda:**
+  - Las escrituras van por Server Actions con `djangoFetch()`: agregar, cambiar la cantidad,
+    sacar y confirmar el pedido. Así Django pone las cookies del carrito en el dominio de la
+    tienda, y cada cambio renueva la sesión.
+  - La primera escritura de un invitado puede llegar sin token CSRF. `djangoFetch()` lo pide antes
+    (GET `/auth/user/`) y se lo pasa al navegador.
+  - Las lecturas (`getCart()`, `getMyOrders()`, `getMyOrder()`) están en `src/lib/dal.ts`. El
+    header muestra la cantidad con una promesa, como la sesión.
+  - `/checkout` no exige sesión, así que `proxy.ts` no lo protege.

@@ -37,7 +37,8 @@ export async function djangoFetch<T>(
 ): Promise<T> {
   const cookieStore = await cookies()
   const origin = (await headers()).get("origin")
-  const csrfToken = cookieStore.get("csrftoken")?.value
+  const csrfToken =
+    cookieStore.get("csrftoken")?.value ?? (await newCsrfToken(cookieStore))
 
   const copyCookies = (responseOrError: unknown) => {
     for (const header of setCookieHeaders(responseOrError)) {
@@ -61,6 +62,25 @@ export async function djangoFetch<T>(
     copyCookies(error)
     throw error
   }
+}
+
+/**
+ * A visitor's first write (a guest adding to the cart) may come before they
+ * have a CSRF token: Django sets one on any read of /auth/user/. It goes to the
+ * visitor and to this request's cookies.
+ */
+async function newCsrfToken(cookieStore: Awaited<ReturnType<typeof cookies>>) {
+  const response = await fetch(`${API_URL}/auth/user/`, {
+    headers: { Cookie: cookieStore.toString() },
+  })
+  for (const header of response.headers.getSetCookie()) {
+    const { name, value, options } = parseSetCookie(header)
+    if (name === "csrftoken") {
+      cookieStore.set(name, value, options)
+      return value
+    }
+  }
+  return undefined
 }
 
 /** The status and body of a failed call to Django (an axios error), if it answered. */

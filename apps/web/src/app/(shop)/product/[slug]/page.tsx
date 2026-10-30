@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { OutOfStockAlert } from "@/components/out-of-stock-alert"
+import { AddToCart } from "./_components/add-to-cart"
 import { ProductImage } from "@/components/product-image"
 import { ProductPrice } from "@/components/product-price"
 import { getProduct, getProductSlugs } from "@/lib/cache"
@@ -61,6 +62,10 @@ export default async function ProductPage({
           </div>
           <ProductPrice product={product} size="lg" />
           {product.status === "out_of_stock" && <OutOfStockAlert />}
+          {/* What the API sells: active and with a price (checkout.services.is_purchasable). */}
+          {product.status === "active" && !!product.price && (
+            <AddToCart productId={product.id} productName={product.name} />
+          )}
           {product.description && (
             // Plain text: a blank line starts a paragraph, a line break stays.
             <div className="typeset">

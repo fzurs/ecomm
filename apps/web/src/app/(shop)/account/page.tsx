@@ -10,6 +10,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { getUser } from "@/lib/dal"
 import { withNext } from "@/lib/navigation"
+import { OrderList } from "./_components/order-list"
 import { PasswordForm } from "./_components/password-form"
 import { ProfileForm } from "./_components/profile-form"
 import { SignOutButton } from "./_components/sign-out-button"
@@ -38,6 +39,14 @@ async function AccountDetails() {
 
   return (
     <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Orders</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OrderList />
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Profile</CardTitle>

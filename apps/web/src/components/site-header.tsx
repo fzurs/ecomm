@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import { CartButton } from "./cart-button"
 import { Logo } from "./logo"
 import { MainNav } from "./main-nav"
 import { MobileNav } from "./mobile-nav"
@@ -9,7 +10,7 @@ import { UserNav } from "./user-nav"
 const searchClassName =
   "order-last w-full sm:order-none sm:ml-auto sm:w-64 lg:w-80"
 
-/** The shop's header: the menu, the search and the account. */
+/** The shop's header: the menu, the search, the cart and the account. */
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
@@ -20,7 +21,8 @@ export function SiteHeader() {
         <Suspense fallback={<SearchFormSkeleton className={searchClassName} />}>
           <SearchForm className={searchClassName} />
         </Suspense>
-        <div className="ml-auto flex items-center sm:ml-0">
+        <div className="ml-auto flex items-center gap-1 sm:ml-0">
+          <CartButton />
           <UserNav />
         </div>
       </div>

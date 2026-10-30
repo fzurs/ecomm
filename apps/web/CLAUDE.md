@@ -78,6 +78,22 @@
   `GOOGLE_CLIENT_ID` (`getGoogleClientId()`). Usa el botón de Google Identity Services y le pasa
   el ID token a allauth; no hay redirect.
 
+## Carrito y checkout
+- El carrito vive en Django (`apps/api/checkout`). Se lee con `getCart()` (`src/lib/dal.ts`), y se
+  cambia con las Server Actions de `src/app/(shop)/cart/actions.ts` (`djangoFetch()`), que hacen
+  `refresh()` para que el header se actualice. El layout pasa `getCart()` como promesa a
+  `CartProvider`, y `CartButton` muestra la cantidad en su `<Suspense>`.
+- `djangoFetch()` pide un token CSRF a Django (GET `/auth/user/`) si el visitante todavía no
+  tiene: un invitado puede escribir antes de haber pasado por allauth.
+- Producto: `AddToCart` (cantidad y botón, con un toast de sonner) solo si está activo y tiene
+  precio, como exige la API. `/cart`: líneas con `useOptimistic` para la cantidad; un producto
+  que dejó de estar a la venta se marca y bloquea el checkout.
+- `/checkout` (sin sesión también): `CheckoutForm` con contacto, envío y facturación (los códigos
+  de ARCA que ofrece están en `src/lib/fiscal.ts`). `placeOrder` muestra los errores de DRF por
+  campo y, si sale bien, redirige a `/orders/<número>`, que también es la confirmación.
+- `/account` lista los pedidos de la cuenta (`getMyOrders()`); los labels de los estados están en
+  `src/lib/order-status.ts`.
+
 ## Formularios
 - `useActionState` con `<form action>`: la action devuelve un `FormState` (`src/lib/form-state.ts`)
   con `fieldErrors` por nombre de input, `formError` y `values`. React resetea el form después de

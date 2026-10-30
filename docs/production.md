@@ -97,6 +97,9 @@ secretas, un Postgres y un Redis.
 
 ## Decisiones pendientes
 
+- **Pago de los pedidos de la tienda**: el checkout crea la orden `pending` y el mail dice que el
+  pago se arregla por email. Falta integrar un medio de pago (ej. Mercado Pago) que la pase a
+  `paid`. También falta el botón de arrepentimiento de verdad (hoy un placeholder en el footer).
 - **Asistente**: manda datos de clientes (nombre, documento, montos) a la API de Anthropic
   (`apps/api/assistant/service.py`) y guarda las respuestas de las herramientas en
   `Message.content`. Antes de habilitarlo en producción, decidir si se usa y declararlo en la
