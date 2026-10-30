@@ -14,6 +14,9 @@
   emite A/B, o `monotributo`, que emite C) y los datos del emisor para el PDF:
   `ARCA_ISSUER_LEGAL_NAME`, `ARCA_ISSUER_ADDRESS`, `ARCA_ISSUER_ACTIVITY_START` (AAAA-MM-DD) y
   `ARCA_ISSUER_GROSS_INCOME`. Sin estos últimos, `/invoices/{id}/pdf/` responde 400.
+- `MEDIA_URL` es absoluto (`http://localhost:8000/media/` en dev; prod lo exige): las URLs de
+  las imágenes no dependen del host del request, y la tienda las optimiza con `next/image` desde
+  ahí. En dev Django las sirve por el path de esa URL (`config/urls.py`).
 - Caches: `default` es locmem; `arca` es Redis (los tickets de acceso se comparten entre workers).
 
 ## Convenciones de la API

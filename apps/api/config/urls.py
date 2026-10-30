@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -32,6 +34,7 @@ if settings.DJANGO_ADMIN_URL:
         admin.site.__class__ = MFAAdminSite
     urlpatterns.append(path(settings.DJANGO_ADMIN_URL, admin.site.urls))
 
-# Media served by Django in development only (static() is a no-op without DEBUG anyway).
+# Media served by Django in development only (static() is a no-op without DEBUG anyway). By the
+# path of MEDIA_URL: static() serves nothing for an absolute URL.
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(urlsplit(settings.MEDIA_URL).path, document_root=settings.MEDIA_ROOT)

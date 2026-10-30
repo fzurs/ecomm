@@ -31,6 +31,10 @@ if env.bool("SECURE_PROXY_SSL_HEADER", default=False):
 if "STORE_URL" not in env.ENVIRON:
     raise ImproperlyConfigured("STORE_URL: the account emails link to the store")
 vars().update(env.email_url("EMAIL_URL"))
+
+# The images' public URL (base.py's default is localhost's).
+if "MEDIA_URL" not in env.ENVIRON:
+    raise ImproperlyConfigured("MEDIA_URL: the public URL of the product images")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 # Static files of the Django admin, served by the app itself.

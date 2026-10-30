@@ -285,7 +285,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
-MEDIA_URL = "media/"
+# Absolute: the images' URLs are the same whoever asks (the store's server, the admin's /api, a
+# browser), and the store's next/image fetches them from there (images.remotePatterns). In
+# production, the API's public domain or a CDN.
+MEDIA_URL = env("MEDIA_URL", default="http://localhost:8000/media/")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

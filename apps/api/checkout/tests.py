@@ -77,8 +77,8 @@ class CartTests(CartTestCase):
                          [('ACME Hammer', 2), ('ACME Saw', 1)])
         # The saw with its 10% off.
         self.assertEqual((cart['count'], cart['total']), (3, 2000 + 1800))
-        # Absolute, like the catalog's: the store shows them from Django's media.
-        self.assertTrue(cart['items'][0]['product']['image'].startswith('http://testserver/media/'))
+        # Absolute, like the catalog's (MEDIA_URL): the store shows them from Django's media.
+        self.assertTrue(cart['items'][0]['product']['image'].startswith(settings.MEDIA_URL))
 
     def test_adding_again_adds_up_to_the_maximum(self):
         self.add(self.hammer, 2)
