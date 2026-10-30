@@ -7,12 +7,18 @@ import {
   assistantConversationsListQueryKey,
 } from "@workspace/api-client/query"
 import { Button } from "@workspace/ui/components/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import { Empty, EmptyHeader, EmptyTitle } from "@workspace/ui/components/empty"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { cn } from "cn"
 import { formatDistanceToNow } from "date-fns"
-import { Trash2Icon } from "lucide-react"
+import { EllipsisVerticalIcon, Trash2Icon } from "lucide-react"
 
 /**
  * The user's conversations, newest first, with `selected` highlighted.
@@ -61,7 +67,7 @@ export function AssistantConversations({
     <ScrollArea className={cn("min-h-0 flex-1", className)}>
       <ul className={cn("divide-y p-2", listClassName)}>
         {data.results.map((item) => (
-          <li key={item.id} className="group/conversation relative py-1">
+          <li key={item.id} className="relative py-1">
             <button
               type="button"
               className={cn(
@@ -77,16 +83,30 @@ export function AssistantConversations({
                 {formatDistanceToNow(item.updated_at, { addSuffix: true })}
               </span>
             </button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              title="Delete"
-              className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover/conversation:opacity-100 focus-visible:opacity-100"
-              disabled={destroy.isPending}
-              onClick={() => destroy.mutate({ path: { id: item.id } })}
-            >
-              <Trash2Icon />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Open actions"
+                    className="absolute top-1/2 right-1 -translate-y-1/2"
+                  />
+                }
+              >
+                <EllipsisVerticalIcon />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  disabled={destroy.isPending}
+                  onClick={() => destroy.mutate({ path: { id: item.id } })}
+                >
+                  <Trash2Icon />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </li>
         ))}
       </ul>
