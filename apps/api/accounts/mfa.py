@@ -24,10 +24,11 @@ def passed_mfa(request, user=None) -> bool:
 
 @receiver(signals.authenticator_added)
 def added(sender, request, user, authenticator, **kwargs):
-    if authenticator.type == Authenticator.Type.TOTP:
-        # Turning it on takes a code from the new authenticator: that counts as passing it, so a
-        # staff session that had to set it up gets in without logging in again. (allauth's own
-        # record of it, as `mfa/base/internal/flows.py` writes at login.)
+    if authenticator.type in (Authenticator.Type.TOTP, Authenticator.Type.WEBAUTHN):
+        # Adding one takes the new authenticator itself (a code from the app, or the passkey):
+        # that counts as passing it, so a staff session that had to set it up gets in without
+        # logging in again. (allauth's own record of it, as `mfa/base/internal/flows.py` writes
+        # at login.)
         record_authentication(request, user, 'mfa', type=authenticator.type)
     audit.info('2fa: %s added %s', user, authenticator.type)
 

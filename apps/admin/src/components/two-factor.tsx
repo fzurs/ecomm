@@ -1,33 +1,95 @@
 "use client"
 
 import {
+  useAddPasskey,
+  useAuthenticators,
+  usePasskeyCreationOptions,
   useReauthenticate,
+  useRemovePasskeys,
   useSession,
   useTotpActivate,
   useTotpDeactivate,
   useTotpStatus,
 } from "@/hooks/use-auth"
 import { useAppForm } from "@/hooks/form"
-import { needsReauthentication } from "@/lib/allauth"
+import { needsReauthentication, passkeyErrorMessage } from "@/lib/allauth"
 import { applyServerErrors, getServerErrorMessage } from "@/lib/utils"
-import { UserDetails } from "@workspace/api-client"
+import { browserSupportsWebAuthn } from "@simplewebauthn/browser"
+import type { WebAuthnAuthenticator } from "@workspace/api-client/allauth"
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
-import { Field, FieldGroup } from "@workspace/ui/components/field"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { ShieldCheckIcon } from "lucide-react"
+import { KeyRoundIcon, ShieldCheckIcon } from "lucide-react"
 import QRCode from "qrcode"
 import * as React from "react"
 import { z } from "zod"
 
-/** The 2FA section of the account: turn it on, or off. */
-export function TwoFactorSettings({ user }: { user: UserDetails }) {
-  if (user.mfa_enabled) return <TwoFactorDisable />
-  return <TwoFactorSetup />
+/**
+ * The 2FA section of the account: passkeys, and the authenticator app. The
+ * first one added also brings the recovery codes, shown once.
+ */
+export function TwoFactorSettings() {
+  const [recoveryCodes, setRecoveryCodes] = React.useState<string[] | null>(
+    null
+  )
+
+  if (recoveryCodes) {
+    return (
+      <RecoveryCodes
+        codes={recoveryCodes}
+        onSaved={() => setRecoveryCodes(null)}
+      />
+    )
+  }
+
+  return (
+    <div className="flex max-w-xl flex-col gap-10">
+      <Section
+        title="Passkeys"
+        description="Your fingerprint, face or screen lock, on this device, your phone or a security key. Safer than codes: a passkey only works on this admin's site, so a fake one can't use it."
+      >
+        <Passkeys onRecoveryCodes={setRecoveryCodes} />
+      </Section>
+      <Section
+        title="Authenticator app"
+        description="A 6-digit code from an app on your phone (Google Authenticator, 1Password, Authy...)."
+      >
+        <AuthenticatorApp onRecoveryCodes={setRecoveryCodes} />
+      </Section>
+    </div>
+  )
+}
+
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h3 className="font-medium">{title}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      {children}
+    </section>
+  )
 }
 
 /**
@@ -65,39 +127,288 @@ function useWithReauthentication() {
 }
 
 /**
- * Turning 2FA on: a QR code to scan with an authenticator app, a code from it
- * to confirm, and the recovery codes, shown once.
+ * Turning 2FA on where it's required (`AuthGuard`): a passkey, or else the
+ * authenticator app. Then the recovery codes, and the session is refetched,
+ * now verified.
  */
 export function TwoFactorSetup() {
-  const [started, setStarted] = React.useState(false)
+  const { refetch } = useSession()
+  const [useApp, setUseApp] = React.useState(false)
   const [recoveryCodes, setRecoveryCodes] = React.useState<string[] | null>(
     null
   )
 
-  if (recoveryCodes) return <RecoveryCodes codes={recoveryCodes} />
+  if (recoveryCodes) {
+    return <RecoveryCodes codes={recoveryCodes} onSaved={() => refetch()} />
+  }
 
-  if (!started) {
-    return (
-      <div className="flex flex-col items-start gap-3">
-        <p className="text-sm text-muted-foreground">
-          Logging in will also ask for a code from an authenticator app (Google
-          Authenticator, 1Password, Authy...) on your phone.
-        </p>
-        <Button onClick={() => setStarted(true)}>
-          <ShieldCheckIcon />
-          Set up two-factor authentication
-        </Button>
+  // Codes are only new with the account's first second factor.
+  const added = (codes: string[] | null) =>
+    codes ? setRecoveryCodes(codes) : refetch()
+
+  if (useApp) return <TotpEnrollment onConfirmed={added} />
+
+  return (
+    <div className="flex flex-col items-start gap-4">
+      <p className="text-sm text-muted-foreground">
+        Logging in will also ask for a passkey (your fingerprint, face or screen
+        lock) or a code from an authenticator app.
+      </p>
+      <PasskeyAdd onAdded={added} primary />
+      <Button variant="link" className="px-0" onClick={() => setUseApp(true)}>
+        Use an authenticator app instead
+      </Button>
+    </div>
+  )
+}
+
+/** The account's passkeys, to add and remove. */
+function Passkeys({
+  onRecoveryCodes,
+}: {
+  onRecoveryCodes: (codes: string[]) => void
+}) {
+  const authenticators = useAuthenticators()
+  const passkeys =
+    authenticators.data?.filter(
+      (authenticator): authenticator is WebAuthnAuthenticator =>
+        authenticator.type === "webauthn"
+    ) ?? []
+
+  if (authenticators.isPending) return <Spinner className="size-5" />
+
+  return (
+    <div className="flex flex-col gap-4">
+      {passkeys.length > 0 && (
+        <ul className="flex flex-col divide-y rounded-lg border">
+          {passkeys.map((passkey) => (
+            <PasskeyItem key={passkey.id} passkey={passkey} />
+          ))}
+        </ul>
+      )}
+      <PasskeyAdd onAdded={(codes) => codes && onRecoveryCodes(codes)} />
+    </div>
+  )
+}
+
+const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" })
+
+// allauth's timestamps are seconds.
+function formatTimestamp(seconds: number) {
+  return dateFormat.format(new Date(seconds * 1000))
+}
+
+function PasskeyItem({ passkey }: { passkey: WebAuthnAuthenticator }) {
+  const remove = useRemovePasskeys()
+  const reauth = useWithReauthentication()
+  const [error, setError] = React.useState<unknown>(null)
+
+  const removePasskey = () => {
+    setError(null)
+    reauth
+      .run(async () => {
+        await remove.mutateAsync({ body: { authenticators: [passkey.id] } })
+      })
+      .catch(setError)
+  }
+
+  return (
+    <li className="flex flex-col gap-3 p-4">
+      <div className="flex items-center gap-3">
+        <KeyRoundIcon className="size-4 shrink-0 text-muted-foreground" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm font-medium">{passkey.name}</span>
+          <span className="text-xs text-muted-foreground">
+            Added {formatTimestamp(passkey.created_at)} ·{" "}
+            {passkey.last_used_at
+              ? `last used ${formatTimestamp(passkey.last_used_at)}`
+              : "never used"}
+          </span>
+        </div>
+        {!reauth.reauthenticating && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={remove.isPending}
+            onClick={removePasskey}
+          >
+            {remove.isPending ? "Removing..." : "Remove"}
+          </Button>
+        )}
       </div>
+      {reauth.reauthenticating && (
+        <ReauthenticateForm
+          reason="Confirm your password to remove this passkey."
+          onConfirmed={reauth.confirmed}
+          onCancel={reauth.cancel}
+        />
+      )}
+      {error !== null && (
+        <p className="text-sm text-destructive">
+          {getServerErrorMessage(error)}
+        </p>
+      )}
+    </li>
+  )
+}
+
+/** The "Add a passkey" button, and the steps it opens. */
+function PasskeyAdd({
+  onAdded,
+  primary = false,
+}: {
+  onAdded: (recoveryCodes: string[] | null) => void
+  primary?: boolean
+}) {
+  const [open, setOpen] = React.useState(false)
+
+  if (!browserSupportsWebAuthn()) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        This browser can&apos;t create passkeys.
+      </p>
     )
   }
 
-  return <TotpEnrollment onConfirmed={setRecoveryCodes} />
+  if (!open) {
+    return (
+      <Button
+        variant={primary ? "default" : "outline"}
+        className="self-start"
+        onClick={() => setOpen(true)}
+      >
+        <KeyRoundIcon />
+        Add a passkey
+      </Button>
+    )
+  }
+
+  return (
+    <PasskeyCreation
+      onAdded={(codes) => {
+        setOpen(false)
+        onAdded(codes)
+      }}
+      onCancel={() => setOpen(false)}
+    />
+  )
+}
+
+/**
+ * Creating a passkey. The challenge is fetched first (allauth may ask for the
+ * password then), so the "Create" click opens the browser's prompt right away:
+ * browsers only show it in direct response to a click.
+ */
+function PasskeyCreation({
+  onAdded,
+  onCancel,
+}: {
+  onAdded: (recoveryCodes: string[] | null) => void
+  onCancel: () => void
+}) {
+  const options = usePasskeyCreationOptions()
+  const add = useAddPasskey()
+  const nameId = React.useId()
+  const [name, setName] = React.useState("")
+
+  if (options.isPending) return <Spinner className="size-5" />
+
+  if (options.isError) {
+    if (needsReauthentication(options.error)) {
+      return (
+        <ReauthenticateForm
+          reason="Confirm your password to add a passkey."
+          onConfirmed={async () => {
+            await options.refetch()
+          }}
+          onCancel={onCancel}
+        />
+      )
+    }
+    return (
+      <p className="text-sm text-destructive">
+        {getServerErrorMessage(options.error)}
+      </p>
+    )
+  }
+
+  const create = () =>
+    add.mutate(
+      { name: name.trim() || "Passkey", optionsJSON: options.data },
+      {
+        onSuccess: onAdded,
+        // A challenge is good for one attempt; on a 401 the refetch shows the
+        // password step.
+        onError: () => options.refetch(),
+      }
+    )
+
+  return (
+    <FieldGroup className="max-w-sm">
+      <Field>
+        <FieldLabel htmlFor={nameId}>Name</FieldLabel>
+        <Input
+          id={nameId}
+          value={name}
+          placeholder="e.g. MacBook, iPhone, YubiKey"
+          onChange={(e) => setName(e.target.value)}
+          disabled={add.isPending}
+          autoFocus
+        />
+        <FieldDescription>To tell your passkeys apart.</FieldDescription>
+      </Field>
+      {add.isError && <FieldError>{passkeyErrorMessage(add.error)}</FieldError>}
+      <Field orientation="horizontal">
+        <Button onClick={create} disabled={add.isPending}>
+          <KeyRoundIcon />
+          {add.isPending ? "Waiting for the passkey..." : "Create passkey"}
+        </Button>
+        <Button variant="ghost" onClick={onCancel} disabled={add.isPending}>
+          Cancel
+        </Button>
+      </Field>
+    </FieldGroup>
+  )
+}
+
+/** The authenticator app: set it up, or turn it off. */
+function AuthenticatorApp({
+  onRecoveryCodes,
+}: {
+  onRecoveryCodes: (codes: string[]) => void
+}) {
+  const status = useTotpStatus()
+  const [started, setStarted] = React.useState(false)
+
+  if (status.isPending) return <Spinner className="size-5" />
+  if (status.data?.enabled) return <TotpDisable />
+
+  if (!started) {
+    return (
+      <Button
+        variant="outline"
+        className="self-start"
+        onClick={() => setStarted(true)}
+      >
+        <ShieldCheckIcon />
+        Set up the authenticator app
+      </Button>
+    )
+  }
+
+  return (
+    <TotpEnrollment
+      onConfirmed={(codes) =>
+        codes ? onRecoveryCodes(codes) : setStarted(false)
+      }
+    />
+  )
 }
 
 function TotpEnrollment({
   onConfirmed,
 }: {
-  onConfirmed: (codes: string[]) => void
+  onConfirmed: (codes: string[] | null) => void
 }) {
   const status = useTotpStatus()
   const reauth = useWithReauthentication()
@@ -173,7 +484,7 @@ function ConfirmForm({
   onConfirmed,
   run,
 }: {
-  onConfirmed: (codes: string[]) => void
+  onConfirmed: (codes: string[] | null) => void
   run: (action: () => Promise<void>) => Promise<void>
 }) {
   const { mutateAsync } = useTotpActivate()
@@ -277,7 +588,13 @@ function ReauthenticateForm({
  * The recovery codes, once: each logs in once without the phone. Only after
  * the user says they saved them is the (now verified) session refetched.
  */
-function RecoveryCodes({ codes }: { codes: string[] }) {
+function RecoveryCodes({
+  codes,
+  onSaved,
+}: {
+  codes: string[]
+  onSaved: () => void
+}) {
   const { refetch } = useSession()
 
   return (
@@ -303,13 +620,20 @@ function RecoveryCodes({ codes }: { codes: string[] }) {
         >
           Copy
         </Button>
-        <Button onClick={() => refetch()}>I saved them</Button>
+        <Button
+          onClick={() => {
+            refetch()
+            onSaved()
+          }}
+        >
+          I saved them
+        </Button>
       </div>
     </div>
   )
 }
 
-function TwoFactorDisable() {
+function TotpDisable() {
   const deactivate = useTotpDeactivate()
   const reauth = useWithReauthentication()
   const [error, setError] = React.useState<unknown>(null)
@@ -326,8 +650,9 @@ function TwoFactorDisable() {
   return (
     <div className="flex max-w-sm flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        Two-factor authentication is on. Where it&apos;s required, the admin
-        stays locked until you turn it on again.
+        The authenticator app is on. Turning it off leaves your passkeys, if
+        any; without either, where two-factor authentication is required the
+        admin stays locked until you add one again.
       </p>
       {reauth.reauthenticating ? (
         <ReauthenticateForm

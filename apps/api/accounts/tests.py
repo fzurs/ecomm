@@ -292,6 +292,32 @@ class AuditTests(APITestCase):
         self.assertNotIn('una clave', ' '.join(logs.output))
 
 
+class PasskeyTests(AllauthMixin, APITestCase):
+    """allauth runs the WebAuthn ceremony; what's ours is the domain a passkey belongs to."""
+
+    def creation_options(self, **headers):
+        self.login()
+        self.reauthenticate()
+        response = self.client.get(f'{ALLAUTH}/account/authenticators/webauthn', headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return response.json()['data']['creation_options']['publicKey']
+
+    @override_settings(FRONTEND_ORIGINS=['https://admin.example.com'], ALLOWED_HOSTS=['testserver', 'api.internal'])
+    def test_a_passkey_belongs_to_the_frontend_domain_not_the_api_host(self):
+        rp = self.creation_options(**{'Host': 'api.internal', 'X-Forwarded-Host': 'admin.example.com'})['rp']
+        self.assertEqual(rp, {'id': 'admin.example.com', 'name': 'ecomm admin'})
+
+    @override_settings(FRONTEND_ORIGINS=['https://admin.example.com'], ALLOWED_HOSTS=['testserver', 'api.internal'])
+    def test_a_forwarded_host_outside_the_frontends_is_ignored(self):
+        rp = self.creation_options(**{'Host': 'api.internal', 'X-Forwarded-Host': 'sitio-malo.example'})['rp']
+        self.assertEqual(rp['id'], 'api.internal')
+
+    def test_adding_one_needs_the_password_again(self):
+        self.login()
+        response = self.client.get(f'{ALLAUTH}/account/authenticators/webauthn')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class CsrfTests(APITestCase):
     """The test client skips CSRF by default: this one checks it, as a browser would face it."""
 

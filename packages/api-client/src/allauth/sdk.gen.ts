@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteAllauthBrowserV1AccountAuthenticatorsTotpData, DeleteAllauthBrowserV1AccountAuthenticatorsTotpErrors, DeleteAllauthBrowserV1AccountAuthenticatorsTotpResponses, DeleteAllauthBrowserV1AccountEmailData, DeleteAllauthBrowserV1AccountEmailErrors, DeleteAllauthBrowserV1AccountEmailResponses, DeleteAllauthBrowserV1AuthSessionData, DeleteAllauthBrowserV1AuthSessionErrors, GetAllauthBrowserV1AccountAuthenticatorsData, GetAllauthBrowserV1AccountAuthenticatorsErrors, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesResponses, GetAllauthBrowserV1AccountAuthenticatorsResponses, GetAllauthBrowserV1AccountAuthenticatorsTotpData, GetAllauthBrowserV1AccountAuthenticatorsTotpErrors, GetAllauthBrowserV1AccountAuthenticatorsTotpResponses, GetAllauthBrowserV1AccountEmailData, GetAllauthBrowserV1AccountEmailErrors, GetAllauthBrowserV1AccountEmailResponses, GetAllauthBrowserV1AccountPhoneData, GetAllauthBrowserV1AccountPhoneErrors, GetAllauthBrowserV1AccountPhoneResponses, GetAllauthBrowserV1AuthEmailVerifyData, GetAllauthBrowserV1AuthEmailVerifyErrors, GetAllauthBrowserV1AuthEmailVerifyResponses, GetAllauthBrowserV1AuthPasswordResetData, GetAllauthBrowserV1AuthPasswordResetErrors, GetAllauthBrowserV1AuthPasswordResetResponses, GetAllauthBrowserV1AuthSessionData, GetAllauthBrowserV1AuthSessionErrors, GetAllauthBrowserV1AuthSessionResponses, GetAllauthBrowserV1ConfigData, GetAllauthBrowserV1ConfigResponses, PatchAllauthBrowserV1AccountEmailData, PatchAllauthBrowserV1AccountEmailErrors, PatchAllauthBrowserV1AccountEmailResponses, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors, PostAllauthBrowserV1AccountAuthenticatorsTotpData, PostAllauthBrowserV1AccountAuthenticatorsTotpErrors, PostAllauthBrowserV1AccountAuthenticatorsTotpResponses, PostAllauthBrowserV1AccountEmailData, PostAllauthBrowserV1AccountEmailErrors, PostAllauthBrowserV1AccountEmailResponses, PostAllauthBrowserV1AccountPasswordChangeData, PostAllauthBrowserV1AccountPasswordChangeErrors, PostAllauthBrowserV1AccountPhoneData, PostAllauthBrowserV1AccountPhoneErrors, PostAllauthBrowserV1AccountPhoneResponses, PostAllauthBrowserV1Auth2FaAuthenticateData, PostAllauthBrowserV1Auth2FaAuthenticateErrors, PostAllauthBrowserV1Auth2FaAuthenticateResponses, PostAllauthBrowserV1Auth2FaReauthenticateData, PostAllauthBrowserV1Auth2FaReauthenticateErrors, PostAllauthBrowserV1Auth2FaReauthenticateResponses, PostAllauthBrowserV1AuthCodeConfirmData, PostAllauthBrowserV1AuthCodeConfirmErrors, PostAllauthBrowserV1AuthCodeConfirmResponses, PostAllauthBrowserV1AuthEmailVerifyData, PostAllauthBrowserV1AuthEmailVerifyErrors, PostAllauthBrowserV1AuthEmailVerifyResendData, PostAllauthBrowserV1AuthEmailVerifyResendErrors, PostAllauthBrowserV1AuthEmailVerifyResendResponses, PostAllauthBrowserV1AuthEmailVerifyResponses, PostAllauthBrowserV1AuthLoginData, PostAllauthBrowserV1AuthLoginErrors, PostAllauthBrowserV1AuthLoginResponses, PostAllauthBrowserV1AuthPasswordRequestData, PostAllauthBrowserV1AuthPasswordRequestErrors, PostAllauthBrowserV1AuthPasswordRequestResponses, PostAllauthBrowserV1AuthPasswordResetData, PostAllauthBrowserV1AuthPasswordResetErrors, PostAllauthBrowserV1AuthPasswordResetResponses, PostAllauthBrowserV1AuthPhoneVerifyData, PostAllauthBrowserV1AuthPhoneVerifyErrors, PostAllauthBrowserV1AuthPhoneVerifyResendData, PostAllauthBrowserV1AuthPhoneVerifyResendErrors, PostAllauthBrowserV1AuthPhoneVerifyResendResponses, PostAllauthBrowserV1AuthPhoneVerifyResponses, PostAllauthBrowserV1AuthReauthenticateData, PostAllauthBrowserV1AuthReauthenticateErrors, PostAllauthBrowserV1AuthReauthenticateResponses, PostAllauthBrowserV1AuthSignupData, PostAllauthBrowserV1AuthSignupErrors, PostAllauthBrowserV1AuthSignupResponses, PutAllauthBrowserV1AccountEmailData, PutAllauthBrowserV1AccountEmailErrors, PutAllauthBrowserV1AccountEmailResponses } from './types.gen';
+import type { DeleteAllauthBrowserV1AccountAuthenticatorsTotpData, DeleteAllauthBrowserV1AccountAuthenticatorsTotpErrors, DeleteAllauthBrowserV1AccountAuthenticatorsTotpResponses, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnData, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, DeleteAllauthBrowserV1AccountEmailData, DeleteAllauthBrowserV1AccountEmailErrors, DeleteAllauthBrowserV1AccountEmailResponses, DeleteAllauthBrowserV1AuthSessionData, DeleteAllauthBrowserV1AuthSessionErrors, GetAllauthBrowserV1AccountAuthenticatorsData, GetAllauthBrowserV1AccountAuthenticatorsErrors, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesResponses, GetAllauthBrowserV1AccountAuthenticatorsResponses, GetAllauthBrowserV1AccountAuthenticatorsTotpData, GetAllauthBrowserV1AccountAuthenticatorsTotpErrors, GetAllauthBrowserV1AccountAuthenticatorsTotpResponses, GetAllauthBrowserV1AccountAuthenticatorsWebauthnData, GetAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, GetAllauthBrowserV1AccountEmailData, GetAllauthBrowserV1AccountEmailErrors, GetAllauthBrowserV1AccountEmailResponses, GetAllauthBrowserV1AccountPhoneData, GetAllauthBrowserV1AccountPhoneErrors, GetAllauthBrowserV1AccountPhoneResponses, GetAllauthBrowserV1AuthEmailVerifyData, GetAllauthBrowserV1AuthEmailVerifyErrors, GetAllauthBrowserV1AuthEmailVerifyResponses, GetAllauthBrowserV1AuthPasswordResetData, GetAllauthBrowserV1AuthPasswordResetErrors, GetAllauthBrowserV1AuthPasswordResetResponses, GetAllauthBrowserV1AuthSessionData, GetAllauthBrowserV1AuthSessionErrors, GetAllauthBrowserV1AuthSessionResponses, GetAllauthBrowserV1AuthWebauthnAuthenticateData, GetAllauthBrowserV1AuthWebauthnAuthenticateResponses, GetAllauthBrowserV1AuthWebauthnReauthenticateData, GetAllauthBrowserV1AuthWebauthnReauthenticateResponses, GetAllauthBrowserV1ConfigData, GetAllauthBrowserV1ConfigResponses, PatchAllauthBrowserV1AccountEmailData, PatchAllauthBrowserV1AccountEmailErrors, PatchAllauthBrowserV1AccountEmailResponses, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors, PostAllauthBrowserV1AccountAuthenticatorsTotpData, PostAllauthBrowserV1AccountAuthenticatorsTotpErrors, PostAllauthBrowserV1AccountAuthenticatorsTotpResponses, PostAllauthBrowserV1AccountAuthenticatorsWebauthnData, PostAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, PostAllauthBrowserV1AccountEmailData, PostAllauthBrowserV1AccountEmailErrors, PostAllauthBrowserV1AccountEmailResponses, PostAllauthBrowserV1AccountPasswordChangeData, PostAllauthBrowserV1AccountPasswordChangeErrors, PostAllauthBrowserV1AccountPhoneData, PostAllauthBrowserV1AccountPhoneErrors, PostAllauthBrowserV1AccountPhoneResponses, PostAllauthBrowserV1Auth2FaAuthenticateData, PostAllauthBrowserV1Auth2FaAuthenticateErrors, PostAllauthBrowserV1Auth2FaAuthenticateResponses, PostAllauthBrowserV1Auth2FaReauthenticateData, PostAllauthBrowserV1Auth2FaReauthenticateErrors, PostAllauthBrowserV1Auth2FaReauthenticateResponses, PostAllauthBrowserV1AuthCodeConfirmData, PostAllauthBrowserV1AuthCodeConfirmErrors, PostAllauthBrowserV1AuthCodeConfirmResponses, PostAllauthBrowserV1AuthEmailVerifyData, PostAllauthBrowserV1AuthEmailVerifyErrors, PostAllauthBrowserV1AuthEmailVerifyResendData, PostAllauthBrowserV1AuthEmailVerifyResendErrors, PostAllauthBrowserV1AuthEmailVerifyResendResponses, PostAllauthBrowserV1AuthEmailVerifyResponses, PostAllauthBrowserV1AuthLoginData, PostAllauthBrowserV1AuthLoginErrors, PostAllauthBrowserV1AuthLoginResponses, PostAllauthBrowserV1AuthPasswordRequestData, PostAllauthBrowserV1AuthPasswordRequestErrors, PostAllauthBrowserV1AuthPasswordRequestResponses, PostAllauthBrowserV1AuthPasswordResetData, PostAllauthBrowserV1AuthPasswordResetErrors, PostAllauthBrowserV1AuthPasswordResetResponses, PostAllauthBrowserV1AuthPhoneVerifyData, PostAllauthBrowserV1AuthPhoneVerifyErrors, PostAllauthBrowserV1AuthPhoneVerifyResendData, PostAllauthBrowserV1AuthPhoneVerifyResendErrors, PostAllauthBrowserV1AuthPhoneVerifyResendResponses, PostAllauthBrowserV1AuthPhoneVerifyResponses, PostAllauthBrowserV1AuthReauthenticateData, PostAllauthBrowserV1AuthReauthenticateErrors, PostAllauthBrowserV1AuthReauthenticateResponses, PostAllauthBrowserV1AuthSignupData, PostAllauthBrowserV1AuthSignupErrors, PostAllauthBrowserV1AuthSignupResponses, PostAllauthBrowserV1AuthWebauthnAuthenticateData, PostAllauthBrowserV1AuthWebauthnAuthenticateErrors, PostAllauthBrowserV1AuthWebauthnAuthenticateResponses, PostAllauthBrowserV1AuthWebauthnReauthenticateData, PostAllauthBrowserV1AuthWebauthnReauthenticateErrors, PostAllauthBrowserV1AuthWebauthnReauthenticateResponses, PutAllauthBrowserV1AccountAuthenticatorsWebauthnData, PutAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, PutAllauthBrowserV1AccountEmailData, PutAllauthBrowserV1AccountEmailErrors, PutAllauthBrowserV1AccountEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -278,6 +278,64 @@ export const postAllauthBrowserV1Auth2FaReauthenticate = <ThrowOnError extends b
 });
 
 /**
+ * Get WebAuthn credential request options for 2FA
+ *
+ * Returns the WebAuthn credential request options, that can be
+ * processed using `parseRequestOptionsFromJSON()` on the frontend.
+ *
+ */
+export const getAllauthBrowserV1AuthWebauthnAuthenticate = <ThrowOnError extends boolean = false>(options?: Options<GetAllauthBrowserV1AuthWebauthnAuthenticateData, ThrowOnError>): RequestResult<GetAllauthBrowserV1AuthWebauthnAuthenticateResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetAllauthBrowserV1AuthWebauthnAuthenticateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/auth/webauthn/authenticate',
+    ...options
+});
+
+/**
+ * Perform 2FA using WebAuthn
+ *
+ * Perform Two-Factor Authentication using a WebAuthn credential.
+ *
+ */
+export const postAllauthBrowserV1AuthWebauthnAuthenticate = <ThrowOnError extends boolean = false>(options: Options<PostAllauthBrowserV1AuthWebauthnAuthenticateData, ThrowOnError>): RequestResult<PostAllauthBrowserV1AuthWebauthnAuthenticateResponses, PostAllauthBrowserV1AuthWebauthnAuthenticateErrors, ThrowOnError> => (options.client ?? client).post<PostAllauthBrowserV1AuthWebauthnAuthenticateResponses, PostAllauthBrowserV1AuthWebauthnAuthenticateErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/auth/webauthn/authenticate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get WebAuthn credential request options for reauthentication
+ *
+ * Returns the WebAuthn credential request options, that can be
+ * processed using `parseRequestOptionsFromJSON()` on the frontend.
+ *
+ */
+export const getAllauthBrowserV1AuthWebauthnReauthenticate = <ThrowOnError extends boolean = false>(options?: Options<GetAllauthBrowserV1AuthWebauthnReauthenticateData, ThrowOnError>): RequestResult<GetAllauthBrowserV1AuthWebauthnReauthenticateResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetAllauthBrowserV1AuthWebauthnReauthenticateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/auth/webauthn/reauthenticate',
+    ...options
+});
+
+/**
+ * Reauthenticate using WebAuthn
+ *
+ * Reauthenticate the user using a WebAuthn credential.
+ *
+ */
+export const postAllauthBrowserV1AuthWebauthnReauthenticate = <ThrowOnError extends boolean = false>(options: Options<PostAllauthBrowserV1AuthWebauthnReauthenticateData, ThrowOnError>): RequestResult<PostAllauthBrowserV1AuthWebauthnReauthenticateResponses, PostAllauthBrowserV1AuthWebauthnReauthenticateErrors, ThrowOnError> => (options.client ?? client).post<PostAllauthBrowserV1AuthWebauthnReauthenticateResponses, PostAllauthBrowserV1AuthWebauthnReauthenticateErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/auth/webauthn/reauthenticate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Confirm login code
  *
  * Use this endpoint to pass along the received "special" login code.
@@ -486,6 +544,67 @@ export const getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes = <ThrowOnErr
  * Regenerate recovery codes
  */
 export const postAllauthBrowserV1AccountAuthenticatorsRecoveryCodes = <ThrowOnError extends boolean = false>(options?: Options<PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, ThrowOnError>): RequestResult<unknown, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors, ThrowOnError> => (options?.client ?? client).post<unknown, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors, ThrowOnError>({ url: '/_allauth/browser/v1/account/authenticators/recovery-codes', ...options });
+
+/**
+ * Delete a WebAuthn credential
+ *
+ */
+export const deleteAllauthBrowserV1AccountAuthenticatorsWebauthn = <ThrowOnError extends boolean = false>(options?: Options<DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnData, ThrowOnError>): RequestResult<DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError> => (options?.client ?? client).delete<DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/account/authenticators/webauthn',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Get WebAuthn credential creation options
+ *
+ *
+ * Returns the WebAuthn credential creation options, that can be
+ * processed using `parseCreationOptionsFromJSON()` on the frontend.
+ *
+ */
+export const getAllauthBrowserV1AccountAuthenticatorsWebauthn = <ThrowOnError extends boolean = false>(options?: Options<GetAllauthBrowserV1AccountAuthenticatorsWebauthnData, ThrowOnError>): RequestResult<GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, GetAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError> => (options?.client ?? client).get<GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, GetAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/account/authenticators/webauthn',
+    ...options
+});
+
+/**
+ * Add a WebAuthn credential
+ *
+ */
+export const postAllauthBrowserV1AccountAuthenticatorsWebauthn = <ThrowOnError extends boolean = false>(options?: Options<PostAllauthBrowserV1AccountAuthenticatorsWebauthnData, ThrowOnError>): RequestResult<PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, PostAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError> => (options?.client ?? client).post<PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, PostAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/account/authenticators/webauthn',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * Rename a WebAuthn credential
+ *
+ *
+ * You can alter the name of a WebAuthn credential by PUT'ting the ID and
+ * name of the authenticator representing that credential. You can obtain
+ * the credentials via the "List authenticators" endpoint.
+ *
+ */
+export const putAllauthBrowserV1AccountAuthenticatorsWebauthn = <ThrowOnError extends boolean = false>(options?: Options<PutAllauthBrowserV1AccountAuthenticatorsWebauthnData, ThrowOnError>): RequestResult<PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, PutAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError> => (options?.client ?? client).put<PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponses, PutAllauthBrowserV1AccountAuthenticatorsWebauthnErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/_allauth/browser/v1/account/authenticators/webauthn',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
 
 /**
  * Logout

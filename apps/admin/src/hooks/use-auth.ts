@@ -1,17 +1,28 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { startAuthentication, startRegistration } from "@simplewebauthn/browser"
 import {
+  type AuthenticatorType,
   type GetAllauthBrowserV1AccountAuthenticatorsTotpErrors,
   getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes,
   getAllauthBrowserV1AccountAuthenticatorsTotp,
+  getAllauthBrowserV1AccountAuthenticatorsWebauthn,
+  getAllauthBrowserV1AuthWebauthnAuthenticate,
   postAllauthBrowserV1AccountAuthenticatorsTotp,
+  postAllauthBrowserV1AccountAuthenticatorsWebauthn,
   postAllauthBrowserV1AuthLogin,
+  postAllauthBrowserV1AuthWebauthnAuthenticate,
 } from "@workspace/api-client/allauth"
 import {
   deleteAllauthBrowserV1AccountAuthenticatorsTotpMutation,
+  deleteAllauthBrowserV1AccountAuthenticatorsWebauthnMutation,
   deleteAllauthBrowserV1AuthSessionMutation,
+  getAllauthBrowserV1AccountAuthenticatorsOptions,
+  getAllauthBrowserV1AccountAuthenticatorsQueryKey,
   getAllauthBrowserV1AccountAuthenticatorsTotpQueryKey,
+  getAllauthBrowserV1AccountAuthenticatorsWebauthnQueryKey,
+  getAllauthBrowserV1AuthWebauthnAuthenticateQueryKey,
   postAllauthBrowserV1Auth2FaAuthenticateMutation,
   postAllauthBrowserV1AuthReauthenticateMutation,
 } from "@workspace/api-client/allauth/query"
@@ -20,7 +31,11 @@ import {
   authUserRetrieveQueryKey,
 } from "@workspace/api-client/query"
 import { useRouter } from "next/navigation"
-import { needsSecondFactor } from "@/lib/allauth"
+import {
+  creationOptionsJSON,
+  pendingSecondFactor,
+  requestOptionsJSON,
+} from "@/lib/allauth"
 
 export const sessionQueryKey = authUserRetrieveQueryKey()
 
@@ -98,25 +113,31 @@ function useFinishLogin() {
 }
 
 /**
- * Logs in with the password (allauth). Resolves "done", or "second_factor"
- * when the account has 2FA: allauth keeps the login pending until
- * `useSecondFactor` gets the code. Errors (wrong password) are allauth's 400.
+ * Logs in with the password (allauth). Resolves `{ secondFactor: null }` when
+ * done, or the second factors the account accepts when it has 2FA: allauth
+ * keeps the login pending until `useSecondFactor` (a code) or
+ * `usePasskeySecondFactor` completes it. Errors (wrong password) are
+ * allauth's 400.
  */
 export function useLogin() {
   const finishLogin = useFinishLogin()
 
   return useMutation({
-    mutationFn: async (body: { username: string; password: string }) => {
+    mutationFn: async (body: {
+      username: string
+      password: string
+    }): Promise<{ secondFactor: AuthenticatorType[] | null }> => {
       try {
         await postAllauthBrowserV1AuthLogin({ body, throwOnError: true })
-        return "done" as const
+        return { secondFactor: null }
       } catch (error) {
-        if (needsSecondFactor(error)) return "second_factor" as const
+        const secondFactor = pendingSecondFactor(error)
+        if (secondFactor) return { secondFactor }
         throw error
       }
     },
-    onSuccess: (step) => {
-      if (step === "done") finishLogin()
+    onSuccess: ({ secondFactor }) => {
+      if (!secondFactor) finishLogin()
     },
   })
 }
@@ -128,6 +149,123 @@ export function useSecondFactor() {
   return useMutation({
     ...postAllauthBrowserV1Auth2FaAuthenticateMutation(),
     onSuccess: finishLogin,
+  })
+}
+
+/**
+ * The challenge for logging in with a passkey, fetched as soon as the login
+ * waits for one: the browser only shows its passkey prompt right after a
+ * click, so the click can't wait for the network.
+ */
+export function usePasskeyLoginOptions(enabled: boolean) {
+  return useQuery({
+    queryKey: getAllauthBrowserV1AuthWebauthnAuthenticateQueryKey(),
+    queryFn: async () => {
+      const { data } = await getAllauthBrowserV1AuthWebauthnAuthenticate({
+        throwOnError: true,
+      })
+      return requestOptionsJSON(data.data.request_options)
+    },
+    enabled,
+    // One challenge per attempt: never reused from the cache.
+    gcTime: 0,
+    staleTime: Infinity,
+  })
+}
+
+/** Completes a pending login with a passkey: the browser asks for it. */
+export function usePasskeySecondFactor() {
+  const finishLogin = useFinishLogin()
+
+  return useMutation({
+    mutationFn: async (
+      optionsJSON: Awaited<ReturnType<typeof requestOptionsJSON>>
+    ) => {
+      const credential = await startAuthentication({ optionsJSON })
+      await postAllauthBrowserV1AuthWebauthnAuthenticate({
+        // The WebAuthn JSON allauth expects; its spec types it as any object.
+        body: { credential: { ...credential } },
+        throwOnError: true,
+      })
+    },
+    onSuccess: finishLogin,
+  })
+}
+
+/** The account's second factors: passkeys, the authenticator app, recovery codes. */
+export function useAuthenticators() {
+  return useQuery({
+    ...getAllauthBrowserV1AccountAuthenticatorsOptions(),
+    select: (response) => response.data,
+  })
+}
+
+/**
+ * The challenge for a new passkey. allauth may want the password first
+ * (`needsReauthentication` on the error): fetched before the "Create" click
+ * for the same reason as `usePasskeyLoginOptions`.
+ */
+export function usePasskeyCreationOptions() {
+  return useQuery({
+    queryKey: getAllauthBrowserV1AccountAuthenticatorsWebauthnQueryKey(),
+    queryFn: async () => {
+      const { data } = await getAllauthBrowserV1AccountAuthenticatorsWebauthn({
+        throwOnError: true,
+      })
+      return creationOptionsJSON(data.data.creation_options)
+    },
+    retry: false,
+    gcTime: 0,
+    staleTime: Infinity,
+  })
+}
+
+/**
+ * Creates a passkey (the browser asks for it) and adds it. Returns the
+ * recovery codes when it was the first second factor (allauth generates them
+ * then), else null. Like `useTotpActivate`, the session isn't refetched here.
+ */
+export function useAddPasskey() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      name,
+      optionsJSON,
+    }: {
+      name: string
+      optionsJSON: Awaited<ReturnType<typeof creationOptionsJSON>>
+    }) => {
+      const credential = await startRegistration({ optionsJSON })
+      const { data } = await postAllauthBrowserV1AccountAuthenticatorsWebauthn({
+        body: { name, credential: { ...credential } },
+        throwOnError: true,
+      })
+      if (!data.meta.recovery_codes_generated) return null
+      const codes = await getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes(
+        { throwOnError: true }
+      )
+      return codes.data.data.unused_codes
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: getAllauthBrowserV1AccountAuthenticatorsQueryKey(),
+      }),
+  })
+}
+
+/** Removes passkeys, by id. */
+export function useRemovePasskeys() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...deleteAllauthBrowserV1AccountAuthenticatorsWebauthnMutation(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: sessionQueryKey })
+      queryClient.invalidateQueries({
+        queryKey: getAllauthBrowserV1AccountAuthenticatorsQueryKey(),
+      })
+    },
   })
 }
 
@@ -176,23 +314,34 @@ export function useTotpStatus() {
 }
 
 /**
- * Turns 2FA on with a code from the new authenticator, and returns the
- * recovery codes. The session counts as verified after it, but isn't refetched
+ * Turns the authenticator app on with a code from it. Returns the recovery
+ * codes when it was the first second factor (allauth generates them then),
+ * else null. The session counts as verified after it, but isn't refetched
  * here: where 2FA is required, `AuthGuard` would let the user in before they
  * saved the codes. Refetch it once they did.
  */
 export function useTotpActivate() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (code: string) => {
-      await postAllauthBrowserV1AccountAuthenticatorsTotp({
+      const { data } = await postAllauthBrowserV1AccountAuthenticatorsTotp({
         body: { code },
         throwOnError: true,
       })
-      const { data } =
-        await getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes({
-          throwOnError: true,
-        })
-      return data.data.unused_codes
+      if (!data.meta?.recovery_codes_generated) return null
+      const codes = await getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes(
+        { throwOnError: true }
+      )
+      return codes.data.data.unused_codes
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getAllauthBrowserV1AccountAuthenticatorsTotpQueryKey(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getAllauthBrowserV1AccountAuthenticatorsQueryKey(),
+      })
     },
   })
 }
@@ -205,6 +354,9 @@ export function useTotpDeactivate() {
     ...deleteAllauthBrowserV1AccountAuthenticatorsTotpMutation(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: sessionQueryKey })
+      queryClient.invalidateQueries({
+        queryKey: getAllauthBrowserV1AccountAuthenticatorsQueryKey(),
+      })
       queryClient.removeQueries({
         queryKey: getAllauthBrowserV1AccountAuthenticatorsTotpQueryKey(),
       })

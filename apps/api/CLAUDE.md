@@ -28,8 +28,8 @@
   se crean con `manage.py create_operator <user> [--role ...]` (staff, sin superusuario).
   `/auth/user/` expone `is_staff` y `permissions` (solo lectura) para que el admin oculte acciones.
 - Cuentas: django-allauth headless (`HEADLESS_ONLY`, solo cliente `browser`), montado en
-  `/_allauth/`: login, logout, 2FA (`allauth.mfa`: TOTP + códigos de recuperación) y
-  reautenticación. Usa la sesión de Django, como el resto de la API, y exige CSRF también en el
+  `/_allauth/`: login, logout, 2FA (`allauth.mfa`: passkeys/WebAuthn, TOTP y códigos de
+  recuperación) y reautenticación. Usa la sesión de Django, como el resto de la API, y exige CSRF también en el
   login. El registro está cerrado (`accounts.adapter.AccountAdapter`) hasta la fase 3.
   - `/auth/user/` (`accounts.views.UserDetailsView`) es nuestro: el usuario, `is_staff`,
     `permissions` y `mfa_enabled` / `mfa_verified` / `mfa_required`.
@@ -40,6 +40,9 @@
     los tests que lo necesitan son `APITransactionTestCase`).
   - allauth pide reautenticación (la contraseña otra vez) para activar o desactivar el 2FA,
     aunque el login sea reciente (`MFA_REAUTHENTICATION_REQUIRED`).
+  - Una passkey queda atada al dominio del frontend, no al host de la API al que reenvía Next:
+    `accounts.adapter.MFAAdapter` toma el RP ID de `X-Forwarded-Host`, solo si es un host de
+    `FRONTEND_ORIGINS`. Agregar una passkey también marca la sesión como verificada.
   - Sus endpoints no salen de drf-spectacular: `manage.py allauth_schema` escribe su spec y el
     cliente se genera en `packages/api-client/src/allauth` (los dos con `pnpm generate:schema` y
     `generate:api`). En tests: `cache.clear()` antes (allauth guarda ahí los códigos usados y

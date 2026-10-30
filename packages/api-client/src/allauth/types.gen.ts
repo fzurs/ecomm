@@ -1286,6 +1286,128 @@ export type PostAllauthBrowserV1Auth2FaReauthenticateResponses = {
 
 export type PostAllauthBrowserV1Auth2FaReauthenticateResponse = PostAllauthBrowserV1Auth2FaReauthenticateResponses[keyof PostAllauthBrowserV1Auth2FaReauthenticateResponses];
 
+export type GetAllauthBrowserV1AuthWebauthnAuthenticateData = {
+    body?: never;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/webauthn/authenticate';
+};
+
+export type GetAllauthBrowserV1AuthWebauthnAuthenticateResponses = {
+    /**
+     * WebAuthn credential request options.
+     */
+    200: {
+        status: StatusOk;
+        data: WebAuthnCredentialRequestOptions;
+    };
+};
+
+export type GetAllauthBrowserV1AuthWebauthnAuthenticateResponse = GetAllauthBrowserV1AuthWebauthnAuthenticateResponses[keyof GetAllauthBrowserV1AuthWebauthnAuthenticateResponses];
+
+export type PostAllauthBrowserV1AuthWebauthnAuthenticateData = {
+    /**
+     * Authenticate using WebAuthn.
+     */
+    body: AuthenticateWebAuthn;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/webauthn/authenticate';
+};
+
+export type PostAllauthBrowserV1AuthWebauthnAuthenticateErrors = {
+    /**
+     * An input error occurred.
+     */
+    400: ErrorResponse;
+};
+
+export type PostAllauthBrowserV1AuthWebauthnAuthenticateError = PostAllauthBrowserV1AuthWebauthnAuthenticateErrors[keyof PostAllauthBrowserV1AuthWebauthnAuthenticateErrors];
+
+export type PostAllauthBrowserV1AuthWebauthnAuthenticateResponses = {
+    /**
+     * The user is authenticated.
+     */
+    200: AuthenticatedResponse;
+};
+
+export type PostAllauthBrowserV1AuthWebauthnAuthenticateResponse = PostAllauthBrowserV1AuthWebauthnAuthenticateResponses[keyof PostAllauthBrowserV1AuthWebauthnAuthenticateResponses];
+
+export type GetAllauthBrowserV1AuthWebauthnReauthenticateData = {
+    body?: never;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/webauthn/reauthenticate';
+};
+
+export type GetAllauthBrowserV1AuthWebauthnReauthenticateResponses = {
+    /**
+     * WebAuthn credential request options.
+     */
+    200: {
+        status: StatusOk;
+        data: WebAuthnCredentialRequestOptions;
+    };
+};
+
+export type GetAllauthBrowserV1AuthWebauthnReauthenticateResponse = GetAllauthBrowserV1AuthWebauthnReauthenticateResponses[keyof GetAllauthBrowserV1AuthWebauthnReauthenticateResponses];
+
+export type PostAllauthBrowserV1AuthWebauthnReauthenticateData = {
+    /**
+     * Reauthenticate using WebAuthn.
+     */
+    body: ReauthenticateWebAuthn;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/webauthn/reauthenticate';
+};
+
+export type PostAllauthBrowserV1AuthWebauthnReauthenticateErrors = {
+    /**
+     * An input error occurred.
+     */
+    400: ErrorResponse;
+};
+
+export type PostAllauthBrowserV1AuthWebauthnReauthenticateError = PostAllauthBrowserV1AuthWebauthnReauthenticateErrors[keyof PostAllauthBrowserV1AuthWebauthnReauthenticateErrors];
+
+export type PostAllauthBrowserV1AuthWebauthnReauthenticateResponses = {
+    /**
+     * The user is authenticated.
+     */
+    200: AuthenticatedResponse;
+};
+
+export type PostAllauthBrowserV1AuthWebauthnReauthenticateResponse = PostAllauthBrowserV1AuthWebauthnReauthenticateResponses[keyof PostAllauthBrowserV1AuthWebauthnReauthenticateResponses];
+
 export type PostAllauthBrowserV1AuthCodeConfirmData = {
     body: ConfirmLoginCode2;
     path?: never;
@@ -1853,6 +1975,174 @@ export type PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors = {
 };
 
 export type PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesError = PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors[keyof PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesErrors];
+
+export type DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnData = {
+    body?: DeleteWebAuthn;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/account/authenticators/webauthn';
+};
+
+export type DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnErrors = {
+    /**
+     * The response indicates reauthentication is required.
+     *
+     */
+    401: ReauthenticationResponse;
+};
+
+export type DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnError = DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnErrors[keyof DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnErrors];
+
+export type DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponses = {
+    /**
+     * A success response.
+     *
+     */
+    200: {
+        status: StatusOk;
+    };
+};
+
+export type DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponses[keyof DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponses];
+
+export type GetAllauthBrowserV1AccountAuthenticatorsWebauthnData = {
+    body?: never;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * When present (regardless of its value), enables passwordless sign-in via a WebAuthn credential (Passkey),
+         * but may enforce additional multi-factor authentication (MFA) requirements. Omit the parameter to disable.
+         *
+         */
+        passwordless?: boolean;
+    };
+    url: '/_allauth/browser/v1/account/authenticators/webauthn';
+};
+
+export type GetAllauthBrowserV1AccountAuthenticatorsWebauthnErrors = {
+    /**
+     * The response indicates reauthentication is required.
+     *
+     */
+    401: ReauthenticationResponse;
+    /**
+     * The account prohibits adding an authenticator, e.g. because of an unverified email address.
+     *
+     */
+    409: ConflictResponse;
+};
+
+export type GetAllauthBrowserV1AccountAuthenticatorsWebauthnError = GetAllauthBrowserV1AccountAuthenticatorsWebauthnErrors[keyof GetAllauthBrowserV1AccountAuthenticatorsWebauthnErrors];
+
+export type GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponses = {
+    /**
+     * WebAuthn credential creation options.
+     */
+    200: {
+        status: StatusOk;
+        data: WebAuthnCredentialCreationOptions;
+    };
+};
+
+export type GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponses[keyof GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponses];
+
+export type PostAllauthBrowserV1AccountAuthenticatorsWebauthnData = {
+    body?: AddWebAuthnAuthenticator;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/account/authenticators/webauthn';
+};
+
+export type PostAllauthBrowserV1AccountAuthenticatorsWebauthnErrors = {
+    /**
+     * The response indicates reauthentication is required.
+     *
+     */
+    401: ReauthenticationResponse;
+    /**
+     * The account prohibits adding an authenticator, e.g. because of an unverified email address.
+     *
+     */
+    409: ConflictResponse;
+};
+
+export type PostAllauthBrowserV1AccountAuthenticatorsWebauthnError = PostAllauthBrowserV1AccountAuthenticatorsWebauthnErrors[keyof PostAllauthBrowserV1AccountAuthenticatorsWebauthnErrors];
+
+export type PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponses = {
+    /**
+     * A WebAuthn authenticator.
+     */
+    200: {
+        status: StatusOk;
+        data: WebAuthnAuthenticator;
+        meta: {
+            /**
+             * Whether or not recovery codes where generated automatically.
+             *
+             */
+            recovery_codes_generated?: boolean;
+        };
+    };
+};
+
+export type PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponses[keyof PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponses];
+
+export type PutAllauthBrowserV1AccountAuthenticatorsWebauthnData = {
+    body?: UpdateWebAuthn;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/account/authenticators/webauthn';
+};
+
+export type PutAllauthBrowserV1AccountAuthenticatorsWebauthnErrors = {
+    /**
+     * The response indicates reauthentication is required.
+     *
+     */
+    401: ReauthenticationResponse;
+};
+
+export type PutAllauthBrowserV1AccountAuthenticatorsWebauthnError = PutAllauthBrowserV1AccountAuthenticatorsWebauthnErrors[keyof PutAllauthBrowserV1AccountAuthenticatorsWebauthnErrors];
+
+export type PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponses = {
+    /**
+     * A WebAuthn authenticator.
+     */
+    200: {
+        status: StatusOk;
+        data: WebAuthnAuthenticator;
+    };
+};
+
+export type PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponses[keyof PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponses];
 
 export type DeleteAllauthBrowserV1AuthSessionData = {
     body?: never;

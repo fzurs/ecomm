@@ -91,7 +91,17 @@ Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
   entrar a sesiones que pasaron el segundo factor.
 - **Migración:** los usuarios con 2FA lo vuelven a configurar. Las tablas de django-otp quedan
   huérfanas en las bases que lo tuvieron y se pueden borrar a mano.
-- **Pendiente:** passkeys (WebAuthn), que allauth ya soporta (`MFA_SUPPORTED_TYPES`).
+- **Passkeys (WebAuthn)** como segundo factor, además del TOTP:
+  - Una passkey queda atada al dominio del navegador (el RP ID). Detrás del rewrite, allauth
+    leería el host de la API. `accounts.adapter.MFAAdapter` toma el host del frontend de
+    `X-Forwarded-Host`, que pone Next, y solo si está en `FRONTEND_ORIGINS`; un request directo a
+    la API no puede elegirlo.
+  - Si el dominio del admin cambia, las passkeys registradas dejan de servir: quedan el TOTP y
+    los códigos de recuperación.
+  - En el admin, `@simplewebauthn/browser` hace de puente con `navigator.credentials`. El desafío
+    se pide antes del clic, porque el navegador solo abre su diálogo en respuesta directa a uno.
+  - Por ahora no se usan para entrar sin contraseña (`MFA_PASSKEY_LOGIN_ENABLED`). Es una opción
+    para la tienda o para más adelante.
 
 ## Fase 3: cuentas en la tienda
 

@@ -19,7 +19,7 @@ export default function SecurityPage() {
             <h1>Security</h1>
             <h2>Two-factor authentication</h2>
           </div>
-          {user && <TwoFactorSettings user={user} />}
+          {user && <TwoFactorSettings />}
         </div>
       </main>
     </>

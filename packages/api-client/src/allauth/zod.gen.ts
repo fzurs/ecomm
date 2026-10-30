@@ -769,6 +769,58 @@ export const zPostAllauthBrowserV1Auth2FaReauthenticateHeaders = z.object({
  */
 export const zPostAllauthBrowserV1Auth2FaReauthenticateResponse = zAuthenticatedResponse;
 
+export const zGetAllauthBrowserV1AuthWebauthnAuthenticateHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * WebAuthn credential request options.
+ */
+export const zGetAllauthBrowserV1AuthWebauthnAuthenticateResponse = z.object({
+    status: zStatusOk,
+    data: zWebAuthnCredentialRequestOptions
+});
+
+/**
+ * Authenticate using WebAuthn.
+ */
+export const zPostAllauthBrowserV1AuthWebauthnAuthenticateBody = zAuthenticateWebAuthn;
+
+export const zPostAllauthBrowserV1AuthWebauthnAuthenticateHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * The user is authenticated.
+ */
+export const zPostAllauthBrowserV1AuthWebauthnAuthenticateResponse = zAuthenticatedResponse;
+
+export const zGetAllauthBrowserV1AuthWebauthnReauthenticateHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * WebAuthn credential request options.
+ */
+export const zGetAllauthBrowserV1AuthWebauthnReauthenticateResponse = z.object({
+    status: zStatusOk,
+    data: zWebAuthnCredentialRequestOptions
+});
+
+/**
+ * Reauthenticate using WebAuthn.
+ */
+export const zPostAllauthBrowserV1AuthWebauthnReauthenticateBody = zReauthenticateWebAuthn;
+
+export const zPostAllauthBrowserV1AuthWebauthnReauthenticateHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * The user is authenticated.
+ */
+export const zPostAllauthBrowserV1AuthWebauthnReauthenticateResponse = zAuthenticatedResponse;
+
 export const zPostAllauthBrowserV1AuthCodeConfirmBody = zConfirmLoginCode2;
 
 /**
@@ -944,6 +996,67 @@ export const zGetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesResponse = z.
 
 export const zPostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesHeaders = z.object({
     'X-Session-Token': z.string().optional()
+});
+
+export const zDeleteAllauthBrowserV1AccountAuthenticatorsWebauthnBody = zDeleteWebAuthn;
+
+export const zDeleteAllauthBrowserV1AccountAuthenticatorsWebauthnHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * A success response.
+ *
+ */
+export const zDeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = z.object({
+    status: zStatusOk
+});
+
+export const zGetAllauthBrowserV1AccountAuthenticatorsWebauthnHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+export const zGetAllauthBrowserV1AccountAuthenticatorsWebauthnQuery = z.object({
+    passwordless: z.boolean().optional()
+});
+
+/**
+ * WebAuthn credential creation options.
+ */
+export const zGetAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = z.object({
+    status: zStatusOk,
+    data: zWebAuthnCredentialCreationOptions
+});
+
+export const zPostAllauthBrowserV1AccountAuthenticatorsWebauthnBody = zAddWebAuthnAuthenticator;
+
+export const zPostAllauthBrowserV1AccountAuthenticatorsWebauthnHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * A WebAuthn authenticator.
+ */
+export const zPostAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = z.object({
+    status: zStatusOk,
+    data: zWebAuthnAuthenticator,
+    meta: z.object({
+        recovery_codes_generated: z.boolean().optional()
+    })
+});
+
+export const zPutAllauthBrowserV1AccountAuthenticatorsWebauthnBody = zUpdateWebAuthn;
+
+export const zPutAllauthBrowserV1AccountAuthenticatorsWebauthnHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * A WebAuthn authenticator.
+ */
+export const zPutAllauthBrowserV1AccountAuthenticatorsWebauthnResponse = z.object({
+    status: zStatusOk,
+    data: zWebAuthnAuthenticator
 });
 
 export const zDeleteAllauthBrowserV1AuthSessionHeaders = z.object({

@@ -30,6 +30,12 @@
   `/account/security` (menú del usuario). Activar y desactivar piden la contraseña otra vez
   cuando allauth responde `reauthenticate` (`useWithReauthentication`), y después reintentan.
   El QR se dibuja en el navegador (`qrcode`) con la `totp_url` de allauth.
+- Passkeys: `@simplewebauthn/browser` traduce las opciones de allauth (`{ publicKey }`, JSON
+  base64url, `src/lib/allauth.ts`) a `navigator.credentials`. El navegador solo abre su diálogo
+  en respuesta directa a un clic: el desafío se pide antes (`usePasskeyLoginOptions`,
+  `usePasskeyCreationOptions`) y el clic llama a `startAuthentication` / `startRegistration` sin
+  esperar la red. Un desafío sirve para un intento: después de usarlo (o de un error) se vuelve a
+  pedir. En el login se ofrece primero si la cuenta tiene una (`types` del flujo pendiente).
 - Permisos: `useCan("app.codename")` (de `user.permissions`) oculta acciones que la API rechazaría,
   ej. emitir comprobantes (`billing.add_invoice`). La API es la que valida; esto es solo UI.
 - Login y logout hacen `queryClient.clear()` para no mostrar datos de otra sesión, y redirigen

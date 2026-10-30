@@ -137,8 +137,10 @@ ACCOUNT_LOGIN_METHODS = {"username"}
 ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
-# Two-factor authentication (allauth.mfa): an authenticator app, with recovery codes.
-MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
+# Two-factor authentication (allauth.mfa): passkeys (WebAuthn) and an authenticator app, with
+# recovery codes. A passkey is tied to the frontend's domain (accounts.adapter.MFAAdapter).
+MFA_SUPPORTED_TYPES = ["webauthn", "totp", "recovery_codes"]
+MFA_ADAPTER = "accounts.adapter.MFAAdapter"
 # The name authenticator apps show for the account.
 MFA_TOTP_ISSUER = env("MFA_TOTP_ISSUER", default="ecomm admin")
 # Required: the API refuses staff sessions that didn't pass the second factor

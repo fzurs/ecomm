@@ -55,6 +55,9 @@ secretas, un Postgres y un Redis.
   `python manage.py shell -c "from allauth.mfa.models import Authenticator; Authenticator.objects.filter(user__username='<usuario>').delete()"`.
   Desde el shell no pasa por las señales de allauth, así que no queda en el logger `audit`:
   anotar quién y por qué. En el próximo login vuelve a pedir el setup.
+- **Passkeys**: quedan atadas al dominio del admin. Si el dominio cambia, dejan de servir y cada
+  persona entra con la app de autenticación o un código de recuperación, y registra passkeys
+  nuevas.
 - **Roles**: los define `apps/api/accounts/roles.py` y se reescriben en cada `migrate`. Un
   cambio de permisos se hace en el código, no en el Django admin.
 - **Django admin**: apagado por defecto en prod. Si hace falta, se monta con

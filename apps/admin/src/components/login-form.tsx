@@ -4,12 +4,25 @@ import { Button } from "@workspace/ui/components/button"
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
 } from "@workspace/ui/components/field"
-import { GalleryVerticalEndIcon, ShieldCheckIcon } from "lucide-react"
+import { browserSupportsWebAuthn } from "@simplewebauthn/browser"
+import type { AuthenticatorType } from "@workspace/api-client/allauth"
+import {
+  GalleryVerticalEndIcon,
+  KeyRoundIcon,
+  ShieldCheckIcon,
+} from "lucide-react"
 import { z } from "zod"
 import { useAppForm } from "@/hooks/form"
-import { useLogin, useSecondFactor } from "@/hooks/use-auth"
+import {
+  useLogin,
+  usePasskeyLoginOptions,
+  usePasskeySecondFactor,
+  useSecondFactor,
+} from "@/hooks/use-auth"
+import { passkeyErrorMessage } from "@/lib/allauth"
 import { applyServerErrors } from "@/lib/utils"
 import * as React from "react"
 
@@ -27,21 +40,53 @@ const codeSchema = credentialsSchema.extend({
   code: z.string().min(1, "Enter the code."),
 })
 
-// What the code step asks for: the authenticator's 6 digits, or a recovery code.
-type CodeKind = "app" | "backup"
+// How the second step completes the login: a passkey, the authenticator's 6
+// digits, or a recovery code.
+type CodeKind = "passkey" | "app" | "backup"
+
+const kindTypes: Record<CodeKind, AuthenticatorType> = {
+  passkey: "webauthn",
+  app: "totp",
+  backup: "recovery_codes",
+}
+
+const switchLabels: Record<CodeKind, string> = {
+  passkey: "Use your passkey",
+  app: "Use your authenticator app",
+  backup: "Lost your devices? Use a recovery code",
+}
+
+const descriptions: Record<CodeKind, string> = {
+  passkey: "Use the passkey on this device, or on your phone or security key.",
+  app: "Enter the 6-digit code from your authenticator app.",
+  backup:
+    "Enter one of the recovery codes you saved when you set up two-factor authentication.",
+}
+
+/** The kinds the account has, the passkey first where the browser can use it. */
+function availableKinds(types: AuthenticatorType[]): CodeKind[] {
+  const kinds = (["passkey", "app", "backup"] as const).filter((kind) =>
+    types.includes(kindTypes[kind])
+  )
+  return browserSupportsWebAuthn()
+    ? kinds
+    : kinds.filter((kind) => kind !== "passkey")
+}
 
 /**
- * With 2FA on, the password leaves the login pending (`useLogin` resolves
- * "second_factor"): the form moves to the code step, which completes it.
+ * With 2FA on, the password leaves the login pending (`useLogin` resolves the
+ * account's second factors): the form moves to the second step, which
+ * completes it with a code (submit) or a passkey (`PasskeyButton`).
  */
 function useLoginForm() {
   const login = useLogin()
   const secondFactor = useSecondFactor()
-  const [askCode, setAskCode] = React.useState(false)
+  const [kinds, setKinds] = React.useState<CodeKind[] | null>(null)
   const [codeKind, setCodeKind] = React.useState<CodeKind>("app")
   // Logged in, and on the way home: the submit is over by then, but nothing
   // may come back to life while home loads.
   const [loggedIn, setLoggedIn] = React.useState(false)
+  const askCode = kinds !== null
 
   const form = useAppForm({
     defaultValues,
@@ -52,12 +97,14 @@ function useLoginForm() {
     onSubmit: async ({ value, formApi }) => {
       try {
         if (!askCode) {
-          const step = await login.mutateAsync({
+          const { secondFactor: types } = await login.mutateAsync({
             username: value.username,
             password: value.password,
           })
-          if (step === "second_factor") {
-            setAskCode(true)
+          if (types) {
+            const available = availableKinds(types)
+            setKinds(available)
+            setCodeKind(available[0] ?? "backup")
             return
           }
         } else {
@@ -80,8 +127,7 @@ function useLoginForm() {
   // Back to username and password, e.g. to log in with another account. The
   // next login replaces the pending one.
   const cancelCode = () => {
-    setAskCode(false)
-    setCodeKind("app")
+    setKinds(null)
     form.setFieldValue("code", "", { dontUpdateMeta: true })
   }
 
@@ -93,12 +139,57 @@ function useLoginForm() {
   return {
     form,
     askCode,
+    kinds: kinds ?? [],
     codeKind,
     loggedIn,
+    setLoggedIn,
     switchCodeKind,
     cancelCode,
     submitCode,
   }
+}
+
+/**
+ * The passkey button of the second step. The challenge is fetched as soon as
+ * it shows: the browser's prompt has to open right on the click.
+ */
+function PasskeyButton({
+  disabled,
+  onLoggedIn,
+}: {
+  disabled: boolean
+  onLoggedIn: () => void
+}) {
+  const options = usePasskeyLoginOptions(true)
+  const passkey = usePasskeySecondFactor()
+
+  const authenticate = () => {
+    if (!options.data) return
+    passkey.mutate(options.data, {
+      onSuccess: onLoggedIn,
+      // A challenge is good for one attempt.
+      onError: () => options.refetch(),
+    })
+  }
+
+  return (
+    <Field>
+      <Button
+        type="button"
+        className="w-full"
+        disabled={disabled || !options.data || passkey.isPending}
+        onClick={authenticate}
+      >
+        <KeyRoundIcon />
+        {passkey.isPending ? "Waiting for the passkey..." : "Use your passkey"}
+      </Button>
+      {passkey.isError && (
+        <FieldError className="text-center">
+          {passkeyErrorMessage(passkey.error)}
+        </FieldError>
+      )}
+    </Field>
+  )
 }
 
 export function LoginForm({
@@ -108,8 +199,10 @@ export function LoginForm({
   const {
     form,
     askCode,
+    kinds,
     codeKind,
     loggedIn,
+    setLoggedIn,
     switchCodeKind,
     cancelCode,
     submitCode,
@@ -134,11 +227,9 @@ export function LoginForm({
                 {askCode ? "Two-factor authentication" : "Welcome to Acme Inc."}
               </h1>
               <FieldDescription>
-                {!askCode
-                  ? "Log in with your admin account."
-                  : codeKind === "app"
-                    ? "Enter the 6-digit code from your authenticator app."
-                    : "Enter one of the recovery codes you saved when you set up two-factor authentication."}
+                {askCode
+                  ? descriptions[codeKind]
+                  : "Log in with your admin account."}
               </FieldDescription>
             </div>
             {/* Hidden on the code step: the password was already accepted. */}
@@ -186,30 +277,37 @@ export function LoginForm({
                         )}
                       />
                     )}
+                    {askCode && codeKind === "passkey" && (
+                      <PasskeyButton
+                        disabled={busy}
+                        onLoggedIn={() => setLoggedIn(true)}
+                      />
+                    )}
                     <Field>
-                      <form.SubmitButton
-                        className="w-full"
-                        disabled={busy || isPristine}
-                      >
-                        {askCode ? "Verify" : "Login"}
-                      </form.SubmitButton>
+                      {codeKind !== "passkey" || !askCode ? (
+                        <form.SubmitButton
+                          className="w-full"
+                          disabled={busy || isPristine}
+                        >
+                          {askCode ? "Verify" : "Login"}
+                        </form.SubmitButton>
+                      ) : null}
                       {askCode && (
                         <FieldDescription className="flex flex-col items-center gap-1">
-                          <Button
-                            type="button"
-                            variant="link"
-                            size="sm"
-                            disabled={busy}
-                            onClick={() =>
-                              switchCodeKind(
-                                codeKind === "app" ? "backup" : "app"
-                              )
-                            }
-                          >
-                            {codeKind === "app"
-                              ? "Lost your phone? Use a recovery code"
-                              : "Use your authenticator app instead"}
-                          </Button>
+                          {kinds
+                            .filter((kind) => kind !== codeKind)
+                            .map((kind) => (
+                              <Button
+                                key={kind}
+                                type="button"
+                                variant="link"
+                                size="sm"
+                                disabled={busy}
+                                onClick={() => switchCodeKind(kind)}
+                              >
+                                {switchLabels[kind]}
+                              </Button>
+                            ))}
                           <Button
                             type="button"
                             variant="link"
