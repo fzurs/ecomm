@@ -4,11 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { productsRetrieveOptions } from "@workspace/api-client/query"
 import { useParams } from "next/navigation"
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Badge } from "@workspace/ui/components/badge"
 import { PackageIcon, StarIcon } from "lucide-react"
 import { RowActionsProvider } from "@/context/row-actions-provider"
@@ -18,6 +14,7 @@ import { ProductDetails } from "../_components/product-details"
 import { ProductDescription } from "../_components/product-description"
 import { ProductPrice } from "../_components/product-price"
 import { ProductStatusBadge } from "../_components/product-status-badge"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export default function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -39,7 +36,9 @@ export default function ProductDetailsPage() {
             {/* Header */}
             <div className="flex items-center gap-4 @xl/main:gap-6">
               <Avatar shape="square" className="size-24 @xl/main:size-40">
-                {product.image && <AvatarImage src={product.image} />}
+                {product.image && (
+                  <MediaAvatarImage src={product.image} size={160} />
+                )}
                 <AvatarFallback>
                   <PackageIcon className="size-1/3" />
                 </AvatarFallback>

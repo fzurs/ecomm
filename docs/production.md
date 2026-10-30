@@ -41,9 +41,9 @@ secretas, un Postgres y un Redis.
 - [ ] **Media**: las imágenes se sirven desde una URL pública, la de la API o un CDN: el
   `MEDIA_URL` de Django, absoluto, que la API exige en producción. No pasan por el `/api` de los
   frontends.
-  - La tienda se buildea con el mismo `MEDIA_URL`: `next/image` solo optimiza imágenes de ahí
-    (`images.remotePatterns`). El servidor de la tienda las baja y las achica, y guarda el
-    resultado en `.next/cache/images`, que conviene que persista entre deploys.
+  - La tienda y el admin se buildean con el mismo `MEDIA_URL`: `next/image` solo optimiza
+    imágenes de ahí (`images.remotePatterns`). El servidor de cada uno las baja y las achica, y
+    guarda el resultado en su `.next/cache/images`, que conviene que persista entre deploys.
   - Si las sirve un CDN que ya las redimensiona, conviene un `loader` propio de `next/image`, así
     no hace ese trabajo el servidor de Next.
 - [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.

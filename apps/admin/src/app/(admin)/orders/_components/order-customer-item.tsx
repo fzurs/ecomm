@@ -7,21 +7,20 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@workspace/ui/components/item"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { buttonVariants } from "@workspace/ui/components/button"
 import { EyeIcon, MailIcon } from "lucide-react"
 import Link from "next/link"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export function OrderCustomerItem({ customer }: { customer: CustomerSummary }) {
   return (
     <Item variant="muted">
       <ItemMedia variant="image">
         <Avatar size="lg">
-          {customer.image && <AvatarImage src={customer.image} />}
+          {customer.image && (
+            <MediaAvatarImage src={customer.image} size={40} />
+          )}
           <AvatarFallback />
         </Avatar>
       </ItemMedia>

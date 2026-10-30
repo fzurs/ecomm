@@ -2,11 +2,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { CustomerChoice } from "@workspace/api-client"
 import { customersListChoicesOptions } from "@workspace/api-client/query"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
   Combobox,
   ComboboxContent,
@@ -22,6 +18,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@workspace/ui/components/item"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export function CustomerSelect({
   value,
@@ -53,7 +50,7 @@ export function CustomerSelect({
             {/* The height of the input's text line, like the other addons. */}
             <Avatar className="size-5">
               {selectedCustomer.image && (
-                <AvatarImage src={selectedCustomer.image} />
+                <MediaAvatarImage src={selectedCustomer.image} size={20} />
               )}
               <AvatarFallback />
             </Avatar>
@@ -68,7 +65,9 @@ export function CustomerSelect({
               <Item className="p-0" size="sm">
                 <ItemMedia>
                   <Avatar size="sm">
-                    {customer.image && <AvatarImage src={customer.image} />}
+                    {customer.image && (
+                      <MediaAvatarImage src={customer.image} size={24} />
+                    )}
                     <AvatarFallback />
                   </Avatar>
                 </ItemMedia>

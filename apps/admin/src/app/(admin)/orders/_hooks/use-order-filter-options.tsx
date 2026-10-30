@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { customersListChoicesOptions } from "@workspace/api-client/query"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { useMemo } from "react"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 /**
  * The customer filter options, loaded from the API, with the customer's avatar
@@ -20,7 +17,9 @@ export function useOrderFilterOptions() {
         value: String(item.id),
         icon: (
           <Avatar className="size-4">
-            {item.image && <AvatarImage src={item.image} loading="lazy" />}
+            {item.image && (
+              <MediaAvatarImage src={item.image} size={16} loading="lazy" />
+            )}
             <AvatarFallback />
           </Avatar>
         ),

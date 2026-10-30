@@ -2,11 +2,7 @@ import { EmptyCell } from "@/components/empty-cell"
 import { formatPrice } from "@/lib/utils"
 import { DataTableColumnDef } from "@workspace/data-table/types/data-table"
 import { Order } from "@workspace/api-client"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import {
   Popover,
@@ -21,6 +17,7 @@ import { OrderRowActions } from "./order-row-actions"
 import { OrderStatusBadge } from "./order-status-badge"
 import { cn } from "cn"
 import { useRowActions } from "@/context/row-actions-provider"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export const orderColumns = [
   {
@@ -89,7 +86,9 @@ export const orderColumns = [
       return (
         <div className="flex items-center gap-2">
           <Avatar size="sm">
-            {customer.image && <AvatarImage src={customer.image} />}
+            {customer.image && (
+              <MediaAvatarImage src={customer.image} size={24} />
+            )}
             <AvatarFallback />
           </Avatar>
           <Link

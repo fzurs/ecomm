@@ -3,11 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { OrderItemWritable } from "@workspace/api-client"
 import { productsListChoicesOptions } from "@workspace/api-client/query"
 import { zProductStatus } from "@workspace/api-client/zod"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -34,6 +30,7 @@ import {
 import { PlusIcon } from "lucide-react"
 import * as React from "react"
 import { formatPrice } from "@/lib/utils"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export function AddOrderItem({
   orderItems,
@@ -110,7 +107,9 @@ export function AddOrderItem({
                     <Item className="w-full p-0" size="sm">
                       <ItemMedia>
                         <Avatar shape="square" size="lg">
-                          {product.image && <AvatarImage src={product.image} />}
+                          {product.image && (
+                            <MediaAvatarImage src={product.image} size={40} />
+                          )}
                           <AvatarFallback />
                         </Avatar>
                       </ItemMedia>

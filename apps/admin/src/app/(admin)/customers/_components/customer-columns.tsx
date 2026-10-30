@@ -19,11 +19,8 @@ import {
   Trash2Icon,
 } from "lucide-react"
 import { useRowActions } from "@/context/row-actions-provider"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export const customerColumns: DataTableColumnDef<Customer>[] = [
   {
@@ -107,7 +104,7 @@ function TableCellViewer({ customer }: { customer: Customer }) {
   return (
     <div className="flex items-center gap-2">
       <Avatar size="sm">
-        {customer.image && <AvatarImage src={customer.image} />}
+        {customer.image && <MediaAvatarImage src={customer.image} size={24} />}
         <AvatarFallback />
       </Avatar>
       <Button

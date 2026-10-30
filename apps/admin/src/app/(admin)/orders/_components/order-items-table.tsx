@@ -1,10 +1,6 @@
 import { formatPrice } from "@/lib/utils"
 import { OrderItem } from "@workspace/api-client"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
   Table,
   TableBody,
@@ -16,6 +12,7 @@ import {
 } from "@workspace/ui/components/table"
 import { cn } from "cn"
 import React from "react"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export function OrderItemsTable({
   orderItems,
@@ -53,7 +50,9 @@ export function OrderItemsTable({
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Avatar shape="square" size="sm">
-                    {product.image && <AvatarImage src={product.image} />}
+                    {product.image && (
+                      <MediaAvatarImage src={product.image} size={24} />
+                    )}
                     <AvatarFallback />
                   </Avatar>
                   {product.name}

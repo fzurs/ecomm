@@ -4,11 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { customersRetrieveOptions } from "@workspace/api-client/query"
 import { useParams } from "next/navigation"
 import { AppHeader, AppHeaderNav } from "@/components/app-header"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { MailIcon } from "lucide-react"
 import { CustomerEditDrawer } from "../_components/customer-edit-drawer"
 import {
@@ -17,6 +13,7 @@ import {
 } from "../_components/customer-details"
 import { CustomerEditButton } from "../_components/customer-buttons"
 import { RowActionsProvider } from "@/context/row-actions-provider"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export default function CustomerDetailsPage() {
   const params = useParams<{ id: string }>()
@@ -39,7 +36,9 @@ export default function CustomerDetailsPage() {
             {/* Header */}
             <div className="flex items-center gap-4">
               <Avatar className="size-16">
-                {customer.image && <AvatarImage src={customer.image} />}
+                {customer.image && (
+                  <MediaAvatarImage src={customer.image} size={64} />
+                )}
                 <AvatarFallback />
               </Avatar>
               <div className="typeset">

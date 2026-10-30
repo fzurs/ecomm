@@ -16,17 +16,14 @@ import {
 import { Product } from "@workspace/api-client"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import { Maximize2Icon, PackageIcon } from "lucide-react"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { ProductDetails } from "./product-details"
 import { ProductDescription } from "./product-description"
 import { ProductEditButton } from "./product-buttons"
 import { ProductEditDrawerContent } from "./product-edit-drawer"
 import { ProductPrice } from "./product-price"
 import Link from "next/link"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export function ProductViewDrawer() {
   const isMobile = useIsMobile()
@@ -56,7 +53,9 @@ function ProductViewDrawerContent({ product }: { product: Product }) {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <Avatar shape="square" className="size-20">
-              {product.image && <AvatarImage src={product.image} />}
+              {product.image && (
+                <MediaAvatarImage src={product.image} size={80} />
+              )}
               <AvatarFallback>
                 <PackageIcon className="size-1/3" />
               </AvatarFallback>

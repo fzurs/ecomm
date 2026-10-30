@@ -35,14 +35,11 @@ import {
   productsUpdateMutation,
 } from "@workspace/api-client/query"
 import z from "zod"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { BrandSelect } from "./brand-select"
 import { CategorySelect } from "./category-select"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 // Only the edit form uploads or clears the image.
 const productEditSchema = productFormSchema.extend({
@@ -171,7 +168,9 @@ export const ProductEditForm = withForm({
                     Current image
                   </FieldLabel>
                   <Avatar shape="square" className="aspect-square size-full">
-                    {product.image && <AvatarImage src={product.image} />}
+                    {product.image && (
+                      <MediaAvatarImage src={product.image} size={384} />
+                    )}
                     <AvatarFallback>
                       {product.image ? "Fail to load image" : "No image"}
                     </AvatarFallback>

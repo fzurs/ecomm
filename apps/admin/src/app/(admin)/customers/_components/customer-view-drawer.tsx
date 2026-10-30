@@ -15,11 +15,7 @@ import {
 import { Customer } from "@workspace/api-client"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
 import { Maximize2Icon, MailIcon } from "lucide-react"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import * as React from "react"
 import {
   CustomerBillingDetails,
@@ -28,6 +24,7 @@ import {
 import { CustomerEditButton } from "./customer-buttons"
 import { CustomerEditDrawerContent } from "./customer-edit-drawer"
 import Link from "next/link"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export function CustomerViewDrawer() {
   const isMobile = useIsMobile()
@@ -57,7 +54,9 @@ function CustomerViewDrawerContent({ customer }: { customer: Customer }) {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <Avatar className="size-12">
-              {customer.image && <AvatarImage src={customer.image} />}
+              {customer.image && (
+                <MediaAvatarImage src={customer.image} size={48} />
+              )}
               <AvatarFallback />
             </Avatar>
             <div className="flex flex-col gap-1">

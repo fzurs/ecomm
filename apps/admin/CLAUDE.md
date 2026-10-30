@@ -87,6 +87,12 @@
 - Componentes base de `@workspace/ui/components/*`. Los componentes nuevos de shadcn se agregan en
   `packages/ui`, no acá.
 - Helpers en `src/lib/utils.ts` (`formatPrice` formatea en es-AR).
+- Imágenes de productos y clientes: `MediaAvatarImage` (`src/components/media-avatar-image.tsx`)
+  en lugar de `AvatarImage`, con el tamaño en px en que se muestra (`size={24}` para un avatar
+  `sm`). Usa `getImageProps` de `next/image` para pedir una versión achicada; Base UI precarga
+  ese `src` para elegir entre la imagen y el fallback.
+  - `next.config.mjs` solo optimiza imágenes de `MEDIA_URL` (`images.remotePatterns`, la misma
+    variable que Django), y en dev permite `localhost`.
 - Statuses: label y color de cada valor en `_lib/<resource>-status` como
   `<resource>Statuses: Record<XStatus, StatusDefinition>` (el tipo generado), con los labels escritos
   a mano; nunca derivados del valor. Se muestran con `StatusBadge` / `StatusDot` de

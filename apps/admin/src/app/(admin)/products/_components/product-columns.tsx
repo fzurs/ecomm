@@ -9,11 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { format } from "date-fns"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Product } from "@workspace/api-client"
 import {
   EditIcon,
@@ -27,6 +23,7 @@ import { formatPrice } from "@/lib/utils"
 import { EmptyCell } from "@/components/empty-cell"
 import { useRowActions } from "@/context/row-actions-provider"
 import { ProductStatusBadge } from "./product-status-badge"
+import { MediaAvatarImage } from "@/components/media-avatar-image"
 
 export const featuredIcons = {
   true: (
@@ -168,7 +165,7 @@ function TableCellViewer({ product }: { product: Product }) {
   return (
     <div className="flex items-center gap-2">
       <Avatar shape="square" size="sm">
-        {product.image && <AvatarImage src={product.image} />}
+        {product.image && <MediaAvatarImage src={product.image} size={24} />}
         <AvatarFallback />
       </Avatar>
       <Button
