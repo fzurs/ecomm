@@ -2,13 +2,14 @@ import type { ProductsListData } from "@workspace/api-client"
 import {
   createLoader,
   createSerializer,
+  parseAsArrayOf,
   parseAsBoolean,
   parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
 } from "nuqs/server"
 
-export const PAGE_SIZE = 24
+export const PAGE_SIZE = 12
 
 export const SORTS = {
   featured: { label: "Featured", ordering: "-featured,-created_at" },
@@ -30,6 +31,7 @@ export const productParams = {
   sort: parseAsStringLiteral(Object.keys(SORTS) as Sort[]).withDefault(
     "featured"
   ),
+  brand: parseAsArrayOf(parseAsString).withDefault([]),
   in_stock: parseAsBoolean.withDefault(false),
   on_sale: parseAsBoolean.withDefault(false),
   page: parseAsInteger.withDefault(1),
@@ -46,6 +48,7 @@ export const productsHref = createSerializer(productParams)
 export function productsQuery({
   search,
   sort,
+  brand,
   in_stock: inStock,
   on_sale: onSale,
   page,
@@ -53,6 +56,7 @@ export function productsQuery({
   return {
     search: search || undefined,
     ordering: SORTS[sort].ordering,
+    brand: brand.length ? brand : undefined,
     // The API only shows products for sale: active or out of stock.
     status: inStock ? ["active"] : undefined,
     discount_percent__gt: onSale ? 0 : undefined,
@@ -62,6 +66,11 @@ export function productsQuery({
 }
 
 /** The params narrow the listing (not the sort or the page). */
-export function isFiltered({ search, in_stock, on_sale }: ProductParams) {
-  return !!search || in_stock || on_sale
+export function isFiltered({
+  search,
+  brand,
+  in_stock,
+  on_sale,
+}: ProductParams) {
+  return !!search || brand.length > 0 || in_stock || on_sale
 }

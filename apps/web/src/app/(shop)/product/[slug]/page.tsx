@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { OutOfStockAlert } from "@/components/out-of-stock-alert"
-import { PageHeader } from "@/components/page-header"
+import { Crumbs } from "@/components/page-title"
 import { ProductImage } from "@/components/product-image"
 import { ProductPrice } from "@/components/product-price"
 import { getProduct, getProductSlugs } from "@/lib/cache"
@@ -33,18 +33,16 @@ export default async function ProductPage({
 
   return (
     <>
-      <PageHeader
-        breadcrumbs={{
-          items: [
-            { title: "Home", href: "/" },
-            ...(category
-              ? [{ title: category.name, href: `/${category.slug}` }]
-              : []),
-          ],
-          page: product.name,
-        }}
+      <Crumbs
+        crumbs={[
+          { title: "Home", href: "/" },
+          ...(category
+            ? [{ title: category.name, href: `/${category.slug}` }]
+            : []),
+        ]}
+        page={product.name}
       />
-      <div className="mx-auto grid w-full max-w-5xl gap-6 p-4 md:grid-cols-2 md:gap-10 lg:p-6">
+      <div className="grid gap-6 md:grid-cols-2 md:gap-10">
         <ProductImage
           src={product.image}
           alt={product.name}

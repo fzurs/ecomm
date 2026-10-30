@@ -17,3 +17,9 @@ export default function CategoriesProvider({
     <CategoriesContext value={categoriesPromise}>{children}</CategoriesContext>
   )
 }
+
+/** The categories, for the menus and the footer. Suspends until they load. */
+export function useCategories() {
+  const categoriesPromise = React.useContext(CategoriesContext)
+  return categoriesPromise ? React.use(categoriesPromise) : []
+}

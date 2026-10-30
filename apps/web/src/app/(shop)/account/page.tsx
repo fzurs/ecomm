@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
-import { PageHeader } from "@/components/page-header"
+import { PageTitle } from "@/components/page-title"
 import { getUser } from "@/lib/dal"
 import { withNext } from "@/lib/navigation"
 import { PasswordForm } from "./_components/password-form"
@@ -20,10 +20,8 @@ export const metadata = { title: "Account" }
 export default function AccountPage() {
   return (
     <>
-      <PageHeader
-        breadcrumbs={{ items: [{ title: "Home", href: "/" }], page: "Account" }}
-      />
-      <div className="mx-auto w-full max-w-2xl space-y-6 p-4 lg:p-6">
+      <PageTitle crumbs={[{ title: "Home", href: "/" }]} title="Account" />
+      <div className="w-full max-w-2xl space-y-6">
         <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
           <AccountDetails />
         </Suspense>

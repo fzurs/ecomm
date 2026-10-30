@@ -10,7 +10,7 @@ import {
 } from "@workspace/ui/components/empty"
 import { TriangleAlertIcon } from "lucide-react"
 
-/** A page that failed, e.g. with the API down: the sidebar stays. */
+/** A page that failed, e.g. with the API down: the header and footer stay. */
 export default function ShopError({ reset }: { reset: () => void }) {
   return (
     <Empty className="min-h-[60svh]">

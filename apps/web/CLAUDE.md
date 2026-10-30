@@ -27,12 +27,19 @@
   - La URL tiene búsqueda, orden, filtros ("In stock", "On sale") y página, con los parsers de
     `src/lib/product-params.ts`. El servidor los lee con `loadProductParams`; `ProductFilters` y
     el buscador los escriben con los mismos parsers (`shallow: false`) y vuelven a la página 1.
-  - `productsQuery()` los traduce a la API: 24 por página, y el orden por precio es por
+  - `productsQuery()` los traduce a la API: 12 por página, y el orden por precio es por
     `active_price`, el precio con descuento. La API ya filtra los productos que no están a la
     venta.
   - La paginación son links (`productsHref`), así cada página queda en caché.
-  - Las páginas de listado pasan `listsProducts` a `PageHeader`: así el buscador filtra mientras
-    se escribe. En las demás páginas, Enter busca en la home.
+  - El filtro por marca no aparece en la página de una marca, y ahí el filtro de la página le gana
+    a la URL (`{ ...productsQuery(params), ...filters }`).
+  - En un listado el buscador del header filtra mientras se escribe (`listsProducts()` de
+    `src/lib/navigation.ts`, por la ruta). En las demás páginas, Enter busca en la home.
+- Layout de `(shop)`: `SiteHeader` (logo, `MainNav` con los menús de categorías y marcas y "On
+  sale", el buscador y `UserNav`; en el celular, `MobileNav` en un `Sheet`) y `SiteFooter` (con
+  `"use cache"`). No hay sidebar. Cada página pone su título y breadcrumbs con `PageTitle`
+  (`src/components/page-title.tsx`), en el contenido. Los links de ayuda y los legales del footer
+  (botón de arrepentimiento, Data fiscal) son placeholders.
 - Las páginas con slug (categoría, marca, producto) tienen `generateStaticParams` (se
   prerenderizan en el build) y `generateMetadata` (título "%s · Acme Store").
 - Precios con `formatPrice` (`src/lib/format.ts`, es-AR como el admin). Imágenes con
@@ -44,7 +51,7 @@
   optimista). Las páginas validan con `getUser()`: `/account` redirige a `/login` si la sesión
   venció, y `/login` y `/signup` siguen a `next` si ya hay sesión. `next` pasa siempre por
   `safeNext()` (`src/lib/navigation.ts`).
-- Páginas en `(auth)` (sin sidebar): `/login`, `/signup`, `/password/reset`,
+- Páginas en `(auth)` (sin header ni footer): `/login`, `/signup`, `/password/reset`,
   `/password/reset/[key]` y `/verify-email/[key]`. Las dos últimas son los links de los mails de
   allauth (`HEADLESS_FRONTEND_URLS` en la API): validan la clave en el servidor
   (`src/lib/account-links.ts`, con `decodeKey`, porque llega URL-encodeada) antes de mostrar el

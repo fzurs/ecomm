@@ -35,7 +35,7 @@ export function ProductsGrid({ products }: { products: Product[] }) {
 
 export function ProductGridSkeleton() {
   return (
-    <div className="flex flex-col gap-4 p-4 lg:p-6">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <Skeleton className="h-5 w-24" />
         <Skeleton className="h-8 w-64" />

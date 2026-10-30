@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
-import { PageHeader } from "@/components/page-header"
+import { PageTitle } from "@/components/page-title"
 import { ProductList } from "@/components/product-list"
 import { ProductGridSkeleton } from "@/components/products-grid"
 import { getAllBrands, getBrand } from "@/lib/cache"
@@ -28,12 +28,12 @@ export default async function BrandPage({
 
   return (
     <>
-      <PageHeader
-        breadcrumbs={{
-          items: [{ title: "Home", href: "/" }],
-          page: brand.name,
-        }}
-        listsProducts
+      <PageTitle
+        crumbs={[
+          { title: "Home", href: "/" },
+          { title: "Brands", href: "/brands" },
+        ]}
+        title={brand.name}
       />
       <Suspense fallback={<ProductGridSkeleton />}>
         <ProductList

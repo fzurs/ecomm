@@ -13,3 +13,9 @@ export default function BrandsProvider({
 }) {
   return <BrandsContext value={brandsPromise}>{children}</BrandsContext>
 }
+
+/** The brands, for the menus and the filters. Suspends until they load. */
+export function useBrands() {
+  const brandsPromise = React.useContext(BrandsContext)
+  return brandsPromise ? React.use(brandsPromise) : []
+}

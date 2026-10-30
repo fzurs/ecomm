@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
-import { PageHeader } from "@/components/page-header"
+import { PageTitle } from "@/components/page-title"
 import { ProductList } from "@/components/product-list"
 import { ProductGridSkeleton } from "@/components/products-grid"
 import { getAllCategories, getCategory } from "@/lib/cache"
@@ -32,12 +32,10 @@ export default async function CategoryPage({
 
   return (
     <>
-      <PageHeader
-        breadcrumbs={{
-          items: [{ title: "Home", href: "/" }],
-          page: category.name,
-        }}
-        listsProducts
+      <PageTitle
+        crumbs={[{ title: "Home", href: "/" }]}
+        title={category.name}
+        description={category.description}
       />
       <Suspense fallback={<ProductGridSkeleton />}>
         <ProductList

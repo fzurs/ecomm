@@ -70,28 +70,45 @@ export function ProductPagination({
   )
 }
 
-/** A Next link styled as the pagination's buttons (the ui one is a plain <a>). */
+/**
+ * A Next link styled as the pagination's buttons (the ui one is a plain <a>).
+ * Disabled (no previous or next page), it's not a link.
+ */
 function PageLink({
   isActive,
   disabled,
   className,
+  href,
+  children,
   ...props
 }: React.ComponentProps<typeof Link> & {
   isActive?: boolean
   disabled?: boolean
 }) {
+  const classes = cn(
+    buttonVariants({ variant: isActive ? "outline" : "ghost" }),
+    className
+  )
+  if (disabled) {
+    return (
+      <span
+        aria-disabled
+        aria-label={props["aria-label"]}
+        className={cn(classes, "opacity-50")}
+      >
+        {children}
+      </span>
+    )
+  }
   return (
     <Link
+      href={href}
       aria-current={isActive ? "page" : undefined}
-      aria-disabled={disabled || undefined}
-      tabIndex={disabled ? -1 : undefined}
-      className={cn(
-        buttonVariants({ variant: isActive ? "outline" : "ghost" }),
-        disabled && "pointer-events-none opacity-50",
-        className
-      )}
+      className={classes}
       {...props}
-    />
+    >
+      {children}
+    </Link>
   )
 }
 
