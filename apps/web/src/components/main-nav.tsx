@@ -12,8 +12,10 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "cn"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
+import { useQueryState } from "nuqs"
 import * as React from "react"
 import { useBrands } from "./brands-provider"
+import { brandHref, productParams } from "@/lib/product-params"
 import { useCategories } from "./categories-provider"
 
 /** The header's menu, from md up: categories, brands and the sale. */
@@ -73,32 +75,29 @@ function CategoryLinks() {
   )
 }
 
+// A brand isn't a page: its link is the catalog filtered by it.
 function BrandLinks() {
   const brands = useBrands()
   const pathname = usePathname()
+  const [selected] = useQueryState("brand", productParams.brand)
   return (
-    <div className="flex w-72 flex-col gap-1">
-      <ul className="grid grid-cols-2 gap-1">
-        {brands.map((brand) => (
-          <li key={brand.id}>
-            <NavigationMenuLink
-              closeOnClick
-              active={pathname === `/brands/${brand.slug}`}
-              render={<Link href={`/brands/${brand.slug}`} />}
-            >
-              {brand.name}
-            </NavigationMenuLink>
-          </li>
-        ))}
-      </ul>
-      <NavigationMenuLink
-        closeOnClick
-        render={<Link href="/brands" />}
-        className="border-t pt-2 font-medium"
-      >
-        All brands
-      </NavigationMenuLink>
-    </div>
+    <ul className="grid w-72 grid-cols-2 gap-1">
+      {brands.map((brand) => (
+        <li key={brand.id}>
+          <NavigationMenuLink
+            closeOnClick
+            active={
+              pathname === "/" &&
+              selected.length === 1 &&
+              selected[0] === brand.slug
+            }
+            render={<Link href={brandHref(brand.slug)} />}
+          >
+            {brand.name}
+          </NavigationMenuLink>
+        </li>
+      ))}
+    </ul>
   )
 }
 

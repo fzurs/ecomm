@@ -14,16 +14,15 @@ export function withNext(path: string, next: string | null | undefined) {
 }
 
 // The shop's pages with one segment that aren't a category.
-const SHOP_PAGES = new Set(["/account", "/brands"])
+const SHOP_PAGES = new Set(["/account"])
 
 /**
- * The page lists products (the home, a category, a brand): there the header's
- * search filters them as the customer types.
+ * The page lists products (the home, a category): there the header's search
+ * filters them as the customer types.
  */
 export function listsProducts(pathname: string) {
   return (
     pathname === "/" ||
-    /^\/brands\/[^/]+$/.test(pathname) ||
     (/^\/[^/]+$/.test(pathname) && !SHOP_PAGES.has(pathname))
   )
 }

@@ -44,6 +44,11 @@ export type ProductParams = Awaited<ReturnType<typeof loadProductParams>>
 /** The link to `pathname` with these params; the defaults stay out of the URL. */
 export const productsHref = createSerializer(productParams)
 
+/** A brand's products: the whole catalog, filtered by it. */
+export function brandHref(slug: string | undefined) {
+  return productsHref("/", { brand: slug ? [slug] : null })
+}
+
 /** What the API takes for these params (one page). */
 export function productsQuery({
   search,

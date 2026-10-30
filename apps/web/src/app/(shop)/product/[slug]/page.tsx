@@ -6,6 +6,7 @@ import { Crumbs } from "@/components/page-title"
 import { ProductImage } from "@/components/product-image"
 import { ProductPrice } from "@/components/product-price"
 import { getProduct, getProductSlugs } from "@/lib/cache"
+import { brandHref } from "@/lib/product-params"
 
 export async function generateStaticParams() {
   const slugs = await getProductSlugs()
@@ -52,7 +53,7 @@ export default async function ProductPage({
           <div className="flex flex-col gap-1">
             {brand && (
               <Link
-                href={`/brands/${brand.slug}`}
+                href={brandHref(brand.slug)}
                 className="w-fit text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
                 {brand.name}

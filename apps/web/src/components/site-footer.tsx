@@ -40,7 +40,6 @@ export async function SiteFooter() {
               title: name,
               href: `/${slug}`,
             })),
-            { title: "All brands", href: "/brands" },
           ]}
         />
         <FooterColumn title="Help" links={helpLinks} />

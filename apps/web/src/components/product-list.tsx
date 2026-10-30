@@ -11,6 +11,7 @@ import { buttonVariants } from "@workspace/ui/components/button"
 import { SearchXIcon } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { ActiveFilters } from "@/components/active-filters"
 import { ProductFilters } from "@/components/product-filters"
 import { ProductPagination } from "@/components/product-pagination"
 import { ProductsGrid } from "@/components/products-grid"
@@ -35,11 +36,11 @@ export async function ProductList({
 }: {
   pathname: string
   searchParams: Promise<Record<string, string | string[] | undefined>>
-  /** What the page lists: a category, a brand. */
+  /** What the page lists: a category. */
   filters?: ProductsListData["query"]
 }) {
   const params = await loadProductParams(searchParams)
-  // The page's own filter wins: a brand's page lists that brand.
+  // The page's own filter (its category) wins over the URL.
   const products = await getProducts({ ...productsQuery(params), ...filters })
   const pageCount = Math.ceil(products.count / PAGE_SIZE)
   // A page past the end (an old link, fewer results now): the last one.
@@ -60,10 +61,10 @@ export async function ProductList({
             </>
           )}
           {products.count} {products.count === 1 ? "product" : "products"}
-          {params.search && <> for &ldquo;{params.search}&rdquo;</>}
         </p>
-        <ProductFilters byBrand={!filters?.brand} />
+        <ProductFilters />
       </div>
+      <ActiveFilters />
       {products.results.length ? (
         <ProductsGrid products={products.results} />
       ) : (

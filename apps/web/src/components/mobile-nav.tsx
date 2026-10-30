@@ -15,6 +15,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import * as React from "react"
 import { useBrands } from "./brands-provider"
+import { brandHref } from "@/lib/product-params"
 import { useCategories } from "./categories-provider"
 
 /** The header's menu on a phone: a sheet with categories, brands and the account. */
@@ -109,7 +110,7 @@ function BrandLinks({ onNavigate }: { onNavigate: () => void }) {
   return useBrands().map((brand) => (
     <NavLink
       key={brand.id}
-      href={`/brands/${brand.slug}`}
+      href={brandHref(brand.slug)}
       onNavigate={onNavigate}
     >
       {brand.name}

@@ -13,6 +13,13 @@ const nextConfig = {
   cacheComponents: true,
   // DRF routes end in a slash: Next's redirect from /x/ to /x would break them.
   skipTrailingSlashRedirect: true,
+  // A brand is a filter of the listings, not a page: its old links keep working.
+  async redirects() {
+    return [
+      { source: "/brands", destination: "/", permanent: true },
+      { source: "/brands/:slug", destination: "/?brand=:slug", permanent: true },
+    ]
+  },
   async rewrites() {
     return [
       // The slash on its own rule: `:path*` alone drops it.

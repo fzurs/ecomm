@@ -22,7 +22,7 @@
     las cookies.
   - Las demás, Server Actions con `djangoFetch()` (`src/lib/django.ts`), que reenvía cookies,
     CSRF y `Origin`, y copia los `Set-Cookie`. Ejemplo: `src/app/(shop)/account/actions.ts`.
-- Listados (home, categoría, marca): `ProductList` (`src/components/product-list.tsx`) recibe el
+- Listados (home, categoría): `ProductList` (`src/components/product-list.tsx`) recibe el
   `pathname` y los `searchParams`. Va dentro de `<Suspense fallback={<ProductGridSkeleton />}>`.
   - La URL tiene búsqueda, orden, filtros ("In stock", "On sale") y página, con los parsers de
     `src/lib/product-params.ts`. El servidor los lee con `loadProductParams`; `ProductFilters` y
@@ -31,8 +31,10 @@
     `active_price`, el precio con descuento. La API ya filtra los productos que no están a la
     venta.
   - La paginación son links (`productsHref`), así cada página queda en caché.
-  - El filtro por marca no aparece en la página de una marca, y ahí el filtro de la página le gana
-    a la URL (`{ ...productsQuery(params), ...filters }`).
+  - La marca es un filtro y no una página: los menús llevan a `/?brand=<slug>` (`brandHref`), y
+    `next.config.mjs` redirige las viejas `/brands/...`. `ActiveFilters` muestra lo que filtra,
+    con un click para sacarlo. En una categoría, su filtro le gana a la URL
+    (`{ ...productsQuery(params), ...filters }`).
   - En un listado el buscador del header filtra mientras se escribe (`listsProducts()` de
     `src/lib/navigation.ts`, por la ruta). En las demás páginas, Enter busca en la home.
 - Layout de `(shop)`: `SiteHeader` (logo, `MainNav` con los menús de categorías y marcas y "On
@@ -40,7 +42,7 @@
   `"use cache"`). No hay sidebar. Cada página pone su título y breadcrumbs con `PageTitle`
   (`src/components/page-title.tsx`), en el contenido. Los links de ayuda y los legales del footer
   (botón de arrepentimiento, Data fiscal) son placeholders.
-- Las páginas con slug (categoría, marca, producto) tienen `generateStaticParams` (se
+- Las páginas con slug (categoría, producto) tienen `generateStaticParams` (se
   prerenderizan en el build) y `generateMetadata` (título "%s · Acme Store").
 - Precios con `formatPrice` (`src/lib/format.ts`, es-AR como el admin). Imágenes con
   `ProductImage`: cuadradas, con un placeholder si no hay. Es un `<img>`: con `next/image`,

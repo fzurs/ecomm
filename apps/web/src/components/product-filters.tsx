@@ -22,13 +22,13 @@ const sortItems = Object.entries(SORTS).map(([value, { label }]) => ({
  * The listing's sort and filters, in the URL: the page reads them on the
  * server. Changing any goes back to the first page.
  */
-export function ProductFilters({ byBrand = true }: { byBrand?: boolean }) {
+export function ProductFilters() {
   const [{ sort, in_stock: inStock, on_sale: onSale }, setParams] =
     useQueryStates(productParams, { shallow: false })
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {byBrand && <BrandFilter />}
+      <BrandFilter />
       <Toggle
         variant="outline"
         size="sm"
@@ -75,7 +75,7 @@ export function ProductFilters({ byBrand = true }: { byBrand?: boolean }) {
   )
 }
 
-/** Brands to narrow the listing to (a brand's page doesn't show it). */
+/** Brands to narrow the listing to. */
 function BrandFilter() {
   const brands = useBrands()
   const [{ brand: selected }, setParams] = useQueryStates(

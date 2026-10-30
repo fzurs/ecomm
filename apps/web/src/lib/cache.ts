@@ -1,6 +1,5 @@
 import {
   brandsListChoices,
-  brandsRetrieve,
   categoriesListChoices,
   categoriesRetrieve,
   productsList,
@@ -40,19 +39,6 @@ export async function getCategory(slug: string) {
   "use cache"
   cacheLife("days")
   const res = await categoriesRetrieve({
-    ...defaultConfig,
-    throwOnError: false,
-    path: { slug },
-  })
-  if (res.status === 404) return null
-  if (!res.data) throw res.error
-  return res.data
-}
-
-export async function getBrand(slug: string) {
-  "use cache"
-  cacheLife("days")
-  const res = await brandsRetrieve({
     ...defaultConfig,
     throwOnError: false,
     path: { slug },
