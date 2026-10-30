@@ -4,8 +4,8 @@ import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOption
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, auth2FaConfirm, auth2FaDisable, auth2FaSetup, authLoginCreate, authLogoutCreate, authPasswordChangeCreate, authPasswordResetConfirmCreate, authPasswordResetCreate, authUserPartialUpdate, authUserRetrieve, authUserUpdate, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, Auth2FaConfirmData, Auth2FaConfirmResponse, Auth2FaDisableData, Auth2FaDisableResponse, Auth2FaSetupData, Auth2FaSetupResponse, AuthLoginCreateData, AuthLoginCreateResponse, AuthLogoutCreateData, AuthLogoutCreateResponse, AuthPasswordChangeCreateData, AuthPasswordChangeCreateResponse, AuthPasswordResetConfirmCreateData, AuthPasswordResetConfirmCreateResponse, AuthPasswordResetCreateData, AuthPasswordResetCreateResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, AuthUserUpdateData, AuthUserUpdateResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authUserRetrieve, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -154,170 +154,8 @@ export const assistantConversationsRetrieveOptions = (options: Options<Assistant
     queryKey: assistantConversationsRetrieveQueryKey(options)
 });
 
-/**
- * Turns 2FA on with a code from the new authenticator. Returns the backup codes, which
- * are never shown again. The current session counts as verified.
- */
-export const auth2FaConfirmMutation = (options?: Partial<Options<Auth2FaConfirmData>>): UseMutationOptions<Auth2FaConfirmResponse, AxiosError<DefaultError>, Options<Auth2FaConfirmData>> => {
-    const mutationOptions: UseMutationOptions<Auth2FaConfirmResponse, AxiosError<DefaultError>, Options<Auth2FaConfirmData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await auth2FaConfirm({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Turns 2FA off, with the password and a code. Where 2FA is required, the session loses
- * access until it is turned on again.
- */
-export const auth2FaDisableMutation = (options?: Partial<Options<Auth2FaDisableData>>): UseMutationOptions<Auth2FaDisableResponse, AxiosError<DefaultError>, Options<Auth2FaDisableData>> => {
-    const mutationOptions: UseMutationOptions<Auth2FaDisableResponse, AxiosError<DefaultError>, Options<Auth2FaDisableData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await auth2FaDisable({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Starts turning 2FA on: a new authenticator to scan, confirmed with `confirm`.
- */
-export const auth2FaSetupMutation = (options?: Partial<Options<Auth2FaSetupData>>): UseMutationOptions<Auth2FaSetupResponse, AxiosError<DefaultError>, Options<Auth2FaSetupData>> => {
-    const mutationOptions: UseMutationOptions<Auth2FaSetupResponse, AxiosError<DefaultError>, Options<Auth2FaSetupData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await auth2FaSetup({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * dj-rest-auth's login, marking the session as verified when a code was given.
- */
-export const authLoginCreateMutation = (options?: Partial<Options<AuthLoginCreateData>>): UseMutationOptions<AuthLoginCreateResponse, AxiosError<DefaultError>, Options<AuthLoginCreateData>> => {
-    const mutationOptions: UseMutationOptions<AuthLoginCreateResponse, AxiosError<DefaultError>, Options<AuthLoginCreateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authLoginCreate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Calls Django logout method and delete the Token object
- * assigned to the current User object.
- *
- * Accepts/Returns nothing.
- */
-export const authLogoutCreateMutation = (options?: Partial<Options<AuthLogoutCreateData>>): UseMutationOptions<AuthLogoutCreateResponse, AxiosError<DefaultError>, Options<AuthLogoutCreateData>> => {
-    const mutationOptions: UseMutationOptions<AuthLogoutCreateResponse, AxiosError<DefaultError>, Options<AuthLogoutCreateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authLogoutCreate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Calls Django Auth SetPasswordForm save method.
- *
- * Accepts the following POST parameters: new_password1, new_password2
- * Returns the success/fail message.
- */
-export const authPasswordChangeCreateMutation = (options?: Partial<Options<AuthPasswordChangeCreateData>>): UseMutationOptions<AuthPasswordChangeCreateResponse, AxiosError<DefaultError>, Options<AuthPasswordChangeCreateData>> => {
-    const mutationOptions: UseMutationOptions<AuthPasswordChangeCreateResponse, AxiosError<DefaultError>, Options<AuthPasswordChangeCreateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authPasswordChangeCreate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Calls Django Auth PasswordResetForm save method.
- *
- * Accepts the following POST parameters: email
- * Returns the success/fail message.
- */
-export const authPasswordResetCreateMutation = (options?: Partial<Options<AuthPasswordResetCreateData>>): UseMutationOptions<AuthPasswordResetCreateResponse, AxiosError<DefaultError>, Options<AuthPasswordResetCreateData>> => {
-    const mutationOptions: UseMutationOptions<AuthPasswordResetCreateResponse, AxiosError<DefaultError>, Options<AuthPasswordResetCreateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authPasswordResetCreate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Password reset e-mail link is confirmed, therefore
- * this resets the user's password.
- *
- * Accepts the following POST parameters: token, uid,
- * new_password1, new_password2
- * Returns the success/fail message.
- */
-export const authPasswordResetConfirmCreateMutation = (options?: Partial<Options<AuthPasswordResetConfirmCreateData>>): UseMutationOptions<AuthPasswordResetConfirmCreateResponse, AxiosError<DefaultError>, Options<AuthPasswordResetConfirmCreateData>> => {
-    const mutationOptions: UseMutationOptions<AuthPasswordResetConfirmCreateResponse, AxiosError<DefaultError>, Options<AuthPasswordResetConfirmCreateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authPasswordResetConfirmCreate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
 export const authUserRetrieveQueryKey = (options?: Options<AuthUserRetrieveData>) => createQueryKey('authUserRetrieve', options);
 
-/**
- * Reads and updates UserModel fields
- * Accepts GET, PUT, PATCH methods.
- *
- * Default accepted fields: username, first_name, last_name
- * Default display fields: pk, username, email, first_name, last_name
- * Read-only fields: pk, email
- *
- * Returns UserModel fields.
- */
 export const authUserRetrieveOptions = (options?: Options<AuthUserRetrieveData>) => queryOptions<AuthUserRetrieveResponse, AxiosError<DefaultError>, AuthUserRetrieveResponse, ReturnType<typeof authUserRetrieveQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
         const { data } = await authUserRetrieve({
@@ -330,54 +168,6 @@ export const authUserRetrieveOptions = (options?: Options<AuthUserRetrieveData>)
     },
     queryKey: authUserRetrieveQueryKey(options)
 });
-
-/**
- * Reads and updates UserModel fields
- * Accepts GET, PUT, PATCH methods.
- *
- * Default accepted fields: username, first_name, last_name
- * Default display fields: pk, username, email, first_name, last_name
- * Read-only fields: pk, email
- *
- * Returns UserModel fields.
- */
-export const authUserPartialUpdateMutation = (options?: Partial<Options<AuthUserPartialUpdateData>>): UseMutationOptions<AuthUserPartialUpdateResponse, AxiosError<DefaultError>, Options<AuthUserPartialUpdateData>> => {
-    const mutationOptions: UseMutationOptions<AuthUserPartialUpdateResponse, AxiosError<DefaultError>, Options<AuthUserPartialUpdateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authUserPartialUpdate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Reads and updates UserModel fields
- * Accepts GET, PUT, PATCH methods.
- *
- * Default accepted fields: username, first_name, last_name
- * Default display fields: pk, username, email, first_name, last_name
- * Read-only fields: pk, email
- *
- * Returns UserModel fields.
- */
-export const authUserUpdateMutation = (options?: Partial<Options<AuthUserUpdateData>>): UseMutationOptions<AuthUserUpdateResponse, AxiosError<DefaultError>, Options<AuthUserUpdateData>> => {
-    const mutationOptions: UseMutationOptions<AuthUserUpdateResponse, AxiosError<DefaultError>, Options<AuthUserUpdateData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authUserUpdate({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
 
 export const brandsListQueryKey = (options?: Options<BrandsListData>) => createQueryKey('brandsList', options);
 

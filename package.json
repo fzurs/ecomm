@@ -9,7 +9,7 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
-    "generate:schema": "python apps/api/manage.py spectacular --file packages/api-client/schema.yml",
+    "generate:schema": "python apps/api/manage.py spectacular --file packages/api-client/schema.yml && python apps/api/manage.py allauth_schema --file packages/api-client/allauth.json",
     "generate:api": "pnpm --filter api-client generate:api"
   },
   "devDependencies": {

@@ -2,25 +2,29 @@ import io
 import time
 from unittest import mock
 
+from allauth.mfa.models import Authenticator
+from allauth.mfa.recovery_codes.internal.auth import RecoveryCodes
+from allauth.mfa.totp.internal.auth import TOTP, format_hotp_value, generate_totp_secret, hotp_value
 from auditlog.models import LogEntry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.cache import cache
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
-from django_otp.oath import TOTP
-from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
+from rest_framework.test import APIClient, APITestCase, APITransactionTestCase
 
 from config.testing import make_staff
 from orders.models import Customer
 
-from . import otp
-from .serializers import INVALID_CODE, WRONG_CREDENTIALS
 from .roles import ADMINISTRATION, INVOICING, READ_ONLY, sync_roles
 
 User = get_user_model()
+
+# allauth headless, browser client (docs/architecture/auth.md).
+ALLAUTH = '/_allauth/browser/v1'
+PASSWORD = 'una clave bien larga'
 
 
 class PermissionTests(APITestCase):
@@ -63,12 +67,12 @@ class UserDetailsTests(APITestCase):
         user = make_staff(role=INVOICING)
         self.client.force_login(user)
 
-        data = self.client.get(reverse('rest_user_details')).json()
+        data = self.client.get(reverse('user-details')).json()
         self.assertTrue(data['is_staff'])
         self.assertIn('billing.add_invoice', data['permissions'])
         self.assertNotIn('orders.add_customer', data['permissions'])
 
-        self.client.patch(reverse('rest_user_details'), {'is_staff': False, 'permissions': []}, format='json')
+        self.client.patch(reverse('user-details'), {'is_staff': False, 'permissions': []}, format='json')
         user.refresh_from_db()
         self.assertTrue(user.is_staff)
 
@@ -109,121 +113,150 @@ class CreateOperatorTests(TestCase):
             self.create('fede')
 
 
-def current_code(device: TOTPDevice) -> str:
-    totp = TOTP(device.bin_key, device.step, device.t0, device.digits, device.drift)
-    totp.time = time.time()
-    return f'{totp.token():0{device.digits}d}'
+def code_for(secret: str) -> str:
+    """The authenticator app's code right now."""
+    return format_hotp_value(hotp_value(secret, int(time.time()) // 30))
 
 
-# Throttling (a growing wait after each wrong code) would refuse the right code that follows a
-# wrong one; test_wrong_codes_are_throttled turns it back on.
-@override_settings(OTP_TOTP_THROTTLE_FACTOR=0, OTP_STATIC_THROTTLE_FACTOR=0)
-class TwoFactorTests(APITestCase):
-    password = 'una clave bien larga'
+class AllauthMixin:
+    """Logs in through allauth, as the admin does, with `self.user` (password PASSWORD)."""
 
     def setUp(self):
+        # allauth keeps used TOTP codes and its rate limits in the cache.
+        cache.clear()
         self.user = make_staff()
-        self.user.set_password(self.password)
+        self.user.set_password(PASSWORD)
         self.user.save()
 
-    def enable(self):
-        """2FA on, as if set up from the admin: (device, backup codes)."""
-        device = otp.start_setup(self.user)
-        return device, otp.confirm_setup(device)
+    def enable_mfa(self):
+        """2FA on, as if set up from the admin: (TOTP secret, recovery codes)."""
+        secret = generate_totp_secret()
+        TOTP.activate(self.user, secret)
+        return secret, RecoveryCodes.activate(self.user).get_unused_codes()
 
-    def login(self, **data):
+    def login(self, username='admin', password=PASSWORD):
         return self.client.post(
-            reverse('rest_login'), {'username': 'admin', 'password': self.password, **data}, format='json')
+            f'{ALLAUTH}/auth/login', {'username': username, 'password': password}, format='json')
+
+    def authenticate(self, code):
+        return self.client.post(f'{ALLAUTH}/auth/2fa/authenticate', {'code': code}, format='json')
 
     def me(self):
-        return self.client.get(reverse('rest_user_details')).json()
+        return self.client.get(reverse('user-details'))
 
-    def test_wrong_credentials_say_so_without_telling_which(self):
-        for username, password in (('admin', 'otra'), ('nadie', self.password)):
-            response = self.client.post(
-                reverse('rest_login'), {'username': username, 'password': password}, format='json')
+    def reauthenticate(self):
+        """Turning 2FA on or off asks for the password again, even right after logging in."""
+        return self.client.post(f'{ALLAUTH}/auth/reauthenticate', {'password': PASSWORD}, format='json')
+
+
+class TwoFactorTests(AllauthMixin, APITestCase):
+    def test_wrong_credentials_are_refused(self):
+        for username, password in (('admin', 'otra'), ('nadie', PASSWORD)):
+            response = self.login(username, password)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(response.json(), {'non_field_errors': [WRONG_CREDENTIALS]})
+            self.assertEqual(response.json()['errors'][0]['code'], 'username_password_mismatch')
 
-    def test_login_without_2fa_is_unchanged(self):
-        self.assertEqual(self.login().status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(self.me()['otp_enabled'])
+    def test_without_2fa_the_password_is_enough(self):
+        self.assertEqual(self.login().status_code, status.HTTP_200_OK)
+        me = self.me().json()
+        self.assertFalse(me['mfa_enabled'])
+        self.assertFalse(me['mfa_verified'])
 
-    def test_login_with_2fa_asks_for_the_code(self):
-        device, _ = self.enable()
+    def test_with_2fa_the_login_waits_for_the_code(self):
+        secret, _ = self.enable_mfa()
 
         response = self.login()
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('otp_code', response.json())
-        self.assertEqual(self.client.get(reverse('rest_user_details')).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        flows = response.json()['data']['flows']
+        self.assertIn({'id': 'mfa_authenticate', 'is_pending': True}, [
+            {'id': flow['id'], 'is_pending': flow.get('is_pending', False)} for flow in flows])
+        self.assertEqual(self.me().status_code, status.HTTP_403_FORBIDDEN)
 
-        self.assertEqual(self.login(otp_code='000000').json()['otp_code'], [INVALID_CODE])
+        self.assertEqual(self.authenticate('000000').status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.authenticate(code_for(secret)).status_code, status.HTTP_200_OK)
+        me = self.me().json()
+        self.assertTrue(me['mfa_enabled'])
+        self.assertTrue(me['mfa_verified'])
 
-        self.assertEqual(self.login(otp_code=current_code(device)).status_code, status.HTTP_204_NO_CONTENT)
-        me = self.me()
-        self.assertTrue(me['otp_enabled'])
-        self.assertTrue(me['otp_verified'])
+    def test_a_recovery_code_works_once(self):
+        _, codes = self.enable_mfa()
+        self.login()
+        with self.assertLogs('audit', 'INFO') as logs:
+            self.assertEqual(self.authenticate(codes[0]).status_code, status.HTTP_200_OK)
+        self.assertIn('used a recovery code', ' '.join(logs.output))
 
-    def test_a_backup_code_works_once(self):
-        _, codes = self.enable()
-        self.assertEqual(len(codes), otp.BACKUP_CODES)
+        self.client.delete(f'{ALLAUTH}/auth/session')
+        self.login()
+        self.assertEqual(self.authenticate(codes[0]).status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_logout_ends_the_session(self):
+        self.login()
+        self.assertEqual(self.client.delete(f'{ALLAUTH}/auth/session').status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(self.me().status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_turning_it_off_after_a_while_asks_for_the_password_again(self):
+        secret, _ = self.enable_mfa()
+        self.login()
+        self.authenticate(code_for(secret))
+        totp = f'{ALLAUTH}/account/authenticators/totp'
+
+        with override_settings(ACCOUNT_REAUTHENTICATION_TIMEOUT=0):
+            response = self.client.delete(totp)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('reauthenticate', [flow['id'] for flow in response.json()['data']['flows']])
+
+        self.reauthenticate()
+        self.assertEqual(self.client.delete(totp).status_code, status.HTTP_200_OK)
+        self.assertFalse(Authenticator.objects.filter(user=self.user, type=Authenticator.Type.TOTP).exists())
+
+    def test_signup_is_closed(self):
+        response = self.client.post(
+            f'{ALLAUTH}/auth/signup', {'username': 'nuevo', 'password': PASSWORD}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(User.objects.filter(username='nuevo').exists())
+
+
+# allauth announces a new authenticator on commit, and accounts.mfa marks the session as verified
+# then. A TestCase never commits: these run with real transactions, as a request does.
+class TwoFactorSetupTests(AllauthMixin, APITransactionTestCase):
+    def test_setting_it_up_from_the_admin(self):
+        self.login()
+        totp = f'{ALLAUTH}/account/authenticators/totp'
+        # Not set up yet: allauth answers with the secret to scan.
+        pending = self.client.get(totp)
+        self.assertEqual(pending.status_code, status.HTTP_404_NOT_FOUND)
+        meta = pending.json()['meta']
+        self.assertTrue(meta['totp_url'].startswith('otpauth://totp/'))
+
+        unconfirmed = self.client.post(totp, {'code': code_for(meta['secret'])}, format='json')
+        self.assertEqual(unconfirmed.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('reauthenticate', [flow['id'] for flow in unconfirmed.json()['data']['flows']])
+        self.assertEqual(self.reauthenticate().status_code, status.HTTP_200_OK)
+
+        self.assertEqual(self.client.post(totp, {'code': '000000'}, format='json').status_code,
+                         status.HTTP_400_BAD_REQUEST)
         with self.assertLogs('audit', 'INFO'):
-            self.assertEqual(self.login(otp_code=codes[0]).status_code, status.HTTP_204_NO_CONTENT)
-        self.client.logout()
-        self.assertEqual(self.login(otp_code=codes[0]).status_code, status.HTTP_400_BAD_REQUEST)
-
-    @override_settings(OTP_TOTP_THROTTLE_FACTOR=1)
-    def test_wrong_codes_are_throttled(self):
-        device, codes = self.enable()
-        self.login(otp_code='000000')
-        self.assertEqual(self.login(otp_code=current_code(device)).status_code, status.HTTP_400_BAD_REQUEST)
-        # A backup code goes to its own device: the authenticator's failures don't block it.
-        self.assertEqual(self.login(otp_code=codes[0]).status_code, status.HTTP_204_NO_CONTENT)
-
-    def test_setup_and_confirm_from_the_admin(self):
-        self.client.force_login(self.user)
-        setup = self.client.post(reverse('2fa-setup')).json()
-        self.assertTrue(setup['otpauth_url'].startswith('otpauth://totp/'))
-        self.assertTrue(setup['qr_svg'].startswith('<svg'))
-
-        device = TOTPDevice.objects.get(user=self.user)
-        self.assertFalse(device.confirmed)
-        wrong = self.client.post(reverse('2fa-confirm'), {'otp_code': '000000'}, format='json')
-        self.assertEqual(wrong.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response = self.client.post(reverse('2fa-confirm'), {'otp_code': current_code(device)}, format='json')
-        self.assertEqual(len(response.json()['backup_codes']), otp.BACKUP_CODES)
-        self.assertTrue(self.me()['otp_verified'])
-        # Once on, it's turned off before setting it up again.
-        self.assertEqual(self.client.post(reverse('2fa-setup')).status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_disable_needs_the_password_and_a_code(self):
-        _, codes = self.enable()
-        self.client.force_login(self.user)
-        url = reverse('2fa-disable')
-        self.assertEqual(
-            self.client.post(url, {'password': 'otra', 'otp_code': codes[0]}, format='json').status_code,
-            status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            self.client.post(url, {'password': self.password, 'otp_code': '000000'}, format='json').status_code,
-            status.HTTP_400_BAD_REQUEST)
-        response = self.client.post(url, {'password': self.password, 'otp_code': codes[0]}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(otp.enabled(self.user))
+            response = self.client.post(totp, {'code': code_for(meta['secret'])}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        codes = self.client.get(f'{ALLAUTH}/account/authenticators/recovery-codes').json()
+        self.assertEqual(len(codes['data']['unused_codes']), codes['data']['total_code_count'])
+        # Turning it on took a code: the session counts as verified.
+        self.assertTrue(self.me().json()['mfa_verified'])
 
     @override_settings(REQUIRE_2FA=True)
     def test_where_required_staff_without_the_second_factor_gets_nothing(self):
-        self.client.force_login(self.user)
+        self.login()
         response = self.client.get(reverse('order-list'))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.json()['detail'], 'Two-factor authentication required.')
         self.assertEqual(self.client.get(reverse('conversation-list')).status_code, status.HTTP_403_FORBIDDEN)
         # What it needs to set it up still answers.
-        self.assertTrue(self.me()['otp_required'])
-        self.assertEqual(self.client.post(reverse('2fa-setup')).status_code, status.HTTP_200_OK)
+        self.assertTrue(self.me().json()['mfa_required'])
 
-        device = TOTPDevice.objects.get(user=self.user)
-        self.client.post(reverse('2fa-confirm'), {'otp_code': current_code(device)}, format='json')
+        totp = f'{ALLAUTH}/account/authenticators/totp'
+        secret = self.client.get(totp).json()['meta']['secret']
+        self.reauthenticate()
+        self.client.post(totp, {'code': code_for(secret)}, format='json')
         self.assertEqual(self.client.get(reverse('order-list')).status_code, status.HTTP_200_OK)
 
 
@@ -247,12 +280,12 @@ class AuditTests(APITestCase):
 
     def test_logins_and_failures_go_to_the_audit_log(self):
         user = make_staff()
-        user.set_password('una clave bien larga')
+        user.set_password(PASSWORD)
         user.save()
-        login = reverse('rest_login')
+        login = f'{ALLAUTH}/auth/login'
         with self.assertLogs('audit', 'INFO') as logs:
             self.client.post(login, {'username': 'admin', 'password': 'otra'}, format='json')
-            self.client.post(login, {'username': 'admin', 'password': 'una clave bien larga'}, format='json')
+            self.client.post(login, {'username': 'admin', 'password': PASSWORD}, format='json')
         self.assertIn('login failed: admin', logs.output[0])
         self.assertIn('login: admin from 127.0.0.1', logs.output[1])
         # Never the password.
@@ -275,15 +308,32 @@ class CsrfTests(APITestCase):
         self.assertIn('CSRF', response.json()['detail'])
 
     def test_the_session_endpoint_sets_the_token_the_writes_need(self):
-        self.client.get(reverse('rest_user_details'))
+        self.client.get(reverse('user-details'))
         token = self.client.cookies['csrftoken'].value
         self.assertEqual(self.create_customer(**{'X-CSRFToken': token}).status_code, status.HTTP_201_CREATED)
 
     def test_another_origin_is_refused_even_with_the_token(self):
-        self.client.get(reverse('rest_user_details'))
+        self.client.get(reverse('user-details'))
         token = self.client.cookies['csrftoken'].value
         response = self.create_customer(**{'X-CSRFToken': token, 'Origin': 'https://sitio-malo.example'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_reads_need_no_token(self):
         self.assertEqual(self.client.get(reverse('customer-list')).status_code, status.HTTP_200_OK)
+
+    def test_the_login_needs_the_token_too(self):
+        # Without it another site could log the browser into an account of theirs ("login CSRF").
+        client = APIClient(enforce_csrf_checks=True)
+        user = make_staff('otro')
+        user.set_password(PASSWORD)
+        user.save()
+        login = f'{ALLAUTH}/auth/login'
+        body = {'username': 'otro', 'password': PASSWORD}
+
+        self.assertEqual(client.post(login, body, format='json').status_code, status.HTTP_403_FORBIDDEN)
+
+        # The admin reads the session first (403 without one), which sets the token.
+        self.assertEqual(client.get(reverse('user-details')).status_code, status.HTTP_403_FORBIDDEN)
+        token = client.cookies['csrftoken'].value
+        response = client.post(login, body, format='json', headers={'X-CSRFToken': token})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

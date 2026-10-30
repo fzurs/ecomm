@@ -40,6 +40,22 @@
     "./zod": {
       "types": "./src/zod.gen.ts",
       "default": "./src/zod.gen.ts"
+    },
+    "./allauth": {
+      "types": "./src/allauth/index.ts",
+      "default": "./src/allauth/index.ts"
+    },
+    "./allauth/client": {
+      "types": "./src/allauth/client.gen.ts",
+      "default": "./src/allauth/client.gen.ts"
+    },
+    "./allauth/query": {
+      "types": "./src/allauth/@tanstack/react-query.gen.ts",
+      "default": "./src/allauth/@tanstack/react-query.gen.ts"
+    },
+    "./allauth/zod": {
+      "types": "./src/allauth/zod.gen.ts",
+      "default": "./src/allauth/zod.gen.ts"
     }
   }
 }

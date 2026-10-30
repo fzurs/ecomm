@@ -52,8 +52,9 @@ secretas, un Postgres y un Redis.
   cuenta sin 2FA ni códigos. Se crea en el momento con `createsuperuser` desde el servidor, se
   anota quién y para qué, y se borra al terminar. No hay superusuarios permanentes.
 - **Recuperar el 2FA** (teléfono y códigos perdidos): desde el servidor,
-  `python manage.py shell -c "from accounts import otp; from django.contrib.auth import get_user_model; otp.disable(get_user_model().objects.get(username='<usuario>'))"`.
-  Queda en el logger `audit`. En el próximo login vuelve a pedir el setup.
+  `python manage.py shell -c "from allauth.mfa.models import Authenticator; Authenticator.objects.filter(user__username='<usuario>').delete()"`.
+  Desde el shell no pasa por las señales de allauth, así que no queda en el logger `audit`:
+  anotar quién y por qué. En el próximo login vuelve a pedir el setup.
 - **Roles**: los define `apps/api/accounts/roles.py` y se reescriben en cada `migrate`. Un
   cambio de permisos se hace en el código, no en el Django admin.
 - **Django admin**: apagado por defecto en prod. Si hace falta, se monta con
@@ -87,5 +88,6 @@ secretas, un Postgres y un Redis.
   `Message.content`. Antes de habilitarlo en producción, decidir si se usa y declararlo en la
   política de privacidad (transferencia internacional, Ley 25.326). Sin `ANTHROPIC_API_KEY` el
   asistente queda apagado.
-- **Rate limiting del login**: hoy solo existe el throttling del 2FA de django-otp. Conviene
-  limitar los intentos de contraseña por IP, en el proxy o con el throttle de DRF.
+- **Rate limiting del login**: allauth ya limita los intentos fallidos de login y de códigos
+  (`ACCOUNT_RATE_LIMITS`, con su cache). El cache `default` es locmem, así que el límite es por
+  proceso: con varios workers conviene que allauth use Redis.

@@ -1,15 +1,17 @@
 from django.conf import settings
 from rest_framework.permissions import BasePermission, DjangoModelPermissions
 
+from accounts.mfa import passed_mfa
+
 TWO_FACTOR_REQUIRED = 'Two-factor authentication required.'
 
 
 def is_verified_staff(permission, request) -> bool:
-    """Staff, and past the second factor when REQUIRE_2FA (django-otp's `is_verified`)."""
+    """Staff, and past the second factor when REQUIRE_2FA (`accounts.mfa.passed_mfa`)."""
     user = request.user
     if not (user and user.is_staff):
         return False
-    if settings.REQUIRE_2FA and not user.is_verified():
+    if settings.REQUIRE_2FA and not passed_mfa(request):
         permission.message = TWO_FACTOR_REQUIRED
         return False
     return True

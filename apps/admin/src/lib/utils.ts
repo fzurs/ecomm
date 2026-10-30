@@ -7,8 +7,9 @@ export function getFormFieldId(form: AnyFormApi, field: AnyFieldApi) {
 /**
  * Shows a failed submit on the form. DRF validation errors go to their fields
  * (`{ field: ["message"] }`, nested for lists like `{ items: [{}, { quantity:
- * ["message"] }] }`); the rest (`non_field_errors`, `detail`, network or server
- * errors) become a form-level error, rendered by `FormError`.
+ * ["message"] }] }`), and so do allauth's (`{ errors: [{ param, message }] }`);
+ * the rest (`non_field_errors`, `detail`, an error without `param`, network or
+ * server errors) become a form-level error, rendered by `FormError`.
  */
 export function applyServerErrors(form: AnyFormApi, error: unknown) {
   const { response, entries } = parseServerError(error)
@@ -62,10 +63,27 @@ function parseServerError(error: unknown) {
   const data = response?.data
 
   // Errors are objects; a string body is an HTML error page, not a message.
-  const entries =
-    data && typeof data === "object" ? flattenServerErrors(data) : []
+  const entries = isAllauthError(data)
+    ? data.errors.map(({ param, message }): [string, string] => [
+        param ?? "",
+        message,
+      ])
+    : data && typeof data === "object"
+      ? flattenServerErrors(data)
+      : []
 
   return { response, entries }
+}
+
+// allauth headless (`/_allauth/...`) answers errors this way, not as DRF does.
+function isAllauthError(
+  data: unknown
+): data is { errors: { param?: string; message: string }[] } {
+  return (
+    !!data &&
+    typeof data === "object" &&
+    Array.isArray((data as { errors?: unknown }).errors)
+  )
 }
 
 function unexpectedErrorMessage(response: ServerErrorResponse | undefined) {

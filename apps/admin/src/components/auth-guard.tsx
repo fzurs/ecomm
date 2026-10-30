@@ -35,7 +35,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (status === "authenticated" && user) {
     if (!user.is_staff) return <NoAccess />
-    if (user.otp_required && !user.otp_verified) {
+    if (user.mfa_required && !user.mfa_verified) {
       return <TwoFactorRequired user={user} />
     }
     return children
@@ -76,12 +76,12 @@ function TwoFactorRequired({ user }: { user: UserDetails }) {
         <div className="typeset">
           <h1>Two-factor authentication</h1>
           <p>
-            {user.otp_enabled
+            {user.mfa_enabled
               ? "Log in again with a code from your authenticator app."
               : "The admin requires it. Set it up to continue."}
           </p>
         </div>
-        {!user.otp_enabled && <TwoFactorSetup />}
+        {!user.mfa_enabled && <TwoFactorSetup />}
         <Button
           variant="ghost"
           className="self-start"

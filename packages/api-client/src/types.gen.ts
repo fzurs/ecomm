@@ -9,10 +9,6 @@ export type ArcaMessage = {
     msg: string;
 };
 
-export type BackupCodes = {
-    backup_codes: Array<string>;
-};
-
 export type BlankEnum = '';
 
 export type Brand = {
@@ -248,16 +244,6 @@ export type InvoiceVat = {
     amount: string;
 };
 
-/**
- * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
- * asks for it and sends everything again.
- */
-export type Login = {
-    username?: string;
-    email?: string;
-    password: string;
-};
-
 export type Message = {
     readonly id: number;
     role: MessageRole;
@@ -336,10 +322,6 @@ export type OrderStatusLock = {
     reason: string;
 };
 
-export type OtpCode = {
-    otp_code: string;
-};
-
 export type PaginatedBrandList = {
     count: number;
     next?: string | null;
@@ -387,28 +369,6 @@ export type PaginatedProductList = {
     next?: string | null;
     previous?: string | null;
     results: Array<Product>;
-};
-
-export type PasswordChange = {
-    new_password1: string;
-    new_password2: string;
-};
-
-/**
- * Serializer for requesting a password reset e-mail.
- */
-export type PasswordReset = {
-    email: string;
-};
-
-/**
- * Serializer for confirming a password reset attempt.
- */
-export type PasswordResetConfirm = {
-    new_password1: string;
-    new_password2: string;
-    uid: string;
-    token: string;
 };
 
 export type PatchedBrand = {
@@ -473,46 +433,6 @@ export type PatchedProduct = {
     readonly created_at?: string;
 };
 
-/**
- * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
- */
-export type PatchedUserDetails = {
-    /**
-     * ID
-     */
-    readonly pk?: number;
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username?: string;
-    /**
-     * Email address
-     */
-    readonly email?: string;
-    first_name?: string;
-    last_name?: string;
-    /**
-     * Staff status
-     *
-     * Designates whether the user can log into this admin site.
-     */
-    readonly is_staff?: boolean;
-    readonly permissions?: Array<string>;
-    /**
-     * 2FA is on for the account.
-     */
-    readonly otp_enabled?: boolean;
-    /**
-     * This session passed the second factor.
-     */
-    readonly otp_verified?: boolean;
-    /**
-     * The API refuses staff sessions that did not pass the second factor.
-     */
-    readonly otp_required?: boolean;
-};
-
 export type Product = {
     readonly id: number;
     brand: Brand | null;
@@ -571,26 +491,6 @@ export type ProductSummary = {
  */
 export type ReceptorDocumentType = 80 | 86 | 96 | 99;
 
-export type RestAuthDetail = {
-    readonly detail: string;
-};
-
-export type TwoFactorDisable = {
-    otp_code: string;
-    password: string;
-};
-
-export type TwoFactorSetup = {
-    /**
-     * What the QR code holds, to type it by hand.
-     */
-    otpauth_url: string;
-    /**
-     * The QR code to scan, as an inline SVG.
-     */
-    qr_svg: string;
-};
-
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
  * what the admin shows, and where they stand with 2FA. All of them are read-only.
@@ -603,13 +503,13 @@ export type UserDetails = {
     /**
      * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
-    username: string;
+    readonly username: string;
     /**
      * Email address
      */
     readonly email: string;
-    first_name?: string;
-    last_name?: string;
+    readonly first_name: string;
+    readonly last_name: string;
     /**
      * Staff status
      *
@@ -620,15 +520,15 @@ export type UserDetails = {
     /**
      * 2FA is on for the account.
      */
-    readonly otp_enabled: boolean;
+    readonly mfa_enabled: boolean;
     /**
      * This session passed the second factor.
      */
-    readonly otp_verified: boolean;
+    readonly mfa_verified: boolean;
     /**
      * The API refuses staff sessions that did not pass the second factor.
      */
-    readonly otp_required: boolean;
+    readonly mfa_required: boolean;
 };
 
 /**
@@ -748,17 +648,6 @@ export type InvoicePreviewWritable = {
     [key: string]: unknown;
 };
 
-/**
- * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
- * asks for it and sends everything again.
- */
-export type LoginWritable = {
-    username?: string;
-    email?: string;
-    password: string;
-    otp_code?: string;
-};
-
 export type MessageWritable = {
     role: MessageRole;
     text?: string;
@@ -872,19 +761,6 @@ export type PatchedProductWritable = {
     vat_rate?: VatRate;
 };
 
-/**
- * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
- */
-export type PatchedUserDetailsWritable = {
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username?: string;
-    first_name?: string;
-    last_name?: string;
-};
-
 export type ProductWritable = {
     brand_id?: number | null;
     category_id?: number | null;
@@ -915,19 +791,6 @@ export type ProductSummaryWritable = {
     price?: number | null;
     discount_percent?: number | null;
     image?: string | null;
-};
-
-/**
- * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
- */
-export type UserDetailsWritable = {
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username: string;
-    first_name?: string;
-    last_name?: string;
 };
 
 export type AssistantConversationsListData = {
@@ -1004,116 +867,6 @@ export type AssistantConversationsRetrieveResponses = {
 
 export type AssistantConversationsRetrieveResponse = AssistantConversationsRetrieveResponses[keyof AssistantConversationsRetrieveResponses];
 
-export type Auth2FaConfirmData = {
-    body: OtpCode;
-    path?: never;
-    query?: never;
-    url: '/auth/2fa/confirm/';
-};
-
-export type Auth2FaConfirmResponses = {
-    200: BackupCodes;
-};
-
-export type Auth2FaConfirmResponse = Auth2FaConfirmResponses[keyof Auth2FaConfirmResponses];
-
-export type Auth2FaDisableData = {
-    body: TwoFactorDisable;
-    path?: never;
-    query?: never;
-    url: '/auth/2fa/disable/';
-};
-
-export type Auth2FaDisableResponses = {
-    /**
-     * No response body
-     */
-    204: void;
-};
-
-export type Auth2FaDisableResponse = Auth2FaDisableResponses[keyof Auth2FaDisableResponses];
-
-export type Auth2FaSetupData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/2fa/setup/';
-};
-
-export type Auth2FaSetupResponses = {
-    200: TwoFactorSetup;
-};
-
-export type Auth2FaSetupResponse = Auth2FaSetupResponses[keyof Auth2FaSetupResponses];
-
-export type AuthLoginCreateData = {
-    body: LoginWritable;
-    path?: never;
-    query?: never;
-    url: '/auth/login/';
-};
-
-export type AuthLoginCreateResponses = {
-    /**
-     * No response body
-     */
-    204: void;
-};
-
-export type AuthLoginCreateResponse = AuthLoginCreateResponses[keyof AuthLoginCreateResponses];
-
-export type AuthLogoutCreateData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/logout/';
-};
-
-export type AuthLogoutCreateResponses = {
-    200: RestAuthDetail;
-};
-
-export type AuthLogoutCreateResponse = AuthLogoutCreateResponses[keyof AuthLogoutCreateResponses];
-
-export type AuthPasswordChangeCreateData = {
-    body: PasswordChange;
-    path?: never;
-    query?: never;
-    url: '/auth/password/change/';
-};
-
-export type AuthPasswordChangeCreateResponses = {
-    200: RestAuthDetail;
-};
-
-export type AuthPasswordChangeCreateResponse = AuthPasswordChangeCreateResponses[keyof AuthPasswordChangeCreateResponses];
-
-export type AuthPasswordResetCreateData = {
-    body: PasswordReset;
-    path?: never;
-    query?: never;
-    url: '/auth/password/reset/';
-};
-
-export type AuthPasswordResetCreateResponses = {
-    200: RestAuthDetail;
-};
-
-export type AuthPasswordResetCreateResponse = AuthPasswordResetCreateResponses[keyof AuthPasswordResetCreateResponses];
-
-export type AuthPasswordResetConfirmCreateData = {
-    body: PasswordResetConfirm;
-    path?: never;
-    query?: never;
-    url: '/auth/password/reset/confirm/';
-};
-
-export type AuthPasswordResetConfirmCreateResponses = {
-    200: RestAuthDetail;
-};
-
-export type AuthPasswordResetConfirmCreateResponse = AuthPasswordResetConfirmCreateResponses[keyof AuthPasswordResetConfirmCreateResponses];
-
 export type AuthUserRetrieveData = {
     body?: never;
     path?: never;
@@ -1126,32 +879,6 @@ export type AuthUserRetrieveResponses = {
 };
 
 export type AuthUserRetrieveResponse = AuthUserRetrieveResponses[keyof AuthUserRetrieveResponses];
-
-export type AuthUserPartialUpdateData = {
-    body?: PatchedUserDetailsWritable;
-    path?: never;
-    query?: never;
-    url: '/auth/user/';
-};
-
-export type AuthUserPartialUpdateResponses = {
-    200: UserDetails;
-};
-
-export type AuthUserPartialUpdateResponse = AuthUserPartialUpdateResponses[keyof AuthUserPartialUpdateResponses];
-
-export type AuthUserUpdateData = {
-    body: UserDetailsWritable;
-    path?: never;
-    query?: never;
-    url: '/auth/user/';
-};
-
-export type AuthUserUpdateResponses = {
-    200: UserDetails;
-};
-
-export type AuthUserUpdateResponse = AuthUserUpdateResponses[keyof AuthUserUpdateResponses];
 
 export type BrandsListData = {
     body?: never;

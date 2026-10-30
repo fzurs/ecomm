@@ -10,20 +10,26 @@
   `client.getConfig().baseURL`, nunca con el host de Django. Ver `docs/architecture/auth.md`.
 
 ## Autenticación
-- Sesión de Django vía dj-rest-auth. Todo pasa por `src/hooks/use-auth.ts`: `useSession()`
-  (`loading` / `authenticated` / `unauthenticated` / `error`), `useLogin()` y `useLogout()`. No
-  usar `authUserRetrieveOptions` ni las mutations de auth directamente.
+- Sesión de Django vía django-allauth headless (`/api/_allauth/browser/v1/...`, cliente generado en
+  `@workspace/api-client/allauth`). Todo pasa por `src/hooks/use-auth.ts`: `useSession()`
+  (`/auth/user/`: `loading` / `authenticated` / `unauthenticated` / `error`), `useLogin()`,
+  `useSecondFactor()` y `useLogout()`, más los del 2FA. No usar las funciones de auth generadas
+  directamente. allauth responde distinto que DRF: los pasos pendientes son un 401 con `flows`
+  (`src/lib/allauth.ts`) y los errores `{ errors: [{ param, message }] }`, que `applyServerErrors`
+  también entiende.
 - `src/proxy.ts` redirige a `/login?next=<ruta>` antes de renderizar si no hay cookie `sessionid`
   (chequeo optimista, sin llamar a la API); `useLogin` vuelve a `next` (`afterLoginPath`). No
   redirige `/login` a home con cookie: una vencida haría un loop con `AuthGuard`.
 - `(admin)/layout.tsx` envuelve todo en `AuthGuard` (`src/components/auth-guard.tsx`), que redirige
   a `/login` solo ante 401/403; otros errores muestran un estado de error con reintento. Un usuario
   logueado que no es staff ve "No access" y puede cerrar sesión.
-- 2FA: el login pasa a un paso propio para el código cuando la API responde con error en
-  `otp_code` (6 casillas con `OtpField`, que envía solo al completarse, o un código de
-  respaldo). Si la API exige 2FA (`user.otp_required`) y la sesión no lo pasó, `AuthGuard`
-  muestra el setup (`src/components/two-factor.tsx`) antes del admin. Se activa o desactiva en `/account/security`
-  (menú del usuario). Los hooks están en `use-auth.ts` (`useTwoFactorSetup/Confirm/Disable`).
+- 2FA: si el login queda pendiente de `mfa_authenticate`, el formulario pasa a un paso propio
+  para el código (6 casillas con `OtpField`, que envía solo al completarse, o un código de
+  recuperación). Si la API exige 2FA (`user.mfa_required`) y la sesión no lo pasó, `AuthGuard`
+  muestra el setup (`src/components/two-factor.tsx`) antes del admin. Se activa o desactiva en
+  `/account/security` (menú del usuario). Activar y desactivar piden la contraseña otra vez
+  cuando allauth responde `reauthenticate` (`useWithReauthentication`), y después reintentan.
+  El QR se dibuja en el navegador (`qrcode`) con la `totp_url` de allauth.
 - Permisos: `useCan("app.codename")` (de `user.permissions`) oculta acciones que la API rechazaría,
   ej. emitir comprobantes (`billing.add_invoice`). La API es la que valida; esto es solo UI.
 - Login y logout hacen `queryClient.clear()` para no mostrar datos de otra sesión, y redirigen

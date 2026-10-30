@@ -11,7 +11,8 @@ Responder en español. Código e identificadores en inglés, como el resto del r
 - `apps/admin` — dashboard de administración en Next.js 16, puerto 3001. Ver `apps/admin/CLAUDE.md`.
 - `apps/web` — tienda en Next.js 16, puerto 3000. Fetch del lado del servidor con `"use cache"` en `src/lib/cache.ts`.
 - `packages/api-client` — generado con `@hey-api/openapi-ts` (cliente axios + zod + TanStack Query).
-  Exports: `@workspace/api-client` (sdk/tipos), `/query` (query options), `/zod` (schemas).
+  Exports: `@workspace/api-client` (sdk/tipos), `/query` (query options), `/zod` (schemas), y
+  lo mismo de django-allauth headless bajo `/allauth` (`/allauth/query`, `/allauth/zod`, `/allauth/client`).
 - `packages/ui` — shadcn/ui con estilo `base-vega` (Base UI, sin Radix; lucide). `packages/data-table` — componentes y hooks compartidos de TanStack Table.
   La skill `shadcn` (`.claude/skills/shadcn`, copia oficial de shadcn-ui/ui) usa el CLI: correrlo con
   `pnpm dlx shadcn@latest <cmd> -c packages/ui` (o `apps/admin` / `apps/web`); desde la raíz falla por ser monorepo.
@@ -35,7 +36,8 @@ Responder en español. Código e identificadores en inglés, como el resto del r
 
 ## Flujo del contrato de la API (importante)
 Todo cambio en models/serializers/views que afecte a la API tiene que seguirse de:
-1. `pnpm generate:schema` — escribe `packages/api-client/schema.yml` (en .gitignore)
+1. `pnpm generate:schema` — escribe `packages/api-client/schema.yml` y la spec de allauth,
+   `packages/api-client/allauth.json` (los dos en .gitignore)
 2. `pnpm generate:api` — regenera `packages/api-client/src/**` (se commitea)
 3. `pnpm typecheck` — corregir lo que se rompa en admin/web
 

@@ -15,4 +15,4 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO ecomm_readon
 
 -- Sessions and 2FA secrets aren't for reading: a session key logs in as its user, and a TOTP
 -- key generates their codes.
-REVOKE SELECT ON django_session, otp_totp_totpdevice, otp_static_statictoken FROM ecomm_readonly;
+REVOKE SELECT ON django_session, mfa_authenticator FROM ecomm_readonly;

@@ -7,35 +7,36 @@ import {
   FieldGroup,
 } from "@workspace/ui/components/field"
 import { GalleryVerticalEndIcon, ShieldCheckIcon } from "lucide-react"
+import { z } from "zod"
 import { useAppForm } from "@/hooks/form"
-import { useLogin } from "@/hooks/use-auth"
+import { useLogin, useSecondFactor } from "@/hooks/use-auth"
 import { applyServerErrors } from "@/lib/utils"
-import { LoginWritable } from "@workspace/api-client"
-import { zAuthLoginCreateBody } from "@workspace/api-client/zod"
 import * as React from "react"
 
-const defaultValues: LoginWritable = {
-  username: "",
-  password: "",
-  otp_code: "",
-}
+// Both steps in one form: the password step sends username and password, the
+// code step only the code (allauth keeps the login pending in the session).
+const defaultValues = { username: "", password: "", code: "" }
 
-/** Whether the API refused the login for a missing or wrong 2FA code. */
-function isCodeError(error: unknown) {
-  const data = (error as { response?: { data?: unknown } } | null)?.response
-    ?.data
-  return !!data && typeof data === "object" && "otp_code" in data
-}
+const credentialsSchema = z.object({
+  username: z.string().min(1, "Enter your username."),
+  password: z.string().min(1, "Enter your password."),
+  code: z.string(),
+})
 
-// What the code step asks for: the authenticator's 6 digits, or a backup code.
+const codeSchema = credentialsSchema.extend({
+  code: z.string().min(1, "Enter the code."),
+})
+
+// What the code step asks for: the authenticator's 6 digits, or a recovery code.
 type CodeKind = "app" | "backup"
 
 /**
- * With 2FA on, the first submit (without a code) fails on `otp_code`: the
- * form moves to the code step, and the next submit sends everything again.
+ * With 2FA on, the password leaves the login pending (`useLogin` resolves
+ * "second_factor"): the form moves to the code step, which completes it.
  */
 function useLoginForm() {
-  const { mutateAsync } = useLogin()
+  const login = useLogin()
+  const secondFactor = useSecondFactor()
   const [askCode, setAskCode] = React.useState(false)
   const [codeKind, setCodeKind] = React.useState<CodeKind>("app")
   // Logged in, and on the way home: the submit is over by then, but nothing
@@ -44,23 +45,28 @@ function useLoginForm() {
 
   const form = useAppForm({
     defaultValues,
-    validators: { onSubmit: zAuthLoginCreateBody },
-    // Awaited so the button shows the pending state; wrong credentials come
-    // back as non_field_errors and are shown as a form error.
+    // Each step checks its own fields (the options update on every render).
+    validators: { onSubmit: askCode ? codeSchema : credentialsSchema },
+    // Awaited so the button shows the pending state; allauth's errors (wrong
+    // password, wrong code) go to their fields or to the form.
     onSubmit: async ({ value, formApi }) => {
       try {
-        await mutateAsync({ body: value })
-        setLoggedIn(true)
-      } catch (error) {
-        if (isCodeError(error)) {
-          // The first time, asking for the code is enough: no error yet.
-          if (!askCode) {
+        if (!askCode) {
+          const step = await login.mutateAsync({
+            username: value.username,
+            password: value.password,
+          })
+          if (step === "second_factor") {
             setAskCode(true)
             return
           }
-          // A wrong code: empty, ready for the next one.
-          formApi.setFieldValue("otp_code", "")
+        } else {
+          await secondFactor.mutateAsync({ body: { code: value.code } })
         }
+        setLoggedIn(true)
+      } catch (error) {
+        // A wrong code: empty, ready for the next one.
+        if (askCode) formApi.setFieldValue("code", "")
         applyServerErrors(formApi, error)
       }
     },
@@ -68,14 +74,15 @@ function useLoginForm() {
 
   const switchCodeKind = (kind: CodeKind) => {
     setCodeKind(kind)
-    form.setFieldValue("otp_code", "", { dontUpdateMeta: true })
+    form.setFieldValue("code", "", { dontUpdateMeta: true })
   }
 
-  // Back to username and password, e.g. to log in with another account.
+  // Back to username and password, e.g. to log in with another account. The
+  // next login replaces the pending one.
   const cancelCode = () => {
     setAskCode(false)
     setCodeKind("app")
-    form.setFieldValue("otp_code", "", { dontUpdateMeta: true })
+    form.setFieldValue("code", "", { dontUpdateMeta: true })
   }
 
   // Filling the last box logs in, unless a submit is already on its way.
@@ -131,11 +138,10 @@ export function LoginForm({
                   ? "Log in with your admin account."
                   : codeKind === "app"
                     ? "Enter the 6-digit code from your authenticator app."
-                    : "Enter one of the backup codes you saved when you set up two-factor authentication."}
+                    : "Enter one of the recovery codes you saved when you set up two-factor authentication."}
               </FieldDescription>
             </div>
-            {/* Hidden, not unmounted, on the code step: the login sends them
-                again with the code. */}
+            {/* Hidden on the code step: the password was already accepted. */}
             <div className={cn("contents", askCode && "hidden")}>
               <form.AppField
                 name="username"
@@ -156,7 +162,7 @@ export function LoginForm({
                   <>
                     {askCode && codeKind === "app" && (
                       <form.AppField
-                        name="otp_code"
+                        name="code"
                         children={(field) => (
                           <field.OtpField
                             label="Authentication code"
@@ -168,10 +174,10 @@ export function LoginForm({
                     )}
                     {askCode && codeKind === "backup" && (
                       <form.AppField
-                        name="otp_code"
+                        name="code"
                         children={(field) => (
                           <field.TextField
-                            label="Backup code"
+                            label="Recovery code"
                             autoComplete="off"
                             autoFocus
                             disabled={busy}
@@ -201,7 +207,7 @@ export function LoginForm({
                             }
                           >
                             {codeKind === "app"
-                              ? "Lost your phone? Use a backup code"
+                              ? "Lost your phone? Use a recovery code"
                               : "Use your authenticator app instead"}
                           </Button>
                           <Button

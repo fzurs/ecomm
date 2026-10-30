@@ -12,7 +12,19 @@
       "@workspace/api-client/query": [
         "../../packages/api-client/src/@tanstack/react-query.gen.ts"
       ],
-      "@workspace/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"]
+      "@workspace/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"],
+      "@workspace/api-client/allauth": [
+        "../../packages/api-client/src/allauth/index.ts"
+      ],
+      "@workspace/api-client/allauth/client": [
+        "../../packages/api-client/src/allauth/client.gen.ts"
+      ],
+      "@workspace/api-client/allauth/query": [
+        "../../packages/api-client/src/allauth/@tanstack/react-query.gen.ts"
+      ],
+      "@workspace/api-client/allauth/zod": [
+        "../../packages/api-client/src/allauth/zod.gen.ts"
+      ]
     },
     "plugins": [{ "name": "next" }]
   },

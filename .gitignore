@@ -57,6 +57,7 @@ media/
 
 ### API SCHEMA ###
 schema.yml
+packages/api-client/allauth.json
 
 dump.rdb
 

@@ -8,10 +8,12 @@ description: Regenera el schema OpenAPI y packages/api-client después de cambia
 Correr desde la raíz del repo (`/workspace/ecomm`), frenando en el primer error:
 
 1. `python apps/api/manage.py check` — detectar errores de Django antes de generar.
-2. `pnpm generate:schema` — escribe `packages/api-client/schema.yml`. Informar los warnings de
+2. `pnpm generate:schema` — escribe `packages/api-client/schema.yml` y `allauth.json` (la spec de
+   django-allauth headless, con `manage.py allauth_schema`). Informar los warnings de
    drf-spectacular (enums sin nombre, falta de `operation_id`, serializers adivinados): suelen
    indicar que la view necesita `@extend_schema` o una entrada en `ENUM_NAME_OVERRIDES`.
-3. `pnpm generate:api` — regenera `packages/api-client/src/**`.
+3. `pnpm generate:api` — regenera `packages/api-client/src/**` (la API en `src/`, allauth en
+   `src/allauth/`).
 4. `pnpm typecheck` — los errores de tipos en `apps/admin` o `apps/web` suelen ser operaciones
    renombradas o con otra forma.
 

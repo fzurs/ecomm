@@ -6,6 +6,8 @@ import logging
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 
+from .mfa import passed_mfa
+
 audit = logging.getLogger('audit')
 
 
@@ -18,8 +20,8 @@ def origin(request) -> str:
 
 @receiver(user_logged_in)
 def logged_in(sender, request, user, **kwargs):
-    second_factor = getattr(user, 'otp_device', None)
-    audit.info('login: %s%s from %s', user, ' with 2FA' if second_factor else '', origin(request))
+    second_factor = ' with 2FA' if passed_mfa(request, user) else ''
+    audit.info('login: %s%s from %s', user, second_factor, origin(request))
 
 
 @receiver(user_logged_out)

@@ -11,7 +11,7 @@ class AccountsConfig(AppConfig):
         from django.contrib.auth import get_user_model
         from django.contrib.auth.models import Group
 
-        from . import audit  # noqa: F401  (connects the login signals)
+        from . import audit, mfa  # noqa: F401  (connect the login and 2FA signals)
         from .roles import sync_roles
 
         auditlog.register(

@@ -50,31 +50,48 @@ Cómo se autentican el admin (`apps/admin`) y la tienda (`apps/web`) contra la A
 - **SameSite**: queda el default de Django, `Lax`. La misma API atiende al admin y a la tienda, y
   la tienda va a necesitar `Lax` para el login con Google.
 
-## Fase 2: django-allauth headless (API + admin)
+## Fase 2 (hecha): django-allauth headless (API + admin)
 
 Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
 
-- dj-rest-auth es una capa REST sobre el auth de Django; su registro y su login social funcionan
-  sobre allauth. allauth es el motor de cuentas completo:
+- **Por qué:** dj-rest-auth es una capa REST sobre el auth de Django; su registro y su login social
+  funcionan sobre allauth. allauth es el motor de cuentas completo:
   - registro, verificación de email, reset de contraseña y login por código;
   - proveedores sociales (Google);
-  - MFA con TOTP, códigos de respaldo y passkeys;
+  - MFA con TOTP, códigos de recuperación y passkeys;
   - rate limits, reautenticación y gestión de sesiones.
 
   Su modo **headless** expone todo eso como API REST para frontends (`/_allauth/browser/v1/...`),
   así que dj-rest-auth sobra.
-- Se usa en modo browser (sesión con cookie y CSRF), igual que hoy. El resto de la API no cambia.
-- El staff sigue obligado a usar MFA: el permiso por defecto exige que la sesión se haya
-  autenticado con MFA, en reemplazo del `is_verified` de django-otp.
-- El cliente de auth se genera aparte, con `@hey-api/openapi-ts`, desde la spec OpenAPI de allauth
-  (`HEADLESS_SERVE_SPECIFICATION`), porque no sale del schema de drf-spectacular. Hay que sumarlo a
-  `/regen-api`.
-- Los usuarios con 2FA lo vuelven a configurar.
-- **Pendiente: CSRF en el login.** Hoy el login no exige el token: DRF solo lo pide con sesión.
-  Eso deja abierto el "login CSRF", en el que otro sitio te loguea en una cuenta suya. allauth
-  headless sí lo exige en el login. Al migrar, verificar que el admin pida la sesión, que pone
-  `csrftoken`, antes de mostrar el formulario, y sumar a `CsrfTests` un login sin token que dé
-  403.
+- **Configuración** (`apps/api/config/settings/base.py`): `HEADLESS_ONLY`, solo el cliente
+  `browser` (sesión con cookie y CSRF, como el resto de la API).
+  - Login con username.
+  - Registro cerrado hasta la fase 3 (`accounts.adapter.AccountAdapter`).
+  - MFA con TOTP y códigos de recuperación.
+- **Login en dos pasos:** con 2FA, el login con contraseña responde 401 con el flujo
+  `mfa_authenticate` pendiente, y `/auth/2fa/authenticate` lo completa con el código del
+  autenticador o uno de recuperación. El admin lo maneja en `useLogin` / `useSecondFactor`.
+- **El staff sigue obligado a usar MFA** (`REQUIRE_2FA`):
+  - `config.permissions` exige que la sesión tenga el registro `mfa` de allauth
+    (`accounts.mfa.passed_mfa`), en lugar del `is_verified` de django-otp.
+  - Activar el TOTP también marca la sesión, con la señal `authenticator_added`, así quien tuvo
+    que configurarlo entra sin volver a loguearse.
+- **Reautenticación:** allauth pide la contraseña otra vez para activar o desactivar el 2FA, aunque
+  el login sea reciente. El admin muestra ese paso cuando la API responde con el flujo
+  `reauthenticate`, y después reintenta la acción.
+- **CSRF en el login (el pendiente de la fase 1), resuelto:** las vistas browser de allauth
+  exigen el token también en el login.
+  - El admin lee primero `/auth/user/`, que pone `csrftoken` aunque no haya sesión.
+  - `CsrfTests.test_the_login_needs_the_token_too` lo prueba.
+- **Cliente generado:** los endpoints de allauth no salen de drf-spectacular.
+  - `manage.py allauth_schema` escribe su spec, con la configuración real.
+  - `@hey-api/openapi-ts` genera el cliente en `packages/api-client/src/allauth`. Las dos cosas
+    corren con `pnpm generate:schema` y `generate:api`.
+- **Django admin:** si está montado y `REQUIRE_2FA`, `accounts.admin_site.MFAAdminSite` solo deja
+  entrar a sesiones que pasaron el segundo factor.
+- **Migración:** los usuarios con 2FA lo vuelven a configurar. Las tablas de django-otp quedan
+  huérfanas en las bases que lo tuvieron y se pueden borrar a mano.
+- **Pendiente:** passkeys (WebAuthn), que allauth ya soporta (`MFA_SUPPORTED_TYPES`).
 
 ## Fase 3: cuentas en la tienda
 

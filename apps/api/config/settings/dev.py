@@ -13,5 +13,12 @@ DJANGO_ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")  # noqa: F405
 
 TEST_RUNNER = "config.testing.TestRunner"
 
+# allauth's OpenAPI spec under /_allauth/: `manage.py allauth_schema` writes it for the frontends'
+# client (pnpm generate:schema). Not served in production.
+HEADLESS_SERVE_SPECIFICATION = True
+
+# Emails (account notifications, later verification and password reset) to the console.
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 # 2FA works but is optional; REQUIRE_2FA=true tries the production flow.
 REQUIRE_2FA = env.bool("REQUIRE_2FA", default=False)  # noqa: F405

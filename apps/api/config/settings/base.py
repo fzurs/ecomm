@@ -64,10 +64,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
-    "dj_rest_auth",
-    "django_otp",
-    "django_otp.plugins.otp_totp",
-    "django_otp.plugins.otp_static",
+    "allauth",
+    "allauth.account",
+    "allauth.mfa",
+    "allauth.headless",
     "auditlog",
     "django_filters",
     "drf_spectacular",
@@ -123,18 +123,27 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
 
-# Session auth only: don't create (and return) a DRF token on every login.
-REST_AUTH = {
-    "TOKEN_MODEL": None,
-    "USER_DETAILS_SERIALIZER": "accounts.serializers.UserDetailsSerializer",
-    "LOGIN_SERIALIZER": "accounts.serializers.LoginSerializer",
-}
+# Accounts: django-allauth, headless only (docs/architecture/auth.md). The frontends use its API
+# under /_allauth/browser/v1/ with Django's session cookie, like the rest of the API.
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+HEADLESS_ONLY = True
+HEADLESS_CLIENTS = ("browser",)
+ACCOUNT_ADAPTER = "accounts.adapter.AccountAdapter"
+# Staff log in with their username. Customers (the store, phase 3) will add email.
+ACCOUNT_LOGIN_METHODS = {"username"}
+ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*"]
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
-# Two-factor authentication (accounts.otp). Required: the API refuses staff sessions that didn't
-# pass it (config.permissions), and the Django admin asks for the code.
-REQUIRE_2FA = True
+# Two-factor authentication (allauth.mfa): an authenticator app, with recovery codes.
+MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
 # The name authenticator apps show for the account.
-OTP_TOTP_ISSUER = env("OTP_TOTP_ISSUER", default="ecomm admin")
+MFA_TOTP_ISSUER = env("MFA_TOTP_ISSUER", default="ecomm admin")
+# Required: the API refuses staff sessions that didn't pass the second factor
+# (config.permissions, accounts.mfa).
+REQUIRE_2FA = True
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -143,7 +152,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django_otp.middleware.OTPMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

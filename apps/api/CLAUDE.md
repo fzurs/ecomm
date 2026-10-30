@@ -27,13 +27,23 @@
   después de cada `migrate`; un permiso nuevo se asigna ahí, no a mano. Las cuentas del día a día
   se crean con `manage.py create_operator <user> [--role ...]` (staff, sin superusuario).
   `/auth/user/` expone `is_staff` y `permissions` (solo lectura) para que el admin oculte acciones.
-- 2FA (TOTP + 10 códigos de respaldo, django-otp; `accounts/otp.py`): con 2FA activo el login
-  (`accounts.views.LoginView`, que reemplaza el de dj-rest-auth con su mismo patrón `login/?$`)
-  falla en `otp_code` si falta o es inválido. Con `REQUIRE_2FA` (True en base/prod, False en dev
-  salvo `REQUIRE_2FA=true`) los permisos (`config.permissions.is_verified_staff`) rechazan sesiones
-  staff sin verificar; `/auth/2fa/setup|confirm|disable/` solo piden staff, para poder activarlo.
-  `/auth/user/` expone `otp_enabled`, `otp_verified` y `otp_required`. django-otp frena los
-  códigos erróneos con espera creciente por dispositivo: en tests, `OTP_*_THROTTLE_FACTOR=0`.
+- Cuentas: django-allauth headless (`HEADLESS_ONLY`, solo cliente `browser`), montado en
+  `/_allauth/`: login, logout, 2FA (`allauth.mfa`: TOTP + códigos de recuperación) y
+  reautenticación. Usa la sesión de Django, como el resto de la API, y exige CSRF también en el
+  login. El registro está cerrado (`accounts.adapter.AccountAdapter`) hasta la fase 3.
+  - `/auth/user/` (`accounts.views.UserDetailsView`) es nuestro: el usuario, `is_staff`,
+    `permissions` y `mfa_enabled` / `mfa_verified` / `mfa_required`.
+  - Con `REQUIRE_2FA` (True en base/prod, False en dev salvo `REQUIRE_2FA=true`) los permisos
+    (`config.permissions.is_verified_staff`) rechazan sesiones staff que no pasaron el segundo
+    factor (`accounts.mfa.passed_mfa`, de los registros de autenticación de allauth). Activar el
+    TOTP marca la sesión como verificada (`authenticator_added`, que allauth manda on commit:
+    los tests que lo necesitan son `APITransactionTestCase`).
+  - allauth pide reautenticación (la contraseña otra vez) para activar o desactivar el 2FA,
+    aunque el login sea reciente (`MFA_REAUTHENTICATION_REQUIRED`).
+  - Sus endpoints no salen de drf-spectacular: `manage.py allauth_schema` escribe su spec y el
+    cliente se genera en `packages/api-client/src/allauth` (los dos con `pnpm generate:schema` y
+    `generate:api`). En tests: `cache.clear()` antes (allauth guarda ahí los códigos usados y
+    los rate limits).
 - Auditoría: django-auditlog guarda cada cambio por ORM (no `update()` ni `bulk_create`) con el
   usuario del request (`AuditlogMiddleware`) en su `LogEntry`. Los modelos se registran en el
   `ready()` de cada app; uno nuevo con datos de negocio se registra ahí. Los logins, logouts y
@@ -49,9 +59,6 @@
 - `/auth/user/` (`accounts.views.UserDetailsView`) repone la cookie `csrftoken` en cada GET
   (`ensure_csrf_cookie`); Django sola la pone solo al loguear. Los tests de DRF no chequean CSRF:
   `accounts.tests.CsrfTests` usa `APIClient(enforce_csrf_checks=True)`.
-- dj-rest-auth corre solo con sesión (`REST_AUTH = {"TOKEN_MODEL": None}`): el login responde 204
-  y no crea tokens. `config/schema.py` documenta ese 204 para drf-spectacular; sin esa extensión
-  `generate:schema` falla, porque el `TokenSerializer` no tiene modelo.
 - Los endpoints son `ModelViewSet` con un FilterSet en el `filters.py` de la app, más
   `ordering_fields` / `search_fields`. Referencia: `orders/views.py`.
 - Las `@action` propias llevan `@extend_schema(operation_id=...)` para que los nombres del cliente

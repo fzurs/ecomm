@@ -9,16 +9,16 @@ cffi==2.1.1
 charset-normalizer==3.5.2
 cryptography==50.0.0
 defusedxml==0.7.1
-dj-rest-auth==7.2.0
+django-allauth[mfa]==65.21.0
 django-auditlog==3.4.1
 django-cors-headers==4.9.0
 django-environ==0.13.0
 django-filter==25.2
-django-otp==1.7.5
 Django==5.2.7
 djangorestframework==3.16.1
 docstring_parser==0.18.0
 drf-spectacular==0.28.0
+fido2==2.2.1
 fonttools==4.67.0
 fpdf2==2.8.9
 gitdb==4.0.12
@@ -43,6 +43,7 @@ pydantic==2.14.1
 pydantic_core==2.50.1
 python-dateutil==3.0.0
 PyYAML==6.0.3
+qrcode==8.2
 redis==8.1.0
 referencing==0.37.0
 requests-file==3.0.1

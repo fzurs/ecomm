@@ -7,10 +7,6 @@ export const zArcaMessage = z.object({
     msg: z.string()
 });
 
-export const zBackupCodes = z.object({
-    backup_codes: z.array(z.string())
-});
-
 export const zBlankEnum = z.enum(['']);
 
 export const zBrand = z.object({
@@ -111,16 +107,6 @@ export const zInvoiceStatus = z.enum([
 ]);
 
 /**
- * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
- * asks for it and sends everything again.
- */
-export const zLogin = z.object({
-    username: z.string().optional(),
-    email: z.email().optional(),
-    password: z.string()
-});
-
-/**
  * * `user` - User
  * * `assistant` - Assistant
  */
@@ -176,10 +162,6 @@ export const zOrderStatusLock = z.object({
     reason: z.string()
 });
 
-export const zOtpCode = z.object({
-    otp_code: z.string()
-});
-
 export const zPaginatedBrandList = z.object({
     count: z.int(),
     next: z.url().nullish(),
@@ -201,28 +183,6 @@ export const zPaginatedConversationList = z.object({
     results: z.array(zConversation)
 });
 
-export const zPasswordChange = z.object({
-    new_password1: z.string().max(128),
-    new_password2: z.string().max(128)
-});
-
-/**
- * Serializer for requesting a password reset e-mail.
- */
-export const zPasswordReset = z.object({
-    email: z.email()
-});
-
-/**
- * Serializer for confirming a password reset attempt.
- */
-export const zPasswordResetConfirm = z.object({
-    new_password1: z.string().max(128),
-    new_password2: z.string().max(128),
-    uid: z.string(),
-    token: z.string()
-});
-
 export const zPatchedBrand = z.object({
     id: z.int().readonly().optional(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -234,23 +194,6 @@ export const zPatchedCategory = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255).optional(),
     description: z.string().nullish()
-});
-
-/**
- * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
- */
-export const zPatchedUserDetails = z.object({
-    pk: z.int().readonly().optional(),
-    username: z.string().max(150).regex(/^[\w.@+-]+$/).optional(),
-    email: z.email().readonly().optional(),
-    first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional(),
-    is_staff: z.boolean().readonly().optional(),
-    permissions: z.array(z.string()).readonly().optional(),
-    otp_enabled: z.boolean().readonly().optional(),
-    otp_verified: z.boolean().readonly().optional(),
-    otp_required: z.boolean().readonly().optional()
 });
 
 /**
@@ -291,35 +234,21 @@ export const zReceptorDocumentType = z.union([
     z.literal(99)
 ]);
 
-export const zRestAuthDetail = z.object({
-    detail: z.string().readonly()
-});
-
-export const zTwoFactorDisable = z.object({
-    otp_code: z.string(),
-    password: z.string()
-});
-
-export const zTwoFactorSetup = z.object({
-    otpauth_url: z.string(),
-    qr_svg: z.string()
-});
-
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
  * what the admin shows, and where they stand with 2FA. All of them are read-only.
  */
 export const zUserDetails = z.object({
     pk: z.int().readonly(),
-    username: z.string().max(150).regex(/^[\w.@+-]+$/),
+    username: z.string().readonly(),
     email: z.email().readonly(),
-    first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional(),
+    first_name: z.string().readonly(),
+    last_name: z.string().readonly(),
     is_staff: z.boolean().readonly(),
     permissions: z.array(z.string()).readonly(),
-    otp_enabled: z.boolean().readonly(),
-    otp_verified: z.boolean().readonly(),
-    otp_required: z.boolean().readonly()
+    mfa_enabled: z.boolean().readonly(),
+    mfa_verified: z.boolean().readonly(),
+    mfa_required: z.boolean().readonly()
 });
 
 /**
@@ -769,17 +698,6 @@ export const zInvoiceLineWritable = z.object({
 
 export const zInvoicePreviewWritable = z.record(z.string(), z.unknown());
 
-/**
- * With 2FA on, a login without `otp_code` fails on that field (CODE_REQUIRED): the admin
- * asks for it and sends everything again.
- */
-export const zLoginWritable = z.object({
-    username: z.string().optional(),
-    email: z.email().optional(),
-    password: z.string(),
-    otp_code: z.string().optional()
-});
-
 export const zMessageWritable = z.object({
     role: zMessageRole,
     text: z.string().optional()
@@ -895,16 +813,6 @@ export const zPatchedProductWritable = z.object({
     vat_rate: zVatRate.optional()
 });
 
-/**
- * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
- */
-export const zPatchedUserDetailsWritable = z.object({
-    username: z.string().max(150).regex(/^[\w.@+-]+$/).optional(),
-    first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional()
-});
-
 export const zProductWritable = z.object({
     brand_id: z.int().nullish(),
     category_id: z.int().nullish(),
@@ -944,16 +852,6 @@ export const zProductSummaryWritable = z.object({
     image: z.url().nullish()
 });
 
-/**
- * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
- */
-export const zUserDetailsWritable = z.object({
-    username: z.string().max(150).regex(/^[\w.@+-]+$/),
-    first_name: z.string().max(150).optional(),
-    last_name: z.string().max(150).optional()
-});
-
 export const zAssistantConversationsListQuery = z.object({
     limit: z.int().optional(),
     offset: z.int().optional()
@@ -980,49 +878,7 @@ export const zAssistantConversationsRetrievePath = z.object({
 
 export const zAssistantConversationsRetrieveResponse = zConversationDetail;
 
-export const zAuth2FaConfirmBody = zOtpCode;
-
-export const zAuth2FaConfirmResponse = zBackupCodes;
-
-export const zAuth2FaDisableBody = zTwoFactorDisable;
-
-/**
- * No response body
- */
-export const zAuth2FaDisableResponse = z.void();
-
-export const zAuth2FaSetupResponse = zTwoFactorSetup;
-
-export const zAuthLoginCreateBody = zLoginWritable;
-
-/**
- * No response body
- */
-export const zAuthLoginCreateResponse = z.void();
-
-export const zAuthLogoutCreateResponse = zRestAuthDetail;
-
-export const zAuthPasswordChangeCreateBody = zPasswordChange;
-
-export const zAuthPasswordChangeCreateResponse = zRestAuthDetail;
-
-export const zAuthPasswordResetCreateBody = zPasswordReset;
-
-export const zAuthPasswordResetCreateResponse = zRestAuthDetail;
-
-export const zAuthPasswordResetConfirmCreateBody = zPasswordResetConfirm;
-
-export const zAuthPasswordResetConfirmCreateResponse = zRestAuthDetail;
-
 export const zAuthUserRetrieveResponse = zUserDetails;
-
-export const zAuthUserPartialUpdateBody = zPatchedUserDetailsWritable;
-
-export const zAuthUserPartialUpdateResponse = zUserDetails;
-
-export const zAuthUserUpdateBody = zUserDetailsWritable;
-
-export const zAuthUserUpdateResponse = zUserDetails;
 
 export const zBrandsListQuery = z.object({
     limit: z.int().optional(),
