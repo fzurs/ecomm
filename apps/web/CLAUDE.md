@@ -52,9 +52,14 @@
   subrayados (`not-typeset` excluye uno que quede adentro).
 - Las páginas con slug (categoría, producto) tienen `generateStaticParams` (se
   prerenderizan en el build) y `generateMetadata` (título "%s · Acme Store").
-- Precios con `formatPrice` (`src/lib/format.ts`, es-AR como el admin). Imágenes con
-  `ProductImage`: cuadradas, con un placeholder si no hay. Es un `<img>`: con `next/image`,
-  este servidor tendría que bajar la imagen de Django.
+- Precios con `formatPrice` (`src/lib/format.ts`, es-AR como el admin).
+- Imágenes con `ProductImage`: cuadradas, con un placeholder si no hay. Usa `next/image`, y cada
+  uso pasa `sizes` con el ancho en que se muestra (ej. `"48px"`). Así el navegador pide una versión
+  achicada, en WebP o AVIF.
+  - Las URLs son el `MEDIA_URL` absoluto de Django. `next.config.mjs` arma
+    `images.remotePatterns` con la misma variable, que se lee en el build.
+  - En dev, `dangerouslyAllowLocalIP`: Next no baja imágenes de `localhost` si no se lo
+    permite.
 
 ## Cuentas
 - `src/proxy.ts` manda `/account/*` a `/login?next=...` sin cookie `sessionid` (chequeo

@@ -49,6 +49,7 @@ export async function CheckoutContents() {
                 <ProductImage
                   src={product.image}
                   alt={product.name}
+                  sizes="48px"
                   className="w-12 shrink-0 bg-white ring-1 ring-foreground/10"
                 />
                 <span className="line-clamp-2 flex-1">

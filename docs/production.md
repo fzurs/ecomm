@@ -17,6 +17,7 @@ secretas, un Postgres y un Redis.
   - `STORE_URL` (la URL pública de la tienda, adonde apuntan los links de los mails de cuenta),
     `EMAIL_URL` (el SMTP, ej. `smtp+tls://usuario:clave@host:587`) y `DEFAULT_FROM_EMAIL`. Sin
     mails, los clientes no pueden confirmar su cuenta ni recuperar la contraseña.
+  - `MEDIA_URL`: la URL pública de las imágenes (ver **Media**).
   - Opcionales: `STORE_NAME` (firma de los mails) y `GOOGLE_CLIENT_ID` (login con Google). El
     client ID es de tipo "Aplicación web", con el dominio de la tienda como origen autorizado de
     JavaScript; no hace falta el secret. `CUSTOMER_SESSION_AGE` cambia la sesión de los clientes
@@ -37,8 +38,14 @@ secretas, un Postgres y un Redis.
     no, `SECURE_SSL_REDIRECT` lo redirige.
   - El navegador nunca habla con la API, así que no hace falta CORS: `CORS_ALLOWED_ORIGINS`
     queda vacío ([`docs/architecture/auth.md`](architecture/auth.md)).
-- [ ] **Media**: las imágenes se sirven desde una URL pública (la de la API o un CDN). Sus URLs
-  apuntan al host de Django, no pasan por el `/api` de los frontends.
+- [ ] **Media**: las imágenes se sirven desde una URL pública, la de la API o un CDN: el
+  `MEDIA_URL` de Django, absoluto, que la API exige en producción. No pasan por el `/api` de los
+  frontends.
+  - La tienda se buildea con el mismo `MEDIA_URL`: `next/image` solo optimiza imágenes de ahí
+    (`images.remotePatterns`). El servidor de la tienda las baja y las achica, y guarda el
+    resultado en `.next/cache/images`, que conviene que persista entre deploys.
+  - Si las sirve un CDN que ya las redimensiona, conviene un `loader` propio de `next/image`, así
+    no hace ese trabajo el servidor de Next.
 - [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.
 - [ ] **Migraciones**: `python manage.py migrate` en cada deploy. Crea los triggers que protegen
   los comprobantes y sincroniza los roles.

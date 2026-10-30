@@ -44,6 +44,7 @@ export function CartLine({ item }: { item: CartItem }) {
         <ProductImage
           src={product.image}
           alt={product.name}
+          sizes="80px"
           className="bg-white ring-1 ring-foreground/10"
         />
       </Link>

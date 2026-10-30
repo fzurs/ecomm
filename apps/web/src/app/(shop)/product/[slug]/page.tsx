@@ -38,6 +38,9 @@ export default async function ProductPage({
         <ProductImage
           src={product.image}
           alt={product.name}
+          // Half of the page from md (main is max-w-7xl), all of it below.
+          sizes="(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw"
+          preload
           className="rounded-xl bg-white ring-1 ring-foreground/10"
         />
         <div className="flex flex-col gap-4">

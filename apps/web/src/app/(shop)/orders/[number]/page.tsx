@@ -72,6 +72,7 @@ async function OrderDetails({
                 <ProductImage
                   src={product.image}
                   alt={product.name}
+                  sizes="56px"
                   className="w-14 shrink-0 bg-white ring-1 ring-foreground/10"
                 />
                 <div className="flex flex-1 flex-col">

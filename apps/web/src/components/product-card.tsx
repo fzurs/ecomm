@@ -25,7 +25,8 @@ export function ProductCard({
         <ProductImage
           src={product.image}
           alt={product.name}
-          loading="lazy"
+          // The grid's columns (products-grid.tsx): 4, 3, 2 or 1 by its width.
+          sizes="(min-width: 1088px) 300px, (min-width: 720px) 33vw, (min-width: 416px) 50vw, 100vw"
           className="bg-white transition-transform group-hover/product:scale-[1.02]"
         />
         {product.status === "out_of_stock" && (
