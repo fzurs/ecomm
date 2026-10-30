@@ -85,6 +85,16 @@ export default function OrdersDetailsPage() {
             </div>
             <OrderCustomerItem customer={order.customer_detail} />
           </section>
+
+          {/* Orders from the store's checkout: the ones created here have none. */}
+          {order.shipping_address && (
+            <section className="flex flex-col gap-4 @5xl/main:col-start-1 @5xl/main:row-start-3">
+              <div className="typeset">
+                <h2>Shipping address</h2>
+                <p className="whitespace-pre-line">{order.shipping_address}</p>
+              </div>
+            </section>
+          )}
         </div>
       </main>
     </>
