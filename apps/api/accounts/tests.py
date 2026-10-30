@@ -17,6 +17,7 @@ from config.testing import make_staff
 from orders.models import Customer
 
 from . import otp
+from .serializers import INVALID_CODE, WRONG_CREDENTIALS
 from .roles import ADMINISTRATION, INVOICING, READ_ONLY, sync_roles
 
 User = get_user_model()
@@ -137,6 +138,13 @@ class TwoFactorTests(APITestCase):
     def me(self):
         return self.client.get(reverse('rest_user_details')).json()
 
+    def test_wrong_credentials_say_so_without_telling_which(self):
+        for username, password in (('admin', 'otra'), ('nadie', self.password)):
+            response = self.client.post(
+                reverse('rest_login'), {'username': username, 'password': password}, format='json')
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.json(), {'non_field_errors': [WRONG_CREDENTIALS]})
+
     def test_login_without_2fa_is_unchanged(self):
         self.assertEqual(self.login().status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(self.me()['otp_enabled'])
@@ -149,7 +157,7 @@ class TwoFactorTests(APITestCase):
         self.assertIn('otp_code', response.json())
         self.assertEqual(self.client.get(reverse('rest_user_details')).status_code, status.HTTP_403_FORBIDDEN)
 
-        self.assertEqual(self.login(otp_code='000000').json()['otp_code'], ['Invalid code.'])
+        self.assertEqual(self.login(otp_code='000000').json()['otp_code'], [INVALID_CODE])
 
         self.assertEqual(self.login(otp_code=current_code(device)).status_code, status.HTTP_204_NO_CONTENT)
         me = self.me()

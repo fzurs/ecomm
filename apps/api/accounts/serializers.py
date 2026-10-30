@@ -5,8 +5,9 @@ from rest_framework import serializers
 
 from . import otp
 
+WRONG_CREDENTIALS = 'Wrong username or password.'
 CODE_REQUIRED = 'Enter the code from your authenticator app, or a backup code.'
-INVALID_CODE = 'Invalid code.'
+INVALID_CODE = "That code didn't work. Enter the one your app shows now, or a backup code."
 
 
 class LoginSerializer(BaseLoginSerializer):
@@ -16,8 +17,14 @@ class LoginSerializer(BaseLoginSerializer):
     otp_code = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     def validate(self, attrs):
-        attrs = super().validate(attrs)
-        user = attrs['user']
+        # dj-rest-auth's own validate, with our message. Its email verification step only runs
+        # with allauth registration, which isn't installed. Inactive users don't authenticate
+        # (ModelBackend), so they get the same message: it doesn't say which accounts exist.
+        user = self.get_auth_user(attrs.get('username'), attrs.get('email'), attrs.get('password'))
+        if not user:
+            raise serializers.ValidationError(WRONG_CREDENTIALS)
+        self.validate_auth_user_status(user)
+        attrs['user'] = user
         if otp.enabled(user):
             code = attrs.get('otp_code')
             if not code:
