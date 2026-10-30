@@ -22,6 +22,7 @@ urlpatterns = [
     path('', include('orders.urls')),
     path('', include('billing.urls')),
     path('', include('assistant.urls')),
+    path('', include('checkout.urls')),
 ]
 
 if settings.DJANGO_ADMIN_URL:

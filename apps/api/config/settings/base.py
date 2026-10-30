@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "billing",
     "assistant",
     "accounts",
+    "checkout",
 ]
 
 REST_FRAMEWORK = {

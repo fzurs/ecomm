@@ -4,8 +4,8 @@ import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOption
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authUserPartialUpdate, authUserRetrieve, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authUserPartialUpdate, authUserRetrieve, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, cartItemsCreate, cartItemsDestroy, cartItemsPartialUpdate, cartRetrieve, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, checkoutCreate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, myOrdersList, myOrdersRetrieve, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CartItemsCreateData, CartItemsCreateResponse, CartItemsDestroyData, CartItemsDestroyResponse, CartItemsPartialUpdateData, CartItemsPartialUpdateResponse, CartRetrieveData, CartRetrieveResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CheckoutCreateData, CheckoutCreateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, MyOrdersListData, MyOrdersListResponse, MyOrdersRetrieveData, MyOrdersRetrieveResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -311,6 +311,79 @@ export const brandsListChoicesOptions = (options?: Options<BrandsListChoicesData
     queryKey: brandsListChoicesQueryKey(options)
 });
 
+export const cartRetrieveQueryKey = (options?: Options<CartRetrieveData>) => createQueryKey('cartRetrieve', options);
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartRetrieveOptions = (options?: Options<CartRetrieveData>) => queryOptions<CartRetrieveResponse, AxiosError<DefaultError>, CartRetrieveResponse, ReturnType<typeof cartRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await cartRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: cartRetrieveQueryKey(options)
+});
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartItemsCreateMutation = (options?: Partial<Options<CartItemsCreateData>>): UseMutationOptions<CartItemsCreateResponse, AxiosError<DefaultError>, Options<CartItemsCreateData>> => {
+    const mutationOptions: UseMutationOptions<CartItemsCreateResponse, AxiosError<DefaultError>, Options<CartItemsCreateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await cartItemsCreate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartItemsDestroyMutation = (options?: Partial<Options<CartItemsDestroyData>>): UseMutationOptions<CartItemsDestroyResponse, AxiosError<DefaultError>, Options<CartItemsDestroyData>> => {
+    const mutationOptions: UseMutationOptions<CartItemsDestroyResponse, AxiosError<DefaultError>, Options<CartItemsDestroyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await cartItemsDestroy({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartItemsPartialUpdateMutation = (options?: Partial<Options<CartItemsPartialUpdateData>>): UseMutationOptions<CartItemsPartialUpdateResponse, AxiosError<DefaultError>, Options<CartItemsPartialUpdateData>> => {
+    const mutationOptions: UseMutationOptions<CartItemsPartialUpdateResponse, AxiosError<DefaultError>, Options<CartItemsPartialUpdateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await cartItemsPartialUpdate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const categoriesListQueryKey = (options?: Options<CategoriesListData>) => createQueryKey('categoriesList', options);
 
 export const categoriesListOptions = (options?: Options<CategoriesListData>) => queryOptions<CategoriesListResponse, AxiosError<DefaultError>, CategoriesListResponse, ReturnType<typeof categoriesListQueryKey>>({
@@ -438,6 +511,24 @@ export const categoriesListChoicesOptions = (options?: Options<CategoriesListCho
     },
     queryKey: categoriesListChoicesQueryKey(options)
 });
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const checkoutCreateMutation = (options?: Partial<Options<CheckoutCreateData>>): UseMutationOptions<CheckoutCreateResponse, AxiosError<DefaultError>, Options<CheckoutCreateData>> => {
+    const mutationOptions: UseMutationOptions<CheckoutCreateResponse, AxiosError<DefaultError>, Options<CheckoutCreateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await checkoutCreate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const customersListQueryKey = (options?: Options<CustomersListData>) => createQueryKey('customersList', options);
 
@@ -748,6 +839,42 @@ export const invoicesPreviewMutation = (options?: Partial<Options<InvoicesPrevie
     };
     return mutationOptions;
 };
+
+export const myOrdersListQueryKey = (options?: Options<MyOrdersListData>) => createQueryKey('myOrdersList', options);
+
+/**
+ * The visitor's orders: their account's, and the ones a guest placed in this session.
+ */
+export const myOrdersListOptions = (options?: Options<MyOrdersListData>) => queryOptions<MyOrdersListResponse, AxiosError<DefaultError>, MyOrdersListResponse, ReturnType<typeof myOrdersListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await myOrdersList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: myOrdersListQueryKey(options)
+});
+
+export const myOrdersRetrieveQueryKey = (options: Options<MyOrdersRetrieveData>) => createQueryKey('myOrdersRetrieve', options);
+
+/**
+ * The visitor's orders: their account's, and the ones a guest placed in this session.
+ */
+export const myOrdersRetrieveOptions = (options: Options<MyOrdersRetrieveData>) => queryOptions<MyOrdersRetrieveResponse, AxiosError<DefaultError>, MyOrdersRetrieveResponse, ReturnType<typeof myOrdersRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await myOrdersRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: myOrdersRetrieveQueryKey(options)
+});
 
 export const ordersListQueryKey = (options?: Options<OrdersListData>) => createQueryKey('ordersList', options);
 

@@ -35,6 +35,10 @@ class AccountAdapter(DefaultAccountAdapter):
         # settings' session: a working day, gone with the browser.
         if not user.is_staff:
             request.session.set_expiry(settings.CUSTOMER_SESSION_AGE)
+        else:
+            # The session may come from a guest's cart, with the customers' age: logging in
+            # keeps it, so it goes back to the settings'.
+            request.session.set_expiry(None)
 
     def clean_password(self, password, user=None):
         # Signing up validates without a user, and only customers sign up: without one, the

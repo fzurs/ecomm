@@ -23,6 +23,35 @@ export type BrandChoice = {
     slug?: string;
 };
 
+export type Cart = {
+    items: Array<CartItem>;
+    count: number;
+    total: number;
+};
+
+export type CartItem = {
+    product: CartProduct;
+    quantity: number;
+    available: boolean;
+    subtotal: number | null;
+};
+
+export type CartItemCreate = {
+    product: number;
+    quantity?: number;
+};
+
+export type CartProduct = {
+    readonly id: number;
+    slug?: string;
+    name: string;
+    image?: string | null;
+    status?: ProductStatus;
+    price?: number | null;
+    discount_percent?: number | null;
+    readonly active_price: number | null;
+};
+
 export type Category = {
     readonly id: number;
     slug?: string;
@@ -35,6 +64,24 @@ export type CategoryChoice = {
     name: string;
     slug?: string;
     description?: string | null;
+};
+
+/**
+ * Who buys (a Customer, validated like the admin's: CUIT, VAT condition) and where it goes.
+ */
+export type Checkout = {
+    name: string;
+    email: string;
+    phone?: string;
+    document_type?: DocumentTypeEnum;
+    document_number?: string | null;
+    vat_condition?: VatCondition;
+    legal_name?: string;
+    shipping_address: string;
+};
+
+export type CheckoutResult = {
+    number: string;
 };
 
 export type Conversation = {
@@ -72,6 +119,7 @@ export type Customer = {
     legal_name?: string;
     address?: string;
     image?: string | null;
+    readonly user: number | null;
 };
 
 export type CustomerChoice = {
@@ -257,6 +305,31 @@ export type Message = {
  */
 export type MessageRole = 'user' | 'assistant';
 
+/**
+ * An order as its customer sees it: no invoice internals nor billing data.
+ */
+export type MyOrder = {
+    readonly number: string;
+    status?: OrderStatus | BlankEnum;
+    readonly created_at: string;
+    customer: MyOrderCustomer;
+    shipping_address?: string;
+    items: Array<MyOrderItem>;
+    total: number;
+};
+
+export type MyOrderCustomer = {
+    name: string;
+    email?: string;
+};
+
+export type MyOrderItem = {
+    product: CartProduct;
+    quantity?: number;
+    unit_price?: number;
+    subtotal: number;
+};
+
 export type Order = {
     readonly id: number;
     readonly items: Array<OrderItem>;
@@ -268,6 +341,7 @@ export type Order = {
     readonly delete_lock: string | null;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
+    shipping_address?: string;
     readonly created_at: string;
     readonly updated_at: string;
     customer: number;
@@ -284,6 +358,7 @@ export type OrderCreate = {
     readonly delete_lock: string | null;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
+    shipping_address?: string;
     readonly created_at: string;
     readonly updated_at: string;
     customer: number;
@@ -377,6 +452,10 @@ export type PatchedBrand = {
     name?: string;
 };
 
+export type PatchedCartItemUpdate = {
+    quantity?: number;
+};
+
 export type PatchedCategory = {
     readonly id?: number;
     slug?: string;
@@ -395,6 +474,7 @@ export type PatchedCustomer = {
     legal_name?: string;
     address?: string;
     image?: string | null;
+    readonly user?: number | null;
 };
 
 export type PatchedOrder = {
@@ -408,6 +488,7 @@ export type PatchedOrder = {
     readonly delete_lock?: string | null;
     readonly number?: string;
     status?: OrderStatus | BlankEnum;
+    shipping_address?: string;
     readonly created_at?: string;
     readonly updated_at?: string;
     customer?: number;
@@ -638,6 +719,28 @@ export type BrandChoiceWritable = {
     slug?: string;
 };
 
+export type CartWritable = {
+    items: Array<CartItemWritable>;
+    count: number;
+    total: number;
+};
+
+export type CartItemWritable = {
+    product: CartProductWritable;
+    quantity: number;
+    available: boolean;
+    subtotal: number | null;
+};
+
+export type CartProductWritable = {
+    slug?: string;
+    name: string;
+    image?: string | null;
+    status?: ProductStatus;
+    price?: number | null;
+    discount_percent?: number | null;
+};
+
 export type CategoryWritable = {
     slug?: string;
     name: string;
@@ -703,14 +806,34 @@ export type MessageWritable = {
     text?: string;
 };
 
+/**
+ * An order as its customer sees it: no invoice internals nor billing data.
+ */
+export type MyOrderWritable = {
+    status?: OrderStatus | BlankEnum;
+    customer: MyOrderCustomer;
+    shipping_address?: string;
+    items: Array<MyOrderItemWritable>;
+    total: number;
+};
+
+export type MyOrderItemWritable = {
+    product: CartProductWritable;
+    quantity?: number;
+    unit_price?: number;
+    subtotal: number;
+};
+
 export type OrderWritable = {
     status?: OrderStatus | BlankEnum;
+    shipping_address?: string;
     customer: number;
 };
 
 export type OrderCreateWritable = {
     items: Array<OrderItemWritable>;
     status?: OrderStatus | BlankEnum;
+    shipping_address?: string;
     customer: number;
 };
 
@@ -793,6 +916,7 @@ export type PatchedCustomerWritable = {
 
 export type PatchedOrderWritable = {
     status?: OrderStatus | BlankEnum;
+    shipping_address?: string;
     customer?: number;
 };
 
@@ -1091,6 +1215,65 @@ export type BrandsListChoicesResponses = {
 
 export type BrandsListChoicesResponse = BrandsListChoicesResponses[keyof BrandsListChoicesResponses];
 
+export type CartRetrieveData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/cart/';
+};
+
+export type CartRetrieveResponses = {
+    200: Cart;
+};
+
+export type CartRetrieveResponse = CartRetrieveResponses[keyof CartRetrieveResponses];
+
+export type CartItemsCreateData = {
+    body: CartItemCreate;
+    path?: never;
+    query?: never;
+    url: '/cart/items/';
+};
+
+export type CartItemsCreateResponses = {
+    200: Cart;
+};
+
+export type CartItemsCreateResponse = CartItemsCreateResponses[keyof CartItemsCreateResponses];
+
+export type CartItemsDestroyData = {
+    body?: never;
+    path: {
+        product: number;
+    };
+    query?: never;
+    url: '/cart/items/{product}/';
+};
+
+export type CartItemsDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type CartItemsDestroyResponse = CartItemsDestroyResponses[keyof CartItemsDestroyResponses];
+
+export type CartItemsPartialUpdateData = {
+    body?: PatchedCartItemUpdate;
+    path: {
+        product: number;
+    };
+    query?: never;
+    url: '/cart/items/{product}/';
+};
+
+export type CartItemsPartialUpdateResponses = {
+    200: Cart;
+};
+
+export type CartItemsPartialUpdateResponse = CartItemsPartialUpdateResponses[keyof CartItemsPartialUpdateResponses];
+
 export type CategoriesListData = {
     body?: never;
     path?: never;
@@ -1218,6 +1401,19 @@ export type CategoriesListChoicesResponses = {
 };
 
 export type CategoriesListChoicesResponse = CategoriesListChoicesResponses[keyof CategoriesListChoicesResponses];
+
+export type CheckoutCreateData = {
+    body: Checkout;
+    path?: never;
+    query?: never;
+    url: '/checkout/';
+};
+
+export type CheckoutCreateResponses = {
+    201: CheckoutResult;
+};
+
+export type CheckoutCreateResponse = CheckoutCreateResponses[keyof CheckoutCreateResponses];
 
 export type CustomersListData = {
     body?: never;
@@ -1632,6 +1828,34 @@ export type InvoicesPreviewResponses = {
 };
 
 export type InvoicesPreviewResponse = InvoicesPreviewResponses[keyof InvoicesPreviewResponses];
+
+export type MyOrdersListData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/my/orders/';
+};
+
+export type MyOrdersListResponses = {
+    200: Array<MyOrder>;
+};
+
+export type MyOrdersListResponse = MyOrdersListResponses[keyof MyOrdersListResponses];
+
+export type MyOrdersRetrieveData = {
+    body?: never;
+    path: {
+        number: string;
+    };
+    query?: never;
+    url: '/my/orders/{number}/';
+};
+
+export type MyOrdersRetrieveResponses = {
+    200: MyOrder;
+};
+
+export type MyOrdersRetrieveResponse = MyOrdersRetrieveResponses[keyof MyOrdersRetrieveResponses];
 
 export type OrdersListData = {
     body?: never;

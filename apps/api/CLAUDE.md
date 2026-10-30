@@ -92,6 +92,24 @@
   si no, drf-spectacular genera nombres feos.
 - Después de cualquier cambio en la API, regenerar el cliente (ver CLAUDE.md raíz / `/regen-api`).
 
+## Carrito y checkout (checkout)
+- Los endpoints de la tienda: `/cart/`, `/cart/items/` (POST suma, PATCH `/<product>/` cambia la
+  cantidad, DELETE saca), `/checkout/` y `/my/orders/`. Son `AllowAny` (los invitados compran) y
+  exigen CSRF también sin sesión (`StoreView`, `config.authentication.CsrfSessionAuthentication`).
+- El carrito de un invitado está en su sesión (`services.SESSION_KEY`). Al loguear, pasa a la
+  cuenta o se suma al de la cuenta (`merge_guest_cart`, conectado a `user_logged_in` en
+  `apps.py`).
+- `services.place_order` arma la orden `pending` con `Order.objects.create_with_items` (los
+  precios los copia `OrderItem`) y vacía el carrito. Después del commit le manda un mail al
+  cliente (`templates/checkout/order_placed.txt`).
+  - El `Customer` es uno nuevo por compra de invitado. Con sesión es el de la cuenta
+    (`Customer.user`), y cada compra lo actualiza.
+  - Los datos de facturación se validan como en el admin: `CheckoutSerializer` extiende
+    `CustomerSerializer`.
+- `/my/orders/` muestra las órdenes de la cuenta y las que un invitado hizo en esta sesión
+  (`PLACED_ORDERS_KEY`). La de otro da 404.
+- Todavía no hay pago: la orden queda `pending` hasta que el admin la cambie.
+
 ## Facturación (billing)
 - `Invoice` es cualquier comprobante (`VoucherType`, el CbteTipo de ARCA): facturas A/B/C y sus
   notas de crédito/débito, que apuntan a la factura con `associated_invoice`. Guarda una copia del

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CartItemsCreateData, CartItemsCreateResponses, CartItemsDestroyData, CartItemsDestroyResponses, CartItemsPartialUpdateData, CartItemsPartialUpdateResponses, CartRetrieveData, CartRetrieveResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CheckoutCreateData, CheckoutCreateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, MyOrdersListData, MyOrdersListResponses, MyOrdersRetrieveData, MyOrdersRetrieveResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -21,6 +21,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 export const assistantConversationsList = <ThrowOnError extends boolean = false>(options?: Options<AssistantConversationsListData, ThrowOnError>): RequestResult<AssistantConversationsListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<AssistantConversationsListResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -32,6 +33,7 @@ export const assistantConversationsList = <ThrowOnError extends boolean = false>
 export const assistantConversationsCreate = <ThrowOnError extends boolean = false>(options?: Options<AssistantConversationsCreateData, ThrowOnError>): RequestResult<AssistantConversationsCreateResponses, unknown, ThrowOnError> => (options?.client ?? client).post<AssistantConversationsCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -46,6 +48,7 @@ export const assistantConversationsCreate = <ThrowOnError extends boolean = fals
 
 export const assistantConversationsDestroy = <ThrowOnError extends boolean = false>(options: Options<AssistantConversationsDestroyData, ThrowOnError>): RequestResult<AssistantConversationsDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<AssistantConversationsDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -57,6 +60,7 @@ export const assistantConversationsDestroy = <ThrowOnError extends boolean = fal
 export const assistantConversationsRetrieve = <ThrowOnError extends boolean = false>(options: Options<AssistantConversationsRetrieveData, ThrowOnError>): RequestResult<AssistantConversationsRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<AssistantConversationsRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -68,6 +72,7 @@ export const assistantConversationsRetrieve = <ThrowOnError extends boolean = fa
 export const authUserRetrieve = <ThrowOnError extends boolean = false>(options?: Options<AuthUserRetrieveData, ThrowOnError>): RequestResult<AuthUserRetrieveResponses, unknown, ThrowOnError> => (options?.client ?? client).get<AuthUserRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -79,6 +84,7 @@ export const authUserRetrieve = <ThrowOnError extends boolean = false>(options?:
 export const authUserPartialUpdate = <ThrowOnError extends boolean = false>(options?: Options<AuthUserPartialUpdateData, ThrowOnError>): RequestResult<AuthUserPartialUpdateResponses, unknown, ThrowOnError> => (options?.client ?? client).patch<AuthUserPartialUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -94,6 +100,7 @@ export const authUserPartialUpdate = <ThrowOnError extends boolean = false>(opti
 export const brandsList = <ThrowOnError extends boolean = false>(options?: Options<BrandsListData, ThrowOnError>): RequestResult<BrandsListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<BrandsListResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -105,6 +112,7 @@ export const brandsList = <ThrowOnError extends boolean = false>(options?: Optio
 export const brandsCreate = <ThrowOnError extends boolean = false>(options: Options<BrandsCreateData, ThrowOnError>): RequestResult<BrandsCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<BrandsCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -119,6 +127,7 @@ export const brandsCreate = <ThrowOnError extends boolean = false>(options: Opti
 
 export const brandsDestroy = <ThrowOnError extends boolean = false>(options: Options<BrandsDestroyData, ThrowOnError>): RequestResult<BrandsDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<BrandsDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -130,6 +139,7 @@ export const brandsDestroy = <ThrowOnError extends boolean = false>(options: Opt
 export const brandsRetrieve = <ThrowOnError extends boolean = false>(options: Options<BrandsRetrieveData, ThrowOnError>): RequestResult<BrandsRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<BrandsRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -141,6 +151,7 @@ export const brandsRetrieve = <ThrowOnError extends boolean = false>(options: Op
 export const brandsPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<BrandsPartialUpdateData, ThrowOnError>): RequestResult<BrandsPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<BrandsPartialUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -156,6 +167,7 @@ export const brandsPartialUpdate = <ThrowOnError extends boolean = false>(option
 export const brandsUpdate = <ThrowOnError extends boolean = false>(options: Options<BrandsUpdateData, ThrowOnError>): RequestResult<BrandsUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<BrandsUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -171,6 +183,7 @@ export const brandsUpdate = <ThrowOnError extends boolean = false>(options: Opti
 export const brandsListChoices = <ThrowOnError extends boolean = false>(options?: Options<BrandsListChoicesData, ThrowOnError>): RequestResult<BrandsListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<BrandsListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -179,9 +192,81 @@ export const brandsListChoices = <ThrowOnError extends boolean = false>(options?
     ...options
 });
 
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartRetrieve = <ThrowOnError extends boolean = false>(options?: Options<CartRetrieveData, ThrowOnError>): RequestResult<CartRetrieveResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CartRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/cart/',
+    ...options
+});
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartItemsCreate = <ThrowOnError extends boolean = false>(options: Options<CartItemsCreateData, ThrowOnError>): RequestResult<CartItemsCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<CartItemsCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/cart/items/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartItemsDestroy = <ThrowOnError extends boolean = false>(options: Options<CartItemsDestroyData, ThrowOnError>): RequestResult<CartItemsDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<CartItemsDestroyResponses, unknown, ThrowOnError>({
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/cart/items/{product}/',
+    ...options
+});
+
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const cartItemsPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<CartItemsPartialUpdateData, ThrowOnError>): RequestResult<CartItemsPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<CartItemsPartialUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/cart/items/{product}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const categoriesList = <ThrowOnError extends boolean = false>(options?: Options<CategoriesListData, ThrowOnError>): RequestResult<CategoriesListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CategoriesListResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -193,6 +278,7 @@ export const categoriesList = <ThrowOnError extends boolean = false>(options?: O
 export const categoriesCreate = <ThrowOnError extends boolean = false>(options: Options<CategoriesCreateData, ThrowOnError>): RequestResult<CategoriesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<CategoriesCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -207,6 +293,7 @@ export const categoriesCreate = <ThrowOnError extends boolean = false>(options: 
 
 export const categoriesDestroy = <ThrowOnError extends boolean = false>(options: Options<CategoriesDestroyData, ThrowOnError>): RequestResult<CategoriesDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<CategoriesDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -218,6 +305,7 @@ export const categoriesDestroy = <ThrowOnError extends boolean = false>(options:
 export const categoriesRetrieve = <ThrowOnError extends boolean = false>(options: Options<CategoriesRetrieveData, ThrowOnError>): RequestResult<CategoriesRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<CategoriesRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -229,6 +317,7 @@ export const categoriesRetrieve = <ThrowOnError extends boolean = false>(options
 export const categoriesPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<CategoriesPartialUpdateData, ThrowOnError>): RequestResult<CategoriesPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<CategoriesPartialUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -244,6 +333,7 @@ export const categoriesPartialUpdate = <ThrowOnError extends boolean = false>(op
 export const categoriesUpdate = <ThrowOnError extends boolean = false>(options: Options<CategoriesUpdateData, ThrowOnError>): RequestResult<CategoriesUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<CategoriesUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -259,6 +349,7 @@ export const categoriesUpdate = <ThrowOnError extends boolean = false>(options: 
 export const categoriesListChoices = <ThrowOnError extends boolean = false>(options?: Options<CategoriesListChoicesData, ThrowOnError>): RequestResult<CategoriesListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CategoriesListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -267,9 +358,30 @@ export const categoriesListChoices = <ThrowOnError extends boolean = false>(opti
     ...options
 });
 
+/**
+ * The store's own endpoints: for guests too, and always with CSRF (their session holds the
+ * cart). The store calls them from its server, with the visitor's cookies (djangoFetch).
+ */
+export const checkoutCreate = <ThrowOnError extends boolean = false>(options: Options<CheckoutCreateData, ThrowOnError>): RequestResult<CheckoutCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<CheckoutCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/checkout/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const customersList = <ThrowOnError extends boolean = false>(options?: Options<CustomersListData, ThrowOnError>): RequestResult<CustomersListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CustomersListResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -281,6 +393,7 @@ export const customersList = <ThrowOnError extends boolean = false>(options?: Op
 export const customersCreate = <ThrowOnError extends boolean = false>(options: Options<CustomersCreateData, ThrowOnError>): RequestResult<CustomersCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<CustomersCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -295,6 +408,7 @@ export const customersCreate = <ThrowOnError extends boolean = false>(options: O
 
 export const customersDestroy = <ThrowOnError extends boolean = false>(options: Options<CustomersDestroyData, ThrowOnError>): RequestResult<CustomersDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<CustomersDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -306,6 +420,7 @@ export const customersDestroy = <ThrowOnError extends boolean = false>(options: 
 export const customersRetrieve = <ThrowOnError extends boolean = false>(options: Options<CustomersRetrieveData, ThrowOnError>): RequestResult<CustomersRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<CustomersRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -317,6 +432,7 @@ export const customersRetrieve = <ThrowOnError extends boolean = false>(options:
 export const customersPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<CustomersPartialUpdateData, ThrowOnError>): RequestResult<CustomersPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<CustomersPartialUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -332,6 +448,7 @@ export const customersPartialUpdate = <ThrowOnError extends boolean = false>(opt
 export const customersUpdate = <ThrowOnError extends boolean = false>(options: Options<CustomersUpdateData, ThrowOnError>): RequestResult<CustomersUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<CustomersUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -347,6 +464,7 @@ export const customersUpdate = <ThrowOnError extends boolean = false>(options: O
 export const customersListChoices = <ThrowOnError extends boolean = false>(options?: Options<CustomersListChoicesData, ThrowOnError>): RequestResult<CustomersListChoicesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<CustomersListChoicesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -366,6 +484,7 @@ export const invoicesList = <ThrowOnError extends boolean = false>(options?: Opt
         } },
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -377,6 +496,7 @@ export const invoicesList = <ThrowOnError extends boolean = false>(options?: Opt
 export const invoicesCreate = <ThrowOnError extends boolean = false>(options: Options<InvoicesCreateData, ThrowOnError>): RequestResult<InvoicesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -391,6 +511,7 @@ export const invoicesCreate = <ThrowOnError extends boolean = false>(options: Op
 
 export const invoicesDestroy = <ThrowOnError extends boolean = false>(options: Options<InvoicesDestroyData, ThrowOnError>): RequestResult<InvoicesDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<InvoicesDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -402,6 +523,7 @@ export const invoicesDestroy = <ThrowOnError extends boolean = false>(options: O
 export const invoicesRetrieve = <ThrowOnError extends boolean = false>(options: Options<InvoicesRetrieveData, ThrowOnError>): RequestResult<InvoicesRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<InvoicesRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -416,6 +538,7 @@ export const invoicesRetrieve = <ThrowOnError extends boolean = false>(options: 
 export const invoicesCreditNote = <ThrowOnError extends boolean = false>(options: Options<InvoicesCreditNoteData, ThrowOnError>): RequestResult<InvoicesCreditNoteResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesCreditNoteResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -431,6 +554,7 @@ export const invoicesCreditNote = <ThrowOnError extends boolean = false>(options
 export const invoicesDebitNote = <ThrowOnError extends boolean = false>(options: Options<InvoicesDebitNoteData, ThrowOnError>): RequestResult<InvoicesDebitNoteResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesDebitNoteResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -449,6 +573,7 @@ export const invoicesDebitNote = <ThrowOnError extends boolean = false>(options:
 export const invoicesEmit = <ThrowOnError extends boolean = false>(options: Options<InvoicesEmitData, ThrowOnError>): RequestResult<InvoicesEmitResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesEmitResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -460,6 +585,7 @@ export const invoicesEmit = <ThrowOnError extends boolean = false>(options: Opti
 export const invoicesPdf = <ThrowOnError extends boolean = false>(options: Options<InvoicesPdfData, ThrowOnError>): RequestResult<InvoicesPdfResponses, unknown, ThrowOnError> => (options.client ?? client).get<InvoicesPdfResponses, unknown, ThrowOnError>({
     responseType: 'blob',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -474,6 +600,7 @@ export const invoicesPdf = <ThrowOnError extends boolean = false>(options: Optio
 export const invoicesVerify = <ThrowOnError extends boolean = false>(options: Options<InvoicesVerifyData, ThrowOnError>): RequestResult<InvoicesVerifyResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesVerifyResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -488,6 +615,7 @@ export const invoicesVerify = <ThrowOnError extends boolean = false>(options: Op
 export const invoicesPreview = <ThrowOnError extends boolean = false>(options: Options<InvoicesPreviewData, ThrowOnError>): RequestResult<InvoicesPreviewResponses, unknown, ThrowOnError> => (options.client ?? client).post<InvoicesPreviewResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -500,6 +628,36 @@ export const invoicesPreview = <ThrowOnError extends boolean = false>(options: O
     }
 });
 
+/**
+ * The visitor's orders: their account's, and the ones a guest placed in this session.
+ */
+export const myOrdersList = <ThrowOnError extends boolean = false>(options?: Options<MyOrdersListData, ThrowOnError>): RequestResult<MyOrdersListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<MyOrdersListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/my/orders/',
+    ...options
+});
+
+/**
+ * The visitor's orders: their account's, and the ones a guest placed in this session.
+ */
+export const myOrdersRetrieve = <ThrowOnError extends boolean = false>(options: Options<MyOrdersRetrieveData, ThrowOnError>): RequestResult<MyOrdersRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<MyOrdersRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/my/orders/{number}/',
+    ...options
+});
+
 export const ordersList = <ThrowOnError extends boolean = false>(options?: Options<OrdersListData, ThrowOnError>): RequestResult<OrdersListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<OrdersListResponses, unknown, ThrowOnError>({
     querySerializer: { parameters: {
             created_at__not_range: { array: { explode: false } },
@@ -509,6 +667,7 @@ export const ordersList = <ThrowOnError extends boolean = false>(options?: Optio
         } },
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -520,6 +679,7 @@ export const ordersList = <ThrowOnError extends boolean = false>(options?: Optio
 export const ordersCreate = <ThrowOnError extends boolean = false>(options: Options<OrdersCreateData, ThrowOnError>): RequestResult<OrdersCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<OrdersCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -534,6 +694,7 @@ export const ordersCreate = <ThrowOnError extends boolean = false>(options: Opti
 
 export const ordersDestroy = <ThrowOnError extends boolean = false>(options: Options<OrdersDestroyData, ThrowOnError>): RequestResult<OrdersDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<OrdersDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -545,6 +706,7 @@ export const ordersDestroy = <ThrowOnError extends boolean = false>(options: Opt
 export const ordersRetrieve = <ThrowOnError extends boolean = false>(options: Options<OrdersRetrieveData, ThrowOnError>): RequestResult<OrdersRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<OrdersRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -556,6 +718,7 @@ export const ordersRetrieve = <ThrowOnError extends boolean = false>(options: Op
 export const ordersPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<OrdersPartialUpdateData, ThrowOnError>): RequestResult<OrdersPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<OrdersPartialUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -571,6 +734,7 @@ export const ordersPartialUpdate = <ThrowOnError extends boolean = false>(option
 export const ordersUpdate = <ThrowOnError extends boolean = false>(options: Options<OrdersUpdateData, ThrowOnError>): RequestResult<OrdersUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<OrdersUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -594,6 +758,7 @@ export const productsList = <ThrowOnError extends boolean = false>(options?: Opt
         } },
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -605,6 +770,7 @@ export const productsList = <ThrowOnError extends boolean = false>(options?: Opt
 export const productsCreate = <ThrowOnError extends boolean = false>(options: Options<ProductsCreateData, ThrowOnError>): RequestResult<ProductsCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<ProductsCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -619,6 +785,7 @@ export const productsCreate = <ThrowOnError extends boolean = false>(options: Op
 
 export const productsDestroy = <ThrowOnError extends boolean = false>(options: Options<ProductsDestroyData, ThrowOnError>): RequestResult<ProductsDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<ProductsDestroyResponses, unknown, ThrowOnError>({
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -630,6 +797,7 @@ export const productsDestroy = <ThrowOnError extends boolean = false>(options: O
 export const productsRetrieve = <ThrowOnError extends boolean = false>(options: Options<ProductsRetrieveData, ThrowOnError>): RequestResult<ProductsRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<ProductsRetrieveResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -641,6 +809,7 @@ export const productsRetrieve = <ThrowOnError extends boolean = false>(options: 
 export const productsPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<ProductsPartialUpdateData, ThrowOnError>): RequestResult<ProductsPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<ProductsPartialUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -656,6 +825,7 @@ export const productsPartialUpdate = <ThrowOnError extends boolean = false>(opti
 export const productsUpdate = <ThrowOnError extends boolean = false>(options: Options<ProductsUpdateData, ThrowOnError>): RequestResult<ProductsUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<ProductsUpdateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -671,6 +841,7 @@ export const productsUpdate = <ThrowOnError extends boolean = false>(options: Op
 export const productsGenerateSkuCreate = <ThrowOnError extends boolean = false>(options: Options<ProductsGenerateSkuCreateData, ThrowOnError>): RequestResult<ProductsGenerateSkuCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<ProductsGenerateSkuCreateResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'
@@ -694,6 +865,7 @@ export const productsListChoices = <ThrowOnError extends boolean = false>(option
         } },
     responseType: 'json',
     security: [{
+            key: 'cookieAuth',
             in: 'cookie',
             name: 'sessionid',
             type: 'apiKey'

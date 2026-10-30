@@ -12,6 +12,8 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = serializers.ALL_FIELDS
+        # Linked by the store's checkout, never by hand.
+        read_only_fields = ["user"]
 
     def validate(self, attrs):
         attrs = super().validate(attrs)

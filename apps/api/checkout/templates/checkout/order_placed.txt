@@ -1,0 +1,14 @@
+{% load checkout %}Hello {{ order.customer.name }},
+
+We received your order {{ order.number }}. We'll write to you soon to arrange the payment and the delivery.
+{% for item in items %}
+- {{ item.quantity }} × {{ item.product.name }}: {{ item.subtotal|price }}{% endfor %}
+
+Total: {{ order.total|price }}
+
+Shipping to:
+{{ order.shipping_address }}
+
+You can see your order at {{ order_url }}
+
+Thank you for shopping at {{ store_name }}!

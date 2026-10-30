@@ -21,6 +21,11 @@ export const zBrandChoice = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional()
 });
 
+export const zCartItemCreate = z.object({
+    product: z.int(),
+    quantity: z.int().gte(1).lte(99).optional().default(1)
+});
+
 export const zCategory = z.object({
     id: z.int().readonly(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -33,6 +38,10 @@ export const zCategoryChoice = z.object({
     name: z.string().max(255),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     description: z.string().nullish()
+});
+
+export const zCheckoutResult = z.object({
+    number: z.string()
 });
 
 export const zConversation = z.object({
@@ -127,6 +136,11 @@ export const zConversationDetail = z.object({
     messages: z.array(zMessage).readonly()
 });
 
+export const zMyOrderCustomer = z.object({
+    name: z.string().max(255),
+    email: z.email().max(254).optional()
+});
+
 /**
  * * `not_invoiced` - Not invoiced
  * * `pending` - Pending
@@ -189,6 +203,10 @@ export const zPatchedBrand = z.object({
     name: z.string().max(255).optional()
 });
 
+export const zPatchedCartItemUpdate = z.object({
+    quantity: z.int().gte(1).lte(99).optional()
+});
+
 export const zPatchedCategory = z.object({
     id: z.int().readonly().optional(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -229,6 +247,53 @@ export const zProductStatus = z.enum([
     'out_of_stock',
     'discontinued'
 ]);
+
+export const zCartProduct = z.object({
+    id: z.int().readonly(),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    name: z.string().max(255),
+    image: z.url().nullish(),
+    status: zProductStatus.optional(),
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish(),
+    active_price: z.int().readonly().nullable()
+});
+
+export const zCartItem = z.object({
+    product: zCartProduct,
+    quantity: z.int(),
+    available: z.boolean(),
+    subtotal: z.int().nullable()
+});
+
+export const zCart = z.object({
+    items: z.array(zCartItem),
+    count: z.int(),
+    total: z.int()
+});
+
+export const zMyOrderItem = z.object({
+    product: zCartProduct,
+    quantity: z.int().gte(0).lte(2147483647).optional(),
+    unit_price: z.int().gte(0).lte(2147483647).optional(),
+    subtotal: z.int()
+});
+
+/**
+ * An order as its customer sees it: no invoice internals nor billing data.
+ */
+export const zMyOrder = z.object({
+    number: z.string().readonly(),
+    status: z.union([
+        zOrderStatus,
+        zBlankEnum
+    ]).optional(),
+    created_at: z.iso.datetime().readonly(),
+    customer: zMyOrderCustomer,
+    shipping_address: z.string().optional(),
+    items: z.array(zMyOrderItem),
+    total: z.int()
+});
 
 export const zProductSummary = z.object({
     id: z.int().readonly(),
@@ -299,6 +364,20 @@ export const zVatCondition = z.union([
     z.literal(16)
 ]);
 
+/**
+ * Who buys (a Customer, validated like the admin's: CUIT, VAT condition) and where it goes.
+ */
+export const zCheckout = z.object({
+    name: z.string().max(255),
+    email: z.email().max(254),
+    phone: z.string().max(20).optional(),
+    document_type: zDocumentTypeEnum.optional(),
+    document_number: z.string().max(20).nullish(),
+    vat_condition: zVatCondition.optional(),
+    legal_name: z.string().max(255).optional(),
+    shipping_address: z.string().max(500)
+});
+
 export const zCustomer = z.object({
     id: z.int().readonly(),
     name: z.string().max(255),
@@ -309,7 +388,8 @@ export const zCustomer = z.object({
     vat_condition: zVatCondition.optional(),
     legal_name: z.string().max(255).optional(),
     address: z.string().max(255).optional(),
-    image: z.url().nullish()
+    image: z.url().nullish(),
+    user: z.int().readonly().nullable()
 });
 
 export const zPaginatedCustomerList = z.object({
@@ -329,7 +409,8 @@ export const zPatchedCustomer = z.object({
     vat_condition: zVatCondition.optional(),
     legal_name: z.string().max(255).optional(),
     address: z.string().max(255).optional(),
-    image: z.url().nullish()
+    image: z.url().nullish(),
+    user: z.int().readonly().nullish()
 });
 
 /**
@@ -406,6 +487,7 @@ export const zOrder = z.object({
         zOrderStatus,
         zBlankEnum
     ]).optional(),
+    shipping_address: z.string().optional(),
     created_at: z.iso.datetime().readonly(),
     updated_at: z.iso.datetime().readonly(),
     customer: z.int()
@@ -425,6 +507,7 @@ export const zOrderCreate = z.object({
         zOrderStatus,
         zBlankEnum
     ]).optional(),
+    shipping_address: z.string().optional(),
     created_at: z.iso.datetime().readonly(),
     updated_at: z.iso.datetime().readonly(),
     customer: z.int()
@@ -451,6 +534,7 @@ export const zPatchedOrder = z.object({
         zOrderStatus,
         zBlankEnum
     ]).optional(),
+    shipping_address: z.string().optional(),
     created_at: z.iso.datetime().readonly().optional(),
     updated_at: z.iso.datetime().readonly().optional(),
     customer: z.int().optional()
@@ -667,6 +751,28 @@ export const zBrandChoiceWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional()
 });
 
+export const zCartProductWritable = z.object({
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+    name: z.string().max(255),
+    image: z.url().nullish(),
+    status: zProductStatus.optional(),
+    price: z.int().gte(0).lte(2147483647).nullish(),
+    discount_percent: z.int().gte(1).lte(99).nullish()
+});
+
+export const zCartItemWritable = z.object({
+    product: zCartProductWritable,
+    quantity: z.int(),
+    available: z.boolean(),
+    subtotal: z.int().nullable()
+});
+
+export const zCartWritable = z.object({
+    items: z.array(zCartItemWritable),
+    count: z.int(),
+    total: z.int()
+});
+
 export const zCategoryWritable = z.object({
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     name: z.string().max(255),
@@ -724,11 +830,33 @@ export const zMessageWritable = z.object({
     text: z.string().optional()
 });
 
+export const zMyOrderItemWritable = z.object({
+    product: zCartProductWritable,
+    quantity: z.int().gte(0).lte(2147483647).optional(),
+    unit_price: z.int().gte(0).lte(2147483647).optional(),
+    subtotal: z.int()
+});
+
+/**
+ * An order as its customer sees it: no invoice internals nor billing data.
+ */
+export const zMyOrderWritable = z.object({
+    status: z.union([
+        zOrderStatus,
+        zBlankEnum
+    ]).optional(),
+    customer: zMyOrderCustomer,
+    shipping_address: z.string().optional(),
+    items: z.array(zMyOrderItemWritable),
+    total: z.int()
+});
+
 export const zOrderWritable = z.object({
     status: z.union([
         zOrderStatus,
         zBlankEnum
     ]).optional(),
+    shipping_address: z.string().optional(),
     customer: z.int()
 });
 
@@ -743,6 +871,7 @@ export const zOrderCreateWritable = z.object({
         zOrderStatus,
         zBlankEnum
     ]).optional(),
+    shipping_address: z.string().optional(),
     customer: z.int()
 });
 
@@ -816,6 +945,7 @@ export const zPatchedOrderWritable = z.object({
         zOrderStatus,
         zBlankEnum
     ]).optional(),
+    shipping_address: z.string().optional(),
     customer: z.int().optional()
 });
 
@@ -976,6 +1106,29 @@ export const zBrandsListChoicesQuery = z.object({
 
 export const zBrandsListChoicesResponse = z.array(zBrandChoice);
 
+export const zCartRetrieveResponse = zCart;
+
+export const zCartItemsCreateBody = zCartItemCreate;
+
+export const zCartItemsCreateResponse = zCart;
+
+export const zCartItemsDestroyPath = z.object({
+    product: z.int()
+});
+
+/**
+ * No response body
+ */
+export const zCartItemsDestroyResponse = z.void();
+
+export const zCartItemsPartialUpdateBody = zPatchedCartItemUpdate;
+
+export const zCartItemsPartialUpdatePath = z.object({
+    product: z.int()
+});
+
+export const zCartItemsPartialUpdateResponse = zCart;
+
 export const zCategoriesListQuery = z.object({
     limit: z.int().optional(),
     offset: z.int().optional(),
@@ -1026,6 +1179,10 @@ export const zCategoriesListChoicesQuery = z.object({
 });
 
 export const zCategoriesListChoicesResponse = z.array(zCategoryChoice);
+
+export const zCheckoutCreateBody = zCheckout;
+
+export const zCheckoutCreateResponse = zCheckoutResult;
 
 export const zCustomersListQuery = z.object({
     limit: z.int().optional(),
@@ -1209,6 +1366,14 @@ export const zInvoicesVerifyResponse = zInvoiceDetail;
 export const zInvoicesPreviewBody = zInvoiceCreate;
 
 export const zInvoicesPreviewResponse = zInvoicePreview;
+
+export const zMyOrdersListResponse = z.array(zMyOrder);
+
+export const zMyOrdersRetrievePath = z.object({
+    number: z.string()
+});
+
+export const zMyOrdersRetrieveResponse = zMyOrder;
 
 export const zOrdersListQuery = z.object({
     created_at: z.iso.date().optional(),

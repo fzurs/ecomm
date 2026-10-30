@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
@@ -38,7 +39,9 @@ class Customer(models.Model):
         NOT_REACHED = 15, _("IVA No Alcanzado")
         PROMOTED_INDEPENDENT_WORKER = 16, _("Monotributo Trabajador Independiente Promovido")
 
-    name = models.CharField(max_length=255, unique=True)
+    # Not unique: the store's checkout creates a customer per guest purchase, and two people can
+    # share a name.
+    name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     document_type = models.PositiveSmallIntegerField(
@@ -50,6 +53,9 @@ class Customer(models.Model):
     legal_name = models.CharField(max_length=255, blank=True)
     address = models.CharField(max_length=255, blank=True)
     image = models.ImageField(upload_to="customers/", blank=True, null=True)
+    # The store account this customer buys with, if any: a guest's purchase has none.
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="customer")
 
     def save(self, *args, **kwargs):
         if not self.image:
@@ -91,6 +97,8 @@ class Order(models.Model):
 
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING, blank=True)
+    # Where it goes. Empty in the orders the admin creates by hand.
+    shipping_address = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

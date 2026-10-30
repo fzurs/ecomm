@@ -8,7 +8,6 @@ from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.db import IntegrityError, transaction
 from billing.models import Invoice, ReceptorDocumentType, VoucherType
 from config.testing import make_staff
 from store.models import Product
@@ -18,18 +17,14 @@ User = get_user_model()
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CustomerNameTests(APITestCase):
-    def test_name_is_unique(self):
-        Customer.objects.create(name='Juan Pérez')
-        with self.assertRaises(IntegrityError), transaction.atomic():
-            Customer.objects.create(name='Juan Pérez')
-
-    def test_api_rejects_duplicate_name(self):
+    def test_two_customers_can_share_a_name(self):
+        # The store creates one per guest purchase: two people can be called the same.
         self.client.force_login(make_staff())
         Customer.objects.create(name='Juan Pérez')
         response = self.client.post(reverse('customer-list'), {'name': 'Juan Pérez'})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.json())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
