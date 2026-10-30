@@ -7,7 +7,8 @@ from .mfa import is_mfa_enabled, passed_mfa
 
 class UserDetailsSerializer(serializers.ModelSerializer):
     """The logged-in user, with their staff status and permissions ("app.codename"), which say
-    what the admin shows, and where they stand with 2FA. All of them are read-only."""
+    what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+    rest of the account (email, password) is allauth's."""
 
     permissions = serializers.SerializerMethodField()
     mfa_enabled = serializers.SerializerMethodField(help_text='2FA is on for the account.')
@@ -15,14 +16,16 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         help_text='This session passed the second factor.')
     mfa_required = serializers.SerializerMethodField(
         help_text='The API refuses staff sessions that did not pass the second factor.')
+    has_usable_password = serializers.SerializerMethodField(
+        help_text='False for an account created with Google, until it sets a password.')
 
     class Meta:
         model = get_user_model()
         fields = [
             'pk', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'permissions',
-            'mfa_enabled', 'mfa_verified', 'mfa_required',
+            'mfa_enabled', 'mfa_verified', 'mfa_required', 'has_usable_password',
         ]
-        read_only_fields = fields
+        read_only_fields = [field for field in fields if field not in ('first_name', 'last_name')]
 
     def get_permissions(self, user) -> list[str]:
         return sorted(user.get_all_permissions())
@@ -35,3 +38,6 @@ class UserDetailsSerializer(serializers.ModelSerializer):
 
     def get_mfa_required(self, user) -> bool:
         return settings.REQUIRE_2FA
+
+    def get_has_usable_password(self, user) -> bool:
+        return user.has_usable_password()

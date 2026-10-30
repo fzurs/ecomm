@@ -4,8 +4,8 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { deleteAllauthBrowserV1AccountAuthenticatorsTotp, deleteAllauthBrowserV1AccountAuthenticatorsWebauthn, deleteAllauthBrowserV1AccountEmail, deleteAllauthBrowserV1AuthSession, getAllauthBrowserV1AccountAuthenticators, getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes, getAllauthBrowserV1AccountAuthenticatorsTotp, getAllauthBrowserV1AccountAuthenticatorsWebauthn, getAllauthBrowserV1AccountEmail, getAllauthBrowserV1AccountPhone, getAllauthBrowserV1AuthEmailVerify, getAllauthBrowserV1AuthPasswordReset, getAllauthBrowserV1AuthSession, getAllauthBrowserV1AuthWebauthnAuthenticate, getAllauthBrowserV1AuthWebauthnReauthenticate, getAllauthBrowserV1Config, type Options, patchAllauthBrowserV1AccountEmail, postAllauthBrowserV1AccountAuthenticatorsRecoveryCodes, postAllauthBrowserV1AccountAuthenticatorsTotp, postAllauthBrowserV1AccountAuthenticatorsWebauthn, postAllauthBrowserV1AccountEmail, postAllauthBrowserV1AccountPasswordChange, postAllauthBrowserV1AccountPhone, postAllauthBrowserV1Auth2FaAuthenticate, postAllauthBrowserV1Auth2FaReauthenticate, postAllauthBrowserV1AuthCodeConfirm, postAllauthBrowserV1AuthEmailVerify, postAllauthBrowserV1AuthEmailVerifyResend, postAllauthBrowserV1AuthLogin, postAllauthBrowserV1AuthPasswordRequest, postAllauthBrowserV1AuthPasswordReset, postAllauthBrowserV1AuthPhoneVerify, postAllauthBrowserV1AuthPhoneVerifyResend, postAllauthBrowserV1AuthReauthenticate, postAllauthBrowserV1AuthSignup, postAllauthBrowserV1AuthWebauthnAuthenticate, postAllauthBrowserV1AuthWebauthnReauthenticate, putAllauthBrowserV1AccountAuthenticatorsWebauthn, putAllauthBrowserV1AccountEmail } from '../sdk.gen';
-import type { DeleteAllauthBrowserV1AccountAuthenticatorsTotpData, DeleteAllauthBrowserV1AccountAuthenticatorsTotpError, DeleteAllauthBrowserV1AccountAuthenticatorsTotpResponse, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnData, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnError, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, DeleteAllauthBrowserV1AccountEmailData, DeleteAllauthBrowserV1AccountEmailError, DeleteAllauthBrowserV1AccountEmailResponse, DeleteAllauthBrowserV1AuthSessionData, DeleteAllauthBrowserV1AuthSessionError, GetAllauthBrowserV1AccountAuthenticatorsData, GetAllauthBrowserV1AccountAuthenticatorsError, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesError, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesResponse, GetAllauthBrowserV1AccountAuthenticatorsResponse, GetAllauthBrowserV1AccountAuthenticatorsTotpData, GetAllauthBrowserV1AccountAuthenticatorsTotpError, GetAllauthBrowserV1AccountAuthenticatorsTotpResponse, GetAllauthBrowserV1AccountAuthenticatorsWebauthnData, GetAllauthBrowserV1AccountAuthenticatorsWebauthnError, GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, GetAllauthBrowserV1AccountEmailData, GetAllauthBrowserV1AccountEmailError, GetAllauthBrowserV1AccountEmailResponse, GetAllauthBrowserV1AccountPhoneData, GetAllauthBrowserV1AccountPhoneError, GetAllauthBrowserV1AccountPhoneResponse, GetAllauthBrowserV1AuthEmailVerifyData, GetAllauthBrowserV1AuthEmailVerifyError, GetAllauthBrowserV1AuthEmailVerifyResponse, GetAllauthBrowserV1AuthPasswordResetData, GetAllauthBrowserV1AuthPasswordResetError, GetAllauthBrowserV1AuthPasswordResetResponse, GetAllauthBrowserV1AuthSessionData, GetAllauthBrowserV1AuthSessionError, GetAllauthBrowserV1AuthSessionResponse, GetAllauthBrowserV1AuthWebauthnAuthenticateData, GetAllauthBrowserV1AuthWebauthnAuthenticateResponse, GetAllauthBrowserV1AuthWebauthnReauthenticateData, GetAllauthBrowserV1AuthWebauthnReauthenticateResponse, GetAllauthBrowserV1ConfigData, GetAllauthBrowserV1ConfigResponse, PatchAllauthBrowserV1AccountEmailData, PatchAllauthBrowserV1AccountEmailError, PatchAllauthBrowserV1AccountEmailResponse, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesError, PostAllauthBrowserV1AccountAuthenticatorsTotpData, PostAllauthBrowserV1AccountAuthenticatorsTotpError, PostAllauthBrowserV1AccountAuthenticatorsTotpResponse, PostAllauthBrowserV1AccountAuthenticatorsWebauthnData, PostAllauthBrowserV1AccountAuthenticatorsWebauthnError, PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, PostAllauthBrowserV1AccountEmailData, PostAllauthBrowserV1AccountEmailError, PostAllauthBrowserV1AccountEmailResponse, PostAllauthBrowserV1AccountPasswordChangeData, PostAllauthBrowserV1AccountPasswordChangeError, PostAllauthBrowserV1AccountPhoneData, PostAllauthBrowserV1AccountPhoneError, PostAllauthBrowserV1AccountPhoneResponse, PostAllauthBrowserV1Auth2FaAuthenticateData, PostAllauthBrowserV1Auth2FaAuthenticateError, PostAllauthBrowserV1Auth2FaAuthenticateResponse, PostAllauthBrowserV1Auth2FaReauthenticateData, PostAllauthBrowserV1Auth2FaReauthenticateError, PostAllauthBrowserV1Auth2FaReauthenticateResponse, PostAllauthBrowserV1AuthCodeConfirmData, PostAllauthBrowserV1AuthCodeConfirmError, PostAllauthBrowserV1AuthCodeConfirmResponse, PostAllauthBrowserV1AuthEmailVerifyData, PostAllauthBrowserV1AuthEmailVerifyError, PostAllauthBrowserV1AuthEmailVerifyResendData, PostAllauthBrowserV1AuthEmailVerifyResendError, PostAllauthBrowserV1AuthEmailVerifyResendResponse, PostAllauthBrowserV1AuthEmailVerifyResponse, PostAllauthBrowserV1AuthLoginData, PostAllauthBrowserV1AuthLoginError, PostAllauthBrowserV1AuthLoginResponse, PostAllauthBrowserV1AuthPasswordRequestData, PostAllauthBrowserV1AuthPasswordRequestError, PostAllauthBrowserV1AuthPasswordRequestResponse, PostAllauthBrowserV1AuthPasswordResetData, PostAllauthBrowserV1AuthPasswordResetError, PostAllauthBrowserV1AuthPasswordResetResponse, PostAllauthBrowserV1AuthPhoneVerifyData, PostAllauthBrowserV1AuthPhoneVerifyError, PostAllauthBrowserV1AuthPhoneVerifyResendData, PostAllauthBrowserV1AuthPhoneVerifyResendError, PostAllauthBrowserV1AuthPhoneVerifyResendResponse, PostAllauthBrowserV1AuthPhoneVerifyResponse, PostAllauthBrowserV1AuthReauthenticateData, PostAllauthBrowserV1AuthReauthenticateError, PostAllauthBrowserV1AuthReauthenticateResponse, PostAllauthBrowserV1AuthSignupData, PostAllauthBrowserV1AuthSignupError, PostAllauthBrowserV1AuthSignupResponse, PostAllauthBrowserV1AuthWebauthnAuthenticateData, PostAllauthBrowserV1AuthWebauthnAuthenticateError, PostAllauthBrowserV1AuthWebauthnAuthenticateResponse, PostAllauthBrowserV1AuthWebauthnReauthenticateData, PostAllauthBrowserV1AuthWebauthnReauthenticateError, PostAllauthBrowserV1AuthWebauthnReauthenticateResponse, PutAllauthBrowserV1AccountAuthenticatorsWebauthnData, PutAllauthBrowserV1AccountAuthenticatorsWebauthnError, PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, PutAllauthBrowserV1AccountEmailData, PutAllauthBrowserV1AccountEmailError, PutAllauthBrowserV1AccountEmailResponse } from '../types.gen';
+import { deleteAllauthBrowserV1AccountAuthenticatorsTotp, deleteAllauthBrowserV1AccountAuthenticatorsWebauthn, deleteAllauthBrowserV1AccountEmail, deleteAllauthBrowserV1AccountProviders, deleteAllauthBrowserV1AuthSession, getAllauthBrowserV1AccountAuthenticators, getAllauthBrowserV1AccountAuthenticatorsRecoveryCodes, getAllauthBrowserV1AccountAuthenticatorsTotp, getAllauthBrowserV1AccountAuthenticatorsWebauthn, getAllauthBrowserV1AccountEmail, getAllauthBrowserV1AccountPhone, getAllauthBrowserV1AccountProviders, getAllauthBrowserV1AuthEmailVerify, getAllauthBrowserV1AuthPasswordReset, getAllauthBrowserV1AuthProviderSignup, getAllauthBrowserV1AuthSession, getAllauthBrowserV1AuthWebauthnAuthenticate, getAllauthBrowserV1AuthWebauthnReauthenticate, getAllauthBrowserV1Config, type Options, patchAllauthBrowserV1AccountEmail, postAllauthBrowserV1AccountAuthenticatorsRecoveryCodes, postAllauthBrowserV1AccountAuthenticatorsTotp, postAllauthBrowserV1AccountAuthenticatorsWebauthn, postAllauthBrowserV1AccountEmail, postAllauthBrowserV1AccountPasswordChange, postAllauthBrowserV1AccountPhone, postAllauthBrowserV1Auth2FaAuthenticate, postAllauthBrowserV1Auth2FaReauthenticate, postAllauthBrowserV1AuthCodeConfirm, postAllauthBrowserV1AuthEmailVerify, postAllauthBrowserV1AuthEmailVerifyResend, postAllauthBrowserV1AuthLogin, postAllauthBrowserV1AuthPasswordRequest, postAllauthBrowserV1AuthPasswordReset, postAllauthBrowserV1AuthPhoneVerify, postAllauthBrowserV1AuthPhoneVerifyResend, postAllauthBrowserV1AuthProviderRedirect, postAllauthBrowserV1AuthProviderSignup, postAllauthBrowserV1AuthProviderToken, postAllauthBrowserV1AuthReauthenticate, postAllauthBrowserV1AuthSignup, postAllauthBrowserV1AuthWebauthnAuthenticate, postAllauthBrowserV1AuthWebauthnReauthenticate, putAllauthBrowserV1AccountAuthenticatorsWebauthn, putAllauthBrowserV1AccountEmail } from '../sdk.gen';
+import type { DeleteAllauthBrowserV1AccountAuthenticatorsTotpData, DeleteAllauthBrowserV1AccountAuthenticatorsTotpError, DeleteAllauthBrowserV1AccountAuthenticatorsTotpResponse, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnData, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnError, DeleteAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, DeleteAllauthBrowserV1AccountEmailData, DeleteAllauthBrowserV1AccountEmailError, DeleteAllauthBrowserV1AccountEmailResponse, DeleteAllauthBrowserV1AccountProvidersData, DeleteAllauthBrowserV1AccountProvidersError, DeleteAllauthBrowserV1AccountProvidersResponse, DeleteAllauthBrowserV1AuthSessionData, DeleteAllauthBrowserV1AuthSessionError, GetAllauthBrowserV1AccountAuthenticatorsData, GetAllauthBrowserV1AccountAuthenticatorsError, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesError, GetAllauthBrowserV1AccountAuthenticatorsRecoveryCodesResponse, GetAllauthBrowserV1AccountAuthenticatorsResponse, GetAllauthBrowserV1AccountAuthenticatorsTotpData, GetAllauthBrowserV1AccountAuthenticatorsTotpError, GetAllauthBrowserV1AccountAuthenticatorsTotpResponse, GetAllauthBrowserV1AccountAuthenticatorsWebauthnData, GetAllauthBrowserV1AccountAuthenticatorsWebauthnError, GetAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, GetAllauthBrowserV1AccountEmailData, GetAllauthBrowserV1AccountEmailError, GetAllauthBrowserV1AccountEmailResponse, GetAllauthBrowserV1AccountPhoneData, GetAllauthBrowserV1AccountPhoneError, GetAllauthBrowserV1AccountPhoneResponse, GetAllauthBrowserV1AccountProvidersData, GetAllauthBrowserV1AccountProvidersResponse, GetAllauthBrowserV1AuthEmailVerifyData, GetAllauthBrowserV1AuthEmailVerifyError, GetAllauthBrowserV1AuthEmailVerifyResponse, GetAllauthBrowserV1AuthPasswordResetData, GetAllauthBrowserV1AuthPasswordResetError, GetAllauthBrowserV1AuthPasswordResetResponse, GetAllauthBrowserV1AuthProviderSignupData, GetAllauthBrowserV1AuthProviderSignupError, GetAllauthBrowserV1AuthProviderSignupResponse, GetAllauthBrowserV1AuthSessionData, GetAllauthBrowserV1AuthSessionError, GetAllauthBrowserV1AuthSessionResponse, GetAllauthBrowserV1AuthWebauthnAuthenticateData, GetAllauthBrowserV1AuthWebauthnAuthenticateResponse, GetAllauthBrowserV1AuthWebauthnReauthenticateData, GetAllauthBrowserV1AuthWebauthnReauthenticateResponse, GetAllauthBrowserV1ConfigData, GetAllauthBrowserV1ConfigResponse, PatchAllauthBrowserV1AccountEmailData, PatchAllauthBrowserV1AccountEmailError, PatchAllauthBrowserV1AccountEmailResponse, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesData, PostAllauthBrowserV1AccountAuthenticatorsRecoveryCodesError, PostAllauthBrowserV1AccountAuthenticatorsTotpData, PostAllauthBrowserV1AccountAuthenticatorsTotpError, PostAllauthBrowserV1AccountAuthenticatorsTotpResponse, PostAllauthBrowserV1AccountAuthenticatorsWebauthnData, PostAllauthBrowserV1AccountAuthenticatorsWebauthnError, PostAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, PostAllauthBrowserV1AccountEmailData, PostAllauthBrowserV1AccountEmailError, PostAllauthBrowserV1AccountEmailResponse, PostAllauthBrowserV1AccountPasswordChangeData, PostAllauthBrowserV1AccountPasswordChangeError, PostAllauthBrowserV1AccountPhoneData, PostAllauthBrowserV1AccountPhoneError, PostAllauthBrowserV1AccountPhoneResponse, PostAllauthBrowserV1Auth2FaAuthenticateData, PostAllauthBrowserV1Auth2FaAuthenticateError, PostAllauthBrowserV1Auth2FaAuthenticateResponse, PostAllauthBrowserV1Auth2FaReauthenticateData, PostAllauthBrowserV1Auth2FaReauthenticateError, PostAllauthBrowserV1Auth2FaReauthenticateResponse, PostAllauthBrowserV1AuthCodeConfirmData, PostAllauthBrowserV1AuthCodeConfirmError, PostAllauthBrowserV1AuthCodeConfirmResponse, PostAllauthBrowserV1AuthEmailVerifyData, PostAllauthBrowserV1AuthEmailVerifyError, PostAllauthBrowserV1AuthEmailVerifyResendData, PostAllauthBrowserV1AuthEmailVerifyResendError, PostAllauthBrowserV1AuthEmailVerifyResendResponse, PostAllauthBrowserV1AuthEmailVerifyResponse, PostAllauthBrowserV1AuthLoginData, PostAllauthBrowserV1AuthLoginError, PostAllauthBrowserV1AuthLoginResponse, PostAllauthBrowserV1AuthPasswordRequestData, PostAllauthBrowserV1AuthPasswordRequestError, PostAllauthBrowserV1AuthPasswordRequestResponse, PostAllauthBrowserV1AuthPasswordResetData, PostAllauthBrowserV1AuthPasswordResetError, PostAllauthBrowserV1AuthPasswordResetResponse, PostAllauthBrowserV1AuthPhoneVerifyData, PostAllauthBrowserV1AuthPhoneVerifyError, PostAllauthBrowserV1AuthPhoneVerifyResendData, PostAllauthBrowserV1AuthPhoneVerifyResendError, PostAllauthBrowserV1AuthPhoneVerifyResendResponse, PostAllauthBrowserV1AuthPhoneVerifyResponse, PostAllauthBrowserV1AuthProviderRedirectData, PostAllauthBrowserV1AuthProviderSignupData, PostAllauthBrowserV1AuthProviderSignupError, PostAllauthBrowserV1AuthProviderSignupResponse, PostAllauthBrowserV1AuthProviderTokenData, PostAllauthBrowserV1AuthProviderTokenError, PostAllauthBrowserV1AuthProviderTokenResponse, PostAllauthBrowserV1AuthReauthenticateData, PostAllauthBrowserV1AuthReauthenticateError, PostAllauthBrowserV1AuthReauthenticateResponse, PostAllauthBrowserV1AuthSignupData, PostAllauthBrowserV1AuthSignupError, PostAllauthBrowserV1AuthSignupResponse, PostAllauthBrowserV1AuthWebauthnAuthenticateData, PostAllauthBrowserV1AuthWebauthnAuthenticateError, PostAllauthBrowserV1AuthWebauthnAuthenticateResponse, PostAllauthBrowserV1AuthWebauthnReauthenticateData, PostAllauthBrowserV1AuthWebauthnReauthenticateError, PostAllauthBrowserV1AuthWebauthnReauthenticateResponse, PutAllauthBrowserV1AccountAuthenticatorsWebauthnData, PutAllauthBrowserV1AccountAuthenticatorsWebauthnError, PutAllauthBrowserV1AccountAuthenticatorsWebauthnResponse, PutAllauthBrowserV1AccountEmailData, PutAllauthBrowserV1AccountEmailError, PutAllauthBrowserV1AccountEmailResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -331,6 +331,103 @@ export const postAllauthBrowserV1AuthPasswordResetMutation = (options?: Partial<
 };
 
 /**
+ * Provider redirect
+ *
+ * Initiates the third-party provider authentication redirect flow. As calling
+ * this endpoint results in a user facing redirect (302), this call is only
+ * available in a browser, and must be called in a synchronous (non-XHR)
+ * manner.
+ *
+ */
+export const postAllauthBrowserV1AuthProviderRedirectMutation = (options?: Partial<Options<PostAllauthBrowserV1AuthProviderRedirectData>>): UseMutationOptions<unknown, AxiosError<DefaultError>, Options<PostAllauthBrowserV1AuthProviderRedirectData>> => {
+    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<PostAllauthBrowserV1AuthProviderRedirectData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postAllauthBrowserV1AuthProviderRedirect({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Provider token
+ *
+ * Authenticates with a third-party provider using provider tokens received
+ * by other means. For example, in case of a mobile app, the authentication
+ * flow runs completely on the device itself, without any interaction with
+ * the API. Then, when the (device) authentication completes and the mobile
+ * app receives an access and/or ID token, it can hand over these tokens
+ * via this endpoint to authenticate on the server.
+ *
+ */
+export const postAllauthBrowserV1AuthProviderTokenMutation = (options?: Partial<Options<PostAllauthBrowserV1AuthProviderTokenData>>): UseMutationOptions<PostAllauthBrowserV1AuthProviderTokenResponse, AxiosError<PostAllauthBrowserV1AuthProviderTokenError>, Options<PostAllauthBrowserV1AuthProviderTokenData>> => {
+    const mutationOptions: UseMutationOptions<PostAllauthBrowserV1AuthProviderTokenResponse, AxiosError<PostAllauthBrowserV1AuthProviderTokenError>, Options<PostAllauthBrowserV1AuthProviderTokenData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postAllauthBrowserV1AuthProviderToken({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getAllauthBrowserV1AuthProviderSignupQueryKey = (options?: Options<GetAllauthBrowserV1AuthProviderSignupData>) => createQueryKey('getAllauthBrowserV1AuthProviderSignup', options);
+
+/**
+ * Provider signup information
+ *
+ * If, while signing up using a third-party provider account, there is
+ * insufficient information received from the provider to automatically
+ * complete the signup process, an additional step is needed to complete
+ * the missing data before the user is fully signed up and authenticated.
+ * The information available so far, such as the pending provider account,
+ * can be retrieved via this endpoint.
+ *
+ */
+export const getAllauthBrowserV1AuthProviderSignupOptions = (options?: Options<GetAllauthBrowserV1AuthProviderSignupData>) => queryOptions<GetAllauthBrowserV1AuthProviderSignupResponse, AxiosError<GetAllauthBrowserV1AuthProviderSignupError>, GetAllauthBrowserV1AuthProviderSignupResponse, ReturnType<typeof getAllauthBrowserV1AuthProviderSignupQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getAllauthBrowserV1AuthProviderSignup({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getAllauthBrowserV1AuthProviderSignupQueryKey(options)
+});
+
+/**
+ * Provider signup
+ *
+ * If, while signing up using a third-party provider account, there is
+ * insufficient information received from the provider to automatically
+ * complete the signup process, an additional step is needed to complete
+ * the missing data before the user is fully signed up and authenticated.
+ *
+ */
+export const postAllauthBrowserV1AuthProviderSignupMutation = (options?: Partial<Options<PostAllauthBrowserV1AuthProviderSignupData>>): UseMutationOptions<PostAllauthBrowserV1AuthProviderSignupResponse, AxiosError<PostAllauthBrowserV1AuthProviderSignupError>, Options<PostAllauthBrowserV1AuthProviderSignupData>> => {
+    const mutationOptions: UseMutationOptions<PostAllauthBrowserV1AuthProviderSignupResponse, AxiosError<PostAllauthBrowserV1AuthProviderSignupError>, Options<PostAllauthBrowserV1AuthProviderSignupData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await postAllauthBrowserV1AuthProviderSignup({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
  * Two-factor authentication
  *
  * If, during authentication,  a response with status 401 is encountered where one of the pending
@@ -481,6 +578,48 @@ export const postAllauthBrowserV1AuthCodeConfirmMutation = (options?: Partial<Op
     };
     return mutationOptions;
 };
+
+/**
+ * Disconnect a third-party provider account
+ *
+ *
+ * Disconnect a third-party provider account, returning the remaining
+ * accounts that are still connected. The disconnect is not allowed if it
+ * would leave the account unusable. For example, if no password was
+ * set up yet.
+ *
+ */
+export const deleteAllauthBrowserV1AccountProvidersMutation = (options?: Partial<Options<DeleteAllauthBrowserV1AccountProvidersData>>): UseMutationOptions<DeleteAllauthBrowserV1AccountProvidersResponse, AxiosError<DeleteAllauthBrowserV1AccountProvidersError>, Options<DeleteAllauthBrowserV1AccountProvidersData>> => {
+    const mutationOptions: UseMutationOptions<DeleteAllauthBrowserV1AccountProvidersResponse, AxiosError<DeleteAllauthBrowserV1AccountProvidersError>, Options<DeleteAllauthBrowserV1AccountProvidersData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteAllauthBrowserV1AccountProviders({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getAllauthBrowserV1AccountProvidersQueryKey = (options?: Options<GetAllauthBrowserV1AccountProvidersData>) => createQueryKey('getAllauthBrowserV1AccountProviders', options);
+
+/**
+ * List the connected third-party provider accounts
+ */
+export const getAllauthBrowserV1AccountProvidersOptions = (options?: Options<GetAllauthBrowserV1AccountProvidersData>) => queryOptions<GetAllauthBrowserV1AccountProvidersResponse, AxiosError<DefaultError>, GetAllauthBrowserV1AccountProvidersResponse, ReturnType<typeof getAllauthBrowserV1AccountProvidersQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getAllauthBrowserV1AccountProviders({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getAllauthBrowserV1AccountProvidersQueryKey(options)
+});
 
 /**
  * Remove an email address

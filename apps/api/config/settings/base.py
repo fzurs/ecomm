@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.mfa",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "allauth.headless",
     "auditlog",
     "django_filters",
@@ -132,10 +134,43 @@ AUTHENTICATION_BACKENDS = [
 HEADLESS_ONLY = True
 HEADLESS_CLIENTS = ("browser",)
 ACCOUNT_ADAPTER = "accounts.adapter.AccountAdapter"
-# Staff log in with their username. Customers (the store, phase 3) will add email.
-ACCOUNT_LOGIN_METHODS = {"username"}
-ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*"]
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# Staff log in with their username (create_operator); customers sign up in the store with their
+# email, and allauth makes up a username for them.
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
+# Customers log in once they confirm their email. Staff don't (accounts.adapter.AccountAdapter).
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# The link completes the login that was waiting for it, only in the browser that signed up
+# (allauth keeps it in that session): a leaked link logs nobody in.
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+# The store: the links in the account emails (verification, password reset) go to its pages, and
+# the emails are signed with its name.
+STORE_URL = env("STORE_URL", default="http://localhost:3000").rstrip("/")
+STORE_NAME = env("STORE_NAME", default="Acme Store")
+ACCOUNT_EMAIL_SUBJECT_PREFIX = f"[{STORE_NAME}] "
+HEADLESS_FRONTEND_URLS = {
+    "account_confirm_email": f"{STORE_URL}/verify-email/{{key}}",
+    "account_reset_password": f"{STORE_URL}/password/reset",
+    "account_reset_password_from_key": f"{STORE_URL}/password/reset/{{key}}",
+    "account_signup": f"{STORE_URL}/signup",
+    "socialaccount_login_error": f"{STORE_URL}/login",
+}
+
+# Google: the store's button gets an ID token from Google and hands it to allauth
+# (/auth/provider/token), so the login is a request to the store's own /api like any other.
+# Without GOOGLE_CLIENT_ID the store doesn't show it.
+SOCIALACCOUNT_ADAPTER = "accounts.adapter.SocialAccountAdapter"
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": [{"client_id": GOOGLE_CLIENT_ID, "secret": ""}] if GOOGLE_CLIENT_ID else [],
+        "SCOPE": ["profile", "email"],
+    },
+}
+# A Google login with the email of an existing customer logs into that account (Google verified
+# the email), except for staff (accounts.adapter.SocialAccountAdapter).
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 # Two-factor authentication (allauth.mfa): passkeys (WebAuthn) and an authenticator app, with
 # recovery codes. A passkey is tied to the frontend's domain (accounts.adapter.MFAAdapter).
@@ -206,8 +241,9 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {"min_length": 12},
+        # 8 characters for customers, 12 for staff.
+        "NAME": "accounts.validators.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8, "staff_min_length": 12},
     },
     {
         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
@@ -221,6 +257,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Sessions: a working day, and gone when the browser closes.
 SESSION_COOKIE_AGE = env.int("SESSION_COOKIE_AGE", default=8 * 60 * 60)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# The store's customers stay logged in for a month, also with the browser closed
+# (accounts.adapter.AccountAdapter.login). Counted from the login, or the last write
+# to the session.
+CUSTOMER_SESSION_AGE = env.int("CUSTOMER_SESSION_AGE", default=30 * 24 * 60 * 60)
 
 
 # Internationalization

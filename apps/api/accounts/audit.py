@@ -1,8 +1,9 @@
-"""Security events to the `audit` logger: logins, logouts and failed logins, with where they came
-from. Data changes, with who made them, are auditlog's LogEntry (registered in each app's
+"""Security events to the `audit` logger: signups, logins, logouts and failed logins, with where
+they came from. Data changes, with who made them, are auditlog's LogEntry (registered in each app's
 `ready`)."""
 import logging
 
+from allauth.account.signals import user_signed_up
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 
@@ -16,6 +17,13 @@ def origin(request) -> str:
         return 'no request'
     # REMOTE_ADDR: behind a proxy, the proxy's address unless it rewrites it.
     return f"{request.META.get('REMOTE_ADDR', '?')} ({request.META.get('HTTP_USER_AGENT', '?')})"
+
+
+@receiver(user_signed_up)
+def signed_up(sender, request, user, **kwargs):
+    # The store's customers, by email or with Google (`sociallogin`).
+    method = ' with Google' if kwargs.get('sociallogin') else ''
+    audit.info('signup: %s%s from %s', user, method, origin(request))
 
 
 @receiver(user_logged_in)

@@ -1,16 +1,23 @@
 import io
+import re
 import time
 from unittest import mock
+from urllib.parse import unquote
 
+from allauth.account.models import EmailAddress
 from allauth.mfa.models import Authenticator
 from allauth.mfa.recovery_codes.internal.auth import RecoveryCodes
 from allauth.mfa.totp.internal.auth import TOTP, format_hotp_value, generate_totp_secret, hotp_value
 from auditlog.models import LogEntry
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.contrib.auth.password_validation import validate_password
+from django.core import mail
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.management import CommandError, call_command
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase, APITransactionTestCase
@@ -75,6 +82,20 @@ class UserDetailsTests(APITestCase):
         self.client.patch(reverse('user-details'), {'is_staff': False, 'permissions': []}, format='json')
         user.refresh_from_db()
         self.assertTrue(user.is_staff)
+
+    def test_the_name_is_all_that_changes(self):
+        user = User.objects.create(username='ana', email='ana@example.com')
+        self.client.force_login(user)
+
+        response = self.client.patch(
+            reverse('user-details'),
+            {'first_name': 'Ana', 'last_name': 'Gómez', 'email': 'otra@example.com'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user.refresh_from_db()
+        self.assertEqual((user.first_name, user.last_name, user.email), ('Ana', 'Gómez', 'ana@example.com'))
+        self.assertEqual(
+            self.client.put(reverse('user-details'), {}, format='json').status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class RolesTests(TestCase):
@@ -209,12 +230,11 @@ class TwoFactorTests(AllauthMixin, APITestCase):
         self.assertEqual(self.client.delete(totp).status_code, status.HTTP_200_OK)
         self.assertFalse(Authenticator.objects.filter(user=self.user, type=Authenticator.Type.TOTP).exists())
 
-    def test_signup_is_closed(self):
-        response = self.client.post(
-            f'{ALLAUTH}/auth/signup', {'username': 'nuevo', 'password': PASSWORD}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertFalse(User.objects.filter(username='nuevo').exists())
-
+    def test_staff_log_in_without_confirming_an_email(self):
+        # create_operator makes accounts without one; the store's customers do confirm theirs.
+        EmailAddress.objects.create(user=self.user, email='admin@example.com', verified=False)
+        self.assertEqual(self.login().status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 0)
 
 # allauth announces a new authenticator on commit, and accounts.mfa marks the session as verified
 # then. A TestCase never commits: these run with real transactions, as a request does.
@@ -363,3 +383,194 @@ class CsrfTests(APITestCase):
         token = client.cookies['csrftoken'].value
         response = client.post(login, body, format='json', headers={'X-CSRFToken': token})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+def link_in(message, path):
+    """The key of the store link to `path` in an email from allauth (it comes URL-encoded)."""
+    match = re.search(rf'http://localhost:3000{path}/(\S+)', message.body)
+    assert match, message.body
+    return unquote(match.group(1))
+
+
+class StoreAccountTests(APITestCase):
+    """The store's customers: signup with email, its confirmation and the password reset, with the
+    links pointing to the store (HEADLESS_FRONTEND_URLS)."""
+
+    def setUp(self):
+        cache.clear()
+
+    def signup(self, email='ana@example.com'):
+        return self.client.post(f'{ALLAUTH}/auth/signup', {'email': email, 'password': PASSWORD}, format='json')
+
+    def login(self, email='ana@example.com', password=PASSWORD):
+        return self.client.post(f'{ALLAUTH}/auth/login', {'email': email, 'password': password}, format='json')
+
+    def pending_flows(self, response):
+        return [flow['id'] for flow in response.json()['data']['flows'] if flow.get('is_pending')]
+
+    def customer(self, verified=True):
+        user = User.objects.create(username='ana', email='ana@example.com')
+        user.set_password(PASSWORD)
+        user.save()
+        EmailAddress.objects.create(user=user, email=user.email, verified=verified, primary=True)
+        return user
+
+    def test_signup_waits_for_the_email_and_the_link_logs_in(self):
+        with self.assertLogs('audit', 'INFO') as logs:
+            response = self.signup()
+        self.assertIn('signup: ', logs.output[0])
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(self.pending_flows(response), ['verify_email'])
+        self.assertEqual(self.client.get(reverse('user-details')).status_code, status.HTTP_403_FORBIDDEN)
+
+        [message] = mail.outbox
+        self.assertTrue(message.subject.startswith('[Acme Store] '))
+        self.assertIn('Acme Store', message.body)
+        self.assertNotIn('testserver', message.body)
+        key = link_in(message, '/verify-email')
+
+        verify = f'{ALLAUTH}/auth/email/verify'
+        info = self.client.get(verify, headers={'X-Email-Verification-Key': key})
+        self.assertEqual(info.json()['data']['email'], 'ana@example.com')
+        # Same browser: confirming it completes the login that was waiting.
+        self.assertEqual(self.client.post(verify, {'key': key}, format='json').status_code, status.HTTP_200_OK)
+        me = self.client.get(reverse('user-details')).json()
+        self.assertEqual(me['email'], 'ana@example.com')
+        self.assertFalse(me['is_staff'])
+        self.assertTrue(me['has_usable_password'])
+
+    def test_an_unconfirmed_customer_cannot_log_in(self):
+        self.customer(verified=False)
+        response = self.login()
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(self.pending_flows(response), ['verify_email'])
+        # allauth sends the link again.
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_a_confirmed_customer_logs_in_with_the_email(self):
+        self.customer()
+        self.assertEqual(self.login().status_code, status.HTTP_200_OK)
+
+    def test_signing_up_again_with_the_same_email_reveals_nothing(self):
+        self.customer()
+        response = self.signup()
+        # The same answer as a new account: the email tells the owner instead.
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(User.objects.filter(email__iexact='ana@example.com').count(), 1)
+        self.assertIn('http://localhost:3000/password/reset', mail.outbox[0].body)
+
+    def test_the_password_reset_link_goes_to_the_store(self):
+        self.customer()
+        response = self.client.post(f'{ALLAUTH}/auth/password/request', {'email': 'ana@example.com'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        key = link_in(mail.outbox[0], '/password/reset')
+
+        new_password = 'otra clave bien larga'
+        response = self.client.post(
+            f'{ALLAUTH}/auth/password/reset', {'key': key, 'password': new_password}, format='json')
+        # Changed, but not logged in: the store sends the customer to the login.
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(self.login(password=new_password).status_code, status.HTTP_200_OK)
+
+    def test_a_customer_stays_logged_in_for_a_month(self):
+        self.customer()
+        response = self.login()
+        self.assertEqual(response.cookies['sessionid']['max-age'], settings.CUSTOMER_SESSION_AGE)
+        session = self.client.session
+        self.assertEqual(session.get_expiry_age(), settings.CUSTOMER_SESSION_AGE)
+        self.assertFalse(session.get_expire_at_browser_close())
+
+    def test_staff_keep_a_session_that_ends_with_the_browser(self):
+        staff = make_staff('otro')
+        staff.set_password(PASSWORD)
+        staff.save()
+        response = self.client.post(f'{ALLAUTH}/auth/login', {'username': 'otro', 'password': PASSWORD}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.cookies['sessionid']['max-age'], '')
+        session = self.client.session
+        self.assertEqual(session.get_expiry_age(), settings.SESSION_COOKIE_AGE)
+        self.assertTrue(session.get_expire_at_browser_close())
+
+    def test_a_customer_password_needs_8_characters(self):
+        def signup(password):
+            return self.client.post(
+                f'{ALLAUTH}/auth/signup', {'email': 'ana@example.com', 'password': password}, format='json')
+
+        for password in ['mar azu', 'password1', '12345678']:
+            with self.subTest(password):
+                response = signup(password)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.json()['errors'][0]['param'], 'password')
+        self.assertEqual(signup('mar azul').status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PasswordLengthTests(SimpleTestCase):
+    """accounts.validators.MinimumLengthValidator: 8 characters for customers, 12 for staff."""
+
+    def test_by_kind_of_user(self):
+        validate_password('mar azul', User(username='ana', is_staff=False))
+        with self.assertRaises(ValidationError):
+            validate_password('mar azul', User(username='admin', is_staff=True))
+        validate_password('mar azul y sol', User(username='admin', is_staff=True))
+
+    def test_without_a_user_it_takes_the_staff_minimum(self):
+        with self.assertRaises(ValidationError):
+            validate_password('mar azul')
+
+
+GOOGLE_CLIENT_ID = 'store.apps.googleusercontent.com'
+
+
+@override_settings(SOCIALACCOUNT_PROVIDERS={'google': {'APPS': [{'client_id': GOOGLE_CLIENT_ID, 'secret': ''}]}})
+class GoogleTests(APITestCase):
+    """The store's Google button hands allauth an ID token. Google's signature check is mocked."""
+
+    def setUp(self):
+        cache.clear()
+
+    def google_login(self, email='ana@example.com'):
+        identity = {
+            'iss': 'https://accounts.google.com', 'aud': GOOGLE_CLIENT_ID, 'sub': f'google-{email}',
+            'email': email, 'email_verified': True, 'given_name': 'Ana', 'family_name': 'Gómez',
+        }
+        with mock.patch(
+                'allauth.socialaccount.providers.google.views._verify_and_decode', return_value=identity):
+            return self.client.post(f'{ALLAUTH}/auth/provider/token', {
+                'provider': 'google', 'process': 'login',
+                'token': {'client_id': GOOGLE_CLIENT_ID, 'id_token': 'token'},
+            }, format='json')
+
+    def me(self):
+        return self.client.get(reverse('user-details'))
+
+    def test_the_store_gets_the_client_id_from_the_config(self):
+        config = self.client.get(f'{ALLAUTH}/config').json()['data']
+        [google] = config['socialaccount']['providers']
+        self.assertEqual(google['client_id'], GOOGLE_CLIENT_ID)
+
+    def test_a_new_customer_signs_up_with_the_email_confirmed(self):
+        with self.assertLogs('audit', 'INFO') as logs:
+            self.assertEqual(self.google_login().status_code, status.HTTP_200_OK)
+        self.assertIn('with Google', ' '.join(logs.output))
+        me = self.me().json()
+        self.assertEqual((me['email'], me['first_name']), ('ana@example.com', 'Ana'))
+        self.assertFalse(me['has_usable_password'])
+        self.assertTrue(EmailAddress.objects.get(email='ana@example.com').verified)
+
+    def test_an_existing_customer_logs_into_their_account(self):
+        user = User.objects.create(username='ana', email='ana@example.com')
+        EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+        self.assertEqual(self.google_login().status_code, status.HTTP_200_OK)
+        self.assertEqual(self.me().json()['pk'], user.pk)
+
+    def test_never_into_a_staff_account(self):
+        staff = make_staff(email='admin@example.com')
+        EmailAddress.objects.create(user=staff, email=staff.email, verified=True, primary=True)
+        response = self.google_login('admin@example.com')
+        self.assertNotEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.me().status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_the_redirect_flow_is_not_mounted(self):
+        response = self.client.post(f'{ALLAUTH}/auth/provider/redirect', {
+            'provider': 'google', 'process': 'login', 'callback_url': 'http://localhost:3000/'})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -22,17 +22,35 @@
   sesión + header CSRF.
 - Permisos: solo staff, con el permiso de modelo del método (`view_` para leer, `add_` para POST,
   también en las `@action`; emitir, reemitir, verificar y hacer notas es `billing.add_invoice`).
-  La tienda lee sin sesión vía `PublicReadMixin`. Los roles son grupos definidos en
-  `accounts/roles.py` (Administración, Facturación, Solo lectura) que `sync_roles` reescribe
+  La tienda lee sin sesión vía `PublicReadMixin`; sin sesión de staff, los productos son solo los
+  de `Product.PUBLIC_STATUSES` (activos y sin stock), también en el detalle y en `choices`. Los
+  roles son grupos definidos en `accounts/roles.py` (Administración, Facturación, Solo lectura) que `sync_roles` reescribe
   después de cada `migrate`; un permiso nuevo se asigna ahí, no a mano. Las cuentas del día a día
   se crean con `manage.py create_operator <user> [--role ...]` (staff, sin superusuario).
   `/auth/user/` expone `is_staff` y `permissions` (solo lectura) para que el admin oculte acciones.
 - Cuentas: django-allauth headless (`HEADLESS_ONLY`, solo cliente `browser`), montado en
   `/_allauth/`: login, logout, 2FA (`allauth.mfa`: passkeys/WebAuthn, TOTP y códigos de
   recuperación) y reautenticación. Usa la sesión de Django, como el resto de la API, y exige CSRF también en el
-  login. El registro está cerrado (`accounts.adapter.AccountAdapter`) hasta la fase 3.
+  login.
+  - El staff entra con username; los clientes de la tienda se registran y entran con email, y
+    tienen que confirmarlo (`ACCOUNT_EMAIL_VERIFICATION = "mandatory"`). El staff no
+    (`accounts.adapter.CustomerEmailVerificationStage`).
+  - Sesión: la del staff dura `SESSION_COOKIE_AGE` (8 h) y se cierra con el navegador; la de los
+    clientes, `CUSTOMER_SESSION_AGE` (30 días, `AccountAdapter.login`).
+  - Contraseñas: 8 caracteres para clientes y 12 para staff
+    (`accounts.validators.MinimumLengthValidator`; sin usuario, 12). El registro valida sin
+    usuario: `AccountAdapter.clean_password` le pasa un cliente.
+  - Los links de los mails (`HEADLESS_FRONTEND_URLS`) van a la tienda (`STORE_URL`), y los mails
+    se firman con `STORE_NAME` (`AccountAdapter.send_mail`). En dev salen por consola; en los
+    tests, `mail.outbox`.
+  - Google (`allauth.socialaccount`) solo por ID token (`/auth/provider/token`), con
+    `GOOGLE_CLIENT_ID`. El flujo por redirect responde 404 (`config/urls.py`): volvería al host de
+    la API, fuera del `/api` de la tienda. Un login de Google nunca entra a una cuenta staff ni a
+    una con el email sin verificar (`accounts.adapter.SocialAccountAdapter`). En tests se mockea
+    `allauth.socialaccount.providers.google.views._verify_and_decode` (`GoogleTests`).
   - `/auth/user/` (`accounts.views.UserDetailsView`) es nuestro: el usuario, `is_staff`,
-    `permissions` y `mfa_enabled` / `mfa_verified` / `mfa_required`.
+    `permissions`, `mfa_enabled` / `mfa_verified` / `mfa_required` y `has_usable_password`
+    (false en una cuenta creada con Google). PATCH cambia solo `first_name` / `last_name`.
   - Con `REQUIRE_2FA` (True en base/prod, False en dev salvo `REQUIRE_2FA=true`) los permisos
     (`config.permissions.is_verified_staff`) rechazan sesiones staff que no pasaron el segundo
     factor (`accounts.mfa.passed_mfa`, de los registros de autenticación de allauth). Activar el
@@ -51,7 +69,8 @@
   usuario del request (`AuditlogMiddleware`) en su `LogEntry`. Los modelos se registran en el
   `ready()` de cada app; uno nuevo con datos de negocio se registra ahí. Los logins, logouts y
   fallos (`accounts/audit.py`), el 2FA, `create_operator` y el purge del seed van al logger
-  `audit`; cada autorización de ARCA, al logger `billing`. El seed corre con `disable_auditlog()`.
+  `audit` (también los registros de clientes, `signup:`); cada autorización de ARCA, al logger
+  `billing`. El seed corre con `disable_auditlog()`.
 - Tests: `config.testing.make_staff(role=...)` para loguear un usuario como los reales. El
   `TEST_RUNNER` (`config.testing.TestRunner`) calla los logs INFO de `billing` y `audit`.
 - CSRF acepta escrituras solo desde `FRONTEND_ORIGINS` (`config/settings/base.py`); un frontend
@@ -63,7 +82,9 @@
   (`ensure_csrf_cookie`); Django sola la pone solo al loguear. Los tests de DRF no chequean CSRF:
   `accounts.tests.CsrfTests` usa `APIClient(enforce_csrf_checks=True)`.
 - Los endpoints son `ModelViewSet` con un FilterSet en el `filters.py` de la app, más
-  `ordering_fields` / `search_fields`. Referencia: `orders/views.py`.
+  `ordering_fields` / `search_fields`. Referencia: `orders/views.py`. En productos,
+  `store.filters.ProductOrdering` valida contra `ordering_fields` y ordena `active_price` por la
+  anotación `final_price` (`ProductViewSet.get_queryset`).
 - Las `@action` propias llevan `@extend_schema(operation_id=...)` para que los nombres del cliente
   generado no cambien (ej. `customers_list_choices`). Las acciones `choices` sin paginar alimentan
   los selects del admin.

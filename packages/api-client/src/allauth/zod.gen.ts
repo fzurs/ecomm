@@ -74,14 +74,6 @@ export const zClientId = z.string();
  */
 export const zUsername = z.string();
 
-export const zBaseSignup = z.object({
-    username: zUsername
-});
-
-export const zProviderSignup = zBaseSignup;
-
-export const zPasskeySignup = zBaseSignup;
-
 /**
  * The email address.
  *
@@ -91,6 +83,14 @@ export const zEmail = z.string();
 export const zRequestPassword = z.object({
     email: zEmail
 });
+
+export const zBaseSignup = z.object({
+    email: zEmail
+});
+
+export const zProviderSignup = zBaseSignup;
+
+export const zPasskeySignup = zBaseSignup;
 
 /**
  * The phone number.
@@ -745,6 +745,46 @@ export const zPostAllauthBrowserV1AuthPasswordResetBody = zResetPassword2;
  */
 export const zPostAllauthBrowserV1AuthPasswordResetResponse = zAuthenticatedResponse;
 
+/**
+ * Initiate the provider redirect flow.
+ *
+ */
+export const zPostAllauthBrowserV1AuthProviderRedirectBody = zProviderRedirect2;
+
+export const zPostAllauthBrowserV1AuthProviderTokenBody = zProviderToken2;
+
+export const zPostAllauthBrowserV1AuthProviderTokenHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * The user is authenticated.
+ */
+export const zPostAllauthBrowserV1AuthProviderTokenResponse = zAuthenticatedResponse;
+
+/**
+ * Information relating to the pending provider signup.
+ *
+ */
+export const zGetAllauthBrowserV1AuthProviderSignupResponse = z.object({
+    status: zStatusOk,
+    data: z.object({
+        email: z.array(zEmailAddress),
+        account: zProviderAccount,
+        user: zUser
+    })
+});
+
+/**
+ * Provider signup.
+ */
+export const zPostAllauthBrowserV1AuthProviderSignupBody = zProviderSignup2;
+
+/**
+ * The user is authenticated.
+ */
+export const zPostAllauthBrowserV1AuthProviderSignupResponse = zAuthenticatedResponse;
+
 export const zPostAllauthBrowserV1Auth2FaAuthenticateBody = zMfaAuthenticate2;
 
 export const zPostAllauthBrowserV1Auth2FaAuthenticateHeaders = z.object({
@@ -828,6 +868,34 @@ export const zPostAllauthBrowserV1AuthCodeConfirmBody = zConfirmLoginCode2;
  *
  */
 export const zPostAllauthBrowserV1AuthCodeConfirmResponse = zAuthenticatedResponse;
+
+export const zDeleteAllauthBrowserV1AccountProvidersBody = zProviderAccount2;
+
+export const zDeleteAllauthBrowserV1AccountProvidersHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * List of third-party provider accounts.
+ *
+ */
+export const zDeleteAllauthBrowserV1AccountProvidersResponse = z.object({
+    status: zStatusOk,
+    data: z.array(zProviderAccount)
+});
+
+export const zGetAllauthBrowserV1AccountProvidersHeaders = z.object({
+    'X-Session-Token': z.string().optional()
+});
+
+/**
+ * List of third-party provider accounts.
+ *
+ */
+export const zGetAllauthBrowserV1AccountProvidersResponse = z.object({
+    status: zStatusOk,
+    data: z.array(zProviderAccount)
+});
 
 export const zDeleteAllauthBrowserV1AccountEmailBody = zEmail2;
 

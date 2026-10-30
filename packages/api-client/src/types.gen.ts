@@ -433,6 +433,51 @@ export type PatchedProduct = {
     readonly created_at?: string;
 };
 
+/**
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
+ */
+export type PatchedUserDetails = {
+    /**
+     * ID
+     */
+    readonly pk?: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    readonly username?: string;
+    /**
+     * Email address
+     */
+    readonly email?: string;
+    first_name?: string;
+    last_name?: string;
+    /**
+     * Staff status
+     *
+     * Designates whether the user can log into this admin site.
+     */
+    readonly is_staff?: boolean;
+    readonly permissions?: Array<string>;
+    /**
+     * 2FA is on for the account.
+     */
+    readonly mfa_enabled?: boolean;
+    /**
+     * This session passed the second factor.
+     */
+    readonly mfa_verified?: boolean;
+    /**
+     * The API refuses staff sessions that did not pass the second factor.
+     */
+    readonly mfa_required?: boolean;
+    /**
+     * False for an account created with Google, until it sets a password.
+     */
+    readonly has_usable_password?: boolean;
+};
+
 export type Product = {
     readonly id: number;
     brand: Brand | null;
@@ -493,7 +538,8 @@ export type ReceptorDocumentType = 80 | 86 | 96 | 99;
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
  */
 export type UserDetails = {
     /**
@@ -508,8 +554,8 @@ export type UserDetails = {
      * Email address
      */
     readonly email: string;
-    readonly first_name: string;
-    readonly last_name: string;
+    first_name?: string;
+    last_name?: string;
     /**
      * Staff status
      *
@@ -529,6 +575,10 @@ export type UserDetails = {
      * The API refuses staff sessions that did not pass the second factor.
      */
     readonly mfa_required: boolean;
+    /**
+     * False for an account created with Google, until it sets a password.
+     */
+    readonly has_usable_password: boolean;
 };
 
 /**
@@ -761,6 +811,16 @@ export type PatchedProductWritable = {
     vat_rate?: VatRate;
 };
 
+/**
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
+ */
+export type PatchedUserDetailsWritable = {
+    first_name?: string;
+    last_name?: string;
+};
+
 export type ProductWritable = {
     brand_id?: number | null;
     category_id?: number | null;
@@ -791,6 +851,16 @@ export type ProductSummaryWritable = {
     price?: number | null;
     discount_percent?: number | null;
     image?: string | null;
+};
+
+/**
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
+ */
+export type UserDetailsWritable = {
+    first_name?: string;
+    last_name?: string;
 };
 
 export type AssistantConversationsListData = {
@@ -879,6 +949,19 @@ export type AuthUserRetrieveResponses = {
 };
 
 export type AuthUserRetrieveResponse = AuthUserRetrieveResponses[keyof AuthUserRetrieveResponses];
+
+export type AuthUserPartialUpdateData = {
+    body?: PatchedUserDetailsWritable;
+    path?: never;
+    query?: never;
+    url: '/auth/user/';
+};
+
+export type AuthUserPartialUpdateResponses = {
+    200: UserDetails;
+};
+
+export type AuthUserPartialUpdateResponse = AuthUserPartialUpdateResponses[keyof AuthUserPartialUpdateResponses];
 
 export type BrandsListData = {
     body?: never;

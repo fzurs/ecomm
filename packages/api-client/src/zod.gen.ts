@@ -197,6 +197,25 @@ export const zPatchedCategory = z.object({
 });
 
 /**
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
+ */
+export const zPatchedUserDetails = z.object({
+    pk: z.int().readonly().optional(),
+    username: z.string().readonly().optional(),
+    email: z.email().readonly().optional(),
+    first_name: z.string().max(150).optional(),
+    last_name: z.string().max(150).optional(),
+    is_staff: z.boolean().readonly().optional(),
+    permissions: z.array(z.string()).readonly().optional(),
+    mfa_enabled: z.boolean().readonly().optional(),
+    mfa_verified: z.boolean().readonly().optional(),
+    mfa_required: z.boolean().readonly().optional(),
+    has_usable_password: z.boolean().readonly().optional()
+});
+
+/**
  * * `draft` - Draft
  * * `active` - Active
  * * `inactive` - Inactive
@@ -236,19 +255,21 @@ export const zReceptorDocumentType = z.union([
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
- * what the admin shows, and where they stand with 2FA. All of them are read-only.
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
  */
 export const zUserDetails = z.object({
     pk: z.int().readonly(),
     username: z.string().readonly(),
     email: z.email().readonly(),
-    first_name: z.string().readonly(),
-    last_name: z.string().readonly(),
+    first_name: z.string().max(150).optional(),
+    last_name: z.string().max(150).optional(),
     is_staff: z.boolean().readonly(),
     permissions: z.array(z.string()).readonly(),
     mfa_enabled: z.boolean().readonly(),
     mfa_verified: z.boolean().readonly(),
-    mfa_required: z.boolean().readonly()
+    mfa_required: z.boolean().readonly(),
+    has_usable_password: z.boolean().readonly()
 });
 
 /**
@@ -813,6 +834,16 @@ export const zPatchedProductWritable = z.object({
     vat_rate: zVatRate.optional()
 });
 
+/**
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
+ */
+export const zPatchedUserDetailsWritable = z.object({
+    first_name: z.string().max(150).optional(),
+    last_name: z.string().max(150).optional()
+});
+
 export const zProductWritable = z.object({
     brand_id: z.int().nullish(),
     category_id: z.int().nullish(),
@@ -852,6 +883,16 @@ export const zProductSummaryWritable = z.object({
     image: z.url().nullish()
 });
 
+/**
+ * The logged-in user, with their staff status and permissions ("app.codename"), which say
+ * what the admin shows, and where they stand with 2FA. Only the name can be changed here: the
+ * rest of the account (email, password) is allauth's.
+ */
+export const zUserDetailsWritable = z.object({
+    first_name: z.string().max(150).optional(),
+    last_name: z.string().max(150).optional()
+});
+
 export const zAssistantConversationsListQuery = z.object({
     limit: z.int().optional(),
     offset: z.int().optional()
@@ -879,6 +920,10 @@ export const zAssistantConversationsRetrievePath = z.object({
 export const zAssistantConversationsRetrieveResponse = zConversationDetail;
 
 export const zAuthUserRetrieveResponse = zUserDetails;
+
+export const zAuthUserPartialUpdateBody = zPatchedUserDetailsWritable;
+
+export const zAuthUserPartialUpdateResponse = zUserDetails;
 
 export const zBrandsListQuery = z.object({
     limit: z.int().optional(),

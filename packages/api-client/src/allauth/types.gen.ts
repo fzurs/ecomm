@@ -279,7 +279,7 @@ export type ProviderSignup = BaseSignup;
 export type PasskeySignup = BaseSignup;
 
 export type BaseSignup = {
-    username: Username;
+    email: Email;
 };
 
 export type Signup = BaseSignup & {
@@ -1216,6 +1216,134 @@ export type PostAllauthBrowserV1AuthPasswordResetResponses = {
 
 export type PostAllauthBrowserV1AuthPasswordResetResponse = PostAllauthBrowserV1AuthPasswordResetResponses[keyof PostAllauthBrowserV1AuthPasswordResetResponses];
 
+export type PostAllauthBrowserV1AuthProviderRedirectData = {
+    /**
+     * Initiate the provider redirect flow.
+     *
+     */
+    body: ProviderRedirect2;
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/provider/redirect';
+};
+
+export type PostAllauthBrowserV1AuthProviderTokenData = {
+    body: ProviderToken2;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/provider/token';
+};
+
+export type PostAllauthBrowserV1AuthProviderTokenErrors = {
+    /**
+     * An input error occurred.
+     */
+    400: ErrorResponse;
+    /**
+     * Not authenticated, more steps are required to be completed.
+     */
+    401: AuthenticationResponse;
+    /**
+     * Forbidden. For example, when signup is closed.
+     *
+     */
+    403: ForbiddenResponse;
+};
+
+export type PostAllauthBrowserV1AuthProviderTokenError = PostAllauthBrowserV1AuthProviderTokenErrors[keyof PostAllauthBrowserV1AuthProviderTokenErrors];
+
+export type PostAllauthBrowserV1AuthProviderTokenResponses = {
+    /**
+     * The user is authenticated.
+     */
+    200: AuthenticatedResponse;
+};
+
+export type PostAllauthBrowserV1AuthProviderTokenResponse = PostAllauthBrowserV1AuthProviderTokenResponses[keyof PostAllauthBrowserV1AuthProviderTokenResponses];
+
+export type GetAllauthBrowserV1AuthProviderSignupData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/provider/signup';
+};
+
+export type GetAllauthBrowserV1AuthProviderSignupErrors = {
+    /**
+     * Conflict. The provider signup flow is not pending.
+     *
+     */
+    409: ConflictResponse;
+};
+
+export type GetAllauthBrowserV1AuthProviderSignupError = GetAllauthBrowserV1AuthProviderSignupErrors[keyof GetAllauthBrowserV1AuthProviderSignupErrors];
+
+export type GetAllauthBrowserV1AuthProviderSignupResponses = {
+    /**
+     * Information relating to the pending provider signup.
+     *
+     */
+    200: {
+        status: StatusOk;
+        data: {
+            email: Array<EmailAddress>;
+            account: ProviderAccount;
+            user: User;
+        };
+    };
+};
+
+export type GetAllauthBrowserV1AuthProviderSignupResponse = GetAllauthBrowserV1AuthProviderSignupResponses[keyof GetAllauthBrowserV1AuthProviderSignupResponses];
+
+export type PostAllauthBrowserV1AuthProviderSignupData = {
+    /**
+     * Provider signup.
+     */
+    body: ProviderSignup2;
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/auth/provider/signup';
+};
+
+export type PostAllauthBrowserV1AuthProviderSignupErrors = {
+    /**
+     * An input error occurred.
+     */
+    400: ErrorResponse;
+    /**
+     * Not authenticated, more steps are required to be completed.
+     */
+    401: AuthenticationResponse;
+    /**
+     * Forbidden. For example, when signup is closed.
+     *
+     */
+    403: ForbiddenResponse;
+    /**
+     * Conflict. The provider signup flow is not pending.
+     *
+     */
+    409: ConflictResponse;
+};
+
+export type PostAllauthBrowserV1AuthProviderSignupError = PostAllauthBrowserV1AuthProviderSignupErrors[keyof PostAllauthBrowserV1AuthProviderSignupErrors];
+
+export type PostAllauthBrowserV1AuthProviderSignupResponses = {
+    /**
+     * The user is authenticated.
+     */
+    200: AuthenticatedResponse;
+};
+
+export type PostAllauthBrowserV1AuthProviderSignupResponse = PostAllauthBrowserV1AuthProviderSignupResponses[keyof PostAllauthBrowserV1AuthProviderSignupResponses];
+
 export type PostAllauthBrowserV1Auth2FaAuthenticateData = {
     body: MfaAuthenticate2;
     headers?: {
@@ -1443,6 +1571,69 @@ export type PostAllauthBrowserV1AuthCodeConfirmResponses = {
 };
 
 export type PostAllauthBrowserV1AuthCodeConfirmResponse = PostAllauthBrowserV1AuthCodeConfirmResponses[keyof PostAllauthBrowserV1AuthCodeConfirmResponses];
+
+export type DeleteAllauthBrowserV1AccountProvidersData = {
+    body?: ProviderAccount2;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/account/providers';
+};
+
+export type DeleteAllauthBrowserV1AccountProvidersErrors = {
+    /**
+     * An input error occurred.
+     */
+    400: ErrorResponse;
+};
+
+export type DeleteAllauthBrowserV1AccountProvidersError = DeleteAllauthBrowserV1AccountProvidersErrors[keyof DeleteAllauthBrowserV1AccountProvidersErrors];
+
+export type DeleteAllauthBrowserV1AccountProvidersResponses = {
+    /**
+     * List of third-party provider accounts.
+     *
+     */
+    200: {
+        status: StatusOk;
+        data: Array<ProviderAccount>;
+    };
+};
+
+export type DeleteAllauthBrowserV1AccountProvidersResponse = DeleteAllauthBrowserV1AccountProvidersResponses[keyof DeleteAllauthBrowserV1AccountProvidersResponses];
+
+export type GetAllauthBrowserV1AccountProvidersData = {
+    body?: never;
+    headers?: {
+        /**
+         * Session token. Only needed when `client` is equal to `app`.
+         *
+         */
+        'X-Session-Token'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/_allauth/browser/v1/account/providers';
+};
+
+export type GetAllauthBrowserV1AccountProvidersResponses = {
+    /**
+     * List of third-party provider accounts.
+     *
+     */
+    200: {
+        status: StatusOk;
+        data: Array<ProviderAccount>;
+    };
+};
+
+export type GetAllauthBrowserV1AccountProvidersResponse = GetAllauthBrowserV1AccountProvidersResponses[keyof GetAllauthBrowserV1AccountProvidersResponses];
 
 export type DeleteAllauthBrowserV1AccountEmailData = {
     body?: Email2;

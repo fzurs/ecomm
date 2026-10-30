@@ -26,6 +26,13 @@ SILENCED_SYSTEM_CHECKS = ["security.W021"]
 if env.bool("SECURE_PROXY_SSL_HEADER", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# Account emails (verification, password reset), sent for real. Their links go to the store, so
+# STORE_URL is required too (base.py builds HEADLESS_FRONTEND_URLS from it).
+if "STORE_URL" not in env.ENVIRON:
+    raise ImproperlyConfigured("STORE_URL: the account emails link to the store")
+vars().update(env.email_url("EMAIL_URL"))
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
 # Static files of the Django admin, served by the app itself.
 MIDDLEWARE = [MIDDLEWARE[0], "whitenoise.middleware.WhiteNoiseMiddleware", *MIDDLEWARE[1:]]
 STORAGES = {
