@@ -11,6 +11,7 @@ import {
   FileField,
   SelectField,
   PasswordField,
+  OtpField,
   SubmitButton,
 } from "@/components/form"
 
@@ -25,6 +26,7 @@ export const { useAppForm, useTypedAppFormContext, withForm } = createFormHook({
     SelectField,
     NumberField,
     PasswordField,
+    OtpField,
   },
   formComponents: { Form, SubmitButton },
   fieldContext,

@@ -11,6 +11,11 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@workspace/ui/components/input-otp"
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
@@ -224,6 +229,82 @@ export function InputGroupField({
       </InputGroup>
       {description && <FieldDescription>{description}</FieldDescription>}
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  )
+}
+
+/**
+ * A one-time code (2FA): one box per digit. `onComplete` runs once every box
+ * is filled, e.g. to submit without a click.
+ */
+export function OtpField({
+  label,
+  description,
+  length = 6,
+  onComplete,
+  disabled,
+}: {
+  label: string
+  description?: React.ReactNode
+  length?: number
+  onComplete?: () => void
+  disabled?: boolean
+}) {
+  const field = useFieldContext<string>()
+  const fieldId = React.useId()
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+
+  // Disabling drops the focus: back on it when enabled again (e.g. after a
+  // wrong code), so the next one can be typed right away.
+  const wasDisabled = React.useRef(disabled)
+  React.useEffect(() => {
+    if (wasDisabled.current && !disabled) inputRef.current?.focus()
+    wasDisabled.current = disabled
+  }, [disabled])
+
+  return (
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={fieldId} className="sr-only">
+        {label}
+      </FieldLabel>
+      <InputOTP
+        ref={inputRef}
+        id={fieldId}
+        name={field.name}
+        maxLength={length}
+        pattern={"^\\d+$"}
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        autoFocus
+        value={field.state.value ?? ""}
+        onChange={field.handleChange}
+        onBlur={field.handleBlur}
+        onComplete={onComplete}
+        disabled={disabled}
+        aria-invalid={isInvalid}
+        containerClassName="justify-center"
+      >
+        <InputOTPGroup>
+          {Array.from({ length }, (_, index) => (
+            <InputOTPSlot
+              key={index}
+              index={index}
+              aria-invalid={isInvalid}
+              className="size-11 text-lg"
+            />
+          ))}
+        </InputOTPGroup>
+      </InputOTP>
+      {description && (
+        <FieldDescription className="text-center">
+          {description}
+        </FieldDescription>
+      )}
+      {isInvalid && (
+        <FieldError className="text-center" errors={field.state.meta.errors} />
+      )}
     </Field>
   )
 }

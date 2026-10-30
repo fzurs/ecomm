@@ -98,6 +98,8 @@ function ConfirmForm({
         const { backup_codes } = await mutateAsync({ body: value })
         onConfirmed(backup_codes)
       } catch (error) {
+        // A wrong code: empty, ready for the next one.
+        formApi.setFieldValue("otp_code", "")
         applyServerErrors(formApi, error)
       }
     },
@@ -110,10 +112,11 @@ function ConfirmForm({
           <form.AppField
             name="otp_code"
             children={(field) => (
-              <field.TextField
-                label="Code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
+              <field.OtpField
+                label="Code from the app"
+                onComplete={() => {
+                  if (!form.state.isSubmitting) form.handleSubmit()
+                }}
               />
             )}
           />

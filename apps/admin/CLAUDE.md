@@ -13,9 +13,10 @@
 - `(admin)/layout.tsx` envuelve todo en `AuthGuard` (`src/components/auth-guard.tsx`), que redirige
   a `/login` solo ante 401/403; otros errores muestran un estado de error con reintento. Un usuario
   logueado que no es staff ve "No access" y puede cerrar sesión.
-- 2FA: el login pide el código cuando la API responde con error en `otp_code`. Si la API exige
-  2FA (`user.otp_required`) y la sesión no lo pasó, `AuthGuard` muestra el setup
-  (`src/components/two-factor.tsx`) antes del admin. Se activa o desactiva en `/account/security`
+- 2FA: el login pasa a un paso propio para el código cuando la API responde con error en
+  `otp_code` (6 casillas con `OtpField`, que envía solo al completarse, o un código de
+  respaldo). Si la API exige 2FA (`user.otp_required`) y la sesión no lo pasó, `AuthGuard`
+  muestra el setup (`src/components/two-factor.tsx`) antes del admin. Se activa o desactiva en `/account/security`
   (menú del usuario). Los hooks están en `use-auth.ts` (`useTwoFactorSetup/Confirm/Disable`).
 - Permisos: `useCan("app.codename")` (de `user.permissions`) oculta acciones que la API rechazaría,
   ej. emitir comprobantes (`billing.add_invoice`). La API es la que valida; esto es solo UI.
