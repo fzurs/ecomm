@@ -9,7 +9,7 @@ Responder en español. Código e identificadores en inglés, como el resto del r
 ## Estructura
 - `apps/api` — Django 5.2 + DRF (apps `store`, `orders`, `billing`), puerto 8000. Ver `apps/api/CLAUDE.md`.
 - `apps/admin` — dashboard de administración en Next.js 16, puerto 3001. Ver `apps/admin/CLAUDE.md`.
-- `apps/web` — tienda en Next.js 16, puerto 3000. Fetch del lado del servidor con `"use cache"` en `src/lib/cache.ts`.
+- `apps/web` — tienda en Next.js 16, puerto 3000, con cuentas de clientes. Ver `apps/web/CLAUDE.md`.
 - `packages/api-client` — generado con `@hey-api/openapi-ts` (cliente axios + zod + TanStack Query).
   Exports: `@workspace/api-client` (sdk/tipos), `/query` (query options), `/zod` (schemas), y
   lo mismo de django-allauth headless bajo `/allauth` (`/allauth/query`, `/allauth/zod`, `/allauth/client`).

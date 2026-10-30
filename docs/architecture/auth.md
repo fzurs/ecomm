@@ -1,7 +1,7 @@
 # Autenticación: admin y tienda
 
 Cómo se autentican el admin (`apps/admin`) y la tienda (`apps/web`) contra la API de Django
-(`apps/api`), y hacia dónde va. La fase 1 está implementada en el admin; las demás son el plan.
+(`apps/api`), y hacia dónde va. Las fases 1 a 3 están implementadas; la 4 es el plan.
 
 ## Principios
 
@@ -65,8 +65,7 @@ Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
   así que dj-rest-auth sobra.
 - **Configuración** (`apps/api/config/settings/base.py`): `HEADLESS_ONLY`, solo el cliente
   `browser` (sesión con cookie y CSRF, como el resto de la API).
-  - Login con username.
-  - Registro cerrado hasta la fase 3 (`accounts.adapter.AccountAdapter`).
+  - Login con username (el staff) o email (los clientes, desde la fase 3).
   - MFA con TOTP y códigos de recuperación.
 - **Login en dos pasos:** con 2FA, el login con contraseña responde 401 con el flujo
   `mfa_authenticate` pendiente, y `/auth/2fa/authenticate` lo completa con el código del
@@ -103,22 +102,74 @@ Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
   - Por ahora no se usan para entrar sin contraseña (`MFA_PASSKEY_LOGIN_ENABLED`). Es una opción
     para la tienda o para más adelante.
 
-## Fase 3: cuentas en la tienda
+## Fase 3 (hecha): cuentas en la tienda
 
-- La tienda pasa a same-origin, con su propio rewrite `/api` y su `proxy.ts` para `/account/*` y
-  `/checkout`.
-- Registro e ingreso con email y contraseña, y con Google. Verificación de email y reset de
-  contraseña con los links de `HEADLESS_FRONTEND_URLS`, que apuntan a la tienda.
+- **Same-origin, como el admin:** `apps/web/next.config.mjs` reenvía `/api/*` a `API_URL` con las
+  mismas dos reglas y `skipTrailingSlashRedirect`.
+  - `apps/web/src/proxy.ts` manda a `/login?next=<ruta>` si no hay `sessionid` en `/account/*`.
+    El checkout se suma en la fase 4.
+  - Las páginas validan la sesión de verdad (`getUser()`): una cookie vencida también termina en
+    `/login`, y `/login` con sesión válida sigue a `next`. No hay loop porque ninguna de las dos
+    decide solo por la cookie.
+- **Cuentas de clientes** (`apps/api/config/settings/base.py`):
+  - Registro con email y contraseña (`ACCOUNT_SIGNUP_FIELDS`); allauth inventa el username. El
+    login acepta username (staff) o email (clientes).
+  - Verificación de email obligatoria: el registro responde 401 con `verify_email` pendiente, y el
+    link loguea solo en el navegador que se registró (`ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION`; allauth
+    guarda ese login en la sesión). Un link filtrado no loguea a nadie.
+  - El staff no la necesita: lo crea `create_operator`, muchas veces sin email.
+    `accounts.adapter.CustomerEmailVerificationStage` lo saltea en el login.
+  - Registrarse con un email que ya tiene cuenta responde lo mismo que uno nuevo; allauth le avisa
+    al dueño por mail. Así no se puede averiguar qué emails tienen cuenta.
+  - Los links de los mails (`HEADLESS_FRONTEND_URLS`) apuntan a la tienda (`STORE_URL`):
+    `/verify-email/<key>`, `/password/reset/<key>`. La clave llega URL-encodeada.
+  - Los mails se firman con `STORE_NAME`. Sin `django.contrib.sites`, allauth usaría el host del
+    request, que es el de la API (`AccountAdapter.send_mail`).
+  - Después de un reset de contraseña no queda logueado (el default de allauth): la tienda manda
+    al login.
+- **Google, por ID token y no por redirect:**
+  - El botón de Google Identity Services le da a la tienda un ID token. La tienda se lo pasa a
+    allauth (`/auth/provider/token`), que lo verifica y loguea o registra.
+  - Es un request más al `/api` de la tienda, así que la cookie de sesión queda en su dominio.
+  - El flujo por redirect volvería del lado de Google al host de la API, fuera del `/api` de la
+    tienda: allauth arma la `redirect_uri` con el host y la ruta que ve Django. No está montado
+    (`config/urls.py` lo responde con 404).
+  - Solo hace falta `GOOGLE_CLIENT_ID` (sin secret). La tienda lo lee de `/_allauth/.../config` y
+    sin él no muestra el botón.
+  - Un email de Google que ya tiene cuenta entra a esa cuenta solo si la cuenta lo verificó y no
+    es staff (`accounts.adapter.SocialAccountAdapter`). Si no, allauth deja el registro pendiente
+    (`provider_signup`) y la tienda pide entrar con la contraseña.
 - **Lecturas en server components:**
-  - el catálogo sigue con `"use cache"` (`src/lib/cache.ts`);
-  - lo del usuario va en `src/lib/dal.ts`, que reenvía la cookie a Django con `cookies()` y se
-    cachea por request con `cache()` de React;
-  - se renderiza dentro de `<Suspense>`, así el shell queda cacheado y solo lo personal es
-    dinámico (`cacheComponents`).
+  - El catálogo sigue con `"use cache"` (`src/lib/cache.ts`), igual que la config de allauth.
+  - Lo del usuario va en `src/lib/dal.ts` (`getUser()`): lee `/auth/user/` con las cookies del
+    visitante (`asVisitor()` de `src/lib/django.ts`) y se cachea por request con `cache()`.
+  - Se renderiza dentro de `<Suspense>`, así el shell queda cacheado y solo lo personal es
+    dinámico (`cacheComponents`). El layout de `(shop)` pasa la sesión al header como promesa
+    (`VisitorProvider`), y el menú del usuario la resuelve en su propio `<Suspense>`.
 - **Mutaciones:**
-  - las de cuenta van del navegador a `/api/_allauth/...`, así Django pone las cookies directamente;
-  - las demás van por Server Actions con un helper `djangoFetch()`, que reenvía la cookie y el
-    CSRF y copia los `Set-Cookie` de la respuesta.
+  - Las de cuenta van del navegador a `/api/_allauth/...`, así Django pone las cookies
+    directamente: login, registro, Google, verificación, reset y cambio de contraseña, logout.
+  - El navegador puede no tener `csrftoken` todavía, porque la tienda lee la sesión en su
+    servidor. El interceptor de `src/lib/allauth.ts` lo pide (GET `/api/auth/user/`) antes de la
+    primera escritura.
+  - Las demás van por Server Actions con `djangoFetch()` (`src/lib/django.ts`): reenvía las
+    cookies, el header CSRF y el `Origin` de la action, y copia los `Set-Cookie` de la respuesta
+    (también si falla).
+  - Primera action: el nombre en `/account` (PATCH `/auth/user/`, que acepta solo
+    `first_name`/`last_name`).
+- **Sesión de los clientes:** 30 días (`CUSTOMER_SESSION_AGE`), y sobrevive al cierre del
+  navegador. La del staff sigue igual: 8 horas (`SESSION_COOKIE_AGE`) y se cierra con el navegador.
+  - `AccountAdapter.login` hace `set_expiry` si el usuario no es staff. Por ahí pasan todos los
+    logins de allauth: contraseña, link de confirmación y Google.
+  - Cuenta desde el login, o desde la última vez que Django guardó la sesión. Las lecturas de la
+    tienda no la renuevan: van desde su servidor y no pueden poner cookies. Las escrituras de la
+    fase 4 sí, porque `djangoFetch()` copia el `Set-Cookie`.
+  - Sin "recordarme": `ACCOUNT_SESSION_REMEMBER` solo existe en los forms de allauth, no en
+    headless.
+- **Contraseñas:** 8 caracteres para los clientes y 12 para el staff
+  (`accounts.validators.MinimumLengthValidator`), más las listas de Django (comunes, solo
+  números, parecidas al usuario). Sin usuario aplica el mínimo del staff. El registro valida sin
+  usuario, así que `AccountAdapter.clean_password` le pasa un cliente.
 
 ## Fase 4: carrito y checkout
 

@@ -1,26 +1,51 @@
-import { PageHeader } from "@/components/page-header"
-import { ProductsGrid } from "@/components/products-grid"
-import { getCategory, getProducts } from "@/lib/cache"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import { PageHeader } from "@/components/page-header"
+import { ProductList } from "@/components/product-list"
+import { ProductGridSkeleton } from "@/components/products-grid"
+import { getAllCategories, getCategory } from "@/lib/cache"
 
-const breadcrumbs = {
-  items: [{ title: "Home", href: "/" }],
+export async function generateStaticParams() {
+  const categories = await getAllCategories()
+  return categories.map(({ slug }) => ({ slug }))
 }
 
-export default async function CategoryPage({ params }: PageProps<"/[slug]">) {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[slug]">): Promise<Metadata> {
+  const category = await getCategory((await params).slug)
+  if (!category) return {}
+  return {
+    title: category.name,
+    description: category.description ?? undefined,
+  }
+}
+
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: PageProps<"/[slug]">) {
   const { slug } = await params
   const category = await getCategory(slug)
-
-  if (!category) {
-    notFound()
-  }
-
-  const products = await getProducts({ category: [slug] })
+  if (!category) notFound()
 
   return (
     <>
-      <PageHeader breadcrumbs={{ ...breadcrumbs, page: category.name }} />
-      <ProductsGrid products={products.results} />
+      <PageHeader
+        breadcrumbs={{
+          items: [{ title: "Home", href: "/" }],
+          page: category.name,
+        }}
+        listsProducts
+      />
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <ProductList
+          pathname={`/${slug}`}
+          searchParams={searchParams}
+          filters={{ category: [slug] }}
+        />
+      </Suspense>
     </>
   )
 }

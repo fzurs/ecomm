@@ -6,6 +6,12 @@
       "@/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/api-client": ["../../packages/api-client/src/index.ts"],
+      "@workspace/api-client/allauth": [
+        "../../packages/api-client/src/allauth/index.ts"
+      ],
+      "@workspace/api-client/allauth/client": [
+        "../../packages/api-client/src/allauth/client.gen.ts"
+      ]
     },
     "plugins": [{ "name": "next" }]
   },

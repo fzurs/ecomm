@@ -2,6 +2,7 @@
 import { Button } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { useSidebar } from "@workspace/ui/components/sidebar"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import { SidebarIcon } from "lucide-react"
 import React, { Suspense } from "react"
 import { SearchForm, SearchFormSkeleton } from "./search-form"
@@ -14,11 +15,19 @@ import {
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
 import Link from "next/link"
+import { UserNav } from "./user-nav"
 
+/**
+ * The header of the shop's pages. Without `breadcrumbs` it's the one shown
+ * while a page loads (the layout's fallback).
+ */
 export function PageHeader({
   breadcrumbs,
+  listsProducts = false,
 }: {
   breadcrumbs?: { items?: { href: string; title: string }[]; page: string }
+  /** The page lists products: the search filters them as the customer types. */
+  listsProducts?: boolean
 }) {
   const { toggleSidebar } = useSidebar()
 
@@ -30,6 +39,7 @@ export function PageHeader({
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
         >
           <SidebarIcon />
         </Button>
@@ -47,14 +57,19 @@ export function PageHeader({
               </React.Fragment>
             ))}
             <BreadcrumbItem>
-              <BreadcrumbPage>{breadcrumbs?.page || "Home"}</BreadcrumbPage>
+              {breadcrumbs ? (
+                <BreadcrumbPage>{breadcrumbs.page}</BreadcrumbPage>
+              ) : (
+                <Skeleton className="h-4 w-32" />
+              )}
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-2">
           <Suspense fallback={<SearchFormSkeleton />}>
-            <SearchForm />
+            <SearchForm live={listsProducts} />
           </Suspense>
+          <UserNav />
         </div>
       </div>
     </header>

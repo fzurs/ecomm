@@ -6,11 +6,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
 import React, { use, useContext } from "react"
 import { BrandsContext } from "./brands-provider"
 import { usePathname } from "next/navigation"
+import { NavSkeleton } from "./nav-skeleton"
 import {
   Collapsible,
   CollapsibleContent,
@@ -25,8 +27,10 @@ function useBrands() {
 }
 
 export function NavBrands() {
+  // Open on a brand's page, so it shows which one.
+  const onBrand = usePathname().startsWith("/brands/")
   return (
-    <Collapsible title="brands" className="group/collapsible">
+    <Collapsible defaultOpen={onBrand} className="group/collapsible">
       <SidebarGroup>
         <SidebarGroupLabel
           className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -38,13 +42,7 @@ export function NavBrands() {
         <CollapsibleContent>
           <SidebarGroupContent>
             <SidebarMenu>
-              <React.Suspense
-                fallback={Array.from({ length: 3 }).map((_, i) => (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuButton>...</SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              >
+              <React.Suspense fallback={<NavSkeleton />}>
                 <NavBrandsItems />
               </React.Suspense>
             </SidebarMenu>
@@ -59,6 +57,8 @@ function NavBrandsItems() {
   const brands = useBrands()
 
   const pathname = usePathname()
+  // On a phone the sidebar is a sheet over the page: close it on the way out.
+  const { setOpenMobile } = useSidebar()
 
   return brands.map((brand) => {
     const href = `/brands/${brand.slug}`
@@ -66,7 +66,7 @@ function NavBrandsItems() {
       <SidebarMenuItem key={brand.id}>
         <SidebarMenuButton
           isActive={pathname === href}
-          render={<Link href={href} />}
+          render={<Link href={href} onClick={() => setOpenMobile(false)} />}
         >
           {brand.name}
         </SidebarMenuButton>

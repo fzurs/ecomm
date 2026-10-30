@@ -6,11 +6,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@workspace/ui/components/sidebar"
 import Link from "next/link"
 import React, { use, useContext } from "react"
 import { CategoriesContext } from "./categories-provider"
 import { usePathname } from "next/navigation"
+import { NavSkeleton } from "./nav-skeleton"
 
 function useCategories() {
   const categoriesPromise = useContext(CategoriesContext)
@@ -24,13 +26,7 @@ export function NavCategories() {
       <SidebarGroupLabel>Categories</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          <React.Suspense
-            fallback={Array.from({ length: 3 }).map((_, i) => (
-              <SidebarMenuItem key={i}>
-                <SidebarMenuButton>...</SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          >
+          <React.Suspense fallback={<NavSkeleton />}>
             <NavCategoriesItems />
           </React.Suspense>
         </SidebarMenu>
@@ -43,6 +39,8 @@ function NavCategoriesItems() {
   const categories = useCategories()
 
   const pathname = usePathname()
+  // On a phone the sidebar is a sheet over the page: close it on the way out.
+  const { setOpenMobile } = useSidebar()
 
   return categories.map((category) => {
     const href = `/${category.slug}`
@@ -50,7 +48,7 @@ function NavCategoriesItems() {
       <SidebarMenuItem key={category.id}>
         <SidebarMenuButton
           isActive={pathname === href}
-          render={<Link href={href} />}
+          render={<Link href={href} onClick={() => setOpenMobile(false)} />}
         >
           {category.name}
         </SidebarMenuButton>

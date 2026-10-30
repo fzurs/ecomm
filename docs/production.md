@@ -14,14 +14,23 @@ secretas, un Postgres y un Redis.
   - `DATABASE_URL`, `REDIS_URL` y `FRONTEND_ORIGINS` (los dominios del admin y la tienda, que
     Django acepta como orígenes de CSRF).
   - `ARCA_ENVIRONMENT=produccion`, `ARCA_CERTIFICATE_PATH` y `ARCA_PRIVATE_KEY_PATH`.
+  - `STORE_URL` (la URL pública de la tienda, adonde apuntan los links de los mails de cuenta),
+    `EMAIL_URL` (el SMTP, ej. `smtp+tls://usuario:clave@host:587`) y `DEFAULT_FROM_EMAIL`. Sin
+    mails, los clientes no pueden confirmar su cuenta ni recuperar la contraseña.
+  - Opcionales: `STORE_NAME` (firma de los mails) y `GOOGLE_CLIENT_ID` (login con Google). El
+    client ID es de tipo "Aplicación web", con el dominio de la tienda como origen autorizado de
+    JavaScript; no hace falta el secret. `CUSTOMER_SESSION_AGE` cambia la sesión de los clientes
+    (30 días por defecto).
   - Detrás de un proxy que termina TLS: `SECURE_PROXY_SSL_HEADER=true`.
 - [ ] **Secretos**: van en el gestor de secretos del proveedor. Nunca en el repo ni en un `.env`
   commiteado. `apps/api/.env.example` lista todas las variables.
 - [ ] **Chequeo**: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py check --deploy`
   sin warnings, en el pipeline de deploy. El único silenciado es el preload de HSTS, que se activa
   a mano si se decide.
-- [ ] **Admin**: se buildea con `API_URL`, la URL con la que el servidor de Next llega a Django.
-  Los rewrites se calculan en el build: si cambia, hay que volver a buildear.
+- [ ] **Admin y tienda**: se buildean con `API_URL`, la URL con la que el servidor de Next llega
+  a Django. Los rewrites se calculan en el build: si cambia, hay que volver a buildear. La tienda
+  además lee el catálogo y la sesión desde su servidor con esa URL, y el build necesita la API
+  levantada (prerenderiza el catálogo).
   - Django recibe esos requests con el host de `API_URL`, que tiene que estar en `ALLOWED_HOSTS`.
   - El request tiene que llegar como HTTPS: o `API_URL` es la URL HTTPS de la API, o es una URL
     interna detrás de un proxy que manda `X-Forwarded-Proto` (`SECURE_PROXY_SSL_HEADER=true`). Si
@@ -29,7 +38,7 @@ secretas, un Postgres y un Redis.
   - El navegador nunca habla con la API, así que no hace falta CORS: `CORS_ALLOWED_ORIGINS`
     queda vacío ([`docs/architecture/auth.md`](architecture/auth.md)).
 - [ ] **Media**: las imágenes se sirven desde una URL pública (la de la API o un CDN). Sus URLs
-  apuntan al host de Django, no pasan por el `/api` del admin.
+  apuntan al host de Django, no pasan por el `/api` de los frontends.
 - [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.
 - [ ] **Migraciones**: `python manage.py migrate` en cada deploy. Crea los triggers que protegen
   los comprobantes y sincroniza los roles.
@@ -55,6 +64,8 @@ secretas, un Postgres y un Redis.
   `python manage.py shell -c "from allauth.mfa.models import Authenticator; Authenticator.objects.filter(user__username='<usuario>').delete()"`.
   Desde el shell no pasa por las señales de allauth, así que no queda en el logger `audit`:
   anotar quién y por qué. En el próximo login vuelve a pedir el setup.
+- **Clientes de la tienda**: se registran solos, con email (confirmado) o Google. No son staff ni
+  tienen 2FA. Un login de Google nunca entra a una cuenta staff aunque coincida el email.
 - **Passkeys**: quedan atadas al dominio del admin. Si el dominio cambia, dejan de servir y cada
   persona entra con la app de autenticación o un código de recuperación, y registra passkeys
   nuevas.
