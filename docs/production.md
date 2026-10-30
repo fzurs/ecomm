@@ -11,7 +11,8 @@ secretas, un Postgres y un Redis.
   - `SECRET_KEY`: nueva, generada con
     `python -c "import secrets; print(secrets.token_urlsafe(50))"`. Nunca reusar la de dev.
   - `ALLOWED_HOSTS`: el dominio de la API.
-  - `DATABASE_URL`, `REDIS_URL` y `FRONTEND_ORIGINS` (los dominios del admin y la tienda).
+  - `DATABASE_URL`, `REDIS_URL` y `FRONTEND_ORIGINS` (los dominios del admin y la tienda, que
+    Django acepta como orígenes de CSRF).
   - `ARCA_ENVIRONMENT=produccion`, `ARCA_CERTIFICATE_PATH` y `ARCA_PRIVATE_KEY_PATH`.
   - Detrás de un proxy que termina TLS: `SECURE_PROXY_SSL_HEADER=true`.
 - [ ] **Secretos**: van en el gestor de secretos del proveedor. Nunca en el repo ni en un `.env`
@@ -19,6 +20,16 @@ secretas, un Postgres y un Redis.
 - [ ] **Chequeo**: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py check --deploy`
   sin warnings, en el pipeline de deploy. El único silenciado es el preload de HSTS, que se activa
   a mano si se decide.
+- [ ] **Admin**: se buildea con `API_URL`, la URL con la que el servidor de Next llega a Django.
+  Los rewrites se calculan en el build: si cambia, hay que volver a buildear.
+  - Django recibe esos requests con el host de `API_URL`, que tiene que estar en `ALLOWED_HOSTS`.
+  - El request tiene que llegar como HTTPS: o `API_URL` es la URL HTTPS de la API, o es una URL
+    interna detrás de un proxy que manda `X-Forwarded-Proto` (`SECURE_PROXY_SSL_HEADER=true`). Si
+    no, `SECURE_SSL_REDIRECT` lo redirige.
+  - El navegador nunca habla con la API, así que el admin no necesita CORS
+    ([`docs/architecture/auth.md`](architecture/auth.md)).
+- [ ] **Media**: las imágenes se sirven desde una URL pública (la de la API o un CDN). Sus URLs
+  apuntan al host de Django, no pasan por el `/api` del admin.
 - [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.
 - [ ] **Migraciones**: `python manage.py migrate` en cada deploy. Crea los triggers que protegen
   los comprobantes y sincroniza los roles.

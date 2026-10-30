@@ -14,6 +14,20 @@ import { useRouter } from "next/navigation"
 
 export const sessionQueryKey = authUserRetrieveQueryKey()
 
+/** /login, coming back to `path` after logging in (as `src/proxy.ts` does). */
+export function loginUrl(path: string) {
+  return path === "/" ? "/login" : `/login?next=${encodeURIComponent(path)}`
+}
+
+/**
+ * Where to go once logged in: the `next` of the URL, only if it's a path of
+ * this app (not `//evil.com`, which the browser reads as another site).
+ */
+export function afterLoginPath() {
+  const next = new URLSearchParams(window.location.search).get("next")
+  return next?.startsWith("/") && !next.startsWith("//") ? next : "/"
+}
+
 /**
  * 401/403 from the API. With SessionAuthentication DRF answers 403 when there
  * is no session, so a 403 on the session query means "logged out".
@@ -70,7 +84,7 @@ export function useLogin() {
     ...authLoginCreateMutation(),
     onSuccess: () => {
       queryClient.clear()
-      router.replace("/")
+      router.replace(afterLoginPath())
     },
   })
 }

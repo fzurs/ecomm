@@ -3,13 +3,19 @@
 ## Datos
 - Usar los helpers de TanStack Query generados en `@workspace/api-client/query`
   (`ordersListOptions`, `ordersListQueryKey`, mutations...). No escribir llamadas axios a mano.
-- El cliente se configura en `src/lib/api-setup.ts` (`baseURL` desde `NEXT_PUBLIC_API_URL`, con
-  `http://localhost:8000` por defecto; `withCredentials`; header CSRF tomado de la cookie `csrftoken`).
+- Same-origin: el cliente (`src/lib/api-setup.ts`) llama a `/api/...` en el origen del admin, y
+  `next.config.mjs` lo reenvía a Django (`API_URL`, `http://localhost:8000` por defecto; se lee en
+  el build). Las cookies de Django quedan en el dominio del admin; el header CSRF sale de la cookie
+  `csrftoken`. Una URL a la API (PDF, stream del asistente) se arma con
+  `client.getConfig().baseURL`, nunca con el host de Django. Ver `docs/architecture/auth.md`.
 
 ## Autenticación
 - Sesión de Django vía dj-rest-auth. Todo pasa por `src/hooks/use-auth.ts`: `useSession()`
   (`loading` / `authenticated` / `unauthenticated` / `error`), `useLogin()` y `useLogout()`. No
   usar `authUserRetrieveOptions` ni las mutations de auth directamente.
+- `src/proxy.ts` redirige a `/login?next=<ruta>` antes de renderizar si no hay cookie `sessionid`
+  (chequeo optimista, sin llamar a la API); `useLogin` vuelve a `next` (`afterLoginPath`). No
+  redirige `/login` a home con cookie: una vencida haría un loop con `AuthGuard`.
 - `(admin)/layout.tsx` envuelve todo en `AuthGuard` (`src/components/auth-guard.tsx`), que redirige
   a `/login` solo ante 401/403; otros errores muestran un estado de error con reintento. Un usuario
   logueado que no es staff ve "No access" y puede cerrar sesión.

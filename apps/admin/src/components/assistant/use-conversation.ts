@@ -45,7 +45,6 @@ async function* streamReply(
     `${client.getConfig().baseURL}/assistant/conversations/${conversation}/reply/`,
     {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": Cookies.get("csrftoken") ?? "",

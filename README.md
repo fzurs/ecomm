@@ -67,7 +67,8 @@ numeración real.
 ## Configuración
 
 Las variables están documentadas en [`apps/api/.env.example`](apps/api/.env.example) y
-[`apps/admin/.env.example`](apps/admin/.env.example).
+[`apps/admin/.env.example`](apps/admin/.env.example). El admin le habla a la API por `/api` en su
+propio origen; cómo y por qué, en [`docs/architecture/auth.md`](docs/architecture/auth.md).
 
 - **ARCA**: generá el certificado con `arca-setup`, con carpeta base `apps/api/certs` y alias `ecomm`.
   En `apps/api/.env` van el ambiente (`homologacion` por defecto), el punto de venta, la condición

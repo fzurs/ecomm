@@ -1,7 +1,7 @@
 "use client"
 
 import { TwoFactorSetup } from "@/components/two-factor"
-import { useLogout, useSession } from "@/hooks/use-auth"
+import { loginUrl, useLogout, useSession } from "@/hooks/use-auth"
 import { UserDetails } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -25,7 +25,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, status, refetch } = useSession()
 
   React.useEffect(() => {
-    if (status === "unauthenticated") router.replace("/login")
+    // E.g. the session expired with the page open: back here after logging in.
+    if (status === "unauthenticated") {
+      router.replace(
+        loginUrl(window.location.pathname + window.location.search)
+      )
+    }
   }, [status, router])
 
   if (status === "authenticated" && user) {

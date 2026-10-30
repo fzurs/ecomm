@@ -1,10 +1,9 @@
 import { client } from "@workspace/api-client/client"
 import Cookies from "js-cookie"
 
-client.setConfig({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
-  withCredentials: true,
-})
+// Same origin: next.config.mjs forwards /api to Django, so the session and
+// CSRF cookies are this app's own.
+client.setConfig({ baseURL: "/api" })
 
 client.instance.interceptors.request.use((config) => {
   config.headers["X-CSRFToken"] = Cookies.get("csrftoken")
