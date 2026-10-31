@@ -1,0 +1,8 @@
+Hello {{ order.customer.name }},
+
+We received the payment of your order {{ order.number }}. Thank you!
+{% if invoiced %}
+Your invoice is attached.{% endif %}
+We'll write to you when it ships. You can see your order at {{ order_url }}
+
+{{ store_name }}

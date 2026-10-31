@@ -32,6 +32,14 @@ if "STORE_URL" not in env.ENVIRON:
     raise ImproperlyConfigured("STORE_URL: the account emails link to the store")
 vars().update(env.email_url("EMAIL_URL"))
 
+# The store charges with Mercado Pago, and paid orders are invoiced in ARCA.
+for name in ("MERCADOPAGO_ACCESS_TOKEN", "MERCADOPAGO_WEBHOOK_SECRET"):
+    if name not in env.ENVIRON:
+        raise ImproperlyConfigured(f"{name}: the store's payments")
+AUTO_INVOICE = env("AUTO_INVOICE", default="arca")
+if AUTO_INVOICE == "sample":
+    raise ImproperlyConfigured("AUTO_INVOICE=sample makes up vouchers: never in production")
+
 # The images' public URL (base.py's default is localhost's).
 if "MEDIA_URL" not in env.ENVIRON:
     raise ImproperlyConfigured("MEDIA_URL: the public URL of the product images")

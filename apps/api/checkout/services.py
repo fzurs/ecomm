@@ -122,6 +122,7 @@ def send_order_placed_email(order: Order):
         "items": order.items.select_related("product"),
         "store_name": settings.STORE_NAME,
         "order_url": f"{settings.STORE_URL}/orders/{order.number}",
+        "unpaid_hours": settings.UNPAID_ORDER_HOURS,
     }
     send_mail(
         f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX}Order {order.number} received",

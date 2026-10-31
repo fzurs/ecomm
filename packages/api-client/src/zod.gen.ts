@@ -41,7 +41,8 @@ export const zCategoryChoice = z.object({
 });
 
 export const zCheckoutResult = z.object({
-    number: z.string()
+    number: z.string(),
+    payment_url: z.url().nullable()
 });
 
 export const zConversation = z.object({
@@ -141,6 +142,8 @@ export const zMyOrderCustomer = z.object({
     email: z.email().max(254).optional()
 });
 
+export const zNullEnum = z.unknown();
+
 /**
  * * `not_invoiced` - Not invoiced
  * * `pending` - Pending
@@ -233,6 +236,35 @@ export const zPatchedUserDetails = z.object({
     has_usable_password: z.boolean().readonly().optional()
 });
 
+export const zPaymentLink = z.object({
+    payment_url: z.url()
+});
+
+/**
+ * * `created` - Created
+ * * `pending` - Pending
+ * * `in_process` - In process
+ * * `authorized` - Authorized
+ * * `in_mediation` - In mediation
+ * * `approved` - Approved
+ * * `rejected` - Rejected
+ * * `cancelled` - Cancelled
+ * * `refunded` - Refunded
+ * * `charged_back` - Charged back
+ */
+export const zPaymentStatus = z.enum([
+    'created',
+    'pending',
+    'in_process',
+    'authorized',
+    'in_mediation',
+    'approved',
+    'rejected',
+    'cancelled',
+    'refunded',
+    'charged_back'
+]);
+
 /**
  * * `draft` - Draft
  * * `active` - Active
@@ -292,7 +324,13 @@ export const zMyOrder = z.object({
     customer: zMyOrderCustomer,
     shipping_address: z.string().optional(),
     items: z.array(zMyOrderItem),
-    total: z.int()
+    total: z.int(),
+    payment_status: z.union([
+        zPaymentStatus,
+        zNullEnum
+    ]).nullable(),
+    payment_status_detail: z.string().readonly(),
+    has_invoice: z.boolean().readonly()
 });
 
 export const zProductSummary = z.object({
@@ -303,6 +341,24 @@ export const zProductSummary = z.object({
     discount_percent: z.int().gte(1).lte(99).nullish(),
     active_price: z.int().readonly().nullable(),
     image: z.url().nullish()
+});
+
+/**
+ * * `mercadopago` - Mercado Pago
+ */
+export const zProviderEnum = z.enum(['mercadopago']);
+
+/**
+ * A payment of an order, as the admin shows it.
+ */
+export const zPaymentSummary = z.object({
+    id: z.int().readonly(),
+    provider: zProviderEnum.optional(),
+    provider_payment_id: z.string().max(100).nullish(),
+    status: zPaymentStatus.optional(),
+    status_detail: z.string().max(100).optional(),
+    amount: z.string().regex(/^-?\d{0,12}(?:\.\d{0,2})?$/),
+    created_at: z.iso.datetime().readonly()
 });
 
 /**
@@ -482,6 +538,7 @@ export const zOrder = z.object({
     invoice_id: z.int().readonly().nullable(),
     status_locks: z.array(zOrderStatusLock).readonly(),
     delete_lock: z.string().readonly().nullable(),
+    payments: z.array(zPaymentSummary).readonly(),
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -502,6 +559,7 @@ export const zOrderCreate = z.object({
     invoice_id: z.int().readonly().nullable(),
     status_locks: z.array(zOrderStatusLock).readonly(),
     delete_lock: z.string().readonly().nullable(),
+    payments: z.array(zPaymentSummary).readonly(),
     number: z.string().readonly(),
     status: z.union([
         zOrderStatus,
@@ -529,6 +587,7 @@ export const zPatchedOrder = z.object({
     invoice_id: z.int().readonly().nullish(),
     status_locks: z.array(zOrderStatusLock).readonly().optional(),
     delete_lock: z.string().readonly().nullish(),
+    payments: z.array(zPaymentSummary).readonly().optional(),
     number: z.string().readonly().optional(),
     status: z.union([
         zOrderStatus,
@@ -974,6 +1033,17 @@ export const zPatchedUserDetailsWritable = z.object({
     last_name: z.string().max(150).optional()
 });
 
+/**
+ * A payment of an order, as the admin shows it.
+ */
+export const zPaymentSummaryWritable = z.object({
+    provider: zProviderEnum.optional(),
+    provider_payment_id: z.string().max(100).nullish(),
+    status: zPaymentStatus.optional(),
+    status_detail: z.string().max(100).optional(),
+    amount: z.string().regex(/^-?\d{0,12}(?:\.\d{0,2})?$/)
+});
+
 export const zProductWritable = z.object({
     brand_id: z.int().nullish(),
     category_id: z.int().nullish(),
@@ -1374,6 +1444,18 @@ export const zMyOrdersRetrievePath = z.object({
 });
 
 export const zMyOrdersRetrieveResponse = zMyOrder;
+
+export const zMyOrdersInvoicePath = z.object({
+    number: z.string()
+});
+
+export const zMyOrdersInvoiceResponse = z.string();
+
+export const zMyOrdersPayPath = z.object({
+    number: z.string()
+});
+
+export const zMyOrdersPayResponse = zPaymentLink;
 
 export const zOrdersListQuery = z.object({
     created_at: z.iso.date().optional(),

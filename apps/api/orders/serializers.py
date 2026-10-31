@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from billing.models import ORDER_INVOICE_STATUSES
 from billing.rules import order_delete_lock, order_status_locks
+from payments.serializers import PaymentSummarySerializer
 from .models import Order, OrderItem, Customer
 from store.models import Product
 
@@ -85,6 +86,8 @@ class OrderSerializer(serializers.ModelSerializer):
     status_locks = serializers.SerializerMethodField()
     # Why the order can't be deleted, or null.
     delete_lock = serializers.SerializerMethodField()
+    # Its Mercado Pago payments, newest first (the store's orders).
+    payments = PaymentSummarySerializer(many=True, read_only=True)
 
     class Meta:
         model = Order

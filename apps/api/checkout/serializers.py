@@ -1,7 +1,11 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from billing.models import Invoice
+from billing.rules import InvoicingError, invoice_letter, receptor_for
 from orders.models import Customer, Order, OrderItem
 from orders.serializers import CustomerSerializer
+from payments.models import Payment
 from store.models import Product
 
 from .models import MAX_QUANTITY
@@ -75,9 +79,27 @@ class CheckoutSerializer(CustomerSerializer):
                   "legal_name", "shipping_address"]
         extra_kwargs = {"email": {"required": True, "allow_blank": False}}
 
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        # A paid order is invoiced on its own (payments.services.invoice_order): what the customer
+        # gives has to be enough for the invoice, or it'd fail after the payment.
+        customer = Customer(**{field: value for field, value in attrs.items() if field != "shipping_address"})
+        try:
+            receptor_for(customer, invoice_letter(customer))
+        except InvoicingError as exc:
+            raise serializers.ValidationError({"document_number": str(exc)})
+        return attrs
+
 
 class CheckoutResultSerializer(serializers.Serializer):
     number = serializers.CharField()
+    # Mercado Pago's checkout, where the store sends the customer. Null if it couldn't be made:
+    # the order's page offers to pay it.
+    payment_url = serializers.URLField(allow_null=True)
+
+
+class PaymentLinkSerializer(serializers.Serializer):
+    payment_url = serializers.URLField()
 
 
 class MyOrderItemSerializer(serializers.ModelSerializer):
@@ -101,7 +123,38 @@ class MyOrderSerializer(serializers.ModelSerializer):
     items = MyOrderItemSerializer(many=True)
     total = serializers.IntegerField()
     customer = MyOrderCustomerSerializer()
+    # Its last payment's, or null without one: e.g. `in_process` while a cash payment waits.
+    payment_status = serializers.SerializerMethodField()
+    payment_status_detail = serializers.SerializerMethodField()
+    # An authorized invoice, as a PDF at /my/orders/<number>/invoice/.
+    has_invoice = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ["number", "status", "created_at", "customer", "shipping_address", "items", "total"]
+        fields = ["number", "status", "created_at", "customer", "shipping_address", "items", "total",
+                  "payment_status", "payment_status_detail", "has_invoice"]
+
+    @staticmethod
+    def last_payment(order):
+        # Prefetched by MyOrderViewSet, newest first.
+        payments = list(order.payments.all())
+        return payments[0] if payments else None
+
+    @extend_schema_field(serializers.ChoiceField(choices=Payment.Status.choices, allow_null=True))
+    def get_payment_status(self, order):
+        payment = self.last_payment(order)
+        return payment.status if payment else None
+
+    def get_payment_status_detail(self, order) -> str:
+        payment = self.last_payment(order)
+        return payment.status_detail if payment else ""
+
+    def get_has_invoice(self, order) -> bool:
+        return invoice_of(order) is not None
+
+
+def invoice_of(order):
+    """The order's authorized invoice (prefetched by MyOrderViewSet), or None."""
+    return next((invoice for invoice in order.invoices.all()
+                 if invoice.associated_invoice_id is None
+                 and invoice.status == Invoice.Status.AUTHORIZED), None)

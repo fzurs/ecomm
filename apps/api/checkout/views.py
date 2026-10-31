@@ -1,14 +1,25 @@
+import logging
+
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Prefetch, Q
+from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema
-from rest_framework import mixins, permissions, serializers, status, viewsets
-from rest_framework.exceptions import ValidationError
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from billing.pdf import invoice_pdf
+from billing.rules import InvoicingError
 from config.authentication import CsrfSessionAuthentication
-from config.exceptions import Conflict
+from config.exceptions import Conflict, ServiceUnavailable
 from orders.models import Order, OrderItem
+from payments import services as payments
+from payments.gateway import GatewayError
+from payments.models import Payment
 
 from . import services
 from .models import CartItem
@@ -19,7 +30,11 @@ from .serializers import (
     CheckoutResultSerializer,
     CheckoutSerializer,
     MyOrderSerializer,
+    PaymentLinkSerializer,
+    invoice_of,
 )
+
+logger = logging.getLogger("billing")
 
 
 class StoreView(APIView):
@@ -91,7 +106,20 @@ class CheckoutView(StoreView):
             raise ValidationError({"detail": "Your cart is empty."})
         except services.UnavailableProducts as exc:
             raise Conflict(f"These products can't be bought anymore: {', '.join(exc.names)}.")
-        return Response({"number": order.number}, status=status.HTTP_201_CREATED)
+        return Response({"number": order.number, "payment_url": payment_link(order)},
+                        status=status.HTTP_201_CREATED)
+
+
+def payment_link(order):
+    """Mercado Pago's checkout for the new order, or None if it can't be made now (not
+    configured, down): the order is placed anyway, and its page offers to pay it."""
+    if not settings.MERCADOPAGO_ACCESS_TOKEN:
+        return None
+    try:
+        return payments.start_payment(order)
+    except (payments.PaymentError, GatewayError):
+        logger.exception("No payment link for order %s", order.number)
+        return None
 
 
 @extend_schema(responses=MyOrderSerializer)
@@ -113,6 +141,39 @@ class MyOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         return (
             Order.objects.filter(mine)
             .select_related("customer")
-            .prefetch_related(Prefetch("items", OrderItem.objects.select_related("product")))
+            .prefetch_related(
+                Prefetch("items", OrderItem.objects.select_related("product")),
+                Prefetch("payments", Payment.objects.order_by("-created_at", "-pk")),
+                "invoices",
+            )
             .order_by("-created_at")
         )
+
+    @extend_schema(operation_id="my_orders_pay", request=None, responses=PaymentLinkSerializer)
+    @action(detail=True, methods=["post"])
+    def pay(self, request, number=None):
+        """A Mercado Pago checkout for the order: to pay it later, or again after a rejection."""
+        order = self.get_object()
+        try:
+            url = payments.start_payment(order)
+        except payments.PaymentError as exc:
+            raise Conflict(str(exc))
+        except GatewayError:
+            logger.exception("No payment link for order %s", order.number)
+            raise ServiceUnavailable()
+        return Response({"payment_url": url})
+
+    @extend_schema(operation_id="my_orders_invoice", responses={(200, "application/pdf"): bytes})
+    @action(detail=True, methods=["get"])
+    def invoice(self, request, number=None):
+        """The order's invoice, as a PDF."""
+        invoice = invoice_of(self.get_object())
+        if invoice is None:
+            raise NotFound("This order has no invoice yet.")
+        try:
+            pdf = invoice_pdf(invoice)
+        except (InvoicingError, ImproperlyConfigured):
+            raise NotFound("This order's invoice can't be downloaded yet.")
+        filename = f"{invoice.letter}-{invoice.point_of_sale:05d}-{invoice.number:08d}.pdf"
+        return HttpResponse(pdf, content_type="application/pdf",
+                            headers={"Content-Disposition": f'attachment; filename="{filename}"'})

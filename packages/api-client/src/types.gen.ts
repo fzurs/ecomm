@@ -82,6 +82,7 @@ export type Checkout = {
 
 export type CheckoutResult = {
     number: string;
+    payment_url: string | null;
 };
 
 export type Conversation = {
@@ -316,6 +317,9 @@ export type MyOrder = {
     shipping_address?: string;
     items: Array<MyOrderItem>;
     total: number;
+    payment_status: PaymentStatus | NullEnum | null;
+    readonly payment_status_detail: string;
+    readonly has_invoice: boolean;
 };
 
 export type MyOrderCustomer = {
@@ -330,6 +334,8 @@ export type MyOrderItem = {
     subtotal: number;
 };
 
+export type NullEnum = never;
+
 export type Order = {
     readonly id: number;
     readonly items: Array<OrderItem>;
@@ -339,6 +345,7 @@ export type Order = {
     readonly invoice_id: number | null;
     readonly status_locks: Array<OrderStatusLock>;
     readonly delete_lock: string | null;
+    readonly payments: Array<PaymentSummary>;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     shipping_address?: string;
@@ -356,6 +363,7 @@ export type OrderCreate = {
     readonly invoice_id: number | null;
     readonly status_locks: Array<OrderStatusLock>;
     readonly delete_lock: string | null;
+    readonly payments: Array<PaymentSummary>;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
     shipping_address?: string;
@@ -486,6 +494,7 @@ export type PatchedOrder = {
     readonly invoice_id?: number | null;
     readonly status_locks?: Array<OrderStatusLock>;
     readonly delete_lock?: string | null;
+    readonly payments?: Array<PaymentSummary>;
     readonly number?: string;
     status?: OrderStatus | BlankEnum;
     shipping_address?: string;
@@ -559,6 +568,37 @@ export type PatchedUserDetails = {
     readonly has_usable_password?: boolean;
 };
 
+export type PaymentLink = {
+    payment_url: string;
+};
+
+/**
+ * * `created` - Created
+ * * `pending` - Pending
+ * * `in_process` - In process
+ * * `authorized` - Authorized
+ * * `in_mediation` - In mediation
+ * * `approved` - Approved
+ * * `rejected` - Rejected
+ * * `cancelled` - Cancelled
+ * * `refunded` - Refunded
+ * * `charged_back` - Charged back
+ */
+export type PaymentStatus = 'created' | 'pending' | 'in_process' | 'authorized' | 'in_mediation' | 'approved' | 'rejected' | 'cancelled' | 'refunded' | 'charged_back';
+
+/**
+ * A payment of an order, as the admin shows it.
+ */
+export type PaymentSummary = {
+    readonly id: number;
+    provider?: ProviderEnum;
+    provider_payment_id?: string | null;
+    status?: PaymentStatus;
+    status_detail?: string;
+    amount: string;
+    readonly created_at: string;
+};
+
 export type Product = {
     readonly id: number;
     brand: Brand | null;
@@ -608,6 +648,11 @@ export type ProductSummary = {
     readonly active_price: number | null;
     image?: string | null;
 };
+
+/**
+ * * `mercadopago` - Mercado Pago
+ */
+export type ProviderEnum = 'mercadopago';
 
 /**
  * * `80` - CUIT
@@ -943,6 +988,17 @@ export type PatchedProductWritable = {
 export type PatchedUserDetailsWritable = {
     first_name?: string;
     last_name?: string;
+};
+
+/**
+ * A payment of an order, as the admin shows it.
+ */
+export type PaymentSummaryWritable = {
+    provider?: ProviderEnum;
+    provider_payment_id?: string | null;
+    status?: PaymentStatus;
+    status_detail?: string;
+    amount: string;
 };
 
 export type ProductWritable = {
@@ -1856,6 +1912,36 @@ export type MyOrdersRetrieveResponses = {
 };
 
 export type MyOrdersRetrieveResponse = MyOrdersRetrieveResponses[keyof MyOrdersRetrieveResponses];
+
+export type MyOrdersInvoiceData = {
+    body?: never;
+    path: {
+        number: string;
+    };
+    query?: never;
+    url: '/my/orders/{number}/invoice/';
+};
+
+export type MyOrdersInvoiceResponses = {
+    200: Blob | File;
+};
+
+export type MyOrdersInvoiceResponse = MyOrdersInvoiceResponses[keyof MyOrdersInvoiceResponses];
+
+export type MyOrdersPayData = {
+    body?: never;
+    path: {
+        number: string;
+    };
+    query?: never;
+    url: '/my/orders/{number}/pay/';
+};
+
+export type MyOrdersPayResponses = {
+    200: PaymentLink;
+};
+
+export type MyOrdersPayResponse = MyOrdersPayResponses[keyof MyOrdersPayResponses];
 
 export type OrdersListData = {
     body?: never;

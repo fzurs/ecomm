@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CartItemsCreateData, CartItemsCreateResponses, CartItemsDestroyData, CartItemsDestroyResponses, CartItemsPartialUpdateData, CartItemsPartialUpdateResponses, CartRetrieveData, CartRetrieveResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CheckoutCreateData, CheckoutCreateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, MyOrdersListData, MyOrdersListResponses, MyOrdersRetrieveData, MyOrdersRetrieveResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CartItemsCreateData, CartItemsCreateResponses, CartItemsDestroyData, CartItemsDestroyResponses, CartItemsPartialUpdateData, CartItemsPartialUpdateResponses, CartRetrieveData, CartRetrieveResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CheckoutCreateData, CheckoutCreateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, MyOrdersInvoiceData, MyOrdersInvoiceResponses, MyOrdersListData, MyOrdersListResponses, MyOrdersPayData, MyOrdersPayResponses, MyOrdersRetrieveData, MyOrdersRetrieveResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -655,6 +655,36 @@ export const myOrdersRetrieve = <ThrowOnError extends boolean = false>(options: 
             type: 'apiKey'
         }],
     url: '/my/orders/{number}/',
+    ...options
+});
+
+/**
+ * The order's invoice, as a PDF.
+ */
+export const myOrdersInvoice = <ThrowOnError extends boolean = false>(options: Options<MyOrdersInvoiceData, ThrowOnError>): RequestResult<MyOrdersInvoiceResponses, unknown, ThrowOnError> => (options.client ?? client).get<MyOrdersInvoiceResponses, unknown, ThrowOnError>({
+    responseType: 'blob',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/my/orders/{number}/invoice/',
+    ...options
+});
+
+/**
+ * A Mercado Pago checkout for the order: to pay it later, or again after a rejection.
+ */
+export const myOrdersPay = <ThrowOnError extends boolean = false>(options: Options<MyOrdersPayData, ThrowOnError>): RequestResult<MyOrdersPayResponses, unknown, ThrowOnError> => (options.client ?? client).post<MyOrdersPayResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/my/orders/{number}/pay/',
     ...options
 });
 

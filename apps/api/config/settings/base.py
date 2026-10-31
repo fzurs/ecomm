@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "assistant",
     "accounts",
     "checkout",
+    "payments",
 ]
 
 REST_FRAMEWORK = {
@@ -100,6 +101,7 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "ProductStatus": "orders.models.Product.Status",
         "OrderStatus": "orders.models.Order.Status",
+        "PaymentStatus": "payments.models.Payment.Status",
         "InvoiceStatus": "billing.models.Invoice.Status",
         "OrderInvoiceStatus": "billing.models.ORDER_INVOICE_STATUSES",
         "VoucherType": "billing.models.VoucherType",
@@ -172,6 +174,28 @@ SOCIALACCOUNT_PROVIDERS = {
 # the email), except for staff (accounts.adapter.SocialAccountAdapter).
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# Payments (payments): the store's orders are paid with Mercado Pago Checkout Pro. Without the
+# token, the checkout creates the order without a payment link.
+MERCADOPAGO_ACCESS_TOKEN = env("MERCADOPAGO_ACCESS_TOKEN", default="")
+# The webhook's secret, to check its notifications' signature (the app's Webhooks, in Mercado
+# Pago Developers).
+MERCADOPAGO_WEBHOOK_SECRET = env("MERCADOPAGO_WEBHOOK_SECRET", default="")
+# The checkout's URL to pay: the sandbox's with test credentials.
+MERCADOPAGO_SANDBOX = env.bool("MERCADOPAGO_SANDBOX", default=MERCADOPAGO_ACCESS_TOKEN.startswith("TEST-"))
+# Where Mercado Pago notifies the payments: through the store's /api, so the API needs no public
+# domain of its own. In dev, a tunnel's URL (Mercado Pago can't reach localhost).
+MERCADOPAGO_NOTIFICATION_URL = env(
+    "MERCADOPAGO_NOTIFICATION_URL", default=f"{STORE_URL}/api/payments/webhooks/mercadopago/")
+# What the card statement shows, up to 13 characters.
+MERCADOPAGO_STATEMENT_DESCRIPTOR = env("MERCADOPAGO_STATEMENT_DESCRIPTOR", default="")
+# An order without a payment is cancelled after this long (payments.services.cancel_unpaid_orders).
+UNPAID_ORDER_HOURS = env.int("UNPAID_ORDER_HOURS", default=72)
+# The invoice of a paid order: `arca`, `sample` (made-up vouchers, never ARCA: dev's default) or
+# `off` (by hand from the admin). prod.py makes it `arca`.
+AUTO_INVOICE = env("AUTO_INVOICE", default="sample")
+if AUTO_INVOICE not in ("off", "sample", "arca"):
+    raise environ.ImproperlyConfigured("AUTO_INVOICE must be off, sample or arca")
 
 # Two-factor authentication (allauth.mfa): passkeys (WebAuthn) and an authenticator app, with
 # recovery codes. A passkey is tied to the frontend's domain (accounts.adapter.MFAAdapter).

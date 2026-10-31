@@ -20,7 +20,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     # list at a fixed number of queries. invoice_status, invoice_id and
     # invoice_uncredited (for the status locks) are subqueries for the same reason.
     queryset = Order.objects.select_related("customer").prefetch_related(
-        "items__product",
+        "items__product", "payments",
     ).annotate(
         items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0),
         invoice_status=order_invoice_status(),

@@ -12,6 +12,12 @@ class Conflict(APIException):
     default_code = 'conflict'
 
 
+class ServiceUnavailable(APIException):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_detail = "It isn't available right now. Try again in a moment."
+    default_code = 'service_unavailable'
+
+
 def exception_handler(exc, context):
     # Deleting a row that a PROTECT foreign key points to is a conflict, not a server error.
     if isinstance(exc, ProtectedError):

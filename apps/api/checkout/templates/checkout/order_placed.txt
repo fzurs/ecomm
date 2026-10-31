@@ -1,6 +1,6 @@
 {% load checkout %}Hello {{ order.customer.name }},
 
-We received your order {{ order.number }}. We'll write to you soon to arrange the payment and the delivery.
+We received your order {{ order.number }}. It's paid with Mercado Pago: when the payment is in, we'll send you another email with the invoice.
 {% for item in items %}
 - {{ item.quantity }} × {{ item.product.name }}: {{ item.subtotal|price }}{% endfor %}
 
@@ -9,6 +9,8 @@ Total: {{ order.total|price }}
 Shipping to:
 {{ order.shipping_address }}
 
-You can see your order at {{ order_url }}
+You can see your order, and pay it if you haven't yet, at {{ order_url }}
+
+Unpaid orders are cancelled after {{ unpaid_hours }} hours.
 
 Thank you for shopping at {{ store_name }}!

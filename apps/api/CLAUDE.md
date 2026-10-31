@@ -113,6 +113,18 @@
   (`PLACED_ORDERS_KEY`). La de otro da 404.
 - Todavía no hay pago: la orden queda `pending` hasta que el admin la cambie.
 
+## Pagos (payments)
+- Mercado Pago Checkout Pro: ver `docs/architecture/payments.md`. `payments/gateway.py` es lo
+  único que habla con el SDK (`mercadopago`); los tests lo simulan.
+- `Payment` es un intento de pago de una orden: `created` con el link, y lo completan los avisos.
+  El webhook (`/payments/webhooks/mercadopago/`, sin sesión ni CSRF, con la firma) lee el pago de
+  Mercado Pago, paga la orden si está aprobado y coincide el total, y después del commit la
+  factura (`invoice_order`, según `AUTO_INVOICE`) y le manda el mail al cliente.
+- `checkout`: `/checkout/` devuelve `payment_url`. `/my/orders/<n>/pay/` hace un link nuevo, y
+  `/my/orders/<n>/invoice/` devuelve el PDF. El checkout valida que los datos alcancen para la
+  factura (`receptor_for`).
+- Comandos para cron: `cancel_unpaid_orders` (`UNPAID_ORDER_HOURS`) e `invoice_paid_orders`.
+
 ## Facturación (billing)
 - `Invoice` es cualquier comprobante (`VoucherType`, el CbteTipo de ARCA): facturas A/B/C y sus
   notas de crédito/débito, que apuntan a la factura con `associated_invoice`. Guarda una copia del
