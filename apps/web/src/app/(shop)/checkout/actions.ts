@@ -23,7 +23,9 @@ const FIELDS = [
 
 /**
  * Places the order with the cart of the visitor's session (djangoFetch), and
- * goes to it. Django validates the data like the admin's customers.
+ * goes to Mercado Pago to pay it; without a payment link (not configured, or
+ * down), to the order, which offers to pay it. Django validates the data like
+ * the admin's customers, and that it's enough for the invoice.
  */
 export async function placeOrder(
   _: FormState,
@@ -46,11 +48,13 @@ export async function placeOrder(
   }
 
   let number: string
+  let paymentUrl: string | null
   try {
     const { data } = await djangoFetch((options) =>
       checkoutCreate({ ...options, body, throwOnError: true })
     )
     number = data.number
+    paymentUrl = data.payment_url
   } catch (error) {
     const response = failedResponse(error)
     const data = (response?.data ?? {}) as Record<string, unknown>
@@ -76,5 +80,5 @@ export async function placeOrder(
 
   // The header's cart is empty now.
   refresh()
-  redirect(`/orders/${number}`)
+  redirect(paymentUrl ?? `/orders/${number}`)
 }

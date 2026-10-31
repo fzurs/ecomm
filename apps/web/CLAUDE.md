@@ -96,6 +96,12 @@
 - `/checkout` (sin sesión también): `CheckoutForm` con contacto, envío y facturación (los códigos
   de ARCA que ofrece están en `src/lib/fiscal.ts`). `placeOrder` muestra los errores de DRF por
   campo y, si sale bien, redirige a `/orders/<número>`, que también es la confirmación.
+- Pago con Mercado Pago (`docs/architecture/payments.md`): `placeOrder` redirige al
+  `payment_url` que devuelve la API, o al pedido si no hay. En `/orders/<número>`,
+  `PaymentStatus` muestra en qué está el pago:
+  - pagar, reintentar (`payOrder`, `/my/orders/<n>/pay/`) o esperar la confirmación, con
+    `RefreshWhileWaiting`, porque la confirma el webhook y no la vuelta de Mercado Pago;
+  - "Download invoice" (`/api/my/orders/<n>/invoice/`).
 - `/account` lista los pedidos de la cuenta (`getMyOrders()`); los labels de los estados están en
   `src/lib/order-status.ts`.
 

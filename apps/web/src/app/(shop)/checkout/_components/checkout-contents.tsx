@@ -66,7 +66,8 @@ export async function CheckoutContents() {
             <span className="tabular-nums">{formatPrice(cart.total)}</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            Shipping and payment are arranged by email after the order.
+            You&apos;ll pay with Mercado Pago: cards, your Mercado Pago balance
+            or cash. Shipping is arranged by email.
           </p>
           <Link
             href="/cart"

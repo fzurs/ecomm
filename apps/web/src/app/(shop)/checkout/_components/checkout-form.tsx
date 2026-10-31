@@ -146,7 +146,7 @@ export function CheckoutForm({
         </FieldSet>
 
         <FieldError>{state.formError}</FieldError>
-        <SubmitButton size="lg">Place order</SubmitButton>
+        <SubmitButton size="lg">Continue to payment</SubmitButton>
       </FieldGroup>
     </form>
   )

@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { CircleCheckIcon } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
@@ -14,26 +13,31 @@ import { ProductImage } from "@/components/product-image"
 import { getMyOrder } from "@/lib/dal"
 import { formatPrice } from "@/lib/format"
 import { orderStatuses } from "@/lib/order-status"
+import { PaymentStatus } from "./_components/payment-status"
 
 export const metadata = { title: "Order" }
 
 /** An order of the visitor's: their account's, or a guest's of this session. */
-export default function OrderPage({ params }: PageProps<"/orders/[number]">) {
+export default function OrderPage({
+  params,
+  searchParams,
+}: PageProps<"/orders/[number]">) {
   return (
     <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
-      <OrderDetails params={params} />
+      <OrderDetails params={params} searchParams={searchParams} />
     </Suspense>
   )
 }
 
 async function OrderDetails({
   params,
-}: {
-  params: PageProps<"/orders/[number]">["params"]
-}) {
+  searchParams,
+}: PageProps<"/orders/[number]">) {
   const order = await getMyOrder((await params).number)
   // Someone else's looks the same as one that doesn't exist.
   if (!order) notFound()
+  // Mercado Pago comes back here with the payment's status (its back URLs).
+  const returned = (await searchParams).status
   const status = order.status ? orderStatuses[order.status] : null
 
   return (
@@ -50,16 +54,10 @@ async function OrderDetails({
         {status && <Badge variant={status.variant}>{status.label}</Badge>}
       </div>
 
-      {order.status === "pending" && (
-        <div className="flex gap-3 rounded-xl bg-muted p-4 text-sm">
-          <CircleCheckIcon className="size-5 shrink-0 text-primary" />
-          <p>
-            Thank you! We received your order and sent the details to{" "}
-            <strong>{order.customer.email}</strong>. We&apos;ll write to you
-            soon to arrange the payment and the delivery.
-          </p>
-        </div>
-      )}
+      <PaymentStatus
+        order={order}
+        returned={typeof returned === "string" ? returned : null}
+      />
 
       <Card>
         <CardHeader>
