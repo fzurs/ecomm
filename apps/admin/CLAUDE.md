@@ -75,6 +75,9 @@
   `new/page.tsx`, y las carpetas privadas `_components/`, `_hooks/`, `_lib/`.
 - `customers`, `products`, `brands` y `categories` también siguen este patrón, con row actions
   vía `RowActionsProvider`.
+- Las órdenes de la tienda se pagan con Mercado Pago y se facturan solas: el detalle de la orden
+  muestra sus pagos (`OrderPayments`, `_lib/payment-status.ts`). Una factura automática que quedó
+  `rejected` o `unverified` se resuelve con los botones de siempre.
 - `invoices` no tiene alta: las facturas se emiten desde las row actions de una orden pagada (con
   vista previa, `order-invoice-dialog.tsx`) y las notas desde una factura autorizada
   (`invoices/[id]/credit-note`, `debit-note`). Emitir devuelve 2xx también si ARCA rechaza: el

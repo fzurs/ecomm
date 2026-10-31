@@ -12,6 +12,7 @@ import {
 import { OrderStatusBadge } from "../_components/order-status-badge"
 import { OrderStatusMenu } from "../_components/order-status-menu"
 import { OrderCustomerItem } from "../_components/order-customer-item"
+import { OrderPayments } from "../_components/order-payments"
 import {
   OrderInvoiceButton,
   OrderInvoices,
@@ -77,6 +78,15 @@ export default function OrdersDetailsPage() {
               </div>
               <OrderInvoices order={order} />
             </section>
+            {/* The store's orders: paid with Mercado Pago, and invoiced on their own. */}
+            {order.payments.length > 0 && (
+              <section className="flex flex-col gap-4">
+                <div className="typeset">
+                  <h2>Payments</h2>
+                </div>
+                <OrderPayments payments={order.payments} />
+              </section>
+            )}
           </div>
 
           <section className="flex flex-col gap-4 @5xl/main:col-start-1 @5xl/main:row-start-2">
