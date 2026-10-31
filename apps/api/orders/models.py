@@ -1,12 +1,30 @@
+import re
+import uuid
+from pathlib import PurePath
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
-from django.utils.text import slugify
 from django.db import models, transaction
 from django.utils import timezone
 from shipping.models import Province
 from store.images import generate_customer_image, to_png
 from store.models import Product, VatRate
+
+
+# The placeholder image's file name, before customer_image_path renames it.
+GENERATED_IMAGE = "generated.png"
+
+
+def customer_image_path(instance, filename):
+    """A random name: the images' bucket is public (MEDIA_URL), and the customer's name would
+    show in the URL. The placeholder keeps a mark (is_generated_image)."""
+    mark = "generated-" if filename == GENERATED_IMAGE else ""
+    return f"customers/{mark}{uuid.uuid4().hex}{PurePath(filename).suffix}"
+
+
+def is_generated_image(name: str) -> bool:
+    return re.fullmatch(r"customers/generated-[0-9a-f]{32}\.png", name) is not None
 
 
 class Customer(models.Model):
@@ -54,7 +72,7 @@ class Customer(models.Model):
     # Razón social and domicilio, as they go on the invoice. An empty legal_name means `name`.
     legal_name = models.CharField(max_length=255, blank=True)
     address = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(upload_to="customers/", blank=True, null=True)
+    image = models.ImageField(upload_to=customer_image_path, blank=True, null=True)
     # The store account this customer buys with, if any: a guest's purchase has none.
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="customer")
@@ -62,7 +80,7 @@ class Customer(models.Model):
     def save(self, *args, **kwargs):
         if not self.image:
             image = generate_customer_image(self.name)
-            self.image.save(f"{slugify(self.name)}.png", ContentFile(to_png(image)), save=False)
+            self.image.save(GENERATED_IMAGE, ContentFile(to_png(image)), save=False)
         super().save(*args, **kwargs)
 
     @property

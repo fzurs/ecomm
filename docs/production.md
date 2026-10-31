@@ -2,7 +2,8 @@
 
 Checklist para poner la API en producción y operarla sin dar más acceso del necesario. No
 depende del hosting: lo que pide es un proceso que corra `gunicorn`, variables de entorno
-secretas, un Postgres y un Redis.
+secretas, un Postgres y un Redis. La infraestructura elegida (VPS con Docker Compose detrás de
+Cloudflare Tunnel, imágenes en R2) y su paso a paso están en [`deploy/README.md`](../deploy/README.md).
 
 ## Antes del primer deploy
 
@@ -17,7 +18,7 @@ secretas, un Postgres y un Redis.
   - `STORE_URL` (la URL pública de la tienda, adonde apuntan los links de los mails de cuenta),
     `EMAIL_URL` (el SMTP, ej. `smtp+tls://usuario:clave@host:587`) y `DEFAULT_FROM_EMAIL`. Sin
     mails, los clientes no pueden confirmar su cuenta ni recuperar la contraseña.
-  - `MEDIA_URL`: la URL pública de las imágenes (ver **Media**).
+  - `MEDIA_URL`: la URL pública de las imágenes, y las `R2_*` del bucket (ver **Media**).
   - `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET`: las credenciales de producción de
     la aplicación de Checkout Pro. Opcional: `MERCADOPAGO_STATEMENT_DESCRIPTOR`. `AUTO_INVOICE` es
     `arca`: cada orden pagada se factura en ARCA, así que ARCA tiene que estar configurado
@@ -51,9 +52,12 @@ secretas, un Postgres y un Redis.
     no, `SECURE_SSL_REDIRECT` lo redirige.
   - El navegador nunca habla con la API, así que no hace falta CORS: `CORS_ALLOWED_ORIGINS`
     queda vacío ([`docs/architecture/auth.md`](architecture/auth.md)).
-- [ ] **Media**: las imágenes se sirven desde una URL pública, la de la API o un CDN: el
-  `MEDIA_URL` de Django, absoluto, que la API exige en producción. No pasan por el `/api` de los
-  frontends.
+- [ ] **Media**: las imágenes se guardan en un bucket de Cloudflare R2 (`STORAGES` de
+  `config/settings/prod.py`, con `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID` y
+  `R2_SECRET_ACCESS_KEY`) y se sirven desde su dominio público: el `MEDIA_URL` de Django,
+  `https://<host>/`, que la API exige en producción. No pasan por el `/api` de los frontends.
+  - El bucket es público: las fotos de clientes llevan un nombre aleatorio
+    (`orders.models.customer_image_path`), no el del cliente.
   - La tienda y el admin se buildean con el mismo `MEDIA_URL`: `next/image` solo optimiza
     imágenes de ahí (`images.remotePatterns`). El servidor de cada uno las baja y las achica, y
     guarda el resultado en su `.next/cache/images`, que conviene que persista entre deploys.
@@ -64,7 +68,8 @@ secretas, un Postgres y un Redis.
   en `MERCADOPAGO_WEBHOOK_SECRET`.
 - [ ] **Cron**: `manage.py cancel_unpaid_orders`, por ejemplo cada hora, y
   `manage.py invoice_paid_orders`, por ejemplo cada 10 minutos.
-- [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.
+- [ ] **Estáticos**: `python manage.py collectstatic --noinput` al arrancar el contenedor
+  (`apps/api/Dockerfile`). Los sirve whitenoise.
 - [ ] **Migraciones**: `python manage.py migrate` en cada deploy. Crea los triggers que protegen
   los comprobantes y sincroniza los roles.
 
@@ -128,7 +133,7 @@ dominio en `FRONTEND_ORIGINS` y los crons.
 - Para diagnósticos hay un rol de solo lectura, creado con
   [`docs/sql/readonly_role.sql`](sql/readonly_role.sql). Se usa con un usuario personal que lo
   hereda; nunca con el de la app.
-- Backups automáticos del proveedor, con restauración probada al menos una vez.
+- Backups diarios cifrados a R2 (`deploy/backup/`), con restauración probada al menos una vez.
 - **Nunca copiar la base de producción a una máquina local.** Tiene datos personales de clientes
   (Ley 25.326) y comprobantes reales. Para desarrollar está el seed. Si alguna vez hace falta
   reproducir un caso, se anonimiza en el servidor antes de sacar nada.

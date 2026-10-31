@@ -23,6 +23,9 @@ Responder en español. Código e identificadores en inglés, como el resto del r
   Links con estilo de botón: `<Link className={buttonVariants({...})}>`, no `<Button render={<Link />}>`
   (el `Button` de Base UI fuerza `role="button"`; así lo indica la doc de shadcn).
 - `packages/{eslint,prettier,typescript}-config` — configuración compartida de herramientas.
+- `deploy/` — producción: Docker Compose en un VPS detrás de Cloudflare Tunnel (api, admin, Postgres,
+  Redis), imágenes en R2 y backups. Ver `deploy/README.md`. Las imágenes son `apps/api/Dockerfile`
+  y `apps/admin/Dockerfile` (contexto: la raíz). El CI está en `.github/workflows/ci.yml`.
 
 ## Comandos (desde la raíz)
 - `pnpm dev` — todas las apps; `pnpm --filter admin dev` para una sola

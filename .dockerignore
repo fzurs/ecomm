@@ -1,0 +1,13 @@
+# The admin's build context (apps/admin/Dockerfile). Secrets and local files never go in.
+**/node_modules
+**/.next
+**/.turbo
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.devcontainer
+apps/api/certs
+apps/api/media
+packages/api-client/schema.yml
+packages/api-client/allauth.json

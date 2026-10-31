@@ -16,7 +16,11 @@
   `ARCA_ISSUER_GROSS_INCOME`. Sin estos últimos, `/invoices/{id}/pdf/` responde 400.
 - `MEDIA_URL` es absoluto (`http://localhost:8000/media/` en dev; prod lo exige): las URLs de
   las imágenes no dependen del host del request, y la tienda las optimiza con `next/image` desde
-  ahí. En dev Django las sirve por el path de esa URL (`config/urls.py`).
+  ahí. En dev Django las sirve por el path de esa URL (`config/urls.py`). En prod las guarda un
+  bucket R2 público (django-storages, `R2_*`) y `MEDIA_URL` es su dominio: por eso las fotos de
+  clientes llevan nombre aleatorio (`orders.models.customer_image_path`; las generadas, con la
+  marca `generated-` que reconocen `seed --reset` y `regenerate_images`).
+- `/health/` (`config/views.py`): base y caches, para el healthcheck de Docker y el monitor.
 - Caches: `default` es locmem en dev y tests, y Redis en prod (los rate limits de allauth valen
   para todos los workers); `arca` es Redis (los tickets de acceso se comparten entre workers).
 - `STORE_ENABLED` (True por defecto): en false (solo el admin en producción) los endpoints públicos

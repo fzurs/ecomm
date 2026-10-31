@@ -1,0 +1,112 @@
+# Production: the API and the admin on one server, published only through a Cloudflare Tunnel
+# (deploy/README.md). No service publishes ports on the host.
+#
+#   docker compose -f deploy/compose.yml --env-file /etc/ecomm/compose.env up -d
+#
+# Secrets live in /etc/ecomm/*.env on the server, never in the repo.
+
+name: ecomm
+
+x-logging: &logging
+  # Kept on the server, rotated by size: the `audit` and `billing` logs need retention.
+  driver: local
+  options:
+    max-size: 50m
+    max-file: "20"
+
+services:
+  db:
+    image: postgres:18.6
+    restart: unless-stopped
+    env_file: /etc/ecomm/db.env
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      # First start only: the app's role, without SUPERUSER, and its database.
+      - ./postgres/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+    logging: *logging
+
+  redis:
+    image: redis:7.4.12-alpine
+    restart: unless-stopped
+    # Persistent: the `arca` cache keeps ARCA's access ticket, and without it ARCA doesn't hand
+    # out another one for up to 12 h.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+    logging: *logging
+
+  api:
+    build: ../apps/api
+    image: ecomm-api
+    restart: unless-stopped
+    env_file: /etc/ecomm/api.env
+    volumes:
+      # The ARCA certificate and key, made on the server (deploy/README.md).
+      - /etc/ecomm/arca:/run/arca:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # With the host the admin uses (ALLOWED_HOSTS=api); /health/ is exempt from the HTTPS redirect.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:8000/health/', headers={'Host': 'api'}), timeout=5)"]
+      interval: 30s
+      start_period: 30s
+      retries: 3
+    logging: *logging
+
+  admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+      args:
+        API_URL: http://api:8000
+        MEDIA_URL: ${MEDIA_URL:?MEDIA_URL, in compose.env}
+    image: ecomm-admin
+    restart: unless-stopped
+    volumes:
+      - admin-images:/app/apps/admin/.next/cache/images
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/login').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 30s
+      start_period: 20s
+      retries: 3
+    logging: *logging
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    restart: unless-stopped
+    # The tunnel's public hostname points at http://admin:3000 (Cloudflare's dashboard).
+    command: ["tunnel", "--no-autoupdate", "run"]
+    env_file: /etc/ecomm/cloudflared.env
+    depends_on:
+      - admin
+    logging: *logging
+
+  # Not started by `up`: run by the server's cron (deploy/README.md).
+  backup:
+    build: ./backup
+    image: ecomm-backup
+    profiles: ["tools"]
+    env_file: /etc/ecomm/backup.env
+    depends_on:
+      db:
+        condition: service_healthy
+    logging: *logging
+
+volumes:
+  postgres-data:
+  redis-data:
+  admin-images:

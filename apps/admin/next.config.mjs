@@ -1,4 +1,5 @@
 import process from "node:process"
+import { fileURLToPath } from "node:url"
 
 // Django, as the Next server reaches it. The browser never does: it talks to
 // /api on this origin, so the session and CSRF cookies belong to the admin's
@@ -15,6 +16,10 @@ const mediaUrl = new URL(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Production runs the standalone server (apps/admin/Dockerfile). Traced from
+  // the repo's root, so packages/* go in too.
+  output: "standalone",
+  outputFileTracingRoot: fileURLToPath(new URL("../..", import.meta.url)),
   transpilePackages: ["@workspace/ui"],
   // DRF routes end in a slash: Next's redirect from /x/ to /x would break them.
   skipTrailingSlashRedirect: true,

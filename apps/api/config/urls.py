@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from django.http import Http404
 
 from accounts.admin_site import MFAAdminSite
+from config.views import health
 
 
 def no_provider_redirect(request):
@@ -17,6 +18,7 @@ def no_provider_redirect(request):
 
 
 urlpatterns = [
+    path('health/', health, name='health'),
     path('auth/', include('accounts.urls')),
     path('_allauth/browser/v1/auth/provider/redirect', no_provider_redirect),
     path('_allauth/', include('allauth.headless.urls')),

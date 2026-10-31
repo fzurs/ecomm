@@ -26,6 +26,11 @@ class CustomerNameTests(APITestCase):
         response = self.client.post(reverse('customer-list'), {'name': 'Juan Pérez'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_the_image_name_doesnt_tell_who_it_is(self):
+        # The bucket is public: the URL can't carry the customer's name.
+        customer = Customer.objects.create(name='Juan Pérez')
+        self.assertRegex(customer.image.name, r'^customers/generated-[0-9a-f]{32}\.png$')
+
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CustomerFiscalDataTests(APITestCase):

@@ -1,0 +1,7 @@
+# Local only: secrets, the ARCA certificate and uploaded files never go into the image.
+.env
+certs/
+media/
+staticfiles/
+.turbo/
+**/__pycache__/
