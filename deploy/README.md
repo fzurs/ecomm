@@ -1,7 +1,8 @@
 # Deploy: API y admin en un VPS, detrás de Cloudflare
 
 Producción en modo solo admin (`STORE_ENABLED=false`): las órdenes se cargan y se facturan desde
-el admin. Los checklists de configuración, cuentas y base están en
+el admin. **Etapa de prueba:** se factura en la homologación de ARCA (sección 3). Esos comprobantes
+no tienen validez fiscal, y para facturar de verdad se arranca con la base vacía. Los checklists de configuración, cuentas y base están en
 [`docs/production.md`](../docs/production.md). Acá está cómo se arma la infraestructura.
 
 ```
@@ -104,10 +105,10 @@ Ubuntu 24.04 LTS, 2 vCPU y 4 GB de RAM.
    R2_BUCKET=ecomm-media
    R2_ACCESS_KEY_ID=...
    R2_SECRET_ACCESS_KEY=...
-   ARCA_ENVIRONMENT=produccion
-   ARCA_CERTIFICATE_PATH=/run/arca/produccion/ecomm.crt
-   ARCA_PRIVATE_KEY_PATH=/run/arca/produccion/ecomm.key
-   ARCA_POINT_OF_SALE=<punto de venta para web services>
+   ARCA_ENVIRONMENT=homologacion        # etapa de prueba; produccion al facturar de verdad (sección 3)
+   ARCA_CERTIFICATE_PATH=/run/arca/homologacion/ecomm-server.crt
+   ARCA_PRIVATE_KEY_PATH=/run/arca/homologacion/ecomm-server.key
+   ARCA_POINT_OF_SALE=1                 # en producción, el punto de venta para web services
    ARCA_ISSUER_VAT_CONDITION=responsable_inscripto   # o monotributo
    ARCA_ISSUER_LEGAL_NAME=...
    ARCA_ISSUER_ADDRESS=...
@@ -141,9 +142,11 @@ Ubuntu 24.04 LTS, 2 vCPU y 4 GB de RAM.
 5. **Carpeta del certificado de ARCA:** la escribe el contenedor de la API (uid 10001):
    `sudo install -d -o 10001 -g 10001 -m 700 /etc/ecomm/arca`.
 
-## 3. Certificado de ARCA (producción)
+## 3. Certificado de ARCA
 
-Se genera en el servidor: la clave nunca pasa por otra máquina. El asistente es interactivo.
+El certificado se genera en el servidor: su clave no pasa por otra máquina. El asistente
+(`arca-setup`, de arca-client) es interactivo. La clave va **sin contraseña**, porque la API no la
+soporta.
 
 ```bash
 cd /srv/ecomm
@@ -152,16 +155,58 @@ docker compose -f deploy/compose.yml --env-file /etc/ecomm/compose.env run --rm 
   -v /etc/ecomm/arca:/run/arca -w /run/arca api arca-setup
 ```
 
-1. Responder ambiente `produccion`, la CUIT, el alias `ecomm` y la carpeta base `/run/arca`.
-   - La clave va **sin contraseña**: la API no la soporta.
-   - Los archivos quedan en `/etc/ecomm/arca/produccion/ecomm.{key,crt}`.
-2. Pegar el CSR en *Administración de Certificados Digitales* (con clave fiscal) y pegar el
-   certificado emitido.
-3. En *Administrador de Relaciones de Clave Fiscal*, asociar el certificado al servicio `wsfe`.
-4. Dar de alta un punto de venta para **web services** (*Administración de puntos de venta y
-   domicilios*, sistema "RECE para aplicativo y web services") y ponerlo en `ARCA_POINT_OF_SALE`.
+### Etapa de prueba: homologación
 
-Si la clave se filtra: revocar el certificado en ARCA y generar otro.
+El servidor usa **su propio** certificado de homologación, no el de desarrollo. ARCA no entrega
+otro ticket de acceso mientras haya uno vigente para ese certificado (hasta 12 h), y el servidor
+y tu máquina guardan el suyo en distintos Redis: compartiendo el certificado, uno de los dos se
+queda sin poder facturar.
+
+1. En el asistente, responder:
+   - ambiente `homologacion`;
+   - la misma CUIT que en desarrollo;
+   - alias `ecomm-server`;
+   - carpeta base `/run/arca`.
+
+   Los archivos quedan en `/etc/ecomm/arca/homologacion/ecomm-server.{key,crt}`.
+2. Pegar el CSR en *WSASS - Autogestión Certificados Homologación* y pegar el certificado
+   emitido.
+3. En WSASS, autorizar el certificado al servicio `wsfe`.
+
+Lo que hay que saber de esta etapa:
+- **Los comprobantes no tienen validez fiscal:** el CAE es de prueba. No se le entregan a un
+  cliente como factura, y esas ventas no quedan facturadas ante ARCA.
+- **Cada emisión consume numeración de homologación**, igual que en desarrollo. Los números los
+  da ARCA, así que compartir el punto de venta con desarrollo no genera choques.
+- **No se pueden borrar después:** los triggers protegen a los comprobantes con CAE, también por
+  SQL.
+
+### Pasar a facturar de verdad
+
+1. Generar el certificado de producción con el mismo asistente:
+   - ambiente `produccion`, alias `ecomm` y carpeta base `/run/arca`;
+   - el CSR se pega en *Administración de Certificados Digitales*, con clave fiscal;
+   - en *Administrador de Relaciones de Clave Fiscal*, asociar el certificado al servicio `wsfe`.
+2. Dar de alta un punto de venta para **web services** (*Administración de puntos de venta y
+   domicilios*, sistema "RECE para aplicativo y web services").
+3. **Arrancar con la base vacía.** Los comprobantes de homologación no se mezclan con los reales
+   y no se pueden borrar uno por uno.
+   - Lo que se quiera conservar (productos, clientes) se vuelve a cargar desde el admin. No hay
+     exportación: no se copia la base para eso.
+   - Bajar el stack, borrar el volumen de Postgres (`docker compose ... down` y
+     `docker volume rm ecomm_postgres-data`) y correr `deploy.sh`. Se vuelve a ejecutar
+     `postgres/init.sh`.
+   - Repetir lo de "Después, una sola vez" de la sección 4.
+   - Las imágenes de la etapa de prueba quedan en el bucket `ecomm-media`: vaciarlo desde el
+     dashboard de R2 antes de volver a cargar.
+4. En `api.env`:
+   - `ARCA_ENVIRONMENT=produccion`;
+   - las rutas `/run/arca/produccion/ecomm.{crt,key}`;
+   - el punto de venta nuevo en `ARCA_POINT_OF_SALE`.
+5. Redis puede quedar como está: los tickets se guardan por ambiente y certificado.
+6. La primera factura real se hace con cuidado (sección 4, punto 4).
+
+Si una clave se filtra: revocar su certificado (en WSASS o en ARCA) y generar otro.
 
 ## 4. Primer deploy
 
@@ -191,9 +236,12 @@ Después, una sola vez:
    - Registrar una passkey, subir la imagen de un producto y verla en el listado.
    - Despachar una orden de prueba a un email propio: el mail llega y pasa SPF y DKIM.
    - `/api/cart/` responde 404 (modo solo admin).
-4. **Primera factura, con cuidado:** consume numeración real y un comprobante con CAE no se borra.
-   - Hacer una orden real de monto chico, emitirla y buscarla en *Comprobantes en línea*.
-   - Si era de prueba, se anula con una nota de crédito desde el admin.
+4. **Primera factura:**
+   - **En homologación:** emitir una orden y ver que llegue a `authorized` con CAE. Los
+     comprobantes de homologación no aparecen en *Comprobantes en línea*.
+   - **En producción, con cuidado:** consume numeración real y un comprobante con CAE no se
+     borra. Hacer una orden real de monto chico, emitirla y buscarla en *Comprobantes en línea*.
+     Si era de prueba, se anula con una nota de crédito desde el admin.
 
 ## Deploys siguientes
 
