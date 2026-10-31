@@ -190,8 +190,8 @@ Reemplaza a dj-rest-auth y al 2FA propio con django-otp.
   `Order.shipping_address`. El cliente recibe un mail. La puede ver en `/orders/<número>` si es
   suya: la de su cuenta, o la de un invitado en la misma sesión (`placed_orders`). La de otro da
   404.
-- **Todavía no hay pago:** el mail y la página dicen que se arregla por email. Integrar un medio
-  de pago (ej. Mercado Pago) es lo que sigue.
+- **Pago:** con Mercado Pago, y la factura sale sola al acreditarse
+  ([`payments.md`](payments.md)).
 - **API** (`/cart/`, `/cart/items/`, `/checkout/`, `/my/orders/`): acepta invitados y exige CSRF
   también sin sesión (`config.authentication.CsrfSessionAuthentication`; la de DRF lo hace solo
   con usuarios logueados).

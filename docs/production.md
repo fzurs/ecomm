@@ -18,6 +18,10 @@ secretas, un Postgres y un Redis.
     `EMAIL_URL` (el SMTP, ej. `smtp+tls://usuario:clave@host:587`) y `DEFAULT_FROM_EMAIL`. Sin
     mails, los clientes no pueden confirmar su cuenta ni recuperar la contraseña.
   - `MEDIA_URL`: la URL pública de las imágenes (ver **Media**).
+  - `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET`: las credenciales de producción de
+    la aplicación de Checkout Pro. Opcional: `MERCADOPAGO_STATEMENT_DESCRIPTOR`. `AUTO_INVOICE` es
+    `arca`: cada orden pagada se factura en ARCA, así que ARCA tiene que estar configurado
+    ([`docs/architecture/payments.md`](architecture/payments.md)).
   - Opcionales: `STORE_NAME` (firma de los mails) y `GOOGLE_CLIENT_ID` (login con Google). El
     client ID es de tipo "Aplicación web", con el dominio de la tienda como origen autorizado de
     JavaScript; no hace falta el secret. `CUSTOMER_SESSION_AGE` cambia la sesión de los clientes
@@ -46,6 +50,11 @@ secretas, un Postgres y un Redis.
     guarda el resultado en su `.next/cache/images`, que conviene que persista entre deploys.
   - Si las sirve un CDN que ya las redimensiona, conviene un `loader` propio de `next/image`, así
     no hace ese trabajo el servidor de Next.
+- [ ] **Mercado Pago**: en la aplicación, los Webhooks de producción apuntan a
+  `https://<tienda>/api/payments/webhooks/mercadopago/` con el evento "Pagos". Su clave secreta va
+  en `MERCADOPAGO_WEBHOOK_SECRET`.
+- [ ] **Cron**: `manage.py cancel_unpaid_orders`, por ejemplo cada hora, y
+  `manage.py invoice_paid_orders`, por ejemplo cada 10 minutos.
 - [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.
 - [ ] **Migraciones**: `python manage.py migrate` en cada deploy. Crea los triggers que protegen
   los comprobantes y sincroniza los roles.
@@ -104,9 +113,8 @@ secretas, un Postgres y un Redis.
 
 ## Decisiones pendientes
 
-- **Pago de los pedidos de la tienda**: el checkout crea la orden `pending` y el mail dice que el
-  pago se arregla por email. Falta integrar un medio de pago (ej. Mercado Pago) que la pase a
-  `paid`. También falta el botón de arrepentimiento de verdad (hoy un placeholder en el footer).
+- **Botón de arrepentimiento**: falta el de verdad (hoy un placeholder en el footer), con la
+  devolución del pago en Mercado Pago y la nota de crédito.
 - **Asistente**: manda datos de clientes (nombre, documento, montos) a la API de Anthropic
   (`apps/api/assistant/service.py`) y guarda las respuestas de las herramientas en
   `Message.content`. Antes de habilitarlo en producción, decidir si se usa y declararlo en la

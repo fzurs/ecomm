@@ -7,7 +7,7 @@ Postgres y Redis (`redis://127.0.0.1:6379`) se acceden por localhost.
 Responder en español. Código e identificadores en inglés, como el resto del repo.
 
 ## Estructura
-- `apps/api` — Django 5.2 + DRF (apps `store`, `orders`, `billing`, `checkout`), puerto 8000. Ver `apps/api/CLAUDE.md`.
+- `apps/api` — Django 5.2 + DRF (apps `store`, `orders`, `billing`, `checkout`, `payments`), puerto 8000. Ver `apps/api/CLAUDE.md`.
 - `apps/admin` — dashboard de administración en Next.js 16, puerto 3001. Ver `apps/admin/CLAUDE.md`.
 - `apps/web` — tienda en Next.js 16, puerto 3000, con cuentas de clientes. Ver `apps/web/CLAUDE.md`.
 - `packages/api-client` — generado con `@hey-api/openapi-ts` (cliente axios + zod + TanStack Query).
@@ -54,6 +54,9 @@ Nunca editar a mano `packages/api-client/src/**/*.gen.ts`. La skill `/regen-api`
   editar ese repo desde acá.
 - Homologación no es gratis: cada comprobante emitido consume numeración. No correr tests con
   `ARCA_INTEGRATION_TESTS=1` ni emitir facturas contra ARCA sin preguntar antes.
+- Las órdenes pagadas con Mercado Pago se facturan solas (`AUTO_INVOICE`). En dev es `sample`
+  (comprobantes inventados, nunca ARCA): no pasarlo a `arca` sin preguntar. Ver
+  `docs/architecture/payments.md`.
 
 ## Git
 - Conventional Commits con scope, mensajes en español:
