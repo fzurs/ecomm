@@ -58,11 +58,23 @@ después no se pueda facturar.
     crea el admin a mano.
   - Si un pago se aprueba después de la cancelación, la orden vuelve a `paid`.
 - **`manage.py invoice_paid_orders`**, por ejemplo cada 10 minutos: factura las órdenes pagadas
-  por Mercado Pago que quedaron sin comprobante, si el webhook no pudo.
+  por Mercado Pago que quedaron sin comprobante, y acredita las devueltas que siguen en pie, si el
+  webhook no pudo.
 
 ## Devoluciones
-Un pago `refunded` o `charged_back` sobre una orden paga queda en el log `billing` y se ve en el
-admin. La nota de crédito se hace a mano, como hasta ahora.
+- Un pago `refunded` (devolución total) o `charged_back` (contracargo) sobre una orden cobrada
+  dispara `credit_order` después del commit: nota de crédito por lo que queda de la factura
+  (con `AUTO_INVOICE`, como la factura) y la orden pasa a `cancelled`.
+  - El stock vuelve salvo en un contracargo de una orden ya despachada: la mercadería está con
+    el cliente (`restocks`).
+  - Es idempotente: Mercado Pago repite los avisos, y `invoice_paid_orders` reintenta las
+    devueltas que quedaron en pie.
+  - Si la factura no está autorizada, la nota sale rechazada o `AUTO_INVOICE=off`, la orden queda
+    como estaba y va un warning al log `billing`: se resuelve a mano desde el admin.
+- Una devolución parcial (el pago sigue `approved`, con `transaction_amount_refunded`) solo queda
+  en el log: qué líneas devolver lo decide el admin con una nota parcial.
+- `refund_order` le pide a Mercado Pago la devolución total del pago aprobado; la nota llega con
+  el aviso `refunded`. La usa el botón de arrepentimiento.
 
 ## Desarrollo
 - **Credenciales de prueba** de la aplicación en `apps/api/.env`. Con un token `TEST-...` se usa

@@ -3,10 +3,13 @@
 Tienda online argentina en un monorepo: API en Django, panel de administración y tienda en Next.js,
 con facturación electrónica de ARCA (ex AFIP) y un asistente de IA en el panel.
 
-- **Tienda** (`apps/web`): catálogo por categoría y marca, y página de producto.
-- **Panel** (`apps/admin`): productos, marcas, categorías, clientes, pedidos y comprobantes.
+- **Tienda** (`apps/web`): catálogo por categoría y marca, página de producto, cuentas de clientes
+  (email o Google), carrito, checkout como invitado o con cuenta, y pago con Mercado Pago.
+- **Panel** (`apps/admin`): productos, marcas, categorías, clientes, pedidos con sus pagos y
+  comprobantes, con 2FA (TOTP o passkeys) y permisos por rol.
 - **Facturación**: Facturas A, B y C y sus notas de crédito y débito, emitidas con
-  [arca-client](https://github.com/fzurs/arca-client), con CAE, PDF y código QR.
+  [arca-client](https://github.com/fzurs/arca-client), con CAE, PDF y código QR. Las órdenes
+  pagadas con Mercado Pago se facturan solas.
 - **Asistente**: chat con Claude en el panel que consulta pedidos, productos, clientes y
   comprobantes (solo lectura).
 
@@ -21,7 +24,7 @@ con facturación electrónica de ARCA (ex AFIP) y un asistente de IA en el panel
 
 ```
 apps/
-  api/          # Django: store, orders, billing, assistant (puerto 8000)
+  api/          # Django: accounts, store, orders, checkout, payments, billing, assistant (puerto 8000)
   admin/        # Panel de administración (puerto 3001)
   web/          # Tienda (puerto 3000)
 packages/
@@ -73,6 +76,8 @@ propio origen; cómo y por qué, en [`docs/architecture/auth.md`](docs/architect
 - **ARCA**: generá el certificado con `arca-setup`, con carpeta base `apps/api/certs` y alias `ecomm`.
   En `apps/api/.env` van el ambiente (`homologacion` por defecto), el punto de venta, la condición
   del emisor y sus datos para el PDF. En homologación cada emisión consume numeración.
+- **Mercado Pago**: credenciales, webhook y facturación automática (`AUTO_INVOICE`) en
+  [`docs/architecture/payments.md`](docs/architecture/payments.md).
 - **Asistente**: necesita `ANTHROPIC_API_KEY`.
 - **Producción**: `config.settings.prod` (el default de `wsgi.py`) exige `SECRET_KEY`,
   `ALLOWED_HOSTS`, `ARCA_ENVIRONMENT` y las rutas del certificado de ARCA por entorno; ver la

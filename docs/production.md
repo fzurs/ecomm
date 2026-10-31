@@ -26,7 +26,15 @@ secretas, un Postgres y un Redis.
     client ID es de tipo "Aplicación web", con el dominio de la tienda como origen autorizado de
     JavaScript; no hace falta el secret. `CUSTOMER_SESSION_AGE` cambia la sesión de los clientes
     (30 días por defecto).
+  - `STAFF_NOTIFICATION_EMAIL`: adonde llegan los pedidos del botón de arrepentimiento, que
+    tienen plazo. `STORE_PICKUP_ADDRESS` si se ofrece el retiro en el local.
   - Detrás de un proxy que termina TLS: `SECURE_PROXY_SSL_HEADER=true`.
+- [ ] **Tienda, datos legales**: `DATA_FISCAL_URL` (el QR de Data fiscal de ARCA, obligatorio
+  para vender online) y el contacto (`STORE_CONTACT_*`) en el entorno del build de la tienda
+  (`apps/web/.env.example`). Revisar los textos de `/terms`, `/privacy` y `/help/*`: son un
+  punto de partida, no asesoramiento legal.
+- [ ] **Envíos**: cargar las zonas desde el admin (Settings > Shipping zones). A una provincia
+  sin zona la tienda no envía.
 - [ ] **Secretos**: van en el gestor de secretos del proveedor. Nunca en el repo ni en un `.env`
   commiteado. `apps/api/.env.example` lista todas las variables.
 - [ ] **Chequeo**: `DJANGO_SETTINGS_MODULE=config.settings.prod python manage.py check --deploy`
@@ -111,15 +119,17 @@ secretas, un Postgres y un Redis.
   loggers `audit` y `billing`. El proveedor tiene que guardar esos logs con retención.
 - Revisar de vez en cuando los `login failed` repetidos y el uso de códigos de respaldo.
 
-## Decisiones pendientes
+## Asistente
 
-- **Botón de arrepentimiento**: falta el de verdad (hoy un placeholder en el footer), con la
-  devolución del pago en Mercado Pago y la nota de crédito.
-- **Asistente**: manda datos de clientes (nombre, documento, montos) a la API de Anthropic
-  (`apps/api/assistant/service.py`) y guarda las respuestas de las herramientas en
-  `Message.content`. Antes de habilitarlo en producción, decidir si se usa y declararlo en la
-  política de privacidad (transferencia internacional, Ley 25.326). Sin `ANTHROPIC_API_KEY` el
-  asistente queda apagado.
-- **Rate limiting del login**: allauth ya limita los intentos fallidos de login y de códigos
-  (`ACCOUNT_RATE_LIMITS`, con su cache). El cache `default` es locmem, así que el límite es por
-  proceso: con varios workers conviene que allauth use Redis.
+Manda datos de clientes (nombre, documento, montos) a la API de Anthropic
+(`apps/api/assistant/service.py`) y guarda las respuestas de las herramientas en
+`Message.content`. En prod está **apagado** (`ASSISTANT_ENABLED=false` por defecto): el admin no
+lo muestra y la API responde 503. Antes de habilitarlo hay que declararlo en la política de
+privacidad de la tienda (transferencia internacional, Ley 25.326). Sin `ANTHROPIC_API_KEY` también
+queda apagado.
+
+## Rate limiting del login
+
+allauth limita los intentos fallidos de login y de códigos (`ACCOUNT_RATE_LIMITS`) en el cache
+`default`, que en prod es Redis (`REDIS_URL`): el límite vale para todos los workers. En dev es
+locmem, por proceso.

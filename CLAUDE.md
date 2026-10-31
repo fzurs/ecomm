@@ -7,7 +7,8 @@ Postgres y Redis (`redis://127.0.0.1:6379`) se acceden por localhost.
 Responder en español. Código e identificadores en inglés, como el resto del repo.
 
 ## Estructura
-- `apps/api` — Django 5.2 + DRF (apps `store`, `orders`, `billing`, `checkout`, `payments`), puerto 8000. Ver `apps/api/CLAUDE.md`.
+- `apps/api` — Django 5.2 + DRF (apps `accounts`, `store`, `orders`, `billing`, `checkout`, `payments`,
+  `assistant`), puerto 8000. Ver `apps/api/CLAUDE.md`.
 - `apps/admin` — dashboard de administración en Next.js 16, puerto 3001. Ver `apps/admin/CLAUDE.md`.
 - `apps/web` — tienda en Next.js 16, puerto 3000, con cuentas de clientes. Ver `apps/web/CLAUDE.md`.
 - `packages/api-client` — generado con `@hey-api/openapi-ts` (cliente axios + zod + TanStack Query).
