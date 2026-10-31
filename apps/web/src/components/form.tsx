@@ -146,11 +146,12 @@ export function SelectField<T extends string | number>({
 /** The form's submit button, disabled with a spinner while its action runs. */
 export function SubmitButton({
   children,
+  disabled,
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending} {...props}>
+    <Button type="submit" disabled={pending || disabled} {...props}>
       {pending && <Spinner />}
       {children}
     </Button>

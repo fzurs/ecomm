@@ -24,7 +24,7 @@
     CSRF y `Origin`, y copia los `Set-Cookie`. Ejemplo: `src/app/(shop)/account/actions.ts`.
 - Listados (home, categoría): `ProductList` (`src/components/product-list.tsx`) recibe el
   `pathname` y los `searchParams`. Va dentro de `<Suspense fallback={<ProductGridSkeleton />}>`.
-  - La URL tiene búsqueda, orden, filtros ("In stock", "On sale") y página, con los parsers de
+  - La URL tiene búsqueda, orden, filtros ("In stock", que es `in_stock` de la API, y "On sale") y página, con los parsers de
     `src/lib/product-params.ts`. El servidor los lee con `loadProductParams`; `ProductFilters` y
     el buscador los escriben con los mismos parsers (`shallow: false`) y vuelven a la página 1.
   - `productsQuery()` los traduce a la API: 12 por página, y el orden por precio es por
@@ -43,8 +43,12 @@
 - Layout de `(shop)`: `SiteHeader` (logo, `MainNav` con los menús de categorías y marcas y "On
   sale", el buscador y `UserNav`; en el celular, `MobileNav` en un `Sheet`) y `SiteFooter` (con
   `"use cache"`). No hay sidebar ni breadcrumbs. Cada página pone su título en el contenido.
-  El producto linkea a su marca y categoría. Los links de ayuda y los legales del footer (botón
-  de arrepentimiento, Data fiscal) son placeholders.
+  El producto linkea a su marca y categoría. El footer tiene las páginas de ayuda y las legales,
+  y el QR de Data fiscal de ARCA si está `DATA_FISCAL_URL` (`src/lib/store-info.ts`, con el
+  contacto; variables en `.env.example` y en el `env` del build de `turbo.json`).
+- `/revocation` es el botón de arrepentimiento: número de orden y email, sin sesión
+  (`requestRevocation`), y responde con el código. La página del pedido y el mail lo linkean con
+  `?order=`.
 - Bloques de texto (el `h1` y la descripción de cada página, la descripción del producto,
   páginas de contenido) en `<div className="typeset">`, como el admin
   (`packages/ui/src/styles/typeset.css`). Los componentes (tarjetas, precios, header, footer,
@@ -53,6 +57,8 @@
 - Las páginas con slug (categoría, producto) tienen `generateStaticParams` (se
   prerenderizan en el build) y `generateMetadata` (título "%s · Acme Store").
 - Precios con `formatPrice` (`src/lib/format.ts`, es-AR como el admin).
+- Stock: el catálogo y el producto lo leen cacheado (horas), así que solo deciden "Out of stock"
+  y el tope del selector. El carrito y el checkout son los que validan (`max_quantity`, 409).
 - Imágenes con `ProductImage`: cuadradas, con un placeholder si no hay. Usa `next/image`, y cada
   uso pasa `sizes` con el ancho en que se muestra (ej. `"48px"`). Así el navegador pide una versión
   achicada, en WebP o AVIF.
@@ -94,7 +100,9 @@
   precio, como exige la API. `/cart`: líneas con `useOptimistic` para la cantidad; un producto
   que dejó de estar a la venta se marca y bloquea el checkout.
 - `/checkout` (sin sesión también): `CheckoutForm` con contacto, envío y facturación (los códigos
-  de ARCA que ofrece están en `src/lib/fiscal.ts`). `placeOrder` muestra los errores de DRF por
+  de ARCA que ofrece están en `src/lib/fiscal.ts`). El envío es a una provincia de las zonas o
+  el retiro en el local (`getShippingOptions()`, cacheado minutos); el form muestra el costo con
+  `shippingCost()` (`src/lib/shipping.ts`), la misma regla que cobra la API. `placeOrder` muestra los errores de DRF por
   campo y, si sale bien, redirige a `/orders/<número>`, que también es la confirmación.
 - Pago con Mercado Pago (`docs/architecture/payments.md`): `placeOrder` redirige al
   `payment_url` que devuelve la API, o al pedido si no hay. En `/orders/<número>`,

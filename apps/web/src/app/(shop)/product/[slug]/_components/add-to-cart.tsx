@@ -5,16 +5,19 @@ import { ShoppingCartIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { toast } from "sonner"
-import { QuantityInput } from "@/components/quantity-input"
+import { MAX_QUANTITY, QuantityInput } from "@/components/quantity-input"
 import { addToCart } from "../../../cart/actions"
 
-/** How many to buy and the button that puts them in the cart. */
+/** How many to buy, up to the stock, and the button that puts them in the
+ * cart. The page's stock may be hours old: the API caps it again. */
 export function AddToCart({
   productId,
   productName,
+  stock,
 }: {
   productId: number
   productName: string
+  stock: number
 }) {
   const router = useRouter()
   const [quantity, setQuantity] = React.useState(1)
@@ -39,6 +42,7 @@ export function AddToCart({
       <QuantityInput
         value={quantity}
         onChange={setQuantity}
+        max={Math.min(stock, MAX_QUANTITY)}
         disabled={pending}
       />
       <Button size="lg" onClick={add} disabled={pending}>

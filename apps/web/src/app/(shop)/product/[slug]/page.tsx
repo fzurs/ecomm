@@ -64,11 +64,19 @@ export default async function ProductPage({
             )}
           </div>
           <ProductPrice product={product} size="lg" />
-          {product.status === "out_of_stock" && <OutOfStockAlert />}
-          {/* What the API sells: active and with a price (checkout.services.is_purchasable). */}
-          {product.status === "active" && !!product.price && (
-            <AddToCart productId={product.id} productName={product.name} />
-          )}
+          {/* The page is cached for hours: the cart and the checkout check the stock again. */}
+          {product.stock === 0 && <OutOfStockAlert />}
+          {/* What the API sells: active, with a price and in stock
+              (checkout.services.is_purchasable). */}
+          {product.status === "active" &&
+            !!product.price &&
+            !!product.stock && (
+              <AddToCart
+                productId={product.id}
+                productName={product.name}
+                stock={product.stock ?? 0}
+              />
+            )}
           {product.description && (
             // Plain text: a blank line starts a paragraph, a line break stays.
             <div className="typeset">

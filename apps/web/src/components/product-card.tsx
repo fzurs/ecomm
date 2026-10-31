@@ -29,7 +29,7 @@ export function ProductCard({
           sizes="(min-width: 1088px) 300px, (min-width: 720px) 33vw, (min-width: 416px) 50vw, 100vw"
           className="bg-white transition-transform group-hover/product:scale-[1.02]"
         />
-        {product.status === "out_of_stock" && (
+        {product.stock === 0 && (
           <Badge variant="destructive" className="absolute top-2 left-6">
             Out of stock
           </Badge>

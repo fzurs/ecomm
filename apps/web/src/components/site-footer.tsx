@@ -1,21 +1,22 @@
 import { cacheLife } from "next/cache"
 import Link from "next/link"
 import { getAllCategories } from "@/lib/cache"
+import { DATA_FISCAL_IMAGE, DATA_FISCAL_URL } from "@/lib/store-info"
 import { Logo } from "./logo"
 
-// TODO: the store's real pages. Until then they lead nowhere.
 const helpLinks = [
-  { title: "Shipping", href: "#" },
-  { title: "Returns", href: "#" },
-  { title: "Contact", href: "#" },
+  { title: "Shipping", href: "/help/shipping" },
+  { title: "Returns", href: "/help/returns" },
+  { title: "Contact", href: "/help/contact" },
 ]
 
-// Argentina asks online stores for both: the "Botón de arrepentimiento" (to
-// revoke a purchase within 10 days, Res. 424/2020) and ARCA's "Data fiscal" QR.
-// TODO: the revocation form and the store's own QR.
+// Argentina asks online stores for the "Botón de arrepentimiento" (to revoke a
+// purchase within 10 days, Res. 424/2020) and ARCA's "Data fiscal" QR, and the
+// privacy policy for the customers' data (Ley 25.326).
 const legalLinks = [
-  { title: "Botón de arrepentimiento", href: "#" },
-  { title: "Data fiscal", href: "#" },
+  { title: "Botón de arrepentimiento", href: "/revocation" },
+  { title: "Terms", href: "/terms" },
+  { title: "Privacy", href: "/privacy" },
 ]
 
 /** The shop's footer: the catalog, help, the account and the legal links. */
@@ -54,7 +55,7 @@ export async function SiteFooter() {
       <div className="border-t">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p>© {new Date().getFullYear()} Acme Store</p>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+          <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {legalLinks.map((link) => (
               <li key={link.title}>
                 <Link
@@ -65,6 +66,21 @@ export async function SiteFooter() {
                 </Link>
               </li>
             ))}
+            {DATA_FISCAL_URL && (
+              <li>
+                <a href={DATA_FISCAL_URL} target="_blank" rel="noreferrer">
+                  {/* ARCA's image, from its site: next/image would need its
+                      host in remotePatterns for a 1 kB picture. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={DATA_FISCAL_IMAGE}
+                    alt="Data fiscal"
+                    width={40}
+                    height={54}
+                  />
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </div>

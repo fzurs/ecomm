@@ -5,7 +5,16 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "env": ["NODE_ENV", "API_URL", "MEDIA_URL"],
+      "env": [
+        "NODE_ENV",
+        "API_URL",
+        "MEDIA_URL",
+        "DATA_FISCAL_URL",
+        "STORE_CONTACT_EMAIL",
+        "STORE_CONTACT_PHONE",
+        "STORE_CONTACT_ADDRESS",
+        "STORE_CONTACT_HOURS"
+      ],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "lint": {

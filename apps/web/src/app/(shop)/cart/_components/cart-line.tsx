@@ -71,6 +71,7 @@ export function CartLine({ item }: { item: CartItem }) {
             <QuantityInput
               value={quantity}
               onChange={change}
+              max={item.max_quantity}
               disabled={pending}
             />
             <div className="text-right">
@@ -83,6 +84,21 @@ export function CartLine({ item }: { item: CartItem }) {
                 </div>
               )}
             </div>
+          </div>
+        ) : item.max_quantity > 0 ? (
+          // Others bought some since it was added: there are fewer left.
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-destructive">
+              Only {item.max_quantity} left.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => change(item.max_quantity)}
+              disabled={pending}
+            >
+              Change to {item.max_quantity}
+            </Button>
           </div>
         ) : (
           <p className="text-sm text-destructive">

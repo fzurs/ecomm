@@ -13,6 +13,7 @@ import { ProductImage } from "@/components/product-image"
 import { getMyOrder } from "@/lib/dal"
 import { formatPrice } from "@/lib/format"
 import { orderStatuses } from "@/lib/order-status"
+import { provinces } from "@/lib/shipping"
 import { PaymentStatus } from "./_components/payment-status"
 
 export const metadata = { title: "Order" }
@@ -88,7 +89,25 @@ async function OrderDetails({
               </li>
             ))}
           </ul>
-          <div className="flex justify-between border-t pt-3 font-semibold">
+          <div className="flex flex-col gap-1 border-t pt-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="tabular-nums">
+                {formatPrice(order.items_subtotal)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">
+                {order.shipping_method === "pickup" ? "Pickup" : "Shipping"}
+              </span>
+              <span className="tabular-nums">
+                {order.shipping_cost
+                  ? formatPrice(order.shipping_cost)
+                  : "Free"}
+              </span>
+            </div>
+          </div>
+          <div className="flex justify-between font-semibold">
             <span>Total</span>
             <span className="tabular-nums">{formatPrice(order.total)}</span>
           </div>
@@ -105,15 +124,52 @@ async function OrderDetails({
             <p className="text-muted-foreground">{order.customer.email}</p>
           </CardContent>
         </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle>Shipping to</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm whitespace-pre-line">
-            {order.shipping_address || "—"}
-          </CardContent>
-        </Card>
+        {order.shipping_method === "pickup" ? (
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle>Pick it up at</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm whitespace-pre-line">
+              {order.pickup_address || "—"}
+            </CardContent>
+          </Card>
+        ) : (
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle>Shipping to</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2 text-sm">
+              <p className="whitespace-pre-line">
+                {order.shipping_address || "—"}
+                {order.shipping_province &&
+                  `\n${provinces[order.shipping_province]}`}
+              </p>
+              {(order.carrier || order.tracking_number) && (
+                <p className="text-muted-foreground">
+                  {[order.carrier, order.tracking_number]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Paid: it can be revoked (the API checks the 10 days). */}
+      {order.status &&
+        ["paid", "shipped", "delivered"].includes(order.status) && (
+          <p className="text-sm text-muted-foreground">
+            Changed your mind?{" "}
+            <Link
+              href={`/revocation?order=${order.number}`}
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              Revoke this purchase
+            </Link>{" "}
+            within 10 days of receiving it.
+          </p>
+        )}
     </div>
   )
 }

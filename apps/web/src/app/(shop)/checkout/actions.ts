@@ -3,6 +3,8 @@ import {
   type Checkout,
   checkoutCreate,
   type DocumentTypeEnum,
+  type Province,
+  type ShippingMethod,
   type VatCondition,
 } from "@workspace/api-client"
 import { refresh } from "next/cache"
@@ -18,6 +20,8 @@ const FIELDS = [
   "document_number",
   "vat_condition",
   "legal_name",
+  "shipping_method",
+  "shipping_province",
   "shipping_address",
 ] as const
 
@@ -44,6 +48,9 @@ export async function placeOrder(
     document_number: text("document_number"),
     vat_condition: Number(text("vat_condition")) as VatCondition,
     legal_name: text("legal_name"),
+    // Django rejects a method or province it doesn't know.
+    shipping_method: text("shipping_method") as ShippingMethod,
+    shipping_province: text("shipping_province") as Province,
     shipping_address: text("shipping_address"),
   }
 
@@ -58,7 +65,8 @@ export async function placeOrder(
   } catch (error) {
     const response = failedResponse(error)
     const data = (response?.data ?? {}) as Record<string, unknown>
-    // 409: products that stopped being for sale; 400 with `detail`: an empty cart.
+    // 409: products that stopped being for sale or without enough stock; 400
+    // with `detail`: an empty cart.
     if (response?.status === 409 || typeof data.detail === "string") {
       return { formError: String(data.detail), values }
     }

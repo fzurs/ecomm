@@ -62,8 +62,8 @@ export function productsQuery({
     search: search || undefined,
     ordering: SORTS[sort].ordering,
     brand: brand.length ? brand : undefined,
-    // The API only shows products for sale: active or out of stock.
-    status: inStock ? ["active"] : undefined,
+    // The API only shows products for sale (active), with stock or without.
+    in_stock: inStock || undefined,
     discount_percent__gt: onSale ? 0 : undefined,
     limit: PAGE_SIZE,
     offset: (Math.max(page, 1) - 1) * PAGE_SIZE,

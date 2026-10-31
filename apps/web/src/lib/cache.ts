@@ -6,6 +6,7 @@ import {
   productsListChoices,
   ProductsListData,
   productsRetrieve,
+  shippingOptionsRetrieve,
 } from "@workspace/api-client"
 import { getAllauthBrowserV1Config } from "@workspace/api-client/allauth"
 import { cacheLife } from "next/cache"
@@ -17,6 +18,15 @@ const defaultConfig = {
   baseURL: API_URL,
   throwOnError: true,
 } as const
+
+/** The zones the store ships to and where to pick orders up. Minutes: the
+ * checkout shows the cost from them, and the API charges what they say then. */
+export async function getShippingOptions() {
+  "use cache"
+  cacheLife("minutes")
+
+  return shippingOptionsRetrieve(defaultConfig).then((res) => res.data)
+}
 
 /** A page of the catalog: the API only shows products for sale here. */
 export async function getProducts(query: ProductsListData["query"]) {

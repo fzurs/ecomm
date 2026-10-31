@@ -6,22 +6,25 @@ import { MinusIcon, PlusIcon } from "lucide-react"
 // The API's limit for one product in the cart (checkout.models.MAX_QUANTITY).
 export const MAX_QUANTITY = 99
 
-/** A quantity between 1 and MAX_QUANTITY, with − and + buttons. */
+/** A quantity between 1 and `max` (MAX_QUANTITY, or the stock), with − and +
+ * buttons. */
 export function QuantityInput({
   value,
   onChange,
+  max = MAX_QUANTITY,
   disabled,
   label = "Quantity",
   className,
 }: {
   value: number
   onChange: (value: number) => void
+  max?: number
   disabled?: boolean
   label?: string
   className?: string
 }) {
   const set = (next: number) =>
-    onChange(Math.min(Math.max(Math.trunc(next) || 1, 1), MAX_QUANTITY))
+    onChange(Math.min(Math.max(Math.trunc(next) || 1, 1), max))
 
   return (
     <div
@@ -46,7 +49,7 @@ export function QuantityInput({
         type="number"
         inputMode="numeric"
         min={1}
-        max={MAX_QUANTITY}
+        max={max}
         value={value}
         disabled={disabled}
         onChange={(event) => set(Number(event.target.value))}
@@ -57,7 +60,7 @@ export function QuantityInput({
         type="button"
         variant="ghost"
         size="icon-sm"
-        disabled={disabled || value >= MAX_QUANTITY}
+        disabled={disabled || value >= max}
         onClick={() => set(value + 1)}
         aria-label="More"
       >

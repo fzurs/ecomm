@@ -69,7 +69,7 @@ export async function CartContents() {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Shipping</span>
-            <span>Arranged after the order</span>
+            <span>Calculated at checkout</span>
           </div>
           <div className="flex justify-between border-t pt-2 text-base font-semibold">
             <span>Total</span>
@@ -79,7 +79,8 @@ export async function CartContents() {
         <CardFooter className="flex flex-col gap-2">
           {unavailable && (
             <p className="text-sm text-destructive">
-              Remove the products that are no longer available to continue.
+              Remove the products that are no longer available, or lower their
+              quantity, to continue.
             </p>
           )}
           <Link
