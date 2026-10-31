@@ -4,6 +4,8 @@ from django.db import transaction
 from django.template.loader import render_to_string
 
 from orders.models import Customer, Order
+from orders.stock import OutOfStock
+from shipping.services import quote
 from store.models import Product
 
 from .models import MAX_QUANTITY, Cart, CartItem
@@ -14,8 +16,13 @@ PLACED_ORDERS_KEY = "placed_orders"
 
 
 def is_purchasable(product: Product) -> bool:
-    """For sale and with a price: out of stock, drafts and the rest can't be bought."""
-    return product.status == Product.Status.ACTIVE and bool(product.price)
+    """For sale, with a price and in stock: drafts and the rest can't be bought."""
+    return product.status == Product.Status.ACTIVE and bool(product.price) and product.stock > 0
+
+
+def max_quantity(product: Product) -> int:
+    """What the cart can have of the product: its stock, up to MAX_QUANTITY."""
+    return min(product.stock, MAX_QUANTITY)
 
 
 def get_cart(request, create=False) -> Cart | None:
@@ -37,11 +44,13 @@ def get_cart(request, create=False) -> Cart | None:
 
 
 def add_item(cart: Cart, product: Product, quantity: int) -> CartItem:
-    """Adds `quantity` to what the cart has of `product`, up to MAX_QUANTITY."""
+    """Adds `quantity` to what the cart has of `product`, up to its stock and MAX_QUANTITY (at
+    least 1: a guest's cart joining an account's may bring one that ran out)."""
+    limit = max(max_quantity(product), 1)
     item, created = CartItem.objects.get_or_create(
-        cart=cart, product=product, defaults={"quantity": min(quantity, MAX_QUANTITY)})
+        cart=cart, product=product, defaults={"quantity": min(quantity, limit)})
     if not created:
-        item.quantity = min(item.quantity + quantity, MAX_QUANTITY)
+        item.quantity = min(item.quantity + quantity, max(limit, item.quantity))
         item.save(update_fields=["quantity"])
     cart.save(update_fields=["updated_at"])
     return item
@@ -76,23 +85,37 @@ class UnavailableProducts(Exception):
         self.names = names
 
 
+class NotEnoughStock(UnavailableProducts):
+    pass
+
+
 @transaction.atomic
-def place_order(request, cart: Cart | None, customer_data: dict, shipping_address: str) -> Order:
-    """Turns the cart into a pending order of the visitor's customer, and empties it. Prices are
-    the ones of now (OrderItem copies them). The customer gets an email; a guest can see the
-    order again in this session."""
+def place_order(request, cart: Cart | None, customer_data: dict, shipping: dict) -> Order:
+    """Turns the cart into a pending order of the visitor's customer, and empties it. Prices and
+    shipping are the ones of now (OrderItem and `shipping_cost` copy them); `shipping` has the
+    method, province and address. The customer gets an email; a guest can see the order again
+    in this session."""
     items = list(cart.items.select_related("product")) if cart else []
     if not items:
         raise EmptyCart()
     unavailable = [item.product.name for item in items if not is_purchasable(item.product)]
     if unavailable:
         raise UnavailableProducts(unavailable)
+    subtotal = sum(item.product.active_price * item.quantity for item in items)
+    # NoShipping if it can't go that way.
+    shipping_cost = quote(shipping["shipping_method"], shipping.get("shipping_province"), subtotal)
 
-    order = Order.objects.create_with_items(
-        customer=customer_for(request.user, customer_data),
-        shipping_address=shipping_address,
-        items=[{"product": item.product, "quantity": item.quantity} for item in items],
-    )
+    try:
+        # It takes the stock, with the products locked: two checkouts can't sell the last unit.
+        order = Order.objects.create_with_items(
+            customer=customer_for(request.user, customer_data),
+            **shipping,
+            shipping_cost=shipping_cost,
+            items=[{"product": item.product, "quantity": item.quantity} for item in items],
+            reserve=True,
+        )
+    except OutOfStock as exc:
+        raise NotEnoughStock(exc.names)
     cart.items.all().delete()
 
     if not request.user.is_authenticated:
@@ -123,6 +146,8 @@ def send_order_placed_email(order: Order):
         "store_name": settings.STORE_NAME,
         "order_url": f"{settings.STORE_URL}/orders/{order.number}",
         "unpaid_hours": settings.UNPAID_ORDER_HOURS,
+        "pickup_address": settings.STORE_PICKUP_ADDRESS,
+        "revocation_url": f"{settings.STORE_URL}/revocation?order={order.number}",
     }
     send_mail(
         f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX}Order {order.number} received",

@@ -22,7 +22,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.select_related("customer").prefetch_related(
         "items__product", "payments",
     ).annotate(
-        items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0),
+        # With shipping, like Order.total.
+        items_total=Coalesce(Sum(F("items__unit_price") * F("items__quantity")), 0) + F("shipping_cost"),
         invoice_status=order_invoice_status(),
         invoice_id=order_invoice_id(),
         invoice_uncredited=order_invoice_uncredited(),

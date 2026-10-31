@@ -17,7 +17,11 @@
 - `MEDIA_URL` es absoluto (`http://localhost:8000/media/` en dev; prod lo exige): las URLs de
   las imágenes no dependen del host del request, y la tienda las optimiza con `next/image` desde
   ahí. En dev Django las sirve por el path de esa URL (`config/urls.py`).
-- Caches: `default` es locmem; `arca` es Redis (los tickets de acceso se comparten entre workers).
+- Caches: `default` es locmem en dev y tests, y Redis en prod (los rate limits de allauth valen
+  para todos los workers); `arca` es Redis (los tickets de acceso se comparten entre workers).
+- `ASSISTANT_ENABLED` (False por defecto en prod): el asistente manda datos de clientes a
+  Anthropic. `assistant.service.is_enabled()` lo junta con la key, y `/auth/user/` lo expone como
+  `assistant_enabled` para que el admin lo oculte.
 
 ## Convenciones de la API
 - Defaults de DRF: `SessionAuthentication` + `config.permissions.StaffModelPermissions`,
@@ -26,7 +30,7 @@
 - Permisos: solo staff, con el permiso de modelo del método (`view_` para leer, `add_` para POST,
   también en las `@action`; emitir, reemitir, verificar y hacer notas es `billing.add_invoice`).
   La tienda lee sin sesión vía `PublicReadMixin`; sin sesión de staff, los productos son solo los
-  de `Product.PUBLIC_STATUSES` (activos y sin stock), también en el detalle y en `choices`. Los
+  de `Product.PUBLIC_STATUSES` (los activos, con stock o sin), también en el detalle y en `choices`. Los
   roles son grupos definidos en `accounts/roles.py` (Administración, Facturación, Solo lectura) que `sync_roles` reescribe
   después de cada `migrate`; un permiso nuevo se asigna ahí, no a mano. Las cuentas del día a día
   se crean con `manage.py create_operator <user> [--role ...]` (staff, sin superusuario).
@@ -109,9 +113,41 @@
     (`Customer.user`), y cada compra lo actualiza.
   - Los datos de facturación se validan como en el admin: `CheckoutSerializer` extiende
     `CustomerSerializer`.
+- Stock (`orders/stock.py`): `Product.stock` son las unidades a la venta; "sin stock" es
+  `stock == 0`, no un estado. Una venta (`create_with_items(reserve=True)`: el checkout y el alta
+  del admin) toma las unidades con los productos bloqueados, o lanza `OutOfStock`. Cambiar el
+  estado pasa por `stock.set_status`: cancelar las devuelve y salir de `cancelled` las vuelve a
+  tomar (el webhook con `force`, porque la plata ya entró). `Order.stock_reserved` dice si la
+  orden las tiene, así nada se descuenta ni devuelve dos veces; las órdenes del seed y los
+  fixtures de tests no reservan. El carrito topea la cantidad en el stock (`max_quantity`).
 - `/my/orders/` muestra las órdenes de la cuenta y las que un invitado hizo en esta sesión
   (`PLACED_ORDERS_KEY`). La de otro da 404.
-- Todavía no hay pago: la orden queda `pending` hasta que el admin la cambie.
+- El pago es con Mercado Pago: `/checkout/` devuelve el link (ver Pagos).
+
+## Envíos (shipping)
+- `ShippingZone`: un costo (IVA incluido) para sus provincias (`Province`, las 24 jurisdicciones),
+  gratis desde `free_from`. Una provincia está en una zona como mucho (lo valida el serializer);
+  a una que no está en ninguna no se envía. El admin las edita en `/shipping-zones/`; la tienda
+  lee `/shipping/` (público: zonas y `STORE_PICKUP_ADDRESS`, vacío si no hay retiro).
+- `shipping.services.quote` calcula el costo; el checkout de la tienda muestra la misma regla
+  (`apps/web/src/lib/shipping.ts`), pero el que cobra es `place_order`, que copia
+  `shipping_method`, `shipping_province` y `shipping_cost` en la orden (solo lectura después).
+- `Order.total` incluye el envío: la factura lo suma como una línea "Envío" al 21% sin
+  `order_item` (la nota de crédito total la acredita), y la preferencia de Mercado Pago como un ítem.
+- `orders.services.set_status` es el único que cambia el estado: mueve el stock, pone
+  `shipped_at` / `delivered_at` (`Order.stamp_status`) y, al pasar a `shipped`, le manda al
+  cliente el mail con el seguimiento (`carrier`, `tracking_number`, cargados a mano).
+
+## Botón de arrepentimiento (revocations)
+- Res. 424/2020: el cliente revoca una compra dentro de los 10 días corridos desde la entrega (o
+  la compra, si es posterior; sin entregar, el plazo no empezó). `POST /revocations/request/` es
+  público (CSRF, throttle de 10 por hora por IP): pide el número de orden y el email del cliente,
+  y responde lo mismo si la orden no existe o el email no coincide. Devuelve el código
+  (`ARR-000123`) y manda mails al cliente y a `STAFF_NOTIFICATION_EMAIL`.
+- El admin aprueba (`/revocations/<code>/approve/`, POST: `add_revocationrequest`, de
+  Administración y Facturación) o rechaza con un motivo. Aprobar devuelve el pago
+  (`payments.refund_order`; sin pago de Mercado Pago queda `refund=manual`) y llama a
+  `credit_order`, igual que el aviso `refunded`. Una orden despachada exige `goods_returned`.
 
 ## Pagos (payments)
 - Mercado Pago Checkout Pro: ver `docs/architecture/payments.md`. `payments/gateway.py` es lo
@@ -123,7 +159,11 @@
 - `checkout`: `/checkout/` devuelve `payment_url`. `/my/orders/<n>/pay/` hace un link nuevo, y
   `/my/orders/<n>/invoice/` devuelve el PDF. El checkout valida que los datos alcancen para la
   factura (`receptor_for`).
-- Comandos para cron: `cancel_unpaid_orders` (`UNPAID_ORDER_HOURS`) e `invoice_paid_orders`.
+- Devoluciones: un aviso `refunded` / `charged_back` acredita la factura y cancela la orden
+  (`credit_order`, idempotente); una devolución parcial solo va al log. Ver "Devoluciones" en
+  `docs/architecture/payments.md`.
+- Comandos para cron: `cancel_unpaid_orders` (`UNPAID_ORDER_HOURS`) e `invoice_paid_orders`
+  (también acredita las devueltas).
 
 ## Facturación (billing)
 - `Invoice` es cualquier comprobante (`VoucherType`, el CbteTipo de ARCA): facturas A/B/C y sus
@@ -168,8 +208,8 @@
   test.
 
 ## Datos de desarrollo
-- `python manage.py seed [path] [--reset]` carga `seed/dev.json` (brands, categorías, productos,
-  customers y órdenes, referenciados por nombre) pasando por el ORM. No usar `loaddata`: se saltea
+- `python manage.py seed [path] [--reset]` carga `seed/dev.json` (brands, categorías, productos con
+  su stock, zonas de envío, customers y órdenes, referenciados por nombre) pasando por el ORM. No usar `loaddata`: se saltea
   los `save()` que arman slug, imagen, número de orden y `unit_price`.
 - Es idempotente por nombre; las órdenes se crean solo si la tabla está vacía. Datos ficticios.
 - Las `invoices` de `dev.json` se emiten junto con las órdenes con `billing.sample.SampleWSFE`

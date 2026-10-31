@@ -17,9 +17,11 @@ from rest_framework.test import APIClient, APITestCase
 from billing.models import Invoice
 from billing.sample import SAMPLE_POINT_OF_SALE
 from orders.models import Customer, Order
+from shipping.models import ShippingZone
 from store.models import Product
 
 from . import gateway
+from . import services as payments_services
 from .models import Payment
 
 CHECKOUT = {
@@ -28,6 +30,8 @@ CHECKOUT = {
     'document_type': Customer.DocumentType.DNI,
     'document_number': '30111222',
     'vat_condition': Customer.VatCondition.FINAL_CONSUMER,
+    'shipping_method': 'delivery',
+    'shipping_province': 'caba',
     'shipping_address': 'Av. Siempre Viva 742, CABA',
 }
 ISSUER = {
@@ -57,7 +61,8 @@ class PaymentTestCase(APITestCase):
 
     def setUp(self):
         cache.clear()
-        self.product = Product.objects.create(name='ACME Hammer', price=1000, status=Product.Status.ACTIVE)
+        self.product = Product.objects.create(name='ACME Hammer', price=1000, status=Product.Status.ACTIVE, stock=100)
+        ShippingZone.objects.create(name='AMBA', provinces=['caba', 'buenos_aires'], cost=500)
         preference = mock.patch.object(
             gateway, 'create_preference', side_effect=lambda order: (f'pref-{order.pk}', f'https://mp.test/{order.number}'))
         self.create_preference = preference.start()
@@ -84,7 +89,7 @@ class CheckoutPaymentTests(PaymentTestCase):
         self.assertEqual(result['payment_url'], f'https://mp.test/{order.number}')
         payment = order.payments.get()
         self.assertEqual((payment.status, payment.preference_id, payment.amount),
-                         (Payment.Status.CREATED, f'pref-{order.pk}', 2000))
+                         (Payment.Status.CREATED, f'pref-{order.pk}', 2500))
 
     def test_without_mercado_pago_the_order_is_placed_anyway(self):
         self.create_preference.side_effect = gateway.GatewayError('down')
@@ -199,6 +204,82 @@ class WebhookTests(PaymentTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class RefundTests(PaymentTestCase):
+    def paid_order(self):
+        order, _ = self.place_order()
+        self.notify(mp_payment(order))
+        order.refresh_from_db()
+        self.assertEqual(order.invoices.get().status, Invoice.Status.AUTHORIZED)
+        return order
+
+    def stock(self):
+        self.product.refresh_from_db()
+        return self.product.stock
+
+    def test_a_refund_credits_and_cancels_the_order(self):
+        order = self.paid_order()
+        self.assertEqual(self.stock(), 98)
+        with self.assertLogs('billing', 'WARNING'):
+            self.notify(mp_payment(order, status='refunded'))
+        order.refresh_from_db()
+        invoice = order.invoices.get(associated_invoice=None)
+        note = invoice.notes.get()
+        self.assertEqual((note.status, note.total_amount), (Invoice.Status.AUTHORIZED, invoice.total_amount))
+        self.assertEqual(order.status, Order.Status.CANCELLED)
+        self.assertEqual(self.stock(), 100)
+
+        # Again: nothing changes.
+        self.notify(mp_payment(order, status='refunded'))
+        self.assertEqual(invoice.notes.count(), 1)
+        self.assertEqual(self.stock(), 100)
+
+    def test_a_chargeback_of_a_delivered_order_doesnt_restock(self):
+        order = self.paid_order()
+        Order.objects.filter(pk=order.pk).update(status=Order.Status.DELIVERED)
+        with self.assertLogs('billing', 'WARNING'):
+            self.notify(mp_payment(order, status='charged_back'))
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.CANCELLED)
+        self.assertFalse(order.stock_reserved)
+        self.assertEqual(self.stock(), 98)
+
+    def test_a_partial_refund_is_left_to_the_admin(self):
+        order = self.paid_order()
+        with self.assertLogs('billing', 'WARNING') as logs:
+            self.notify({**mp_payment(order), 'transaction_amount_refunded': 1000.0})
+        self.assertIn('partly refunded', logs.output[0])
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PAID)
+        self.assertFalse(order.invoices.filter(associated_invoice__isnull=False).exists())
+
+    def test_the_cron_credits_the_ones_the_webhook_couldnt(self):
+        order = self.paid_order()
+        with mock.patch.object(payments_services, 'credit_order'), self.assertLogs('billing', 'WARNING'):
+            self.notify(mp_payment(order, status='refunded'))
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PAID)
+        out = io.StringIO()
+        call_command('invoice_paid_orders', stdout=out)
+        self.assertIn(f'{order.number}: refunded, Cancelled', out.getvalue())
+        self.assertEqual(order.invoices.filter(associated_invoice__isnull=False).count(), 1)
+
+    def test_without_auto_invoice_the_order_waits_for_the_admin(self):
+        order = self.paid_order()
+        with override_settings(AUTO_INVOICE='off'), self.assertLogs('billing', 'WARNING'):
+            self.notify(mp_payment(order, status='refunded'))
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PAID)
+
+    def test_refunding_asks_mercado_pago(self):
+        order = self.paid_order()
+        with mock.patch.object(gateway, 'refund') as refund:
+            payments_services.refund_order(order)
+        refund.assert_called_once_with('111')
+        pending, _ = self.place_order(APIClient())
+        with self.assertRaises(payments_services.PaymentError):
+            payments_services.refund_order(pending)
+
+
 class MyOrderPaymentTests(PaymentTestCase):
     def test_only_a_pending_order_without_a_payment_in_process_can_be_paid(self):
         order, _ = self.place_order()
@@ -249,6 +330,22 @@ class CommandTests(PaymentTestCase):
         self.assertEqual(statuses[cash.number], Order.Status.PENDING)
         self.assertEqual(statuses[recent.number], Order.Status.PENDING)
         self.assertEqual(statuses[by_hand.number], Order.Status.PENDING)
+        # The cancelled one gave its 2 back: the other two hold 4.
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 96)
+
+    def test_a_cancelled_order_that_gets_paid_takes_its_stock_again(self):
+        order, _ = self.place_order()
+        Order.objects.filter(pk=order.pk).update(created_at=timezone.now() - timedelta(hours=73))
+        call_command('cancel_unpaid_orders', stdout=io.StringIO())
+        # Meanwhile only one is left: the money is in, so it takes it anyway.
+        Product.objects.filter(pk=self.product.pk).update(stock=1)
+        with self.assertLogs('billing', 'CRITICAL'):
+            self.notify(mp_payment(order))
+        order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual((order.status, order.stock_reserved, self.product.stock),
+                         (Order.Status.PAID, True, 0))
 
     def test_paid_orders_left_without_an_invoice_get_one(self):
         order, _ = self.place_order()
@@ -266,7 +363,7 @@ class PreferenceTests(TestCase):
 
     def setUp(self):
         customer = Customer.objects.create(name='Ana', email='ana@example.com')
-        product = Product.objects.create(name='ACME Hammer', price=1000, status=Product.Status.ACTIVE)
+        product = Product.objects.create(name='ACME Hammer', price=1000, status=Product.Status.ACTIVE, stock=100)
         self.order = Order.objects.create_with_items(customer=customer, items=[{'product': product, 'quantity': 2}])
 
     def create(self):
@@ -276,6 +373,13 @@ class PreferenceTests(TestCase):
         with mock.patch.object(gateway, 'sdk', return_value=sdk):
             result = gateway.create_preference(self.order)
         return result, sdk.preference.return_value.create.call_args.args[0]
+
+    def test_shipping_is_one_more_item(self):
+        Order.objects.filter(pk=self.order.pk).update(shipping_cost=1500)
+        self.order.refresh_from_db()
+        _, data = self.create()
+        self.assertEqual(data['items'][-1]['title'], 'Envío')
+        self.assertEqual(sum(item['unit_price'] * item['quantity'] for item in data['items']), 3500)
 
     @override_settings(STORE_URL='https://tienda.example.com')
     def test_the_order_and_where_to_come_back(self):

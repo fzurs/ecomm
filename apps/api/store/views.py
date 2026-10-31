@@ -21,7 +21,7 @@ class ProductViewSet(PublicReadMixin, ChoicesMixin, viewsets.ModelViewSet):
     # Category and Brand are ordered by {model}__name, and active_price by final_price, in
     # ProductOrdering
     ordering_fields = ["name", "category", "brand", "status", "featured", "price", "active_price",
-                       "discount_percent", "vat_rate", "created_at"]
+                       "discount_percent", "vat_rate", "stock", "created_at"]
     lookup_field = "slug"
 
     def get_queryset(self):

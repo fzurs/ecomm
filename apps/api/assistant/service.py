@@ -50,6 +50,11 @@ herramientas que necesites, no en un paso aparte. Después cambialo solo si te l
 tema cambia por completo. No menciones el título en la respuesta salvo que te lo pidan."""
 
 
+def is_enabled() -> bool:
+    """Turned on (ASSISTANT_ENABLED, off in production by default) and with a key."""
+    return settings.ASSISTANT_ENABLED and bool(settings.ANTHROPIC_API_KEY)
+
+
 def get_client():
     return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 

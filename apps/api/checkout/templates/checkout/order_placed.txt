@@ -3,14 +3,22 @@
 We received your order {{ order.number }}. It's paid with Mercado Pago: when the payment is in, we'll send you another email with the invoice.
 {% for item in items %}
 - {{ item.quantity }} × {{ item.product.name }}: {{ item.subtotal|price }}{% endfor %}
+{% if order.shipping_method == "pickup" %}
+Pickup: free
+
+Total: {{ order.total|price }}
+
+Pick it up at:
+{{ pickup_address }}{% else %}
+Shipping: {% if order.shipping_cost %}{{ order.shipping_cost|price }}{% else %}free{% endif %}
 
 Total: {{ order.total|price }}
 
 Shipping to:
-{{ order.shipping_address }}
+{{ order.shipping_address }}{% endif %}
 
 You can see your order, and pay it if you haven't yet, at {{ order_url }}
 
-Unpaid orders are cancelled after {{ unpaid_hours }} hours.
+Unpaid orders are cancelled after {{ unpaid_hours }} hours. Once paid, you can revoke the purchase within 10 days of receiving it at {{ revocation_url }}
 
 Thank you for shopping at {{ store_name }}!

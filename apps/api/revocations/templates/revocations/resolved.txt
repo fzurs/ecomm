@@ -1,0 +1,12 @@
+Hello {{ order.customer.name }},
+{% if revocation.status == "approved" %}
+Your request {{ revocation.code }} to revoke the purchase of order {{ order.number }} was approved.
+{% if revocation.refund == "mercadopago" %}
+We gave your payment back with Mercado Pago: it shows up as Mercado Pago and your card say, usually within a few days.{% else %}
+We'll contact you to give your payment back.{% endif %}
+{% else %}
+Your request {{ revocation.code }} to revoke the purchase of order {{ order.number }} was rejected.
+{% endif %}{% if revocation.resolution_note %}
+{{ revocation.resolution_note }}
+{% endif %}
+{{ store_name }}

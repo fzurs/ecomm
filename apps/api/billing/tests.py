@@ -352,6 +352,23 @@ class InvoiceAPITests(FixturesMixin, APITestCase):
         self.assertEqual(detail['credit_available'], '0.00')
         self.assertEqual(len(detail['notes']), 1)
 
+    def test_shipping_is_one_more_line(self):
+        order = self.make_order(self.registered())
+        Order.objects.filter(pk=order.pk).update(shipping_cost=1210)
+        response = self.create(Order.objects.get(pk=order.pk))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+        invoice = Invoice.objects.get(pk=response.json()['id'])
+        shipping = invoice.lines.get(order_item=None)
+        self.assertEqual((shipping.description, shipping.unit_price, shipping.vat_rate),
+                         ('Envío', Decimal('1210'), VatRate.VAT_21))
+        self.assertEqual(invoice.total_amount, Decimal('25410.00'))
+
+        # The full credit note credits it too, and then the order can be cancelled.
+        response = self.client.post(reverse('invoice-credit-note', args=[invoice.pk]), {}, format='json')
+        self.assertEqual(response.json()['total_amount'], '25410.00')
+        detail = self.client.get(reverse('order-detail', args=[order.number])).json()
+        self.assertNotIn('cancelled', [lock['status'] for lock in detail['status_locks']])
+
     def test_partial_credit_note_and_over_credit(self):
         invoice = self.invoice(self.registered())
         line = invoice.lines.get()

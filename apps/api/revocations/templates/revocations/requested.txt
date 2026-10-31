@@ -1,0 +1,11 @@
+Hello {{ order.customer.name }},
+
+We received your request to revoke the purchase of order {{ order.number }} (botón de arrepentimiento).
+
+Your request's code is {{ revocation.code }}.
+
+We'll write to you once we review it. If the order was already shipped, we'll tell you how to send it back.
+
+You can see your order at {{ order_url }}
+
+{{ store_name }}

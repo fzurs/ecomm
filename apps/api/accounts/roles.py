@@ -9,7 +9,7 @@ ADMINISTRATION = 'Administración'
 INVOICING = 'Facturación'
 READ_ONLY = 'Solo lectura'
 
-APPS = ['store', 'orders', 'billing']
+APPS = ['store', 'orders', 'billing', 'shipping', 'revocations']
 
 
 def _perms(actions, models=None):
@@ -24,7 +24,8 @@ def role_permissions():
     return {
         ADMINISTRATION: _perms({'view', 'add', 'change', 'delete'}),
         # Creating a voucher emits it: `add_invoice` also covers notes, re-emitting and verifying.
-        INVOICING: _perms({'view'}) + _perms({'add'}, ['billing.invoice']),
+        # Approving a revocation (a POST: `add`) refunds the payment and emits the credit note.
+        INVOICING: _perms({'view'}) + _perms({'add'}, ['billing.invoice', 'revocations.revocationrequest']),
         READ_ONLY: _perms({'view'}),
     }
 

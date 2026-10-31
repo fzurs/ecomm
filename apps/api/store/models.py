@@ -64,11 +64,11 @@ class Product(NamedSlugModel):
         DRAFT = ('draft', 'Draft')
         ACTIVE = ('active', 'Active')
         INACTIVE = ('inactive', 'Inactive')
-        OUT_OF_STOCK = ('out_of_stock', 'Out of stock')
         DISCONTINUED = ('discontinued', 'Discontinued')
 
-    # What the store shows. The rest (drafts, inactive, discontinued) only staff see.
-    PUBLIC_STATUSES = [Status.ACTIVE, Status.OUT_OF_STOCK]
+    # What the store shows. The rest (drafts, inactive, discontinued) only staff see. Out of
+    # stock isn't a status: it's `stock == 0`, and the store shows it as such.
+    PUBLIC_STATUSES = [Status.ACTIVE]
 
     sku = models.CharField('SKU', max_length=255, blank=True, null=True)
 
@@ -88,6 +88,9 @@ class Product(NamedSlugModel):
     discount_percent = models.PositiveSmallIntegerField(
         blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(99)])
     vat_rate = models.PositiveSmallIntegerField(choices=VatRate.choices, default=VatRate.VAT_21)
+    # Units for sale. An order takes them when it's placed and gives them back if it's cancelled
+    # (`orders.stock`).
+    stock = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

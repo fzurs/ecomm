@@ -17,6 +17,8 @@ from billing.models import Invoice, InvoiceSequenceLock
 from billing.purge import PurgeRefused, bypass_invoice_guard, purge_invoices
 from billing.sample import SAMPLE_POINT_OF_SALE, SampleWSFE
 from orders.models import Customer, Order, OrderItem
+from payments.models import Payment
+from shipping.models import ShippingZone
 from store.models import Brand, Category, Product
 
 from .regenerate_images import is_generated
@@ -66,8 +68,10 @@ class Command(BaseCommand):
                 f'{e} --reset would delete their orders. In homologacion, --purge-homologation '
                 'deletes them too.')
         InvoiceSequenceLock.objects.filter(point_of_sale=SAMPLE_POINT_OF_SALE).delete()
+        Payment.objects.all().delete()
         OrderItem.objects.all().delete()
         Order.objects.all().delete()
+        ShippingZone.objects.all().delete()
         for model in (Product, Customer):
             for obj in model.objects.all():
                 if obj.image and is_generated(obj.image, obj.name):
@@ -97,6 +101,9 @@ class Command(BaseCommand):
                 product.generate_sku()
             products[product.name] = product
 
+        for row in data.get('shipping_zones', []):
+            ShippingZone.objects.update_or_create(name=row['name'], defaults=row)
+
         customers = {
             row['name']: Customer.objects.update_or_create(name=row['name'], defaults=row)[0]
             for row in data.get('customers', [])
@@ -104,7 +111,8 @@ class Command(BaseCommand):
 
         self.stdout.write(
             f'Brand: {len(brands)}, Category: {len(categories)}, '
-            f'Product: {len(products)}, Customer: {len(customers)}'
+            f'Product: {len(products)}, Shipping zone: {len(data.get("shipping_zones", []))}, '
+            f'Customer: {len(customers)}'
         )
 
         rows = data.get('orders', [])
@@ -120,6 +128,7 @@ class Command(BaseCommand):
                 {'product': lookup(Product, products, item['product'], where), 'quantity': item.get('quantity', 1)}
                 for item in row['items']
             ]
+            # Past orders, without `reserve`: dev.json's stock is what's left after them.
             order = Order.objects.create_with_items(
                 customer=lookup(Customer, customers, row['customer'], where),
                 status=row.get('status', Order.Status.PENDING),
@@ -128,6 +137,9 @@ class Command(BaseCommand):
             # `created_at` is auto_now_add, so it can only be backdated with an update.
             created_at = now - timedelta(days=row.get('days_ago', 0))
             Order.objects.filter(pk=order.pk).update(created_at=created_at, updated_at=created_at)
+            # Shipped and delivered then too: `save` stamped them now.
+            Order.objects.filter(pk=order.pk, shipped_at__isnull=False).update(shipped_at=created_at)
+            Order.objects.filter(pk=order.pk, delivered_at__isnull=False).update(delivered_at=created_at)
             order.created_at = created_at
             orders.append(order)
         self.stdout.write(f'Order: {len(rows)}')

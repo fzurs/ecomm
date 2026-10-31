@@ -1,6 +1,5 @@
 import json
 
-from django.conf import settings
 from django.http import StreamingHttpResponse
 from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, status, viewsets
@@ -10,7 +9,7 @@ from rest_framework.response import Response
 from config.permissions import IsVerifiedStaff
 from .models import Conversation
 from .serializers import ConversationDetailSerializer, ConversationSerializer, ReplySerializer
-from .service import reply
+from .service import is_enabled, reply
 
 
 def sse(events):
@@ -47,8 +46,8 @@ class ConversationViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins
         conversation = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if not settings.ANTHROPIC_API_KEY:
-            return Response({"detail": "The assistant isn't configured (ANTHROPIC_API_KEY)."},
+        if not is_enabled():
+            return Response({"detail": "The assistant is turned off (ASSISTANT_ENABLED, ANTHROPIC_API_KEY)."},
                             status=status.HTTP_503_SERVICE_UNAVAILABLE)
         events = reply(conversation, serializer.validated_data["text"], serializer.validated_data.get("page"))
         response = StreamingHttpResponse(sse(events), content_type="text/event-stream")

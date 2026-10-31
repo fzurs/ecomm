@@ -41,6 +41,7 @@
       "price": 18500,
       "vat_rate": 4,
       "status": "active",
+      "stock": 40,
       "discount_percent": 10,
       "featured": true,
       "description": "Dual-core Xtensa LX7 at 240 MHz, 8 MB PSRAM, Wi-Fi 4 and Bluetooth LE 5."
@@ -52,6 +53,7 @@
       "price": 9800,
       "vat_rate": 4,
       "status": "active",
+      "stock": 60,
       "featured": false,
       "description": "Dual-core Cortex-M0+ at 133 MHz, 264 KB SRAM, 2 MB QSPI flash, 26 GPIO."
     },
@@ -62,6 +64,7 @@
       "price": 14200,
       "vat_rate": 4,
       "status": "active",
+      "stock": 35,
       "featured": false,
       "description": "Cortex-M4F at 100 MHz with FPU, 512 KB flash and USB-C."
     },
@@ -72,6 +75,7 @@
       "price": 165000,
       "vat_rate": 4,
       "status": "active",
+      "stock": 8,
       "featured": true,
       "description": "Quad-core Cortex-A76 at 2.4 GHz, 8 GB LPDDR4X, PCIe 2.0 x1, dual 4K HDMI."
     },
@@ -81,7 +85,8 @@
       "category": "Microcontrollers",
       "price": 22000,
       "vat_rate": 4,
-      "status": "out_of_stock",
+      "status": "active",
+      "stock": 0,
       "featured": false,
       "description": "MCP2518FD controller with isolated transceiver, up to 8 Mbit/s."
     },
@@ -91,6 +96,7 @@
       "category": "Networking",
       "price": 385000,
       "status": "active",
+      "stock": 3,
       "featured": true,
       "description": "Layer 2+ managed switch, 24x 1 GbE RJ45 plus 4x 10G SFP+, VLAN and LACP."
     },
@@ -100,6 +106,7 @@
       "category": "Networking",
       "price": 142000,
       "status": "active",
+      "stock": 6,
       "discount_percent": 15,
       "featured": false,
       "description": "802.3at PoE+ on 8 ports, 120 W budget, fanless."
@@ -110,6 +117,7 @@
       "category": "Networking",
       "price": 128000,
       "status": "active",
+      "stock": 12,
       "featured": false,
       "description": "Dual-band AX3000, 2x2 MU-MIMO, PoE powered, ceiling mount."
     },
@@ -119,6 +127,7 @@
       "category": "Networking",
       "price": 210000,
       "status": "active",
+      "stock": 5,
       "featured": false,
       "description": "23 AWG solid copper, 500 MHz, LSZH jacket."
     },
@@ -128,6 +137,7 @@
       "category": "Networking",
       "price": 31000,
       "status": "active",
+      "stock": 24,
       "featured": false,
       "description": "850 nm multimode, LC duplex, up to 300 m on OM3."
     },
@@ -137,6 +147,7 @@
       "category": "Networking",
       "price": 176000,
       "status": "inactive",
+      "stock": 4,
       "featured": false
     },
     {
@@ -145,6 +156,7 @@
       "category": "Networking",
       "price": 8500,
       "status": "draft",
+      "stock": 0,
       "featured": false
     },
     {
@@ -153,6 +165,7 @@
       "category": "Power Supplies",
       "price": 189000,
       "status": "active",
+      "stock": 7,
       "featured": true,
       "description": "Linear regulated, 0-30 V / 0-5 A, 1 mV resolution, USB remote control."
     },
@@ -162,6 +175,7 @@
       "category": "Power Supplies",
       "price": 64000,
       "status": "active",
+      "stock": 15,
       "discount_percent": 20,
       "featured": false,
       "description": "120 W, 85-264 VAC input, 89% efficiency, DC OK relay."
@@ -172,6 +186,7 @@
       "category": "Power Supplies",
       "price": 4200,
       "status": "active",
+      "stock": 80,
       "featured": false,
       "description": "Synchronous step-down, 95% efficiency, 8-36 V input."
     },
@@ -181,6 +196,7 @@
       "category": "Power Supplies",
       "price": 3900,
       "status": "active",
+      "stock": 90,
       "featured": false
     },
     {
@@ -188,7 +204,8 @@
       "brand": "Initech",
       "category": "Power Supplies",
       "price": 720000,
-      "status": "out_of_stock",
+      "status": "active",
+      "stock": 0,
       "featured": false
     },
     {
@@ -197,6 +214,7 @@
       "category": "Power Supplies",
       "price": 410000,
       "status": "discontinued",
+      "stock": 2,
       "featured": false
     },
     {
@@ -205,6 +223,7 @@
       "category": "Test & Measurement",
       "price": 980000,
       "status": "active",
+      "stock": 2,
       "discount_percent": 8,
       "featured": true,
       "description": "200 MHz bandwidth, 1 GSa/s, 50 Mpts memory, serial decoding."
@@ -215,6 +234,7 @@
       "category": "Test & Measurement",
       "price": 76000,
       "status": "active",
+      "stock": 18,
       "featured": false,
       "description": "6000 counts, CAT III 600 V, 10 A, capacitance and frequency."
     },
@@ -224,6 +244,7 @@
       "category": "Test & Measurement",
       "price": 54000,
       "status": "active",
+      "stock": 14,
       "featured": false,
       "description": "100 MSa/s, USB 3.0, protocol decoders for I2C, SPI and UART."
     },
@@ -233,6 +254,7 @@
       "category": "Test & Measurement",
       "price": 245000,
       "status": "draft",
+      "stock": 0,
       "featured": false
     },
     {
@@ -242,6 +264,7 @@
       "price": 6800,
       "vat_rate": 4,
       "status": "active",
+      "stock": 50,
       "featured": false,
       "description": "Temperature, humidity and pressure over I2C/SPI, ±1 hPa accuracy."
     },
@@ -252,6 +275,7 @@
       "price": 39000,
       "vat_rate": 4,
       "status": "active",
+      "stock": 20,
       "discount_percent": 12,
       "featured": false,
       "description": "Time-of-flight, 12 m range, 100 Hz, UART and I2C."
@@ -263,6 +287,7 @@
       "price": 9500,
       "vat_rate": 4,
       "status": "inactive",
+      "stock": 0,
       "featured": false
     },
     {
@@ -272,6 +297,7 @@
       "price": 15500,
       "vat_rate": 4,
       "status": "active",
+      "stock": 30,
       "featured": false,
       "description": "3-wire, -50 to 250 °C, 6 mm stainless steel sheath."
     },
@@ -281,6 +307,7 @@
       "category": "Tools",
       "price": 135000,
       "status": "active",
+      "stock": 9,
       "featured": true,
       "description": "Digital temperature control 200-480 °C, ESD safe, T12 tips."
     },
@@ -290,6 +317,7 @@
       "category": "Tools",
       "price": 98000,
       "status": "active",
+      "stock": 1,
       "discount_percent": 10,
       "featured": false,
       "description": "700 W, 100-500 °C, adjustable airflow, three nozzles."
@@ -300,6 +328,7 @@
       "category": "Tools",
       "price": 27000,
       "status": "active",
+      "stock": 25,
       "featured": false
     },
     {
@@ -308,7 +337,55 @@
       "category": "Tools",
       "price": 19500,
       "status": "discontinued",
+      "stock": 0,
       "featured": false
+    }
+  ],
+  "shipping_zones": [
+    {
+      "name": "AMBA",
+      "provinces": [
+        "caba",
+        "buenos_aires"
+      ],
+      "cost": 4500,
+      "free_from": 150000
+    },
+    {
+      "name": "Centro",
+      "provinces": [
+        "cordoba",
+        "santa_fe",
+        "entre_rios",
+        "la_pampa",
+        "san_luis"
+      ],
+      "cost": 7500,
+      "free_from": 250000
+    },
+    {
+      "name": "Resto del país",
+      "provinces": [
+        "catamarca",
+        "chaco",
+        "chubut",
+        "corrientes",
+        "formosa",
+        "jujuy",
+        "la_rioja",
+        "mendoza",
+        "misiones",
+        "neuquen",
+        "rio_negro",
+        "salta",
+        "san_juan",
+        "santa_cruz",
+        "santiago_del_estero",
+        "tierra_del_fuego",
+        "tucuman"
+      ],
+      "cost": 11000,
+      "free_from": null
     }
   ],
   "customers": [

@@ -435,6 +435,11 @@ class ReplyTests(APITestCase):
         response = self.client.post(self.url, {'text': 'Hola'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
+    @override_settings(ASSISTANT_ENABLED=False)
+    def test_can_be_turned_off(self):
+        response = self.client.post(self.url, {'text': 'Hola'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ConversationTests(APITestCase):

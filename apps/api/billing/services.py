@@ -10,6 +10,7 @@ from django.db import DatabaseError, transaction
 from django.db.models import Sum
 
 from orders.models import Order
+from store.models import VatRate
 
 from . import amounts
 from .adapter import ARCAElectronicInvoicingAdapter
@@ -20,6 +21,8 @@ from .models import (
 from .rules import InvoicingError, check_supported, invoice_letter, receptor_for
 
 logger = logging.getLogger(__name__)
+
+SHIPPING_DESCRIPTION = 'Envío'
 
 
 
@@ -56,6 +59,13 @@ def build_invoice(order: Order, invoice: Invoice | None = None) -> tuple[Invoice
     ]
     if not lines:
         raise InvoicingError(f'Order {order.number} has no items.')
+    if order.shipping_cost:
+        # A service of the sale, at the general rate. No order item: a credit note credits it
+        # as one more line of the invoice.
+        lines.append(InvoiceLine(
+            description=SHIPPING_DESCRIPTION, quantity=1, unit_price=order.shipping_cost,
+            vat_rate=VatRate.VAT_21,
+        ))
     set_amounts(invoice, lines)
     return invoice, lines
 

@@ -17,6 +17,7 @@ from billing.models import Invoice
 from billing.pdf import invoice_pdf
 from billing.rules import InvoicingError
 from billing.sample import SAMPLE_POINT_OF_SALE, SampleWSFE
+from orders import services as orders
 from orders.models import Order
 
 from . import gateway
@@ -78,15 +79,22 @@ def handle_notification(payment_id: str) -> Payment | None:
                     provider_id, order.number, data.get("currency_id"), payment.amount, order.total)
                 return payment
             if order.status == Order.Status.CANCELLED:
-                # E.g. paid in cash after it was cancelled: the money is in, the order goes on.
+                # E.g. paid in cash after it was cancelled: the money is in, the order goes on,
+                # and takes its stock again even if there isn't enough (`stock.reserve` logs it).
                 logger.warning("Order %s was cancelled and got paid: it's paid again", order.number)
-            order.status = Order.Status.PAID
-            order.save(update_fields=["status", "updated_at"])
+            orders.set_status(order, Order.Status.PAID, force=True)
             logger.info("Order %s paid with Mercado Pago payment %s", order.number, provider_id)
             transaction.on_commit(lambda: after_payment(order.pk))
         elif payment.status in (Payment.Status.REFUNDED, Payment.Status.CHARGED_BACK):
-            logger.warning("Mercado Pago payment %s of order %s was %s: review it (credit note?)",
-                           provider_id, order.number, payment.status)
+            if order.status in Order.PAID_STATUSES:
+                logger.warning("Mercado Pago payment %s of order %s was %s: it's credited",
+                               provider_id, order.number, payment.status)
+                restock = restocks(payment.status, order.status)
+                transaction.on_commit(lambda: credit_order(order.pk, restock=restock))
+        elif payment.status == Payment.Status.APPROVED and data.get("transaction_amount_refunded"):
+            # Part of it given back: which lines it was is up to the admin (a partial credit note).
+            logger.warning("Mercado Pago payment %s of order %s was partly refunded (%s): review it",
+                           provider_id, order.number, data["transaction_amount_refunded"])
     return payment
 
 
@@ -105,9 +113,19 @@ def after_payment(order_id: int):
         logger.exception("Couldn't send the payment mail of order #%s", order_id)
 
 
+def emit_automatically(create) -> Invoice | None:
+    """`create(wsfe)` as AUTO_INVOICE says: `arca` (wsfe None, ARCA's), `sample` (dev: made-up
+    vouchers on SAMPLE_POINT_OF_SALE, never ARCA) or `off` (None, nothing is emitted)."""
+    if settings.AUTO_INVOICE == "off":
+        return None
+    if settings.AUTO_INVOICE == "sample":
+        with override_settings(ARCA_POINT_OF_SALE=SAMPLE_POINT_OF_SALE):
+            return create(sample_wsfe())
+    return create(None)
+
+
 def invoice_order(order_id: int) -> Invoice | None:
-    """The invoice of a paid order, as AUTO_INVOICE says: `arca`, `sample` (dev: made-up
-    vouchers on SAMPLE_POINT_OF_SALE, never ARCA) or `off`. None if it has one already."""
+    """The invoice of a paid order (`emit_automatically`). None if it has one already."""
     if settings.AUTO_INVOICE == "off":
         return None
     with transaction.atomic():
@@ -115,10 +133,58 @@ def invoice_order(order_id: int) -> Invoice | None:
         order = Order.objects.select_for_update().get(pk=order_id)
         if order.status not in Order.PAID_STATUSES or order.invoices.filter(associated_invoice=None).exists():
             return None
-        if settings.AUTO_INVOICE == "sample":
-            with override_settings(ARCA_POINT_OF_SALE=SAMPLE_POINT_OF_SALE):
-                return billing.create_invoice(order, sample_wsfe())
-        return billing.create_invoice(order)
+        return emit_automatically(lambda wsfe: billing.create_invoice(order, wsfe))
+
+
+def restocks(payment_status: str, order_status: str) -> bool:
+    """Whether a refunded order's goods come back to the stock: not after a chargeback of a
+    shipped order, which stays with the customer. A refund we make is for goods not shipped
+    or returned (the revocations)."""
+    return payment_status == Payment.Status.REFUNDED or order_status == Order.Status.PAID
+
+
+def credit_order(order_id: int, restock=True) -> Invoice | None:
+    """A refunded order: a credit note for what's left of its invoice (`emit_automatically`),
+    and then it's cancelled, giving its stock back unless `restock` is False (the goods didn't
+    come back). Idempotent: Mercado Pago repeats notifications, and `invoice_paid_orders`
+    retries. While its invoice isn't fully credited (not authorized yet, the note rejected,
+    AUTO_INVOICE off) it stays as it is for the admin. The note, or None."""
+    with transaction.atomic():
+        order = Order.objects.select_for_update().get(pk=order_id)
+        if order.status == Order.Status.CANCELLED:
+            return None
+        invoice = order.invoices.filter(associated_invoice=None).exclude(
+            status=Invoice.Status.REJECTED).first()
+        note = None
+        if invoice is not None:
+            if invoice.status != Invoice.Status.AUTHORIZED:
+                logger.warning("Refunded order %s: its invoice is %s, credit it by hand",
+                               order.number, invoice.status)
+                return None
+            if billing.credit_available(invoice) > 0:
+                try:
+                    note = emit_automatically(lambda wsfe: billing.create_credit_note(invoice, None, wsfe))
+                except InvoicingError:
+                    logger.exception("Couldn't credit refunded order %s", order.number)
+                    return None
+            if billing.credit_available(invoice) > 0:
+                logger.warning("Refunded order %s isn't fully credited: review it", order.number)
+                return note
+        orders.set_status(order, Order.Status.CANCELLED, restock=restock)
+        logger.info("Refunded order %s cancelled", order.number)
+        return note
+
+
+def refund_order(order: Order) -> Payment:
+    """Gives the order's approved Mercado Pago payment back. Its credit note comes with the
+    `refunded` notification (`credit_order`). GatewayError if Mercado Pago refuses it,
+    PaymentError if there's nothing to refund."""
+    payment = order.payments.filter(status=Payment.Status.APPROVED).exclude(
+        provider_payment_id=None).first()
+    if payment is None:
+        raise PaymentError("This order has no approved Mercado Pago payment to refund.")
+    gateway.refund(payment.provider_payment_id)
+    return payment
 
 
 def sample_wsfe() -> SampleWSFE:
@@ -169,7 +235,6 @@ def cancel_unpaid_orders(now=None) -> list[str]:
             if order.status != Order.Status.PENDING or order.payments.filter(
                     status__in=[*Payment.IN_PROGRESS, Payment.Status.APPROVED]).exists():
                 continue
-            order.status = Order.Status.CANCELLED
-            order.save(update_fields=["status", "updated_at"])
+            orders.set_status(order, Order.Status.CANCELLED)
             cancelled.append(order.number)
     return cancelled

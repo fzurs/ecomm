@@ -6,7 +6,7 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *  # noqa: F403
-from .base import BASE_DIR, MIDDLEWARE, env
+from .base import BASE_DIR, CACHES, MIDDLEWARE, env
 
 DEBUG = False
 
@@ -39,6 +39,20 @@ for name in ("MERCADOPAGO_ACCESS_TOKEN", "MERCADOPAGO_WEBHOOK_SECRET"):
 AUTO_INVOICE = env("AUTO_INVOICE", default="arca")
 if AUTO_INVOICE == "sample":
     raise ImproperlyConfigured("AUTO_INVOICE=sample makes up vouchers: never in production")
+
+# The assistant sends customers' data to Anthropic (an international transfer, Ley 25.326): off
+# until the privacy policy declares it. See docs/production.md.
+ASSISTANT_ENABLED = env.bool("ASSISTANT_ENABLED", default=False)
+
+# Shared by every worker: allauth's rate limits (failed logins, codes) count per process otherwise.
+CACHES = {
+    **CACHES,
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("REDIS_URL", default="redis://127.0.0.1:6379"),
+        "KEY_PREFIX": "default",
+    },
+}
 
 # The images' public URL (base.py's default is localhost's).
 if "MEDIA_URL" not in env.ENVIRON:

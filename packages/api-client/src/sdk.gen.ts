@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CartItemsCreateData, CartItemsCreateResponses, CartItemsDestroyData, CartItemsDestroyResponses, CartItemsPartialUpdateData, CartItemsPartialUpdateResponses, CartRetrieveData, CartRetrieveResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CheckoutCreateData, CheckoutCreateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, MyOrdersInvoiceData, MyOrdersInvoiceResponses, MyOrdersListData, MyOrdersListResponses, MyOrdersPayData, MyOrdersPayResponses, MyOrdersRetrieveData, MyOrdersRetrieveResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses } from './types.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponses, AssistantConversationsDestroyData, AssistantConversationsDestroyResponses, AssistantConversationsListData, AssistantConversationsListResponses, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponses, AuthUserPartialUpdateData, AuthUserPartialUpdateResponses, AuthUserRetrieveData, AuthUserRetrieveResponses, BrandsCreateData, BrandsCreateResponses, BrandsDestroyData, BrandsDestroyResponses, BrandsListChoicesData, BrandsListChoicesResponses, BrandsListData, BrandsListResponses, BrandsPartialUpdateData, BrandsPartialUpdateResponses, BrandsRetrieveData, BrandsRetrieveResponses, BrandsUpdateData, BrandsUpdateResponses, CartItemsCreateData, CartItemsCreateResponses, CartItemsDestroyData, CartItemsDestroyResponses, CartItemsPartialUpdateData, CartItemsPartialUpdateResponses, CartRetrieveData, CartRetrieveResponses, CategoriesCreateData, CategoriesCreateResponses, CategoriesDestroyData, CategoriesDestroyResponses, CategoriesListChoicesData, CategoriesListChoicesResponses, CategoriesListData, CategoriesListResponses, CategoriesPartialUpdateData, CategoriesPartialUpdateResponses, CategoriesRetrieveData, CategoriesRetrieveResponses, CategoriesUpdateData, CategoriesUpdateResponses, CheckoutCreateData, CheckoutCreateResponses, CustomersCreateData, CustomersCreateResponses, CustomersDestroyData, CustomersDestroyResponses, CustomersListChoicesData, CustomersListChoicesResponses, CustomersListData, CustomersListResponses, CustomersPartialUpdateData, CustomersPartialUpdateResponses, CustomersRetrieveData, CustomersRetrieveResponses, CustomersUpdateData, CustomersUpdateResponses, InvoicesCreateData, InvoicesCreateResponses, InvoicesCreditNoteData, InvoicesCreditNoteResponses, InvoicesDebitNoteData, InvoicesDebitNoteResponses, InvoicesDestroyData, InvoicesDestroyResponses, InvoicesEmitData, InvoicesEmitResponses, InvoicesListData, InvoicesListResponses, InvoicesPdfData, InvoicesPdfResponses, InvoicesPreviewData, InvoicesPreviewResponses, InvoicesRetrieveData, InvoicesRetrieveResponses, InvoicesVerifyData, InvoicesVerifyResponses, MyOrdersInvoiceData, MyOrdersInvoiceResponses, MyOrdersListData, MyOrdersListResponses, MyOrdersPayData, MyOrdersPayResponses, MyOrdersRetrieveData, MyOrdersRetrieveResponses, OrdersCreateData, OrdersCreateResponses, OrdersDestroyData, OrdersDestroyResponses, OrdersListData, OrdersListResponses, OrdersPartialUpdateData, OrdersPartialUpdateResponses, OrdersRetrieveData, OrdersRetrieveResponses, OrdersUpdateData, OrdersUpdateResponses, ProductsCreateData, ProductsCreateResponses, ProductsDestroyData, ProductsDestroyResponses, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponses, ProductsListChoicesData, ProductsListChoicesResponses, ProductsListData, ProductsListResponses, ProductsPartialUpdateData, ProductsPartialUpdateResponses, ProductsRetrieveData, ProductsRetrieveResponses, ProductsUpdateData, ProductsUpdateResponses, RevocationsApproveData, RevocationsApproveResponses, RevocationsListData, RevocationsListResponses, RevocationsRejectData, RevocationsRejectResponses, RevocationsRequestData, RevocationsRequestResponses, RevocationsRetrieveData, RevocationsRetrieveResponses, ShippingOptionsRetrieveData, ShippingOptionsRetrieveResponses, ShippingZonesCreateData, ShippingZonesCreateResponses, ShippingZonesDestroyData, ShippingZonesDestroyResponses, ShippingZonesListData, ShippingZonesListResponses, ShippingZonesPartialUpdateData, ShippingZonesPartialUpdateResponses, ShippingZonesRetrieveData, ShippingZonesRetrieveResponses, ShippingZonesUpdateData, ShippingZonesUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -784,7 +784,9 @@ export const productsList = <ThrowOnError extends boolean = false>(options?: Opt
             discount_percent__not_range: { array: { explode: false } },
             discount_percent__range: { array: { explode: false } },
             price__not_range: { array: { explode: false } },
-            price__range: { array: { explode: false } }
+            price__range: { array: { explode: false } },
+            stock__not_range: { array: { explode: false } },
+            stock__range: { array: { explode: false } }
         } },
     responseType: 'json',
     security: [{
@@ -891,7 +893,9 @@ export const productsListChoices = <ThrowOnError extends boolean = false>(option
             discount_percent__not_range: { array: { explode: false } },
             discount_percent__range: { array: { explode: false } },
             price__not_range: { array: { explode: false } },
-            price__range: { array: { explode: false } }
+            price__range: { array: { explode: false } },
+            stock__not_range: { array: { explode: false } },
+            stock__range: { array: { explode: false } }
         } },
     responseType: 'json',
     security: [{
@@ -902,4 +906,189 @@ export const productsListChoices = <ThrowOnError extends boolean = false>(option
         }],
     url: '/products/choices/',
     ...options
+});
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsList = <ThrowOnError extends boolean = false>(options?: Options<RevocationsListData, ThrowOnError>): RequestResult<RevocationsListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<RevocationsListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/revocations/',
+    ...options
+});
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsRetrieve = <ThrowOnError extends boolean = false>(options: Options<RevocationsRetrieveData, ThrowOnError>): RequestResult<RevocationsRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<RevocationsRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/revocations/{code}/',
+    ...options
+});
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsApprove = <ThrowOnError extends boolean = false>(options: Options<RevocationsApproveData, ThrowOnError>): RequestResult<RevocationsApproveResponses, unknown, ThrowOnError> => (options.client ?? client).post<RevocationsApproveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/revocations/{code}/approve/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsReject = <ThrowOnError extends boolean = false>(options: Options<RevocationsRejectData, ThrowOnError>): RequestResult<RevocationsRejectResponses, unknown, ThrowOnError> => (options.client ?? client).post<RevocationsRejectResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/revocations/{code}/reject/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * The store's "botón de arrepentimiento": with the order's number and email, no session.
+ */
+export const revocationsRequest = <ThrowOnError extends boolean = false>(options: Options<RevocationsRequestData, ThrowOnError>): RequestResult<RevocationsRequestResponses, unknown, ThrowOnError> => (options.client ?? client).post<RevocationsRequestResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'storeCookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/revocations/request/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * The store's shipping options, public: the checkout and the shipping page show them.
+ */
+export const shippingOptionsRetrieve = <ThrowOnError extends boolean = false>(options?: Options<ShippingOptionsRetrieveData, ThrowOnError>): RequestResult<ShippingOptionsRetrieveResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ShippingOptionsRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping/',
+    ...options
+});
+
+export const shippingZonesList = <ThrowOnError extends boolean = false>(options?: Options<ShippingZonesListData, ThrowOnError>): RequestResult<ShippingZonesListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ShippingZonesListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping-zones/',
+    ...options
+});
+
+export const shippingZonesCreate = <ThrowOnError extends boolean = false>(options: Options<ShippingZonesCreateData, ThrowOnError>): RequestResult<ShippingZonesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<ShippingZonesCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping-zones/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const shippingZonesDestroy = <ThrowOnError extends boolean = false>(options: Options<ShippingZonesDestroyData, ThrowOnError>): RequestResult<ShippingZonesDestroyResponses, unknown, ThrowOnError> => (options.client ?? client).delete<ShippingZonesDestroyResponses, unknown, ThrowOnError>({
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping-zones/{id}/',
+    ...options
+});
+
+export const shippingZonesRetrieve = <ThrowOnError extends boolean = false>(options: Options<ShippingZonesRetrieveData, ThrowOnError>): RequestResult<ShippingZonesRetrieveResponses, unknown, ThrowOnError> => (options.client ?? client).get<ShippingZonesRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping-zones/{id}/',
+    ...options
+});
+
+export const shippingZonesPartialUpdate = <ThrowOnError extends boolean = false>(options: Options<ShippingZonesPartialUpdateData, ThrowOnError>): RequestResult<ShippingZonesPartialUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).patch<ShippingZonesPartialUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping-zones/{id}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const shippingZonesUpdate = <ThrowOnError extends boolean = false>(options: Options<ShippingZonesUpdateData, ThrowOnError>): RequestResult<ShippingZonesUpdateResponses, unknown, ThrowOnError> => (options.client ?? client).put<ShippingZonesUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            key: 'cookieAuth',
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }],
+    url: '/shipping-zones/{id}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });

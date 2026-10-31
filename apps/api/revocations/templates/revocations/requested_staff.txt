@@ -1,0 +1,5 @@
+{{ order.customer.name }} ({{ revocation.email }}) asked to revoke the purchase of order {{ order.number }}: {{ revocation.code }}.
+{% if revocation.reason %}
+Reason: {{ revocation.reason }}
+{% endif %}
+Order status: {{ order.get_status_display }}. Review it in the admin.

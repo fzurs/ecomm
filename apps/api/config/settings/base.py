@@ -45,8 +45,10 @@ ARCA_ISSUER_ADDRESS = env("ARCA_ISSUER_ADDRESS", default="")
 ARCA_ISSUER_ACTIVITY_START = env("ARCA_ISSUER_ACTIVITY_START", default="")  # YYYY-MM-DD
 ARCA_ISSUER_GROSS_INCOME = env("ARCA_ISSUER_GROSS_INCOME", default="")  # Ingresos Brutos
 
-# Admin assistant (Claude). Without a key the assistant endpoints answer with an error.
+# Admin assistant (Claude). It sends customers' data to Anthropic's API: production turns it
+# off unless ASSISTANT_ENABLED says so (prod.py). Without a key it's off too.
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
+ASSISTANT_ENABLED = env.bool("ASSISTANT_ENABLED", default=True)
 
 
 # Path of the Django admin, without a leading slash. Empty: the Django admin isn't mounted.
@@ -75,6 +77,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "store",
     "orders",
+    "shipping",
+    "revocations",
     "billing",
     "assistant",
     "accounts",
@@ -110,6 +114,10 @@ SPECTACULAR_SETTINGS = {
         "VatRate": "store.models.VatRate",
         "VatCondition": "orders.models.Customer.VatCondition",
         "MessageRole": "assistant.models.Message.Role",
+        "Province": "shipping.models.Province",
+        "ShippingMethod": "orders.models.Order.ShippingMethod",
+        "RevocationStatus": "revocations.models.RevocationRequest.Status",
+        "RevocationRefund": "revocations.models.RevocationRequest.Refund",
     },
 }
 
@@ -150,6 +158,10 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 # the emails are signed with its name.
 STORE_URL = env("STORE_URL", default="http://localhost:3000").rstrip("/")
 STORE_NAME = env("STORE_NAME", default="Acme Store")
+# Who gets the store's notices (a revocation request). Empty: nobody.
+STAFF_NOTIFICATION_EMAIL = env("STAFF_NOTIFICATION_EMAIL", default="")
+# Where customers pick up their orders. Empty: the store only ships.
+STORE_PICKUP_ADDRESS = env("STORE_PICKUP_ADDRESS", default="")
 ACCOUNT_EMAIL_SUBJECT_PREFIX = f"[{STORE_NAME}] "
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": f"{STORE_URL}/verify-email/{{key}}",

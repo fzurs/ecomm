@@ -139,12 +139,63 @@ class OrderTestCase(APITestCase):
         self.client.force_login(make_staff())
         self.customer = Customer.objects.create(name='ACME Inc')
 
-    def create_product(self, name='ACME Hammer', price=100, status=Product.Status.ACTIVE):
-        return Product.objects.create(name=name, price=price, status=status)
+    def create_product(self, name='ACME Hammer', price=100, status=Product.Status.ACTIVE, stock=100):
+        return Product.objects.create(name=name, price=price, status=status, stock=stock)
 
     def post_order(self, items, **data):
         return self.client.post(
             reverse('order-list'), {'customer': self.customer.pk, 'items': items, **data}, format='json')
+
+
+class OrderStockTests(OrderTestCase):
+    def test_creating_takes_the_stock(self):
+        product = self.create_product(stock=5)
+        response = self.post_order([{'product': product.pk, 'quantity': 3}])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        product.refresh_from_db()
+        self.assertEqual(product.stock, 2)
+
+        response = self.post_order([{'product': product.pk, 'quantity': 3}])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('ACME Hammer', str(response.data['items']))
+        product.refresh_from_db()
+        self.assertEqual(product.stock, 2)
+
+    def test_cancelling_gives_it_back_and_reopening_takes_it_again(self):
+        product = self.create_product(stock=5)
+        number = self.post_order([{'product': product.pk, 'quantity': 3}]).data['number']
+        url = reverse('order-detail', args=[number])
+
+        response = self.client.patch(url, {'status': Order.Status.CANCELLED}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        product.refresh_from_db()
+        self.assertEqual(product.stock, 5)
+        # Again: nothing to give back.
+        self.client.patch(url, {'status': Order.Status.CANCELLED}, format='json')
+        product.refresh_from_db()
+        self.assertEqual(product.stock, 5)
+
+        Product.objects.filter(pk=product.pk).update(stock=2)
+        response = self.client.patch(url, {'status': Order.Status.PENDING}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('stock', str(response.data['status']))
+
+        Product.objects.filter(pk=product.pk).update(stock=4)
+        response = self.client.patch(url, {'status': Order.Status.PENDING}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        product.refresh_from_db()
+        self.assertEqual(product.stock, 1)
+        self.assertTrue(Order.objects.get(number=number).stock_reserved)
+
+    def test_an_order_that_took_nothing_gives_nothing_back(self):
+        # The seed's and the ones from before stock existed.
+        product = self.create_product(stock=5)
+        order = Order.objects.create_with_items(customer=self.customer, items=[{'product': product, 'quantity': 2}])
+        response = self.client.patch(
+            reverse('order-detail', args=[order.number]), {'status': Order.Status.CANCELLED}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        product.refresh_from_db()
+        self.assertEqual(product.stock, 5)
 
 
 class OrderCreateTests(OrderTestCase):
@@ -177,7 +228,7 @@ class OrderCreateTests(OrderTestCase):
         self.assertIn('status', response.data)
 
     def test_rejects_inactive_product(self):
-        for product_status in (Product.Status.DRAFT, Product.Status.OUT_OF_STOCK):
+        for product_status in (Product.Status.DRAFT, Product.Status.INACTIVE):
             with self.subTest(status=product_status):
                 product = self.create_product(name=f'ACME {product_status}', status=product_status)
                 response = self.post_order([{'product': product.pk}])

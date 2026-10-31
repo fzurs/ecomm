@@ -35,7 +35,7 @@ def _date_range(queryset, field, date_from, date_to):
 
 def _orders_with_totals():
     return Order.objects.select_related('customer').annotate(
-        items_total=Coalesce(Sum(F('items__unit_price') * F('items__quantity')), 0),
+        items_total=Coalesce(Sum(F('items__unit_price') * F('items__quantity')), 0) + F('shipping_cost'),
     ).order_by('-created_at')
 
 
@@ -104,7 +104,14 @@ def get_order(number):
             'unit_price': item.unit_price,
             'subtotal': item.subtotal,
         } for item in items],
-        'total': sum(item.subtotal for item in items),
+        'shipping': {
+            'method': order.shipping_method,
+            'province': order.get_shipping_province_display() if order.shipping_province else '',
+            'cost': order.shipping_cost,
+            'carrier': order.carrier,
+            'tracking_number': order.tracking_number,
+        },
+        'total': sum(item.subtotal for item in items) + order.shipping_cost,
         'invoices': [{
             'id': invoice.id,
             'type': invoice.get_voucher_type_display(),

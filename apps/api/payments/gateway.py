@@ -36,7 +36,13 @@ def create_preference(order: Order) -> tuple[str, str]:
                 "currency_id": "ARS",
             }
             for item in order.items.select_related("product")
-        ],
+        ] + ([{
+            "id": "shipping",
+            "title": "Envío",
+            "quantity": 1,
+            "unit_price": float(order.shipping_cost),
+            "currency_id": "ARS",
+        }] if order.shipping_cost else []),
         # No `payer`: Mercado Pago asks the buyer to log in or give their email anyway, and a
         # checkout's email (a person) with a test seller makes it refuse the payment ("one of the
         # parties is a test one").
@@ -73,6 +79,14 @@ def get_payment(payment_id: str) -> dict | None:
         return None
     if result.get("status") != 200:
         raise GatewayError(f"Mercado Pago didn't return payment {payment_id}: {result.get('response')}")
+    return result["response"]
+
+
+def refund(payment_id: str) -> dict:
+    """Gives back the whole payment. Mercado Pago then notifies it as `refunded`."""
+    result = sdk().refund().create(payment_id)
+    if result.get("status") not in (200, 201):
+        raise GatewayError(f"Mercado Pago didn't refund payment {payment_id}: {result.get('response')}")
     return result["response"]
 
 

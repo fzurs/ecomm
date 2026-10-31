@@ -12,6 +12,7 @@ from rest_framework.test import APIClient, APITestCase
 
 from config.testing import make_staff
 from orders.models import Customer, Order
+from shipping.models import ShippingZone
 from store.models import Product
 
 from .models import Cart, MAX_QUANTITY
@@ -27,6 +28,8 @@ CHECKOUT = {
     'document_type': Customer.DocumentType.DNI,
     'document_number': '30111222',
     'vat_condition': Customer.VatCondition.FINAL_CONSUMER,
+    'shipping_method': 'delivery',
+    'shipping_province': 'caba',
     'shipping_address': 'Av. Siempre Viva 742, CABA',
 }
 
@@ -35,9 +38,10 @@ CHECKOUT = {
 class CartTestCase(APITestCase):
     def setUp(self):
         cache.clear()
-        self.hammer = Product.objects.create(name='ACME Hammer', price=1000, status=Product.Status.ACTIVE)
+        self.hammer = Product.objects.create(name='ACME Hammer', price=1000, status=Product.Status.ACTIVE, stock=100)
         self.saw = Product.objects.create(
-            name='ACME Saw', price=2000, discount_percent=10, status=Product.Status.ACTIVE)
+            name='ACME Saw', price=2000, discount_percent=10, status=Product.Status.ACTIVE, stock=100)
+        ShippingZone.objects.create(name='AMBA', provinces=['caba', 'buenos_aires'], cost=1500, free_from=50000)
 
     def add(self, product, quantity=1, client=None):
         return (client or self.client).post(
@@ -88,12 +92,31 @@ class CartTests(CartTestCase):
         self.assertEqual(self.cart()['items'][0]['quantity'], MAX_QUANTITY)
 
     def test_only_products_for_sale(self):
-        for product_status in [Product.Status.OUT_OF_STOCK, Product.Status.DRAFT]:
+        for product_status in [Product.Status.INACTIVE, Product.Status.DRAFT]:
             with self.subTest(product_status):
-                product = Product.objects.create(name=f'ACME {product_status}', price=10, status=product_status)
+                product = Product.objects.create(
+                    name=f'ACME {product_status}', price=10, status=product_status, stock=10)
                 self.assertEqual(self.add(product).status_code, status.HTTP_400_BAD_REQUEST)
-        no_price = Product.objects.create(name='ACME Free', price=None, status=Product.Status.ACTIVE)
+        no_price = Product.objects.create(name='ACME Free', price=None, status=Product.Status.ACTIVE, stock=10)
         self.assertEqual(self.add(no_price).status_code, status.HTTP_400_BAD_REQUEST)
+        out_of_stock = Product.objects.create(name='ACME Gone', price=10, status=Product.Status.ACTIVE)
+        self.assertEqual(self.add(out_of_stock).status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_quantities_up_to_the_stock(self):
+        Product.objects.filter(pk=self.hammer.pk).update(stock=3)
+        self.add(self.hammer, 5)
+        cart = self.cart()
+        self.assertEqual((cart['items'][0]['quantity'], cart['items'][0]['max_quantity']), (3, 3))
+        item = reverse('cart-item', args=[self.hammer.pk])
+        response = self.client.patch(item, {'quantity': 4}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['quantity'], ['Only 3 left.'])
+
+        # Someone else bought some: the cart asks to lower it.
+        Product.objects.filter(pk=self.hammer.pk).update(stock=2)
+        cart = self.cart()
+        self.assertEqual((cart['items'][0]['available'], cart['items'][0]['max_quantity']), (False, 2))
+        self.assertEqual(cart['total'], 0)
 
     def test_changes_and_removes_an_item(self):
         self.add(self.hammer)
@@ -117,7 +140,7 @@ class CartTests(CartTestCase):
     def test_a_product_that_stops_being_for_sale_stays_out_of_the_total(self):
         self.add(self.hammer)
         self.add(self.saw)
-        Product.objects.filter(pk=self.saw.pk).update(status=Product.Status.OUT_OF_STOCK)
+        Product.objects.filter(pk=self.saw.pk).update(stock=0)
         cart = self.cart()
         self.assertEqual([i['available'] for i in cart['items']], [True, False])
         self.assertEqual((cart['count'], cart['total']), (1, 1000))
@@ -185,7 +208,7 @@ class CheckoutTests(CartTestCase):
         order = Order.objects.get(number=response.json()['number'])
         self.assertEqual(order.status, Order.Status.PENDING)
         self.assertEqual(order.shipping_address, CHECKOUT['shipping_address'])
-        self.assertEqual(order.total, 2 * 1000 + 1800)
+        self.assertEqual((order.shipping_cost, order.total), (1500, 2 * 1000 + 1800 + 1500))
         self.assertEqual(order.customer.name, 'Ana Pérez')
         self.assertIsNone(order.customer.user)
         self.assertEqual(self.cart()['items'], [])
@@ -193,12 +216,13 @@ class CheckoutTests(CartTestCase):
         [message] = mail.outbox
         self.assertEqual(message.to, ['ana@example.com'])
         self.assertIn(order.number, message.subject)
-        self.assertIn('$ 3.800', message.body)
+        self.assertIn('Shipping: $ 1.500', message.body)
+        self.assertIn('$ 5.300', message.body)
         self.assertIn(f'http://localhost:3000/orders/{order.number}', message.body)
 
         # The guest sees it in this session, nobody else does.
         detail = reverse('my-order-detail', args=[order.number])
-        self.assertEqual(self.client.get(detail).json()['total'], 3800)
+        self.assertEqual(self.client.get(detail).json()['total'], 5300)
         self.assertEqual(APIClient().get(detail).status_code, status.HTTP_404_NOT_FOUND)
 
     def test_each_guest_purchase_gets_its_own_customer(self):
@@ -235,11 +259,30 @@ class CheckoutTests(CartTestCase):
 
     def test_products_no_longer_for_sale(self):
         self.add(self.hammer)
-        Product.objects.filter(pk=self.hammer.pk).update(status=Product.Status.OUT_OF_STOCK)
+        Product.objects.filter(pk=self.hammer.pk).update(status=Product.Status.INACTIVE)
         response = self.checkout()
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertIn('ACME Hammer', response.json()['detail'])
         self.assertFalse(Order.objects.exists())
+
+    def test_the_order_takes_the_stock(self):
+        self.add(self.hammer, 3)
+        self.assertEqual(self.checkout().status_code, status.HTTP_201_CREATED)
+        self.hammer.refresh_from_db()
+        self.assertEqual(self.hammer.stock, 97)
+        self.assertTrue(Order.objects.get().stock_reserved)
+
+    def test_not_enough_stock_places_nothing(self):
+        self.add(self.hammer, 3)
+        # Someone else bought them meanwhile.
+        Product.objects.filter(pk=self.hammer.pk).update(stock=2)
+        response = self.checkout()
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertIn('stock', response.json()['detail'])
+        self.assertFalse(Order.objects.exists())
+        self.assertFalse(Customer.objects.exists())
+        self.hammer.refresh_from_db()
+        self.assertEqual(self.hammer.stock, 2)
 
     def test_billing_data_is_validated_like_the_admin(self):
         self.add(self.hammer)
@@ -257,4 +300,33 @@ class CheckoutTests(CartTestCase):
         self.add(self.hammer)
         response = self.checkout(email='', shipping_address='')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(set(response.json()), {'email', 'shipping_address'})
+        self.assertEqual(set(response.json()), {'email'})
+        response = self.checkout(shipping_address='', shipping_province='')
+        self.assertEqual(set(response.json()), {'shipping_address', 'shipping_province'})
+
+    def test_free_shipping_from_the_zones_amount(self):
+        ShippingZone.objects.filter(name='AMBA').update(free_from=3000)
+        self.add(self.hammer, 3)
+        order = Order.objects.get(number=self.checkout().json()['number'])
+        self.assertEqual((order.shipping_cost, order.total), (0, 3000))
+
+    def test_only_to_the_zones_provinces(self):
+        self.add(self.hammer)
+        response = self.checkout(shipping_province='jujuy')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('shipping_province', response.json())
+        self.assertFalse(Order.objects.exists())
+
+    def test_pickup_is_free_where_the_store_offers_it(self):
+        self.add(self.hammer)
+        response = self.checkout(shipping_method='pickup')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('shipping_method', response.json())
+        with override_settings(STORE_PICKUP_ADDRESS='Florida 100, CABA'):
+            response = self.checkout(shipping_method='pickup')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            order = Order.objects.get(number=response.json()['number'])
+            # What it typed as an address doesn't matter: it's picked up.
+            self.assertEqual((order.shipping_cost, order.shipping_address, order.total), (0, '', 1000))
+            detail = self.client.get(reverse('my-order-detail', args=[order.number])).json()
+            self.assertEqual(detail['pickup_address'], 'Florida 100, CABA')

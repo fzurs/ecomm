@@ -237,17 +237,19 @@ class PublicProductsTests(APITestCase):
 
     def setUp(self):
         for status_ in Product.Status:
-            Product.objects.create(name=f'ACME {status_.label}', status=status_)
+            Product.objects.create(name=f'ACME {status_.label}', status=status_, stock=5)
+        # Out of stock is still for sale: the store shows it as such.
+        Product.objects.create(name='ACME Sold out', status=Product.Status.ACTIVE)
 
     def names(self):
         response = self.client.get(reverse('product-list'), {'ordering': 'name'})
         return [p['name'] for p in response.json()['results']]
 
     def test_anonymous_see_only_products_for_sale(self):
-        self.assertEqual(self.names(), ['ACME Active', 'ACME Out of stock'])
+        self.assertEqual(self.names(), ['ACME Active', 'ACME Sold out'])
         self.assertEqual(
             {p['name'] for p in self.client.get(reverse('product-choices')).json()},
-            {'ACME Active', 'ACME Out of stock'})
+            {'ACME Active', 'ACME Sold out'})
         draft = reverse('product-detail', args=[Product.objects.get(status='draft').slug])
         self.assertEqual(self.client.get(draft).status_code, status.HTTP_404_NOT_FOUND)
         # Asking for them doesn't help.
@@ -256,7 +258,11 @@ class PublicProductsTests(APITestCase):
 
     def test_staff_see_them_all(self):
         self.client.force_login(make_staff())
-        self.assertEqual(len(self.names()), len(Product.Status))
+        self.assertEqual(len(self.names()), len(Product.Status) + 1)
+
+    def test_in_stock(self):
+        response = self.client.get(reverse('product-list'), {'in_stock': 'true'})
+        self.assertEqual([p['name'] for p in response.json()['results']], ['ACME Active'])
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

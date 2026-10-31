@@ -16,6 +16,7 @@ class ProductFilter(OperatorFilterSet):
         "name": "text",
         "price": "number",
         "discount_percent": "number",
+        "stock": "number",
         "created_at": "date",
     }
 
@@ -30,10 +31,14 @@ class ProductFilter(OperatorFilterSet):
     featured__not = django_filters.TypedMultipleChoiceFilter(field_name="featured", choices=BOOLEAN_CHOICES, coerce=parse_boolean, exclude=True)
     vat_rate = django_filters.TypedMultipleChoiceFilter(choices=VatRate.choices, coerce=int)
     vat_rate__not = django_filters.TypedMultipleChoiceFilter(field_name="vat_rate", choices=VatRate.choices, coerce=int, exclude=True)
+    in_stock = django_filters.BooleanFilter(method="filter_in_stock")
 
     class Meta:
         model = Product
         fields = []
+
+    def filter_in_stock(self, queryset, name, value):
+        return queryset.filter(stock__gt=0) if value else queryset.filter(stock=0)
 
 
 class ProductOrdering(OrderingFilter):

@@ -3,6 +3,8 @@ from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from django.db import models, transaction
+from django.utils import timezone
+from shipping.models import Province
 from store.images import generate_customer_image, to_png
 from store.models import Product, VatRate
 
@@ -72,10 +74,16 @@ class Customer(models.Model):
 
 class OrderManager(models.Manager):
     @transaction.atomic
-    def create_with_items(self, *, items, **order_data):
+    def create_with_items(self, *, items, reserve=False, **order_data):
+        """The order and its items. With `reserve` (a sale: the store's checkout, the admin) it
+        takes their stock, or raises `stock.OutOfStock`; a cancelled one takes nothing."""
+        from .stock import reserve as reserve_stock
+
         order = self.create(**order_data)
         for item in items:
             OrderItem.objects.create(**item, order=order)
+        if reserve and order.status != Order.Status.CANCELLED:
+            reserve_stock(order)
         return order
 
 
@@ -87,6 +95,10 @@ class Order(models.Model):
         DELIVERED = 'delivered', _('Delivered')
         CANCELLED = 'cancelled', _('Cancelled')
 
+    class ShippingMethod(models.TextChoices):
+        DELIVERY = 'delivery', _('Delivery')
+        PICKUP = 'pickup', _('Pickup')
+
     # Charged: what can be invoiced.
     PAID_STATUSES = [Status.PAID, Status.SHIPPED, Status.DELIVERED]
 
@@ -97,8 +109,21 @@ class Order(models.Model):
 
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING, blank=True)
-    # Where it goes. Empty in the orders the admin creates by hand.
+    # How and where it goes, and what that costs (IVA included, copied when it's placed like the
+    # prices). Empty in the orders the admin creates by hand.
+    shipping_method = models.CharField(max_length=20, choices=ShippingMethod.choices, blank=True)
+    shipping_province = models.CharField(max_length=30, choices=Province.choices, blank=True)
     shipping_address = models.TextField(blank=True)
+    shipping_cost = models.PositiveIntegerField(default=0)
+    # Filled in by hand when it ships: there's no carrier integration.
+    carrier = models.CharField(max_length=100, blank=True)
+    tracking_number = models.CharField(max_length=100, blank=True)
+    # When it shipped and was delivered: the "botón de arrepentimiento" counts from delivery.
+    shipped_at = models.DateTimeField(null=True, blank=True, editable=False)
+    delivered_at = models.DateTimeField(null=True, blank=True, editable=False)
+    # Its items' units are taken from the products' stock (`orders.stock`): it gives them back
+    # when it's cancelled only if it took them.
+    stock_reserved = models.BooleanField(default=False, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -106,10 +131,29 @@ class Order(models.Model):
     objects = OrderManager()
 
     @property
-    def total(self):
+    def items_subtotal(self):
         return sum(item.subtotal for item in self.items.all())
 
+    @property
+    def total(self):
+        return self.items_subtotal + self.shipping_cost
+
+    def stamp_status(self) -> list[str]:
+        """Sets `shipped_at` / `delivered_at` the first time the status gets there; the fields
+        it set."""
+        stamped = []
+        if self.status in (self.Status.SHIPPED, self.Status.DELIVERED) and not self.shipped_at:
+            self.shipped_at = timezone.now()
+            stamped.append('shipped_at')
+        if self.status == self.Status.DELIVERED and not self.delivered_at:
+            self.delivered_at = timezone.now()
+            stamped.append('delivered_at')
+        return stamped
+
     def save(self, *args, **kwargs):
+        stamped = self.stamp_status()
+        if stamped and kwargs.get('update_fields') is not None:
+            kwargs['update_fields'] = [*kwargs['update_fields'], *stamped]
         if not self.number:
             super().save(*args, **kwargs)
             self.number = f"ORD-{self.pk:06d}"

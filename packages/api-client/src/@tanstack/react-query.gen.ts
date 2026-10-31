@@ -4,8 +4,8 @@ import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOption
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authUserPartialUpdate, authUserRetrieve, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, cartItemsCreate, cartItemsDestroy, cartItemsPartialUpdate, cartRetrieve, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, checkoutCreate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, myOrdersInvoice, myOrdersList, myOrdersPay, myOrdersRetrieve, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate } from '../sdk.gen';
-import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CartItemsCreateData, CartItemsCreateResponse, CartItemsDestroyData, CartItemsDestroyResponse, CartItemsPartialUpdateData, CartItemsPartialUpdateResponse, CartRetrieveData, CartRetrieveResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CheckoutCreateData, CheckoutCreateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, MyOrdersInvoiceData, MyOrdersInvoiceResponse, MyOrdersListData, MyOrdersListResponse, MyOrdersPayData, MyOrdersPayResponse, MyOrdersRetrieveData, MyOrdersRetrieveResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse } from '../types.gen';
+import { assistantConversationsCreate, assistantConversationsDestroy, assistantConversationsList, assistantConversationsRetrieve, authUserPartialUpdate, authUserRetrieve, brandsCreate, brandsDestroy, brandsList, brandsListChoices, brandsPartialUpdate, brandsRetrieve, brandsUpdate, cartItemsCreate, cartItemsDestroy, cartItemsPartialUpdate, cartRetrieve, categoriesCreate, categoriesDestroy, categoriesList, categoriesListChoices, categoriesPartialUpdate, categoriesRetrieve, categoriesUpdate, checkoutCreate, customersCreate, customersDestroy, customersList, customersListChoices, customersPartialUpdate, customersRetrieve, customersUpdate, invoicesCreate, invoicesCreditNote, invoicesDebitNote, invoicesDestroy, invoicesEmit, invoicesList, invoicesPdf, invoicesPreview, invoicesRetrieve, invoicesVerify, myOrdersInvoice, myOrdersList, myOrdersPay, myOrdersRetrieve, type Options, ordersCreate, ordersDestroy, ordersList, ordersPartialUpdate, ordersRetrieve, ordersUpdate, productsCreate, productsDestroy, productsGenerateSkuCreate, productsList, productsListChoices, productsPartialUpdate, productsRetrieve, productsUpdate, revocationsApprove, revocationsList, revocationsReject, revocationsRequest, revocationsRetrieve, shippingOptionsRetrieve, shippingZonesCreate, shippingZonesDestroy, shippingZonesList, shippingZonesPartialUpdate, shippingZonesRetrieve, shippingZonesUpdate } from '../sdk.gen';
+import type { AssistantConversationsCreateData, AssistantConversationsCreateResponse, AssistantConversationsDestroyData, AssistantConversationsDestroyResponse, AssistantConversationsListData, AssistantConversationsListResponse, AssistantConversationsRetrieveData, AssistantConversationsRetrieveResponse, AuthUserPartialUpdateData, AuthUserPartialUpdateResponse, AuthUserRetrieveData, AuthUserRetrieveResponse, BrandsCreateData, BrandsCreateResponse, BrandsDestroyData, BrandsDestroyResponse, BrandsListChoicesData, BrandsListChoicesResponse, BrandsListData, BrandsListResponse, BrandsPartialUpdateData, BrandsPartialUpdateResponse, BrandsRetrieveData, BrandsRetrieveResponse, BrandsUpdateData, BrandsUpdateResponse, CartItemsCreateData, CartItemsCreateResponse, CartItemsDestroyData, CartItemsDestroyResponse, CartItemsPartialUpdateData, CartItemsPartialUpdateResponse, CartRetrieveData, CartRetrieveResponse, CategoriesCreateData, CategoriesCreateResponse, CategoriesDestroyData, CategoriesDestroyResponse, CategoriesListChoicesData, CategoriesListChoicesResponse, CategoriesListData, CategoriesListResponse, CategoriesPartialUpdateData, CategoriesPartialUpdateResponse, CategoriesRetrieveData, CategoriesRetrieveResponse, CategoriesUpdateData, CategoriesUpdateResponse, CheckoutCreateData, CheckoutCreateResponse, CustomersCreateData, CustomersCreateResponse, CustomersDestroyData, CustomersDestroyResponse, CustomersListChoicesData, CustomersListChoicesResponse, CustomersListData, CustomersListResponse, CustomersPartialUpdateData, CustomersPartialUpdateResponse, CustomersRetrieveData, CustomersRetrieveResponse, CustomersUpdateData, CustomersUpdateResponse, InvoicesCreateData, InvoicesCreateResponse, InvoicesCreditNoteData, InvoicesCreditNoteResponse, InvoicesDebitNoteData, InvoicesDebitNoteResponse, InvoicesDestroyData, InvoicesDestroyResponse, InvoicesEmitData, InvoicesEmitResponse, InvoicesListData, InvoicesListResponse, InvoicesPdfData, InvoicesPdfResponse, InvoicesPreviewData, InvoicesPreviewResponse, InvoicesRetrieveData, InvoicesRetrieveResponse, InvoicesVerifyData, InvoicesVerifyResponse, MyOrdersInvoiceData, MyOrdersInvoiceResponse, MyOrdersListData, MyOrdersListResponse, MyOrdersPayData, MyOrdersPayResponse, MyOrdersRetrieveData, MyOrdersRetrieveResponse, OrdersCreateData, OrdersCreateResponse, OrdersDestroyData, OrdersDestroyResponse, OrdersListData, OrdersListResponse, OrdersPartialUpdateData, OrdersPartialUpdateResponse, OrdersRetrieveData, OrdersRetrieveResponse, OrdersUpdateData, OrdersUpdateResponse, ProductsCreateData, ProductsCreateResponse, ProductsDestroyData, ProductsDestroyResponse, ProductsGenerateSkuCreateData, ProductsGenerateSkuCreateResponse, ProductsListChoicesData, ProductsListChoicesResponse, ProductsListData, ProductsListResponse, ProductsPartialUpdateData, ProductsPartialUpdateResponse, ProductsRetrieveData, ProductsRetrieveResponse, ProductsUpdateData, ProductsUpdateResponse, RevocationsApproveData, RevocationsApproveResponse, RevocationsListData, RevocationsListResponse, RevocationsRejectData, RevocationsRejectResponse, RevocationsRequestData, RevocationsRequestResponse, RevocationsRetrieveData, RevocationsRetrieveResponse, ShippingOptionsRetrieveData, ShippingOptionsRetrieveResponse, ShippingZonesCreateData, ShippingZonesCreateResponse, ShippingZonesDestroyData, ShippingZonesDestroyResponse, ShippingZonesListData, ShippingZonesListResponse, ShippingZonesPartialUpdateData, ShippingZonesPartialUpdateResponse, ShippingZonesRetrieveData, ShippingZonesRetrieveResponse, ShippingZonesUpdateData, ShippingZonesUpdateResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -1165,3 +1165,251 @@ export const productsListChoicesOptions = (options?: Options<ProductsListChoices
     },
     queryKey: productsListChoicesQueryKey(options)
 });
+
+export const revocationsListQueryKey = (options?: Options<RevocationsListData>) => createQueryKey('revocationsList', options);
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsListOptions = (options?: Options<RevocationsListData>) => queryOptions<RevocationsListResponse, AxiosError<DefaultError>, RevocationsListResponse, ReturnType<typeof revocationsListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await revocationsList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: revocationsListQueryKey(options)
+});
+
+export const revocationsListInfiniteQueryKey = (options?: Options<RevocationsListData>): QueryKey<Options<RevocationsListData>> => createQueryKey('revocationsList', options, true);
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsListInfiniteOptions = (options?: Options<RevocationsListData>) => {
+    const opts = infiniteQueryOptions<RevocationsListResponse, AxiosError<DefaultError>, InfiniteData<RevocationsListResponse>, QueryKey<Options<RevocationsListData>>, number | Pick<QueryKey<Options<RevocationsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<RevocationsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    offset: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await revocationsList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: revocationsListInfiniteQueryKey(options)
+    });
+    return opts as Omit<typeof opts, 'initialData'>;
+};
+
+export const revocationsRetrieveQueryKey = (options: Options<RevocationsRetrieveData>) => createQueryKey('revocationsRetrieve', options);
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsRetrieveOptions = (options: Options<RevocationsRetrieveData>) => queryOptions<RevocationsRetrieveResponse, AxiosError<DefaultError>, RevocationsRetrieveResponse, ReturnType<typeof revocationsRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await revocationsRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: revocationsRetrieveQueryKey(options)
+});
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsApproveMutation = (options?: Partial<Options<RevocationsApproveData>>): UseMutationOptions<RevocationsApproveResponse, AxiosError<DefaultError>, Options<RevocationsApproveData>> => {
+    const mutationOptions: UseMutationOptions<RevocationsApproveResponse, AxiosError<DefaultError>, Options<RevocationsApproveData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await revocationsApprove({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * The requests, for the admin: approving refunds and credits the order (`services.approve`).
+ */
+export const revocationsRejectMutation = (options?: Partial<Options<RevocationsRejectData>>): UseMutationOptions<RevocationsRejectResponse, AxiosError<DefaultError>, Options<RevocationsRejectData>> => {
+    const mutationOptions: UseMutationOptions<RevocationsRejectResponse, AxiosError<DefaultError>, Options<RevocationsRejectData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await revocationsReject({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * The store's "botón de arrepentimiento": with the order's number and email, no session.
+ */
+export const revocationsRequestMutation = (options?: Partial<Options<RevocationsRequestData>>): UseMutationOptions<RevocationsRequestResponse, AxiosError<DefaultError>, Options<RevocationsRequestData>> => {
+    const mutationOptions: UseMutationOptions<RevocationsRequestResponse, AxiosError<DefaultError>, Options<RevocationsRequestData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await revocationsRequest({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const shippingOptionsRetrieveQueryKey = (options?: Options<ShippingOptionsRetrieveData>) => createQueryKey('shippingOptionsRetrieve', options);
+
+/**
+ * The store's shipping options, public: the checkout and the shipping page show them.
+ */
+export const shippingOptionsRetrieveOptions = (options?: Options<ShippingOptionsRetrieveData>) => queryOptions<ShippingOptionsRetrieveResponse, AxiosError<DefaultError>, ShippingOptionsRetrieveResponse, ReturnType<typeof shippingOptionsRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await shippingOptionsRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: shippingOptionsRetrieveQueryKey(options)
+});
+
+export const shippingZonesListQueryKey = (options?: Options<ShippingZonesListData>) => createQueryKey('shippingZonesList', options);
+
+export const shippingZonesListOptions = (options?: Options<ShippingZonesListData>) => queryOptions<ShippingZonesListResponse, AxiosError<DefaultError>, ShippingZonesListResponse, ReturnType<typeof shippingZonesListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await shippingZonesList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: shippingZonesListQueryKey(options)
+});
+
+export const shippingZonesListInfiniteQueryKey = (options?: Options<ShippingZonesListData>): QueryKey<Options<ShippingZonesListData>> => createQueryKey('shippingZonesList', options, true);
+
+export const shippingZonesListInfiniteOptions = (options?: Options<ShippingZonesListData>) => {
+    const opts = infiniteQueryOptions<ShippingZonesListResponse, AxiosError<DefaultError>, InfiniteData<ShippingZonesListResponse>, QueryKey<Options<ShippingZonesListData>>, number | Pick<QueryKey<Options<ShippingZonesListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<ShippingZonesListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    offset: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await shippingZonesList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: shippingZonesListInfiniteQueryKey(options)
+    });
+    return opts as Omit<typeof opts, 'initialData'>;
+};
+
+export const shippingZonesCreateMutation = (options?: Partial<Options<ShippingZonesCreateData>>): UseMutationOptions<ShippingZonesCreateResponse, AxiosError<DefaultError>, Options<ShippingZonesCreateData>> => {
+    const mutationOptions: UseMutationOptions<ShippingZonesCreateResponse, AxiosError<DefaultError>, Options<ShippingZonesCreateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await shippingZonesCreate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const shippingZonesDestroyMutation = (options?: Partial<Options<ShippingZonesDestroyData>>): UseMutationOptions<ShippingZonesDestroyResponse, AxiosError<DefaultError>, Options<ShippingZonesDestroyData>> => {
+    const mutationOptions: UseMutationOptions<ShippingZonesDestroyResponse, AxiosError<DefaultError>, Options<ShippingZonesDestroyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await shippingZonesDestroy({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const shippingZonesRetrieveQueryKey = (options: Options<ShippingZonesRetrieveData>) => createQueryKey('shippingZonesRetrieve', options);
+
+export const shippingZonesRetrieveOptions = (options: Options<ShippingZonesRetrieveData>) => queryOptions<ShippingZonesRetrieveResponse, AxiosError<DefaultError>, ShippingZonesRetrieveResponse, ReturnType<typeof shippingZonesRetrieveQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await shippingZonesRetrieve({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: shippingZonesRetrieveQueryKey(options)
+});
+
+export const shippingZonesPartialUpdateMutation = (options?: Partial<Options<ShippingZonesPartialUpdateData>>): UseMutationOptions<ShippingZonesPartialUpdateResponse, AxiosError<DefaultError>, Options<ShippingZonesPartialUpdateData>> => {
+    const mutationOptions: UseMutationOptions<ShippingZonesPartialUpdateResponse, AxiosError<DefaultError>, Options<ShippingZonesPartialUpdateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await shippingZonesPartialUpdate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const shippingZonesUpdateMutation = (options?: Partial<Options<ShippingZonesUpdateData>>): UseMutationOptions<ShippingZonesUpdateResponse, AxiosError<DefaultError>, Options<ShippingZonesUpdateData>> => {
+    const mutationOptions: UseMutationOptions<ShippingZonesUpdateResponse, AxiosError<DefaultError>, Options<ShippingZonesUpdateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await shippingZonesUpdate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};

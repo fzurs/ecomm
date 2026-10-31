@@ -5,6 +5,9 @@ from rest_framework import serializers
 from billing.models import ORDER_INVOICE_STATUSES
 from billing.rules import order_delete_lock, order_status_locks
 from payments.serializers import PaymentSummarySerializer
+from django.db import transaction
+
+from . import services, stock
 from .models import Order, OrderItem, Customer
 from store.models import Product
 
@@ -77,6 +80,7 @@ class OrderStatusLockSerializer(serializers.Serializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(read_only=True, many=True)
+    items_subtotal = serializers.IntegerField(read_only=True)
     total = serializers.IntegerField(read_only=True)
     customer_detail = CustomerSummarySerializer(source="customer", read_only=True)
     # Annotated by OrderViewSet.
@@ -92,6 +96,9 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = serializers.ALL_FIELDS
+        # What the customer chose and paid at checkout. The admin fills in the carrier and the
+        # tracking number.
+        read_only_fields = ["shipping_method", "shipping_province", "shipping_cost"]
 
     @extend_schema_field(OrderStatusLockSerializer(many=True))
     def get_status_locks(self, order):
@@ -109,6 +116,22 @@ class OrderSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(reason)
         return status
 
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # The status moves the stock: cancelling gives it back, reopening takes it again.
+        status = validated_data.pop("status", instance.status)
+        if status != instance.status:
+            locked = Order.objects.select_for_update().get(pk=instance.pk)
+            try:
+                services.set_status(locked, status)
+            except stock.OutOfStock as exc:
+                raise serializers.ValidationError(
+                    {"status": f"There isn't enough stock of: {', '.join(exc.names)}."})
+            # What set_status saved, so saving the rest doesn't write it back.
+            for field in ("status", "stock_reserved", "shipped_at", "delivered_at"):
+                setattr(instance, field, getattr(locked, field))
+        return super().update(instance, validated_data)
+
 
 class OrderCreateSerializer(OrderSerializer):
     items = OrderItemSerializer(many=True)
@@ -120,7 +143,11 @@ class OrderCreateSerializer(OrderSerializer):
         return status
 
     def create(self, validated_data):
-        order = Order.objects.create_with_items(**validated_data)
+        try:
+            order = Order.objects.create_with_items(**validated_data, reserve=True)
+        except stock.OutOfStock as exc:
+            raise serializers.ValidationError(
+                {"items": f"There isn't enough stock of: {', '.join(exc.names)}."})
         # A new order has no invoice: the instance isn't annotated like the viewset queryset.
         order.invoice_status = "not_invoiced"
         order.invoice_id = None

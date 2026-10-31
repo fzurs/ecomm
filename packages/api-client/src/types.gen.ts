@@ -33,6 +33,7 @@ export type CartItem = {
     product: CartProduct;
     quantity: number;
     available: boolean;
+    max_quantity: number;
     subtotal: number | null;
 };
 
@@ -67,7 +68,8 @@ export type CategoryChoice = {
 };
 
 /**
- * Who buys (a Customer, validated like the admin's: CUIT, VAT condition) and where it goes.
+ * Who buys (a Customer, validated like the admin's: CUIT, VAT condition) and how it gets
+ * to them: sent to a province (and an address) or picked up.
  */
 export type Checkout = {
     name: string;
@@ -77,7 +79,9 @@ export type Checkout = {
     document_number?: string | null;
     vat_condition?: VatCondition;
     legal_name?: string;
-    shipping_address: string;
+    shipping_method: ShippingMethod;
+    shipping_province?: Province | BlankEnum;
+    shipping_address?: string;
 };
 
 export type CheckoutResult = {
@@ -314,8 +318,15 @@ export type MyOrder = {
     status?: OrderStatus | BlankEnum;
     readonly created_at: string;
     customer: MyOrderCustomer;
+    shipping_method?: ShippingMethod | BlankEnum;
+    shipping_province?: Province | BlankEnum;
     shipping_address?: string;
+    shipping_cost?: number;
+    carrier?: string;
+    tracking_number?: string;
+    readonly pickup_address: string | null;
     items: Array<MyOrderItem>;
+    items_subtotal: number;
     total: number;
     payment_status: PaymentStatus | NullEnum | null;
     readonly payment_status_detail: string;
@@ -339,6 +350,7 @@ export type NullEnum = never;
 export type Order = {
     readonly id: number;
     readonly items: Array<OrderItem>;
+    readonly items_subtotal: number;
     readonly total: number;
     customer_detail: CustomerSummary;
     invoice_status: OrderInvoiceStatus;
@@ -348,7 +360,15 @@ export type Order = {
     readonly payments: Array<PaymentSummary>;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
+    shipping_method: ShippingMethod;
+    shipping_province: Province;
     shipping_address?: string;
+    readonly shipping_cost: number;
+    carrier?: string;
+    tracking_number?: string;
+    readonly shipped_at: string | null;
+    readonly delivered_at: string | null;
+    readonly stock_reserved: boolean;
     readonly created_at: string;
     readonly updated_at: string;
     customer: number;
@@ -357,6 +377,7 @@ export type Order = {
 export type OrderCreate = {
     readonly id: number;
     items: Array<OrderItem>;
+    readonly items_subtotal: number;
     readonly total: number;
     customer_detail: CustomerSummary;
     invoice_status: OrderInvoiceStatus;
@@ -366,7 +387,15 @@ export type OrderCreate = {
     readonly payments: Array<PaymentSummary>;
     readonly number: string;
     status?: OrderStatus | BlankEnum;
+    shipping_method: ShippingMethod;
+    shipping_province: Province;
     shipping_address?: string;
+    readonly shipping_cost: number;
+    carrier?: string;
+    tracking_number?: string;
+    readonly shipped_at: string | null;
+    readonly delivered_at: string | null;
+    readonly stock_reserved: boolean;
     readonly created_at: string;
     readonly updated_at: string;
     customer: number;
@@ -454,6 +483,20 @@ export type PaginatedProductList = {
     results: Array<Product>;
 };
 
+export type PaginatedRevocationRequestList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<RevocationRequest>;
+};
+
+export type PaginatedShippingZoneList = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<ShippingZone>;
+};
+
 export type PatchedBrand = {
     readonly id?: number;
     slug?: string;
@@ -488,6 +531,7 @@ export type PatchedCustomer = {
 export type PatchedOrder = {
     readonly id?: number;
     readonly items?: Array<OrderItem>;
+    readonly items_subtotal?: number;
     readonly total?: number;
     customer_detail?: CustomerSummary;
     invoice_status?: OrderInvoiceStatus;
@@ -497,7 +541,15 @@ export type PatchedOrder = {
     readonly payments?: Array<PaymentSummary>;
     readonly number?: string;
     status?: OrderStatus | BlankEnum;
+    shipping_method?: ShippingMethod;
+    shipping_province?: Province;
     shipping_address?: string;
+    readonly shipping_cost?: number;
+    carrier?: string;
+    tracking_number?: string;
+    readonly shipped_at?: string | null;
+    readonly delivered_at?: string | null;
+    readonly stock_reserved?: boolean;
     readonly created_at?: string;
     readonly updated_at?: string;
     customer?: number;
@@ -520,7 +572,16 @@ export type PatchedProduct = {
     price?: number | null;
     discount_percent?: number | null;
     vat_rate?: VatRate;
+    stock?: number;
     readonly created_at?: string;
+};
+
+export type PatchedShippingZone = {
+    readonly id?: number;
+    name?: string;
+    provinces?: Array<Province>;
+    cost?: number;
+    free_from?: number | null;
 };
 
 /**
@@ -566,6 +627,10 @@ export type PatchedUserDetails = {
      * False for an account created with Google, until it sets a password.
      */
     readonly has_usable_password?: boolean;
+    /**
+     * The admin assistant can answer (off in production unless turned on).
+     */
+    readonly assistant_enabled?: boolean;
 };
 
 export type PaymentLink = {
@@ -616,6 +681,7 @@ export type Product = {
     price?: number | null;
     discount_percent?: number | null;
     vat_rate?: VatRate;
+    stock?: number;
     readonly created_at: string;
 };
 
@@ -627,6 +693,7 @@ export type ProductChoice = {
     discount_percent?: number | null;
     readonly active_price: number | null;
     vat_rate?: VatRate;
+    stock?: number;
     image?: string | null;
 };
 
@@ -634,10 +701,9 @@ export type ProductChoice = {
  * * `draft` - Draft
  * * `active` - Active
  * * `inactive` - Inactive
- * * `out_of_stock` - Out of stock
  * * `discontinued` - Discontinued
  */
-export type ProductStatus = 'draft' | 'active' | 'inactive' | 'out_of_stock' | 'discontinued';
+export type ProductStatus = 'draft' | 'active' | 'inactive' | 'discontinued';
 
 export type ProductSummary = {
     readonly id: number;
@@ -655,12 +721,124 @@ export type ProductSummary = {
 export type ProviderEnum = 'mercadopago';
 
 /**
+ * * `caba` - Ciudad Autónoma de Buenos Aires
+ * * `buenos_aires` - Buenos Aires
+ * * `catamarca` - Catamarca
+ * * `chaco` - Chaco
+ * * `chubut` - Chubut
+ * * `cordoba` - Córdoba
+ * * `corrientes` - Corrientes
+ * * `entre_rios` - Entre Ríos
+ * * `formosa` - Formosa
+ * * `jujuy` - Jujuy
+ * * `la_pampa` - La Pampa
+ * * `la_rioja` - La Rioja
+ * * `mendoza` - Mendoza
+ * * `misiones` - Misiones
+ * * `neuquen` - Neuquén
+ * * `rio_negro` - Río Negro
+ * * `salta` - Salta
+ * * `san_juan` - San Juan
+ * * `san_luis` - San Luis
+ * * `santa_cruz` - Santa Cruz
+ * * `santa_fe` - Santa Fe
+ * * `santiago_del_estero` - Santiago del Estero
+ * * `tierra_del_fuego` - Tierra del Fuego
+ * * `tucuman` - Tucumán
+ */
+export type Province = 'caba' | 'buenos_aires' | 'catamarca' | 'chaco' | 'chubut' | 'cordoba' | 'corrientes' | 'entre_rios' | 'formosa' | 'jujuy' | 'la_pampa' | 'la_rioja' | 'mendoza' | 'misiones' | 'neuquen' | 'rio_negro' | 'salta' | 'san_juan' | 'san_luis' | 'santa_cruz' | 'santa_fe' | 'santiago_del_estero' | 'tierra_del_fuego' | 'tucuman';
+
+/**
  * * `80` - CUIT
  * * `86` - CUIL
  * * `96` - DNI
  * * `99` - Sin identificar
  */
 export type ReceptorDocumentType = 80 | 86 | 96 | 99;
+
+export type RevocationApprove = {
+    goods_returned?: boolean;
+    note?: string;
+};
+
+/**
+ * What the store's form sends: no session needed, the number and the email prove it.
+ */
+export type RevocationCreate = {
+    order_number: string;
+    email: string;
+    reason?: string;
+};
+
+export type RevocationCreated = {
+    readonly code: string;
+};
+
+export type RevocationOrder = {
+    readonly number: string;
+    status: OrderStatus;
+    readonly customer_name: string;
+    readonly created_at: string;
+    readonly delivered_at: string | null;
+};
+
+/**
+ * * `mercadopago` - Mercado Pago
+ * * `manual` - Manual
+ */
+export type RevocationRefund = 'mercadopago' | 'manual';
+
+export type RevocationReject = {
+    /**
+     * Why: the customer gets it by email.
+     */
+    note: string;
+};
+
+export type RevocationRequest = {
+    readonly id: number;
+    readonly code: string;
+    order: RevocationOrder;
+    readonly email: string;
+    readonly reason: string;
+    status: RevocationStatus;
+    refund: RevocationRefund;
+    readonly resolution_note: string;
+    resolved_by?: string | null;
+    readonly created_at: string;
+    readonly resolved_at: string | null;
+    readonly deadline: string | null;
+};
+
+/**
+ * * `requested` - Requested
+ * * `approved` - Approved
+ * * `rejected` - Rejected
+ */
+export type RevocationStatus = 'requested' | 'approved' | 'rejected';
+
+/**
+ * * `delivery` - Delivery
+ * * `pickup` - Pickup
+ */
+export type ShippingMethod = 'delivery' | 'pickup';
+
+/**
+ * What the store offers: the zones it ships to, and where to pick orders up (null if it
+ * doesn't offer it).
+ */
+export type ShippingOptions = {
+    zones: Array<ShippingZone>;
+    pickup_address: string | null;
+};
+
+export type ShippingZone = {
+    readonly id: number;
+    name: string;
+    provinces: Array<Province>;
+    cost: number;
+    free_from?: number | null;
+};
 
 /**
  * The logged-in user, with their staff status and permissions ("app.codename"), which say
@@ -705,6 +883,10 @@ export type UserDetails = {
      * False for an account created with Google, until it sets a password.
      */
     readonly has_usable_password: boolean;
+    /**
+     * The admin assistant can answer (off in production unless turned on).
+     */
+    readonly assistant_enabled: boolean;
 };
 
 /**
@@ -774,6 +956,7 @@ export type CartItemWritable = {
     product: CartProductWritable;
     quantity: number;
     available: boolean;
+    max_quantity: number;
     subtotal: number | null;
 };
 
@@ -857,8 +1040,14 @@ export type MessageWritable = {
 export type MyOrderWritable = {
     status?: OrderStatus | BlankEnum;
     customer: MyOrderCustomer;
+    shipping_method?: ShippingMethod | BlankEnum;
+    shipping_province?: Province | BlankEnum;
     shipping_address?: string;
+    shipping_cost?: number;
+    carrier?: string;
+    tracking_number?: string;
     items: Array<MyOrderItemWritable>;
+    items_subtotal: number;
     total: number;
 };
 
@@ -872,6 +1061,8 @@ export type MyOrderItemWritable = {
 export type OrderWritable = {
     status?: OrderStatus | BlankEnum;
     shipping_address?: string;
+    carrier?: string;
+    tracking_number?: string;
     customer: number;
 };
 
@@ -879,6 +1070,8 @@ export type OrderCreateWritable = {
     items: Array<OrderItemWritable>;
     status?: OrderStatus | BlankEnum;
     shipping_address?: string;
+    carrier?: string;
+    tracking_number?: string;
     customer: number;
 };
 
@@ -936,6 +1129,20 @@ export type PaginatedProductListWritable = {
     results: Array<ProductWritable>;
 };
 
+export type PaginatedRevocationRequestListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<RevocationRequestWritable>;
+};
+
+export type PaginatedShippingZoneListWritable = {
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<ShippingZoneWritable>;
+};
+
 export type PatchedBrandWritable = {
     slug?: string;
     name?: string;
@@ -962,6 +1169,8 @@ export type PatchedCustomerWritable = {
 export type PatchedOrderWritable = {
     status?: OrderStatus | BlankEnum;
     shipping_address?: string;
+    carrier?: string;
+    tracking_number?: string;
     customer?: number;
 };
 
@@ -978,6 +1187,14 @@ export type PatchedProductWritable = {
     price?: number | null;
     discount_percent?: number | null;
     vat_rate?: VatRate;
+    stock?: number;
+};
+
+export type PatchedShippingZoneWritable = {
+    name?: string;
+    provinces?: Array<Province>;
+    cost?: number;
+    free_from?: number | null;
 };
 
 /**
@@ -1014,6 +1231,7 @@ export type ProductWritable = {
     price?: number | null;
     discount_percent?: number | null;
     vat_rate?: VatRate;
+    stock?: number;
 };
 
 export type ProductChoiceWritable = {
@@ -1022,6 +1240,7 @@ export type ProductChoiceWritable = {
     price?: number | null;
     discount_percent?: number | null;
     vat_rate?: VatRate;
+    stock?: number;
     image?: string | null;
 };
 
@@ -1031,6 +1250,26 @@ export type ProductSummaryWritable = {
     price?: number | null;
     discount_percent?: number | null;
     image?: string | null;
+};
+
+export type RevocationRequestWritable = {
+    resolved_by?: string | null;
+};
+
+/**
+ * What the store offers: the zones it ships to, and where to pick orders up (null if it
+ * doesn't offer it).
+ */
+export type ShippingOptionsWritable = {
+    zones: Array<ShippingZoneWritable>;
+    pickup_address: string | null;
+};
+
+export type ShippingZoneWritable = {
+    name: string;
+    provinces: Array<Province>;
+    cost: number;
+    free_from?: number | null;
 };
 
 /**
@@ -2159,6 +2398,7 @@ export type ProductsListData = {
          * * `false` - No
          */
         featured__not?: Array<'false' | 'true'>;
+        in_stock?: boolean;
         /**
          * Number of results to return per page.
          */
@@ -2195,18 +2435,30 @@ export type ProductsListData = {
          * * `draft` - Draft
          * * `active` - Active
          * * `inactive` - Inactive
-         * * `out_of_stock` - Out of stock
          * * `discontinued` - Discontinued
          */
-        status?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        status?: Array<'active' | 'discontinued' | 'draft' | 'inactive'>;
         /**
          * * `draft` - Draft
          * * `active` - Active
          * * `inactive` - Inactive
-         * * `out_of_stock` - Out of stock
          * * `discontinued` - Discontinued
          */
-        status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive'>;
+        stock?: number;
+        stock__gt?: number;
+        stock__gte?: number;
+        stock__lt?: number;
+        stock__lte?: number;
+        stock__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        stock__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        stock__range?: Array<number>;
         /**
          * * `1` - Non-taxed
          * * `2` - Exempt
@@ -2376,6 +2628,7 @@ export type ProductsListChoicesData = {
          * * `false` - No
          */
         featured__not?: Array<'false' | 'true'>;
+        in_stock?: boolean;
         name__icontains?: string;
         name__not_icontains?: string;
         /**
@@ -2404,18 +2657,30 @@ export type ProductsListChoicesData = {
          * * `draft` - Draft
          * * `active` - Active
          * * `inactive` - Inactive
-         * * `out_of_stock` - Out of stock
          * * `discontinued` - Discontinued
          */
-        status?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        status?: Array<'active' | 'discontinued' | 'draft' | 'inactive'>;
         /**
          * * `draft` - Draft
          * * `active` - Active
          * * `inactive` - Inactive
-         * * `out_of_stock` - Out of stock
          * * `discontinued` - Discontinued
          */
-        status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive' | 'out_of_stock'>;
+        status__not?: Array<'active' | 'discontinued' | 'draft' | 'inactive'>;
+        stock?: number;
+        stock__gt?: number;
+        stock__gte?: number;
+        stock__lt?: number;
+        stock__lte?: number;
+        stock__not?: number;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        stock__not_range?: Array<number>;
+        /**
+         * Multiple values may be separated by commas.
+         */
+        stock__range?: Array<number>;
         /**
          * * `1` - Non-taxed
          * * `2` - Exempt
@@ -2447,3 +2712,228 @@ export type ProductsListChoicesResponses = {
 };
 
 export type ProductsListChoicesResponse = ProductsListChoicesResponses[keyof ProductsListChoicesResponses];
+
+export type RevocationsListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Number of results to return per page.
+         */
+        limit?: number;
+        /**
+         * The initial index from which to return the results.
+         */
+        offset?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * * `requested` - Requested
+         * * `approved` - Approved
+         * * `rejected` - Rejected
+         */
+        status?: 'approved' | 'rejected' | 'requested';
+    };
+    url: '/revocations/';
+};
+
+export type RevocationsListResponses = {
+    200: PaginatedRevocationRequestList;
+};
+
+export type RevocationsListResponse = RevocationsListResponses[keyof RevocationsListResponses];
+
+export type RevocationsRetrieveData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/revocations/{code}/';
+};
+
+export type RevocationsRetrieveResponses = {
+    200: RevocationRequest;
+};
+
+export type RevocationsRetrieveResponse = RevocationsRetrieveResponses[keyof RevocationsRetrieveResponses];
+
+export type RevocationsApproveData = {
+    body?: RevocationApprove;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/revocations/{code}/approve/';
+};
+
+export type RevocationsApproveResponses = {
+    200: RevocationRequest;
+};
+
+export type RevocationsApproveResponse = RevocationsApproveResponses[keyof RevocationsApproveResponses];
+
+export type RevocationsRejectData = {
+    body: RevocationReject;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/revocations/{code}/reject/';
+};
+
+export type RevocationsRejectResponses = {
+    200: RevocationRequest;
+};
+
+export type RevocationsRejectResponse = RevocationsRejectResponses[keyof RevocationsRejectResponses];
+
+export type RevocationsRequestData = {
+    body: RevocationCreate;
+    path?: never;
+    query?: never;
+    url: '/revocations/request/';
+};
+
+export type RevocationsRequestResponses = {
+    201: RevocationCreated;
+};
+
+export type RevocationsRequestResponse = RevocationsRequestResponses[keyof RevocationsRequestResponses];
+
+export type ShippingOptionsRetrieveData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/shipping/';
+};
+
+export type ShippingOptionsRetrieveResponses = {
+    200: ShippingOptions;
+};
+
+export type ShippingOptionsRetrieveResponse = ShippingOptionsRetrieveResponses[keyof ShippingOptionsRetrieveResponses];
+
+export type ShippingZonesListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Number of results to return per page.
+         */
+        limit?: number;
+        /**
+         * The initial index from which to return the results.
+         */
+        offset?: number;
+        /**
+         * Which field to use when ordering the results.
+         */
+        ordering?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
+    url: '/shipping-zones/';
+};
+
+export type ShippingZonesListResponses = {
+    200: PaginatedShippingZoneList;
+};
+
+export type ShippingZonesListResponse = ShippingZonesListResponses[keyof ShippingZonesListResponses];
+
+export type ShippingZonesCreateData = {
+    body: ShippingZoneWritable;
+    path?: never;
+    query?: never;
+    url: '/shipping-zones/';
+};
+
+export type ShippingZonesCreateResponses = {
+    201: ShippingZone;
+};
+
+export type ShippingZonesCreateResponse = ShippingZonesCreateResponses[keyof ShippingZonesCreateResponses];
+
+export type ShippingZonesDestroyData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this shipping zone.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/shipping-zones/{id}/';
+};
+
+export type ShippingZonesDestroyResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type ShippingZonesDestroyResponse = ShippingZonesDestroyResponses[keyof ShippingZonesDestroyResponses];
+
+export type ShippingZonesRetrieveData = {
+    body?: never;
+    path: {
+        /**
+         * A unique integer value identifying this shipping zone.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/shipping-zones/{id}/';
+};
+
+export type ShippingZonesRetrieveResponses = {
+    200: ShippingZone;
+};
+
+export type ShippingZonesRetrieveResponse = ShippingZonesRetrieveResponses[keyof ShippingZonesRetrieveResponses];
+
+export type ShippingZonesPartialUpdateData = {
+    body?: PatchedShippingZoneWritable;
+    path: {
+        /**
+         * A unique integer value identifying this shipping zone.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/shipping-zones/{id}/';
+};
+
+export type ShippingZonesPartialUpdateResponses = {
+    200: ShippingZone;
+};
+
+export type ShippingZonesPartialUpdateResponse = ShippingZonesPartialUpdateResponses[keyof ShippingZonesPartialUpdateResponses];
+
+export type ShippingZonesUpdateData = {
+    body: ShippingZoneWritable;
+    path: {
+        /**
+         * A unique integer value identifying this shipping zone.
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/shipping-zones/{id}/';
+};
+
+export type ShippingZonesUpdateResponses = {
+    200: ShippingZone;
+};
+
+export type ShippingZonesUpdateResponse = ShippingZonesUpdateResponses[keyof ShippingZonesUpdateResponses];

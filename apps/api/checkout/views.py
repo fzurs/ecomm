@@ -20,6 +20,7 @@ from orders.models import Order, OrderItem
 from payments import services as payments
 from payments.gateway import GatewayError
 from payments.models import Payment
+from shipping.services import NoShipping
 
 from . import services
 from .models import CartItem
@@ -76,9 +77,9 @@ class CartItemView(StoreView):
     @extend_schema(operation_id="cart_items_partial_update", request=CartItemUpdateSerializer,
                    responses=CartSerializer)
     def patch(self, request, product):
-        serializer = CartItemUpdateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
         cart, item = self.get_item(request, product)
+        serializer = CartItemUpdateSerializer(data=request.data, context={"product": item.product})
+        serializer.is_valid(raise_exception=True)
         item.quantity = serializer.validated_data["quantity"]
         item.save(update_fields=["quantity"])
         return self.cart_response(cart)
@@ -97,13 +98,18 @@ class CheckoutView(StoreView):
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         customer_data = dict(serializer.validated_data)
-        shipping_address = customer_data.pop("shipping_address")
+        shipping = {field: customer_data.pop(field) for field in CheckoutSerializer.SHIPPING_FIELDS}
 
         cart = services.get_cart(request)
         try:
-            order = services.place_order(request, cart, customer_data, shipping_address)
+            order = services.place_order(request, cart, customer_data, shipping)
         except services.EmptyCart:
             raise ValidationError({"detail": "Your cart is empty."})
+        except NoShipping as exc:
+            pickup = shipping["shipping_method"] == Order.ShippingMethod.PICKUP
+            raise ValidationError({"shipping_method" if pickup else "shipping_province": str(exc)})
+        except services.NotEnoughStock as exc:
+            raise Conflict(f"There isn't enough stock of: {', '.join(exc.names)}.")
         except services.UnavailableProducts as exc:
             raise Conflict(f"These products can't be bought anymore: {', '.join(exc.names)}.")
         return Response({"number": order.number, "payment_url": payment_link(order)},
