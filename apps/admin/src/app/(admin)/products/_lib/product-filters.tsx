@@ -1,6 +1,7 @@
 import { Product } from "@workspace/api-client"
 import { createColumnConfigHelper } from "@workspace/data-table/filters"
 import {
+  BoxesIcon,
   CalendarIcon,
   CircleDotDashedIcon,
   DollarSignIcon,
@@ -69,6 +70,14 @@ export const productFilterColumns = [
     .icon(PercentIcon)
     .min(0)
     .max(100)
+    .build(),
+  dtf
+    .number()
+    .id("stock")
+    .accessor((row) => row.stock ?? 0)
+    .displayName("Stock")
+    .icon(BoxesIcon)
+    .min(0)
     .build(),
   dtf
     .option()

@@ -8,7 +8,6 @@ export const productStatuses: Record<ProductStatus, StatusDefinition> = {
   draft: { label: "Draft", color: "blue" },
   active: { label: "Active", color: "green" },
   inactive: { label: "Inactive", color: "gray" },
-  out_of_stock: { label: "Out of stock", color: "orange" },
   discontinued: { label: "Discontinued", color: "red" },
 }
 

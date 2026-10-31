@@ -2,9 +2,12 @@
 
 import { usePathname } from "next/navigation"
 import { createContext, useContext, useEffect, useState } from "react"
+import { useSession } from "@/hooks/use-auth"
 import { AssistantDrawer } from "./assistant-drawer"
 
 type AssistantContextValue = {
+  // Off in production unless the API turns it on (`assistant_enabled`).
+  isEnabled: boolean
   isOpen: boolean
   setOpen: (open: boolean) => void
   // The side panel's conversation (null for a new one). The assistant's pages
@@ -25,16 +28,18 @@ export function useAssistant() {
 
 /**
  * Holds the assistant's side panel and its conversation, so they survive
- * closing the panel and moving between pages. ⌘J / Ctrl+J toggles it.
+ * closing the panel and moving between pages. ⌘J / Ctrl+J toggles it. When the
+ * API has it turned off there's no panel, shortcut or button.
  */
 export function AssistantProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setOpen] = useState(false)
   const [conversation, setConversation] = useState<number | null>(null)
   // The assistant's pages are the chat already: no panel on top of them.
   const isAssistantPage = usePathname().startsWith("/assistant")
+  const isEnabled = useSession().user?.assistant_enabled ?? false
 
   useEffect(() => {
-    if (isAssistantPage) return
+    if (isAssistantPage || !isEnabled) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "j" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
@@ -43,19 +48,20 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
     }
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
-  }, [isAssistantPage])
+  }, [isAssistantPage, isEnabled])
 
   return (
     <AssistantContext.Provider
       value={{
-        isOpen: isOpen && !isAssistantPage,
+        isEnabled,
+        isOpen: isOpen && isEnabled && !isAssistantPage,
         setOpen,
         conversation,
         setConversation,
       }}
     >
       {children}
-      <AssistantDrawer />
+      {isEnabled && <AssistantDrawer />}
     </AssistantContext.Provider>
   )
 }

@@ -109,6 +109,20 @@ export const productColumns = [
     },
   },
   {
+    accessorKey: "stock",
+    header: "Stock",
+    cell: ({ row }) =>
+      row.original.stock ? (
+        row.original.stock
+      ) : (
+        <EmptyCell label="Out of stock" />
+      ),
+    meta: {
+      align: "right",
+      className: "tabular-nums",
+    },
+  },
+  {
     // A model property in the API, not a column: it can't be sorted or filtered.
     accessorKey: "active_price",
     header: "Final price",

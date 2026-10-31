@@ -59,6 +59,7 @@ const defaultValues: ProductEditFormValues = {
   price: null,
   discount_percent: null,
   vat_rate: 5,
+  stock: 0,
   imageFile: null,
   clearImage: false,
 }
@@ -351,6 +352,23 @@ export const ProductEditForm = withForm({
                       label="IVA"
                       description="The price includes it. Invoices discriminate it by rate."
                       options={vatRateOptions}
+                    />
+                  )}
+                />
+              </FieldGroup>
+            </FieldSet>
+            <FieldSeparator />
+            <FieldSet>
+              <FieldLegend>Inventory</FieldLegend>
+              <FieldGroup>
+                <form.AppField
+                  name="stock"
+                  children={(field) => (
+                    <field.NumberField
+                      label="Stock"
+                      description="Units for sale. An order takes them when it's placed and gives them back if it's cancelled; at 0 the store shows it out of stock."
+                      min={0}
+                      step={1}
                     />
                   )}
                 />

@@ -21,6 +21,7 @@ export function OrderItemsTable({
   showTotal = false,
   variant = "default",
   total,
+  shippingCost,
 }: {
   orderItems: OrderItem[]
   renderActions?: (index: number) => React.ReactNode
@@ -28,6 +29,8 @@ export function OrderItemsTable({
   showTotal?: boolean
   variant?: "default" | "compact"
   total?: number
+  /** A footer row before the total: the store's orders pay it. */
+  shippingCost?: number | null
 }) {
   return (
     <Table className={cn(variant === "compact" && "[&_th]:h-6")}>
@@ -79,6 +82,17 @@ export function OrderItemsTable({
       </TableBody>
       {showTotal && (
         <TableFooter>
+          {shippingCost != null && (
+            <TableRow>
+              <TableCell>Shipping</TableCell>
+              <TableCell />
+              <TableCell />
+              <TableCell className="text-right">
+                {shippingCost ? formatPrice(shippingCost) : "Free"}
+              </TableCell>
+              {renderActions && <TableCell />}
+            </TableRow>
+          )}
           <TableRow>
             <TableCell>Total</TableCell>
             <TableCell className="text-center">

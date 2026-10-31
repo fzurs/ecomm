@@ -75,6 +75,13 @@
   `new/page.tsx`, y las carpetas privadas `_components/`, `_hooks/`, `_lib/`.
 - `customers`, `products`, `brands` y `categories` también siguen este patrón, con row actions
   vía `RowActionsProvider`.
+- Envíos: `shipping-zones` (Settings) edita las zonas, con las provincias en un combobox de chips
+  (`ProvinceMultiSelect`; nombres en `src/lib/provinces.ts`). El alta y la edición comparten
+  `ShippingZoneFields`. El detalle de la orden muestra el envío y carga el seguimiento
+  (`OrderShipping`).
+- `revocations` (Sales): los pedidos del botón de arrepentimiento, con pestañas por estado (`?status=`,
+  "Requested" por defecto). Se aprueban o rechazan desde el drawer (`RevocationActions`), solo con
+  `revocations.add_revocationrequest`.
 - Las órdenes de la tienda se pagan con Mercado Pago y se facturan solas: el detalle de la orden
   muestra sus pagos (`OrderPayments`, `_lib/payment-status.ts`). Una factura automática que quedó
   `rejected` o `unverified` se resuelve con los botones de siempre.

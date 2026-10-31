@@ -88,6 +88,7 @@ function OrderViewDrawerContent({ row }: { row: Order }) {
           <OrderItemsTable
             orderItems={order.items}
             total={order.total}
+            shippingCost={order.shipping_method ? order.shipping_cost : null}
             showTotal
           />
         </div>

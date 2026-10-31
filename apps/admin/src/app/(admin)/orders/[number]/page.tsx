@@ -13,6 +13,7 @@ import { OrderStatusBadge } from "../_components/order-status-badge"
 import { OrderStatusMenu } from "../_components/order-status-menu"
 import { OrderCustomerItem } from "../_components/order-customer-item"
 import { OrderPayments } from "../_components/order-payments"
+import { OrderShipping } from "../_components/order-shipping"
 import {
   OrderInvoiceButton,
   OrderInvoices,
@@ -69,6 +70,9 @@ export default function OrdersDetailsPage() {
               <OrderItemsTable
                 orderItems={order.items}
                 total={order.total}
+                shippingCost={
+                  order.shipping_method ? order.shipping_cost : null
+                }
                 showTotal
               />
             </section>
@@ -97,12 +101,12 @@ export default function OrdersDetailsPage() {
           </section>
 
           {/* Orders from the store's checkout: the ones created here have none. */}
-          {order.shipping_address && (
+          {order.shipping_method && (
             <section className="flex flex-col gap-4 @5xl/main:col-start-1 @5xl/main:row-start-3">
               <div className="typeset">
-                <h2>Shipping address</h2>
-                <p className="whitespace-pre-line">{order.shipping_address}</p>
+                <h2>Shipping</h2>
               </div>
+              <OrderShipping order={order} />
             </section>
           )}
         </div>

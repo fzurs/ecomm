@@ -6,9 +6,10 @@ import { AssistantIcon } from "./assistant-icon"
 import { useAssistant } from "./assistant-provider"
 
 export function AssistantTrigger() {
-  const { setOpen } = useAssistant()
+  const { isEnabled, setOpen } = useAssistant()
+  const pathname = usePathname()
   // The assistant page already shows the conversation.
-  if (usePathname().startsWith("/assistant")) return null
+  if (!isEnabled || pathname.startsWith("/assistant")) return null
   return (
     <Button
       variant="ghost"

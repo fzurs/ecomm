@@ -12,6 +12,7 @@ import {
   ReceiptTextIcon,
   StarIcon,
   TagIcon,
+  BoxesIcon,
 } from "lucide-react"
 import { vatRates } from "@/lib/fiscal"
 import { formatPrice } from "@/lib/utils"
@@ -57,6 +58,11 @@ export function ProductDetails({
       label: "IVA",
       value: product.vat_rate != null && vatRates[product.vat_rate],
       icon: ReceiptTextIcon,
+    },
+    {
+      label: "Stock",
+      value: product.stock ? product.stock : "Out of stock",
+      icon: BoxesIcon,
     },
     {
       label: "Created",

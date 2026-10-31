@@ -127,6 +127,12 @@ export function AddOrderItem({
                               </Badge>
                             </>
                           )}
+                          <span>
+                            ·{" "}
+                            {product.stock
+                              ? `${product.stock} in stock`
+                              : "Out of stock"}
+                          </span>
                         </ItemDescription>
                       </ItemContent>
                       {isSelected && (
