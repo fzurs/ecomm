@@ -47,7 +47,15 @@ class AccountAdapter(DefaultAccountAdapter):
             user = get_user_model()(is_staff=False)
         return super().clean_password(password, user=user)
 
+    def is_open_for_signup(self, request):
+        # Only customers sign up, in the store. Google's signups ask here too.
+        return settings.STORE_ENABLED
+
     def send_mail(self, template_prefix, email, context):
+        if not settings.STORE_ENABLED:
+            # Every allauth email (verification, password reset, unknown account) links to the
+            # store's pages. Staff recover their account from the server (docs/production.md).
+            return
         # The emails speak for the store. Without django.contrib.sites allauth would sign them
         # with the request's host: the API's, which Next forwards to.
         store = SimpleNamespace(name=settings.STORE_NAME, domain=urlparse(settings.STORE_URL).netloc)

@@ -29,6 +29,7 @@ secretas, un Postgres y un Redis.
   - `STAFF_NOTIFICATION_EMAIL`: adonde llegan los pedidos del botón de arrepentimiento, que
     tienen plazo. `STORE_PICKUP_ADDRESS` si se ofrece el retiro en el local.
   - Detrás de un proxy que termina TLS: `SECURE_PROXY_SSL_HEADER=true`.
+  - Sin la tienda, ver **Solo el admin**: no hacen falta `STORE_URL` ni las de Mercado Pago.
 - [ ] **Tienda, datos legales**: `DATA_FISCAL_URL` (el QR de Data fiscal de ARCA, obligatorio
   para vender online) y el contacto (`STORE_CONTACT_*`) en el entorno del build de la tienda
   (`apps/web/.env.example`). Revisar los textos de `/terms`, `/privacy` y `/help/*`: son un
@@ -66,6 +67,28 @@ secretas, un Postgres y un Redis.
 - [ ] **Estáticos**: `python manage.py collectstatic --noinput` en el build. Los sirve whitenoise.
 - [ ] **Migraciones**: `python manage.py migrate` en cada deploy. Crea los triggers que protegen
   los comprobantes y sincroniza los roles.
+
+## Solo el admin
+
+La API y el admin pueden salir sin la tienda: las órdenes se cargan y se facturan desde el admin.
+Con `STORE_ENABLED=false`:
+
+- Prod no exige `STORE_URL`, `MERCADOPAGO_ACCESS_TOKEN` ni `MERCADOPAGO_WEBHOOK_SECRET`.
+- Los endpoints públicos de la tienda responden 404: carrito, checkout, `/my/orders/`, el webhook
+  de Mercado Pago y el pedido de arrepentimiento (`config.permissions.StoreEnabled`). Hace falta
+  porque el `/api` del admin reenvía todo a Django. El catálogo y `/shipping/` siguen públicos:
+  son de solo lectura.
+- Nadie se registra (tampoco con Google) y allauth no manda mails: todos linkean a páginas de la
+  tienda. El staff no recupera la contraseña por mail; se resetea desde el servidor
+  (`manage.py changepassword <usuario>`).
+- El mail de despacho al cliente sale igual, sin el link a la orden.
+- `FRONTEND_ORIGINS` lleva solo el dominio del admin. No hacen falta los crons
+  (`cancel_unpaid_orders` e `invoice_paid_orders` solo tocan órdenes con pagos de Mercado
+  Pago), ni lo de **Tienda, datos legales**
+  y **Mercado Pago**.
+
+Para sumar la tienda: `STORE_ENABLED=true`, las variables de la tienda y de Mercado Pago, su
+dominio en `FRONTEND_ORIGINS` y los crons.
 
 ## Certificado de ARCA
 

@@ -5,6 +5,8 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.permissions import StoreEnabled
+
 from . import gateway, services
 
 logger = logging.getLogger("billing")
@@ -15,7 +17,7 @@ class MercadoPagoWebhookView(APIView):
     server): its signature, and reading the payment back from Mercado Pago, are what count."""
 
     authentication_classes = []
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [StoreEnabled, permissions.AllowAny]
 
     @extend_schema(exclude=True)
     def post(self, request):

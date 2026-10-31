@@ -67,6 +67,7 @@ class OrderShippingTests(APITestCase):
         self.assertIn('on its way', message.subject)
         self.assertIn('Andreani', message.body)
         self.assertIn('AR123', message.body)
+        self.assertIn(f'http://localhost:3000/orders/{self.order.number}', message.body)
 
         self.order.refresh_from_db()
         self.assertIsNotNone(self.order.shipped_at)
@@ -74,6 +75,14 @@ class OrderShippingTests(APITestCase):
         self.client.patch(self.url, {'status': Order.Status.DELIVERED}, format='json')
         self.order.refresh_from_db()
         self.assertIsNotNone(self.order.delivered_at)
+
+    @override_settings(STORE_ENABLED=False)
+    def test_without_the_store_the_mail_has_no_link(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.patch(self.url, {'status': Order.Status.SHIPPED}, format='json')
+        [message] = mail.outbox
+        self.assertIn('on its way', message.subject)
+        self.assertNotIn('/orders/', message.body)
 
     def test_what_the_customer_paid_doesnt_change(self):
         response = self.client.patch(self.url, {'shipping_cost': 0, 'shipping_province': 'jujuy'}, format='json')

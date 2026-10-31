@@ -16,6 +16,7 @@ from billing.pdf import invoice_pdf
 from billing.rules import InvoicingError
 from config.authentication import CsrfSessionAuthentication
 from config.exceptions import Conflict, ServiceUnavailable
+from config.permissions import StoreEnabled
 from orders.models import Order, OrderItem
 from payments import services as payments
 from payments.gateway import GatewayError
@@ -43,7 +44,7 @@ class StoreView(APIView):
     cart). The store calls them from its server, with the visitor's cookies (djangoFetch)."""
 
     authentication_classes = [CsrfSessionAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [StoreEnabled, permissions.AllowAny]
 
     def cart_response(self, cart, status=status.HTTP_200_OK):
         # With the request: the images' URLs are absolute only with it (the store's origin
@@ -133,7 +134,7 @@ class MyOrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     """The visitor's orders: their account's, and the ones a guest placed in this session."""
 
     authentication_classes = [CsrfSessionAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [StoreEnabled, permissions.AllowAny]
     serializer_class = MyOrderSerializer
     lookup_field = "number"
     pagination_class = None

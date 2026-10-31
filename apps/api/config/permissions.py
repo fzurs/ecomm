@@ -1,4 +1,5 @@
 from django.conf import settings
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import BasePermission, DjangoModelPermissions
 
 from accounts.mfa import passed_mfa
@@ -20,6 +21,17 @@ def is_verified_staff(permission, request) -> bool:
 class IsVerifiedStaff(BasePermission):
     def has_permission(self, request, view):
         return is_verified_staff(self, request)
+
+
+class StoreEnabled(BasePermission):
+    """The store's public endpoints (cart, checkout, its orders, Mercado Pago's webhook, the
+    revocation button), for anybody. Without the store (STORE_ENABLED=false) they don't exist:
+    the admin's /api forwards everything to Django, and they'd be reachable through it."""
+
+    def has_permission(self, request, view):
+        if not settings.STORE_ENABLED:
+            raise NotFound
+        return True
 
 
 class StaffModelPermissions(DjangoModelPermissions):

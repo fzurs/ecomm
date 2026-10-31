@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 
 from config.authentication import CsrfSessionAuthentication
 from config.exceptions import Conflict, ServiceUnavailable
+from config.permissions import StoreEnabled
 from payments.gateway import GatewayError
 
 from . import services
@@ -35,7 +36,7 @@ class RevocationCreateView(APIView):
     """The store's "botón de arrepentimiento": with the order's number and email, no session."""
 
     authentication_classes = [CsrfSessionAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [StoreEnabled, permissions.AllowAny]
     throttle_classes = [RevocationThrottle]
 
     @extend_schema(operation_id="revocations_request", request=RevocationCreateSerializer,

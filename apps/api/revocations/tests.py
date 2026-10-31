@@ -92,6 +92,14 @@ class RequestTests(RevocationTestCase):
         self.assertEqual(self.ask(client=client).status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
+    def test_without_the_store_there_is_no_button(self):
+        self.pay()
+        with override_settings(STORE_ENABLED=False):
+            self.assertEqual(self.ask().status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(RevocationRequest.objects.exists())
+        self.assertEqual(mail.outbox, [])
+
+
 class ResolveTests(RevocationTestCase):
     def setUp(self):
         super().setUp()

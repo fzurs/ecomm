@@ -154,6 +154,10 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # The link completes the login that was waiting for it, only in the browser that signed up
 # (allauth keeps it in that session): a leaked link logs nobody in.
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+# Whether the store (apps/web) is deployed. Without it (false: only the admin in production) its
+# public endpoints answer 404 (config.permissions.StoreEnabled), nobody signs up, and allauth
+# sends no emails: they all link to the store's pages (accounts.adapter.AccountAdapter).
+STORE_ENABLED = env.bool("STORE_ENABLED", default=True)
 # The store: the links in the account emails (verification, password reset) go to its pages, and
 # the emails are signed with its name.
 STORE_URL = env("STORE_URL", default="http://localhost:3000").rstrip("/")

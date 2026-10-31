@@ -503,6 +503,23 @@ class StoreAccountTests(APITestCase):
                 self.assertEqual(response.json()['errors'][0]['param'], 'password')
         self.assertEqual(signup('mar azul').status_code, status.HTTP_401_UNAUTHORIZED)
 
+    @override_settings(STORE_ENABLED=False)
+    def test_without_the_store_nobody_signs_up_nor_gets_its_emails(self):
+        self.assertEqual(self.signup().status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(User.objects.exists())
+        # The emails' links would go to a store that isn't there.
+        self.customer()
+        for email in ['ana@example.com', 'nadie@example.com']:
+            response = self.client.post(f'{ALLAUTH}/auth/password/request', {'email': email}, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(mail.outbox, [])
+        # The admin's login is the same.
+        staff = make_staff('otro')
+        staff.set_password(PASSWORD)
+        staff.save()
+        response = self.client.post(f'{ALLAUTH}/auth/login', {'username': 'otro', 'password': PASSWORD}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class PasswordLengthTests(SimpleTestCase):
     """accounts.validators.MinimumLengthValidator: 8 characters for customers, 12 for staff."""

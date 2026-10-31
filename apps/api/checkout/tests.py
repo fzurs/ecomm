@@ -156,6 +156,23 @@ class CartTests(CartTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+@override_settings(STORE_ENABLED=False)
+class WithoutStoreTests(CartTestCase):
+    """Only the admin deployed: the store's endpoints don't exist, not even through its /api."""
+
+    def test_the_cart_the_checkout_and_the_orders_answer_404(self):
+        self.assertEqual(self.client.get(reverse('cart')).status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.add(self.hammer).status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.checkout().status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.get(reverse('my-order-list')).status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(Order.objects.exists())
+
+    def test_the_admin_works_the_same(self):
+        self.client.force_login(make_staff())
+        self.assertEqual(self.client.get(reverse('order-list')).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get(reverse('product-list')).status_code, status.HTTP_200_OK)
+
+
 class LoginMergeTests(CartTestCase):
     def test_the_guest_cart_becomes_the_account_one(self):
         user = self.customer_user()

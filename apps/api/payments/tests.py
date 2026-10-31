@@ -124,6 +124,13 @@ class WebhookTests(PaymentTestCase):
         self.assertIn('Payment received', message.subject)
         self.assertEqual(message.to, ['ana@example.com'])
 
+    def test_without_the_store_there_is_no_webhook(self):
+        order, _ = self.place_order()
+        with override_settings(STORE_ENABLED=False):
+            self.assertEqual(self.notify(mp_payment(order)).status_code, status.HTTP_404_NOT_FOUND)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PENDING)
+
     def test_the_same_notification_again_changes_nothing(self):
         order, _ = self.place_order()
         self.notify(mp_payment(order))

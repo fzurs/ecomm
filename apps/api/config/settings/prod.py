@@ -6,7 +6,7 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *  # noqa: F403
-from .base import BASE_DIR, CACHES, MIDDLEWARE, env
+from .base import BASE_DIR, CACHES, MIDDLEWARE, STORE_ENABLED, env
 
 DEBUG = False
 
@@ -26,16 +26,20 @@ SILENCED_SYSTEM_CHECKS = ["security.W021"]
 if env.bool("SECURE_PROXY_SSL_HEADER", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# Account emails (verification, password reset), sent for real. Their links go to the store, so
+# Emails (accounts, orders), sent for real. The account emails link to the store, so with it
 # STORE_URL is required too (base.py builds HEADLESS_FRONTEND_URLS from it).
-if "STORE_URL" not in env.ENVIRON:
-    raise ImproperlyConfigured("STORE_URL: the account emails link to the store")
 vars().update(env.email_url("EMAIL_URL"))
 
-# The store charges with Mercado Pago, and paid orders are invoiced in ARCA.
-for name in ("MERCADOPAGO_ACCESS_TOKEN", "MERCADOPAGO_WEBHOOK_SECRET"):
-    if name not in env.ENVIRON:
-        raise ImproperlyConfigured(f"{name}: the store's payments")
+# The store charges with Mercado Pago, and paid orders are invoiced in ARCA. Without the store
+# (STORE_ENABLED=false) the admin invoices its orders by hand: none of this is needed.
+if STORE_ENABLED:
+    for name, reason in (
+        ("STORE_URL", "the account emails link to the store"),
+        ("MERCADOPAGO_ACCESS_TOKEN", "the store's payments"),
+        ("MERCADOPAGO_WEBHOOK_SECRET", "the store's payments"),
+    ):
+        if name not in env.ENVIRON:
+            raise ImproperlyConfigured(f"{name}: {reason}")
 AUTO_INVOICE = env("AUTO_INVOICE", default="arca")
 if AUTO_INVOICE == "sample":
     raise ImproperlyConfigured("AUTO_INVOICE=sample makes up vouchers: never in production")

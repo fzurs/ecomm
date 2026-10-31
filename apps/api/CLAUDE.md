@@ -19,6 +19,11 @@
   ahí. En dev Django las sirve por el path de esa URL (`config/urls.py`).
 - Caches: `default` es locmem en dev y tests, y Redis en prod (los rate limits de allauth valen
   para todos los workers); `arca` es Redis (los tickets de acceso se comparten entre workers).
+- `STORE_ENABLED` (True por defecto): en false (solo el admin en producción) los endpoints públicos
+  de la tienda responden 404 (`config.permissions.StoreEnabled`; uno nuevo de la tienda la usa
+  como `permission_classes`), el registro se cierra y allauth no manda mails
+  (`accounts.adapter.AccountAdapter`), y prod no exige `STORE_URL` ni las variables de Mercado
+  Pago. Ver "Solo el admin" en `docs/production.md`.
 - `ASSISTANT_ENABLED` (False por defecto en prod): el asistente manda datos de clientes a
   Anthropic. `assistant.service.is_enabled()` lo junta con la key, y `/auth/user/` lo expone como
   `assistant_enabled` para que el admin lo oculte.

@@ -40,7 +40,8 @@ def send_order_shipped_email(order_id: int):
             render_to_string("orders/order_shipped.txt", {
                 "order": order,
                 "store_name": settings.STORE_NAME,
-                "order_url": f"{settings.STORE_URL}/orders/{order.number}",
+                # The admin ships without the store too (STORE_ENABLED): no page to link to then.
+                "order_url": f"{settings.STORE_URL}/orders/{order.number}" if settings.STORE_ENABLED else None,
                 "pickup_address": settings.STORE_PICKUP_ADDRESS,
             }),
             None,
