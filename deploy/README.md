@@ -152,8 +152,13 @@ soporta.
 cd /srv/ecomm
 docker compose -f deploy/compose.yml --env-file /etc/ecomm/compose.env build api
 docker compose -f deploy/compose.yml --env-file /etc/ecomm/compose.env run --rm --no-deps \
-  -v /etc/ecomm/arca:/run/arca -w /run/arca api arca-setup
+  -v /etc/ecomm/arca:/arca-setup -w /arca-setup api arca-setup
 ```
+
+La carpeta va en `/arca-setup` y no en `/run/arca`: ahí el servicio ya la monta de solo lectura.
+En el servidor queda en el mismo lugar (`/etc/ecomm/arca`), que la API ve como `/run/arca`.
+Al final, el asistente ofrece probar un login contra el WSAA: **responder que no**. El ticket que
+obtiene quedaría en el contenedor descartable, y ARCA no entrega otro a la API por hasta 12 h.
 
 ### Etapa de prueba: homologación
 
@@ -166,7 +171,7 @@ queda sin poder facturar.
    - ambiente `homologacion`;
    - la misma CUIT que en desarrollo;
    - alias `ecomm-server`;
-   - carpeta base `/run/arca`.
+   - carpeta base `/arca-setup`.
 
    Los archivos quedan en `/etc/ecomm/arca/homologacion/ecomm-server.{key,crt}`.
 2. Pegar el CSR en *WSASS - Autogestión Certificados Homologación* y pegar el certificado
@@ -184,7 +189,7 @@ Lo que hay que saber de esta etapa:
 ### Pasar a facturar de verdad
 
 1. Generar el certificado de producción con el mismo asistente:
-   - ambiente `produccion`, alias `ecomm` y carpeta base `/run/arca`;
+   - ambiente `produccion`, alias `ecomm` y carpeta base `/arca-setup`;
    - el CSR se pega en *Administración de Certificados Digitales*, con clave fiscal;
    - en *Administrador de Relaciones de Clave Fiscal*, asociar el certificado al servicio `wsfe`.
 2. Dar de alta un punto de venta para **web services** (*Administración de puntos de venta y
