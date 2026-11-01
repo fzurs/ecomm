@@ -19,6 +19,9 @@ COPY --from=prune /repo/out/full/ .
 # Read at build time: the rewrites to Django and next/image's allowed host (next.config.mjs).
 ARG API_URL
 ARG MEDIA_URL
+# Node sizes its heap from the machine's RAM: on a small server the type check runs out. With
+# more room it can lean on the swap.
+ENV NODE_OPTIONS=--max-old-space-size=3072
 RUN test -n "$API_URL" && test -n "$MEDIA_URL" && pnpm --filter admin build
 
 FROM node:24-slim
