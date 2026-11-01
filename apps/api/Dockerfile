@@ -19,5 +19,6 @@ COPY --chown=app:app . .
 USER app
 EXPOSE 8000
 # collectstatic on start: prod.py needs the server's environment. Then gunicorn, with room for
-# ARCA's slow answers.
-CMD ["sh", "-c", "python manage.py collectstatic --noinput -v0 && exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3 --timeout 60 --access-logfile -"]
+# ARCA's slow answers. Each worker is a Django process (~100-150 MB): WEB_CONCURRENCY in api.env
+# sets how many, 3 by default.
+CMD ["sh", "-c", "python manage.py collectstatic --noinput -v0 && exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers ${WEB_CONCURRENCY:-3} --timeout 60 --access-logfile -"]

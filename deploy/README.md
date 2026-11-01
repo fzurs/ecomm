@@ -117,6 +117,7 @@ Ubuntu 24.04 LTS, 2 vCPU y 4 GB de RAM.
    EMAIL_URL=smtp+tls://<usuario>:<clave>@<host>:587
    DEFAULT_FROM_EMAIL=<Nombre> <no-reply@<dominio>>
    STORE_NAME=<Nombre>
+   WEB_CONCURRENCY=2                    # workers de gunicorn (3 si se omite); 2 en un servidor de 1 GB
    ```
    Notas sobre `api.env`:
    - `ALLOWED_HOSTS=api`: el rewrite del admin llega a Django con el host de `API_URL`.
