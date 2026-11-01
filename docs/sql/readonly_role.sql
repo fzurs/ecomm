@@ -1,11 +1,12 @@
--- Read-only role for diagnostics in production (see docs/production.md). Run it once as the
--- owner of the app's tables, replacing ecomm with the database name.
+-- Read-only role for diagnostics in production (see docs/production.md). The app's user can't
+-- create roles (it isn't a superuser), so it goes in two steps (deploy/README.md):
+--   1. as a superuser: CREATE ROLE ecomm_readonly NOLOGIN;
+--   2. this file, once, as the owner of the app's tables (replacing ecomm with the database name):
+--      the default privileges apply to the tables that owner creates later.
 --
--- Each person gets their own login that inherits it, never the app's user:
---   CREATE ROLE fede LOGIN PASSWORD '...' IN ROLE ecomm_readonly;
+-- Each person gets their own login that inherits it (created as a superuser), never the app's user:
+--   CREATE ROLE franco LOGIN PASSWORD '...' IN ROLE ecomm_readonly;
 -- and drops it when they no longer need it.
-
-CREATE ROLE ecomm_readonly NOLOGIN;
 
 GRANT CONNECT ON DATABASE ecomm TO ecomm_readonly;
 GRANT USAGE ON SCHEMA public TO ecomm_readonly;

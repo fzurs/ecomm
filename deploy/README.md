@@ -224,8 +224,11 @@ Hace `git pull` y el build de las imágenes, levanta Postgres y Redis, corre `mi
 
 Después, una sola vez:
 
-1. **Rol de solo lectura:** se crea con las tablas ya hechas, como el dueño de la base.
+1. **Rol de solo lectura:** el rol lo crea el superusuario (el de la app no puede crear roles), y
+   los permisos los da el dueño de las tablas, con las tablas ya hechas.
    ```bash
+   docker compose -f deploy/compose.yml --env-file /etc/ecomm/compose.env exec -T db \
+     psql -U postgres -c "CREATE ROLE ecomm_readonly NOLOGIN;"
    docker compose -f deploy/compose.yml --env-file /etc/ecomm/compose.env exec -T db \
      psql -U ecomm ecomm < docs/sql/readonly_role.sql
    ```
@@ -262,7 +265,7 @@ porque cambian los build args.
    - La pública (`age1...`) va en `AGE_RECIPIENT`.
 2. **Cron del servidor** (`crontab -e`), todos los días a las 4 (UTC):
    ```
-   0 4 * * * docker compose -f /srv/ecomm/deploy/compose.yml --env-file /etc/ecomm/compose.env run --rm backup >> /var/log/ecomm-backup.log 2>&1
+   0 4 * * * docker compose -f /srv/ecomm/deploy/compose.yml --env-file /etc/ecomm/compose.env run --rm backup >> $HOME/ecomm-backup.log 2>&1
    ```
 3. **Restauración, probada al menos una vez antes de cargar datos reales.**
    - Se hace en una base aparte. **Nunca se copia la base de producción a una máquina local**
