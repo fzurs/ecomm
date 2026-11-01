@@ -48,7 +48,7 @@ pycparser==3.0
 pydantic==2.14.1
 pydantic_core==2.50.1
 PyJWT==2.15.1
-python-dateutil==3.0.0
+python-dateutil==2.9.0.post0
 PyYAML==6.0.3
 qrcode==8.2
 redis==8.1.0
